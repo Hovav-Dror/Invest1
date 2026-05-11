@@ -41,6 +41,20 @@ The fixture export loads `Invest.rda` once and records object metadata in `tests
 | `SP500US` | `1837 x 3` | `1871-01-01` to `2024-01-01` | Monthly S&P US CPI/real return data |
 | `US_Small_Cap_Value_Monthly` | `624 x 3` | `1972-02-01` to `2024-01-01` | Monthly US small-cap-value data |
 
+## 2024/2025 Data Refresh
+
+The original Phase 1 baseline above remains the parity reference for the R
+export. The migrated app now applies a separate, explicit refresh with
+`scripts/apply_2024_2025_refresh.py`:
+
+- `SP500DIV` and `SP500US` are extended through `2026-01-01`.
+- `LazyReturns1` is extended through 2025 for `S&P 500` and `US Small Cap Value`.
+- Refresh source metadata is stored in `data/sources.json` and linked from
+  `data/manifest.json`.
+- SCV annual returns use the MSCI USA Small Cap Value Weighted net USD index
+  factsheet, which is a closer direct source for the SCV exposure than the old
+  stale local monthly export.
+
 ## Fixture Script
 
 Run from the target repo root:

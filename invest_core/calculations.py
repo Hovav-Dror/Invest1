@@ -10,14 +10,14 @@ import pandas as pd
 from invest_core.data import InvestData, load_data
 
 DEFAULT_TAX_START = "1993-01-01"
-DEFAULT_TAX_END = "2023-01-01"
+DEFAULT_TAX_END = "2026-01-01"
 DEFAULT_COMMISSIONS = (0.0, 0.2, 0.7)
 DEFAULT_KUPAT_START_YEAR = 1995
 DEFAULT_KUPAT_AGE = 40
 DEFAULT_KUPAT_INITIAL = 70000
 DEFAULT_KUPAT_PENSION_MONTHS = 250
 DEFAULT_INDEPENDENT_START = "2000-01-01"
-DEFAULT_INDEPENDENT_END = "2023-01-01"
+DEFAULT_INDEPENDENT_END = "2026-01-01"
 DEFAULT_TRINITY_PORTFOLIO = "S&P 500"
 DEFAULT_TRINITY_DRAW = 0.04
 DEFAULT_TRINITY_YEARS = 30
@@ -244,7 +244,7 @@ def portfolio_table(
     data: InvestData | None = None,
     portfolios: Iterable[str] = DEFAULT_PORTFOLIOS,
     year_start: int = 1955,
-    year_end: int = 2023,
+    year_end: int = 2025,
     commission_adjusted: bool = True,
     value_mode: str = "cpi_il",
 ) -> pd.DataFrame:
@@ -283,7 +283,7 @@ def portfolio_summary(
     data: InvestData | None = None,
     portfolios: Iterable[str] = DEFAULT_PORTFOLIOS,
     year_start: int = 1955,
-    year_end: int = 2023,
+    year_end: int = 2025,
     commission_adjusted: bool = True,
     value_mode: str = "cpi_il",
 ) -> pd.DataFrame:
@@ -487,7 +487,7 @@ def portfolio_over_time(
     data: InvestData | None = None,
     portfolios: Iterable[str] = DEFAULT_PORTFOLIOS,
     year_start: int = 1955,
-    year_end: int = 2023,
+    year_end: int = 2025,
     commission_adjusted: bool = True,
     value_mode: str = "cpi_il",
     rolling_window: int | None = None,
@@ -592,7 +592,7 @@ def sp500_scv_rolling(
         & (source["Portfolio"].isin(["S&P 500", "US Small Cap Value"]))
         & (source["Year"] >= min_index_year)
         & (source["Year"] >= 1969 - window)
-        & (source["Year"] <= 2023),
+        & (source["Year"] <= source["Year"].max()),
         ["Year", "Portfolio", "CPI_IL", "USD", "YearReturn", "index"],
     ].copy()
 

@@ -1,0 +1,33 @@
+{
+  "sp500_monthly_total_return": {
+    "name": "YCharts S&P 500 Monthly Total Return",
+    "url": "https://ycharts.com/indicators/sp_500_monthly_total_return",
+    "coverage_applied": "2024-01 through 2025-12 monthly returns"
+  },
+  "sp500_annual_total_return_cross_check": {
+    "name": "Slickcharts S&P 500 Total Returns by Year",
+    "url": "https://www.slickcharts.com/sp500/returns",
+    "coverage_applied": "2024 and 2025 annual S&P 500 total-return cross-check"
+  },
+  "scv_annual_return": {
+    "name": "MSCI USA Small Cap Value Weighted Index factsheet, net USD returns",
+    "url": "https://www.msci.com/documents/10199/83700218-af0a-4993-b962-00de11158106",
+    "coverage_applied": "2024 and 2025 US Small Cap Value annual returns"
+  },
+  "usd_ils": {
+    "name": "Bank of Israel daily representative USD/ILS exchange rates",
+    "url": "https://edge.boi.gov.il/FusionEdgeServer/sdmx/v2/data/dataflow/BOI.STATISTICS/EXR/1.0/RER_USD_ILS?c%5BDATA_TYPE%5D=OF00&startperiod=2023-12-01&format=csv",
+    "coverage_applied": "monthly last available daily rate through 2026-01"
+  },
+  "israel_cpi": {
+    "name": "Israel Central Bureau of Statistics CPI, series 120010",
+    "url": "https://api.cbs.gov.il/index/data/price?id=120010&format=csv&download=false&startPeriod=01-2024&lang=en",
+    "coverage_applied": "monthly CPI through 2026-01, chained across the Average 2024 rebasing"
+  },
+  "us_cpi": {
+    "name": "FRED CPIAUCSL",
+    "url": "https://fred.stlouisfed.org/series/CPIAUCSL",
+    "download_url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CPIAUCSL",
+    "coverage_applied": "monthly CPI-U through 2026-01; one blank interior FRED CSV value is linearly interpolated"
+  }
+}

@@ -25,9 +25,9 @@
   ]);
   const taxDateRange = {
     min: "1871-01-01",
-    max: "2024-01-01",
+    max: "2026-01-01",
     start: "1993-01-01",
-    end: "2023-01-01"
+    end: "2026-01-01"
   };
 
   const ui = {
@@ -691,10 +691,18 @@
             "ולמען הסר ספק: אין כאן שירות, המלצה מסחרית או ניסיון למכור משהו. אני לא מבקש פרטים אישיים, לא מקבל תמורה מאף גוף, ולא מנסה לשכנע לעבוד עם ספק או בית השקעות מסוים.",
             [
               "כל נתוני הגלם מגיעים ממקורות מידע גלויים. חלקם כתובים בדפים עצמם. בכל מקרה, יש שימוש ",
-              { text: "בנתוני בנק ישראל על מדד המחירים לצרכן", href: "https://boi.org.il/roles/statistics/real/%D7%9E%D7%93%D7%93%D7%99-%D7%9E%D7%97%D7%99%D7%A8%D7%99%D7%9D/" },
+              { text: "בנתוני הלמ\"ס על מדד המחירים לצרכן", href: "https://api.cbs.gov.il/index/data/price?id=120010&format=csv&download=false&startPeriod=01-2024&lang=en" },
               " ועל ",
               { text: "שער הדולר", href: "https://edge.boi.gov.il/FusionEdgeServer/sdmx/v2/data/dataflow/BOI.STATISTICS/EXR/1.0/RER_USD_ILS?c%5BDATA_TYPE%5D=OF00&startperiod=1999-01-01&format=csv" },
-              " לאורך החודשים והשנים, ב API של ",
+              " לאורך החודשים והשנים, ב",
+              { text: "מדד המחירים האמריקאי CPIAUCSL של FRED", href: "https://fred.stlouisfed.org/series/CPIAUCSL" },
+              ", בנתוני ",
+              { text: "S&P 500 Total Return חודשיים", href: "https://ycharts.com/indicators/sp_500_monthly_total_return" },
+              " ובבדיקת תשואה שנתית מול ",
+              { text: "Slickcharts", href: "https://www.slickcharts.com/sp500/returns" },
+              ", בנתוני ",
+              { text: "MSCI USA Small Cap Value Weighted", href: "https://www.msci.com/documents/10199/83700218-af0a-4993-b962-00de11158106" },
+              " עבור עדכון SCV ל-2024 ו-2025, ב API של ",
               { text: "Yahoo Finance", href: "https://finance.yahoo.com/" },
               " דרך ",
               { text: "quantmod", href: "https://www.quantmod.com/" },
@@ -915,7 +923,7 @@
       kicker: "חלונות היסטוריים, שנים רעות, ומה קורה גם אחרי עשור ויותר",
       endpoint: "sp500_risk",
       controls: [
-        dateRangeSlider({ start: "1871-01-01", end: "2024-01-01" }),
+        dateRangeSlider({ start: "1871-01-01", end: "2026-01-01" }),
         field("years", "שנות השקעה", "number", "15", "1", "חלון בדיקה"),
         field("threshold", "חשב גם % זמן מעל", "number", "4", "0.5", "אחוזים")
       ],
@@ -937,13 +945,13 @@
       kicker: "המרת מטבע, מינימום פעולה, דמי משמרת והשוואת מס ישראלי מול דולרי",
       multiChart: true,
       controls: [
-        dateRangeSlider({ start: "2000-01-01", end: "2023-01-01" }),
+        dateRangeSlider({ start: "2000-01-01", end: "2026-01-01" }),
         field("initial", "סכום התחלתי", "number", "100000", "1000", "שקלים"),
         field("share_price", "מחיר יחידה", "number", "50", "0.01", "דולר"),
-        field("dollar_commission", "עמלת המרה", "number", "0.005", "0.001", "שיעור"),
+        field("dollar_commission", "עמלת המרה", "number", "0.005", "0.001", "אחוזים"),
         field("commission_per_share", "עמלה ליחידה", "number", "0.01", "0.001", "דולר"),
         field("min_dollar_commission", "מינימום פעולה", "number", "7.5", "0.1", "דולר"),
-        field("yearly_commission", "דמי ניהול שנתיים", "number", "0.003", "0.001", "שיעור")
+        field("yearly_commission", "דמי ניהול שנתיים", "number", "0.003", "0.001", "אחוזים")
       ],
       panels: [
         {
@@ -1041,7 +1049,7 @@
                 textBefore: "MSCI World ex USA index data from ",
                 linkText: "https://www.upmyinterest.com/msci-world-ex-us",
                 href: "https://www.upmyinterest.com/msci-world-ex-us",
-                textAfter: " over the years 1970-2023"
+                textAfter: " over the years 1970-2025"
               }
             ]
           },
@@ -1072,7 +1080,7 @@
                 textBefore: "MSCI World ex USA index data from ",
                 linkText: "https://www.upmyinterest.com/msci-world-ex-us",
                 href: "https://www.upmyinterest.com/msci-world-ex-us",
-                textAfter: " over the years 1970-2023"
+                textAfter: " over the years 1970-2025"
               }
             ]
           },
@@ -1102,7 +1110,7 @@
               options: portfolioChoices.map((name) => [name, name])
             },
             { kind: "range", name: "rolling_window", label: "מספר שנות השקעה", value: "10", min: "1", max: "30", step: "1", ticks: ["1", "4", "7", "10", "13", "16", "19", "22", "25", "28", "30"] },
-            { kind: "rangePair", label: "שנות השקעה", startName: "year_start", endName: "year_end", start: "1980", end: "2023", min: "1950", max: "2023", step: "1", ticks: ["1950", "1958", "1966", "1974", "1982", "1990", "1998", "2006", "2014", "2023"], style: "dateRange" },
+            { kind: "rangePair", label: "שנות השקעה", startName: "year_start", endName: "year_end", start: "1980", end: "2025", min: "1950", max: "2025", step: "1", ticks: ["1950", "1958", "1966", "1974", "1982", "1990", "1998", "2006", "2014", "2025"], style: "dateRange" },
             { kind: "hidden", name: "commission_adjusted", value: "true" }
           ],
           intro: [
@@ -1183,7 +1191,7 @@
               options: portfolioChoices.map((name) => [name, name])
             },
             { kind: "range", name: "rolling_window", label: "מספר שנות השקעה", value: "15", min: "1", max: "30", step: "1", ticks: ["1", "4", "7", "10", "13", "16", "19", "22", "25", "28", "30"] },
-            { kind: "rangePair", label: "שנות השקעה", startName: "year_start", endName: "year_end", start: "1969", end: "2023", min: "1950", max: "2023", step: "1", ticks: ["1950", "1958", "1966", "1974", "1982", "1990", "1998", "2006", "2014", "2023"], style: "dateRange" },
+            { kind: "rangePair", label: "שנות השקעה", startName: "year_start", endName: "year_end", start: "1969", end: "2025", min: "1950", max: "2025", step: "1", ticks: ["1950", "1958", "1966", "1974", "1982", "1990", "1998", "2006", "2014", "2025"], style: "dateRange" },
             {
               kind: "segmented",
               name: "return_mode",
@@ -1346,6 +1354,8 @@
   let runTimer = null;
   let requestSeq = 0;
   let chartHost = null;
+  const moneyInputNames = new Set(["initial", "base"]);
+  const percentFractionInputNames = new Set(["dollar_commission", "yearly_commission"]);
 
   function field(name, label, type, value, step, hint) {
     return { kind: "field", name, label, type, value, step, hint };
@@ -1355,7 +1365,7 @@
     return field("start", label, "date", value);
   }
 
-  function dateEnd(value = "2023-01-01", label = "עד תאריך") {
+  function dateEnd(value = "2026-01-01", label = "עד תאריך") {
     return field("end", label, "date", value);
   }
 
@@ -1368,7 +1378,7 @@
   }
 
   function yearEnd() {
-    return field("year_end", "עד שנה", "number", "2023", "1", "שנת סיום");
+    return field("year_end", "עד שנה", "number", "2025", "1", "שנת סיום");
   }
 
   function commissionsField() {
@@ -1463,9 +1473,17 @@
         input.checked = control.checked;
       } else {
         input.type = control.type;
-        input.value = control.value;
-        if (control.step) input.step = control.step;
-        if (control.name === "initial") input.inputMode = "decimal";
+        if (moneyInputNames.has(control.name)) input.type = "text";
+        input.value = displayInputValue(control.name, control.value);
+        if (control.step) input.step = displayInputStep(control.name, control.step);
+        if (percentFractionInputNames.has(control.name)) {
+          input.min = "0";
+          input.max = "100";
+        }
+        if (moneyInputNames.has(control.name) || percentFractionInputNames.has(control.name)) {
+          input.inputMode = "decimal";
+          input.dataset.format = moneyInputNames.has(control.name) ? "money" : "percentFraction";
+        }
       }
 
       const label = document.createElement("label");
@@ -1494,13 +1512,58 @@
     }
   }
 
+  function displayInputValue(name, value) {
+    if (moneyInputNames.has(name)) return formatInputNumber(value, 2);
+    if (percentFractionInputNames.has(name)) return trimInputNumber(Number(value) * 100, 4);
+    return value;
+  }
+
+  function displayInputStep(name, step) {
+    if (percentFractionInputNames.has(name)) return trimInputNumber(Number(step) * 100, 4);
+    return step;
+  }
+
+  function normalizeNumberText(value) {
+    return String(value || "").replace(/,/g, "").replace(/\s/g, "");
+  }
+
+  function normalizeInputValue(name, value) {
+    const cleaned = normalizeNumberText(value);
+    if (moneyInputNames.has(name)) return cleaned;
+    if (percentFractionInputNames.has(name)) return cleaned;
+    return value;
+  }
+
+  function trimInputNumber(value, maximumFractionDigits = 2) {
+    const number = Number(value);
+    if (!Number.isFinite(number)) return "";
+    return number.toLocaleString("en-US", {
+      maximumFractionDigits,
+      useGrouping: false
+    });
+  }
+
+  function formatInputNumber(value, maximumFractionDigits = 2) {
+    const number = Number(normalizeNumberText(value));
+    if (!Number.isFinite(number)) return value || "";
+    return number.toLocaleString("en-US", {
+      maximumFractionDigits
+    });
+  }
+
+  function formatInputDisplay(input) {
+    if (!input || !input.dataset) return;
+    if (input.dataset.format === "money") input.value = formatInputNumber(input.value, 2);
+    if (input.dataset.format === "percentFraction") input.value = trimInputNumber(input.value, 4);
+  }
+
   function updateTrinityDrawSummary() {
     const summary = els.controls.querySelector(".trinity-draw-summary");
     if (!summary) return;
     const drawInput = els.controls.querySelector('input[name="yearly_draw"]');
     const baseInput = els.controls.querySelector('input[name="base"]');
     const drawPercent = Number(drawInput && drawInput.value) || 0;
-    const base = Number(baseInput && baseInput.value) || 0;
+    const base = Number(normalizeNumberText(baseInput && baseInput.value)) || 0;
     const monthly = base * (drawPercent / 100) / 12;
     summary.innerHTML = `
       <p>משיכה חודשית של ${escapeHtml(formatShekel(monthly, 1))} (צמודה למדד)</p>
@@ -1809,14 +1872,14 @@
           <div class="date-range-tracks" dir="ltr">
             <div class="date-range-thumb-labels">
               <span data-range-output="start">1955</span>
-              <span data-range-output="end">2023</span>
+              <span data-range-output="end">2025</span>
             </div>
             <div class="date-range-rail"></div>
-            <input type="range" name="year_start" value="1955" min="1880" max="2023" step="1">
-            <input type="range" name="year_end" value="2023" min="1880" max="2023" step="1">
+            <input type="range" name="year_start" value="1955" min="1880" max="2025" step="1">
+            <input type="range" name="year_end" value="2025" min="1880" max="2025" step="1">
             <div class="date-range-ticks">
-              ${[1880, 1900, 1920, 1940, 1960, 1980, 2000, 2023].map((year) => {
-                const left = ((year - 1880) / (2023 - 1880)) * 100;
+              ${[1880, 1900, 1920, 1940, 1960, 1980, 2000, 2025].map((year) => {
+                const left = ((year - 1880) / (2025 - 1880)) * 100;
                 return `<span style="left:${left}%">${year}</span>`;
               }).join("")}
             </div>
@@ -1866,7 +1929,7 @@
       highlight: checkedValues(shared, "highlight"),
       factor_years: Number(valueOf(shared, "factor_years", "15")) || 15,
       year_start: Number(valueOf(shared, "year_start", "1955")) || 1955,
-      year_end: Number(valueOf(shared, "year_end", "2023")) || 2023,
+      year_end: Number(valueOf(shared, "year_end", "2025")) || 2025,
       commission_adjusted: Boolean(shared.querySelector('input[name="commission_adjusted"]:checked')),
       time_type: valueOf(timeControls, "time_type", "Accumulate"),
       rolling_window: Number(valueOf(timeControls, "rolling_window", "10")) || 10
@@ -2324,6 +2387,7 @@
     const state = {};
     const data = new FormData(els.controls);
     data.forEach((value, key) => {
+      value = normalizeInputValue(key, value);
       if (state[key]) {
         state[key] = `${state[key]},${value}`;
       } else {
@@ -2398,7 +2462,7 @@
       }
       if (key === "commissions" || key === "portfolios") {
         value.split(",").map((part) => part.trim()).filter(Boolean).forEach((part) => params.append(key, part));
-      } else if (endpoint === "sp500_risk" && key === "threshold") {
+      } else if (percentFractionInputNames.has(key) || (endpoint === "sp500_risk" && key === "threshold")) {
         params.set(key, String(Number(value) / 100));
       } else {
         params.set(key, value);
@@ -4609,7 +4673,11 @@
     if (activeView.id === "trinity" && event.target.matches('input[name="yearly_draw"], input[name="base"]')) updateTrinityDrawSummary();
     scheduleRun();
   });
+  els.controls.addEventListener("focusout", (event) => {
+    if (event.target.matches("input[data-format]")) formatInputDisplay(event.target);
+  });
   els.controls.addEventListener("change", (event) => {
+    if (event.target.matches("input[data-format]")) formatInputDisplay(event.target);
     if (event.target.matches(".date-range-control input")) updateDateRangeReadout();
     if (activeView.id === "trinity" && event.target.matches('input[name="yearly_draw"], input[name="base"]')) updateTrinityDrawSummary();
     scheduleRun();

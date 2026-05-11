@@ -205,7 +205,7 @@ def _parse_sp500_risk_args(args) -> Params:
     _reject_unknown(args, {"years", "threshold", "start", "end"})
     params = {
         "start": _get_date(args, "start", "1871-01-01"),
-        "end": _get_date(args, "end", "2024-01-01"),
+        "end": _get_date(args, "end", "2026-01-01"),
         "years": _get_int(args, "years", 15, minimum=1, maximum=100),
         "threshold": _get_float(args, "threshold", 0.04, minimum=-1, maximum=1),
     }
@@ -224,8 +224,8 @@ def _parse_portfolio_args(args) -> Params:
             if "portfolios" in args
             else tuple(calc.DEFAULT_PORTFOLIOS)
         ),
-        "year_start": _get_int(args, "year_start", 1955, minimum=1871, maximum=2024),
-        "year_end": _get_int(args, "year_end", 2023, minimum=1871, maximum=2024),
+        "year_start": _get_int(args, "year_start", 1955, minimum=1871, maximum=2025),
+        "year_end": _get_int(args, "year_end", 2025, minimum=1871, maximum=2025),
         "commission_adjusted": _get_bool(args, "commission_adjusted", True),
         "value_mode": value_mode,
         "rolling_window": _get_int(args, "rolling_window", 10, minimum=1, maximum=100) if "rolling_window" in args else None,
@@ -256,7 +256,7 @@ def _parse_kupat_args(args) -> Params:
     return _freeze(
         {
             "age": _get_int(args, "age", calc.DEFAULT_KUPAT_AGE, minimum=18, maximum=100),
-            "start_year": _get_int(args, "start_year", calc.DEFAULT_KUPAT_START_YEAR, minimum=1871, maximum=2024),
+            "start_year": _get_int(args, "start_year", calc.DEFAULT_KUPAT_START_YEAR, minimum=1871, maximum=2026),
             "initial": _get_float(args, "initial", calc.DEFAULT_KUPAT_INITIAL, minimum=0),
             "pension_months": _get_int(args, "pension_months", calc.DEFAULT_KUPAT_PENSION_MONTHS, minimum=1, maximum=1200),
             "adjust_cpi": _get_bool(args, "adjust_cpi", True),

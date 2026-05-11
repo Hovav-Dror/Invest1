@@ -274,9 +274,10 @@ h3 {
   background: #ffffff;
   border: 1px solid #dfe4dd;
   border-radius: 8px;
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
   gap: 14px;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
+  justify-content: flex-start;
   padding: 14px 16px;
 }
 
@@ -396,32 +397,32 @@ h3 {
 }
 
 .field {
+  flex: 0 1 220px;
   display: grid;
   align-content: start;
   gap: 6px;
-  grid-column: span 2;
   min-width: 0;
 }
 
 .field.wide {
-  grid-column: span 4;
+  flex-basis: 360px;
 }
 
 .field.xwide {
-  grid-column: span 6;
+  flex-basis: 520px;
 }
 
 .field.run-field {
   align-self: end;
-  grid-column: span 1;
+  flex-basis: 120px;
 }
 
 .trinity-draw-summary {
   align-self: start;
   color: var(--ink);
   display: grid;
+  flex: 1 1 100%;
   gap: 4px;
-  grid-column: 1 / -1;
   min-height: 40px;
   padding: 2px 0 0;
 }
@@ -435,7 +436,7 @@ h3 {
 
 .controls[data-view="trinity"] .field,
 .controls[data-view="trinity"] .field.wide {
-  grid-column: span 3;
+  flex-basis: 240px;
   grid-template-rows: auto 46px minmax(18px, auto);
 }
 
@@ -499,8 +500,8 @@ h3 {
 .portfolio-picker {
   border: 0;
   display: grid;
+  flex: 1 1 620px;
   gap: 7px;
-  grid-column: span 6;
   margin: 0;
   min-width: 0;
   padding: 0;
@@ -509,8 +510,8 @@ h3 {
 .fee-matrix {
   border: 0;
   display: grid;
+  flex: 1 1 720px;
   gap: 8px;
-  grid-column: span 7;
   margin: 0;
   min-width: 0;
   padding: 0;
@@ -581,36 +582,37 @@ h3 {
 .date-range-control {
   border: 0;
   display: grid;
+  flex: 1 1 100%;
   gap: 8px;
-  grid-column: span 6;
   margin: 0;
+  max-width: 100%;
   min-width: 0;
   padding: 0;
 }
 
 .controls[data-view="commission-drag"] .date-range-control {
-  grid-column: span 7;
+  flex-basis: 100%;
 }
 
 .controls[data-view="commission-drag"] .field.wide {
-  grid-column: span 2;
+  flex-basis: 300px;
 }
 
 .controls[data-view="commission-drag"] .field.checkbox {
-  grid-column: span 1;
+  flex-basis: 180px;
   padding-top: 22px;
 }
 
 .controls[data-view="independent"] .date-range-control {
-  grid-column: span 6;
+  flex-basis: 100%;
 }
 
 .controls[data-view="independent"] .field.wide {
-  grid-column: span 3;
+  flex-basis: 320px;
 }
 
 .controls[data-view="independent"] .field {
-  grid-column: span 2;
+  flex-basis: 210px;
 }
 
 .date-range-control legend {
@@ -817,9 +819,11 @@ h3 {
 }
 
 .metrics {
-  display: grid;
+  align-items: stretch;
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  justify-content: flex-start;
 }
 
 .metric {
@@ -827,8 +831,11 @@ h3 {
   border: 1px solid var(--line);
   border-radius: 8px;
   display: grid;
+  flex: 0 1 260px;
   gap: 3px;
   min-height: 70px;
+  max-width: 300px;
+  min-width: 190px;
   padding: 10px 12px;
 }
 
@@ -995,11 +1002,24 @@ h3 {
 }
 
 .panel-metrics {
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 7px;
+  justify-content: center;
+}
+
+.panel-metrics .metric {
+  flex-basis: 220px;
+  max-width: 260px;
+  min-width: 160px;
 }
 
 .multi-chart {
+  display: grid;
+  justify-items: center;
   min-height: 360px;
+}
+
+.multi-chart svg:not(.faceted-chart-svg):not(.heatmap-svg) {
+  max-width: 1180px;
 }
 
 .panel-story {
@@ -2095,5 +2115,32 @@ tbody tr:hover {
 
   .lazy-time-mode div {
     flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 560px) {
+  .field,
+  .field.wide,
+  .field.xwide,
+  .field.run-field,
+  .portfolio-picker,
+  .fee-matrix,
+  .date-range-control,
+  .controls[data-view="trinity"] .field,
+  .controls[data-view="trinity"] .field.wide,
+  .controls[data-view="commission-drag"] .date-range-control,
+  .controls[data-view="commission-drag"] .field.wide,
+  .controls[data-view="commission-drag"] .field.checkbox,
+  .controls[data-view="independent"] .date-range-control,
+  .controls[data-view="independent"] .field.wide,
+  .controls[data-view="independent"] .field {
+    flex-basis: 100%;
+  }
+
+  .metric,
+  .panel-metrics .metric {
+    flex-basis: 100%;
+    max-width: none;
+    min-width: 0;
   }
 }
