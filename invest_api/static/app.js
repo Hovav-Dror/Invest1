@@ -214,7 +214,7 @@
         "אם הגעת לכאן, יכול להיות שאתה כבר מבין היטב בהשקעות פסיביות, אבל מחפש כלי להשוואה בין תיקי השקעות פאסיביים שלא מצאת בקלות במקום אחר.",
         "יכול להיות שאתה דווקא בתחילת הדרך, או באמצע הדרך, ורוצה להבין יותר למה בכלל אנשים מדברים על מסחר עצמאי, קרנות מחקות, דמי ניהול, פוליסות חיסכון, קופות גמל להשקעה, IRA, סיכון, מסים, ושאר ירקות.",
         "בהתאם לענין - קפוץ להקדמה שמתאימה לך :)",
-        { subheading: "הקדמה למי שכבר מבין ומחפש כלים" },
+        { subheading: "הקדמה למי שכבר מבין ומחפש כלים", className: "story-intro-subheading" },
         "לכאורה יש המון כלים, מחשבונים ודשבורדים שמאפשרים להשוות בין תיקים.",
         "מעשית, לא מצאתי כלי חינמי שנתן לי את מה שרציתי לראות.",
         "רציתי כלי שמאפשר לבחור בין כמה תמהילי תיקים נפוצים, ולהשוות אותם לא רק לפי \"תשואה ממוצעת\" או לפי הנחה כללית כמו \"נניח תשואה של 5% בשנה\", אלא לפי מה שקרה בפועל בתקופות היסטוריות שונות.",
@@ -228,7 +228,7 @@
           ". אם זה מה שחיפשתם - אפשר כנראה לקפוץ לשם ישר."
         ],
         "יש גם את Trinity, אבל גם שם הכוונה היא לא בדיוק למחשבון Trinity הקלאסי שרואים בהרבה מקומות. ניסיתי לבדוק תרחיש שנראה לי יותר קרוב לחיים של מי שחי בישראל: משיכה של סכום שנתי קבוע בשקלים, ולא משיכה של אחוז קבוע מתיק שמחושב בדולרים.",
-        { subheading: "הקדמה למי שרוצה ללמוד מהדרך שאני עברתי" },
+        { subheading: "הקדמה למי שרוצה ללמוד מהדרך שאני עברתי", className: "story-intro-subheading" },
         "עכשיו קצת על עדר הפילים שצץ לו.",
         [
           "רציתי לבדוק נתונים בגמלנט, ולא מצאתי דרך זמינה לראות את מה שהרגשתי שצריך. אז יצרתי מערכת להשוואת קרנות השתלמות, קופות גמל, קופות גמל להשקעה, פוליסות חיסכון וקרנות פנסיה. תוכלו למצוא אותה ",
@@ -264,7 +264,6 @@
     },
     "tax-events": {
       tab: "למה לא",
-      heading: "אירוע מס",
       sections: [
         {
           title: "למה כן",
@@ -297,6 +296,7 @@
           paragraphs: [
             "כאמור, מדי פעם אנחנו רוצים לעשות שינוי. בואו נבחן עד כמה הוצאת הכסף ממקומו, תשלום מס והחזרתו להשקעה מחדש עלולה לפגוע ברווחים שלנו.",
             "אפשר לדלג על החלק הזה. הוא מיועד למי שמוכן להתעמק קצת ולהבין עד כמה הנסיון להיות חכמים ולהזיז את הכסף למקום \"טוב יותר\" הוא מסוכן.",
+            "אם אתם מדלגים יש דבר אחד שחייבים להבין - אם תנסו להעביר את ההשקעה הפאסיבית שלכם בין מסלולים לעיתים תכופות (כן, אחת לשנה זה לעיתים תכופות) אתם לא משקיעים פאסיביים, ועלולים לשלם על זה הרבה כסף.",
             "נניח שהשקעתם בכלי שמחקה את S&P 500 כולל דיוידנדים ובשקלים. נניח שאין לכם כלל דמי ניהול, אך יש מס על הרווח בסך 25% ממנו בכל פעם שמושכים את הכסף. לאחר כל משיכה הכסף חוזר לאותה השקעה מחדש, בניקוי המס.",
             "נשווה את התשואה שנקבל אם נמשוך את הכסף ונחזיר אותו מחדש כל חודש, פעם בחצי שנה, פעם בשנה או רק בסוף התקופה."
           ]
@@ -1661,7 +1661,10 @@
     if (!block) return "";
     if (block.html) return `<p>${block.html}</p>`;
     if (block.heading) return `<h3>${escapeHtml(block.heading)}</h3>`;
-    if (block.subheading) return `<h4>${escapeHtml(block.subheading)}</h4>`;
+    if (block.subheading) {
+      const classAttr = block.className ? ` class="${escapeHtml(block.className)}"` : "";
+      return `<h4${classAttr}>${escapeHtml(block.subheading)}</h4>`;
+    }
     if (block.bold) return `<p class="story-emphasis">${escapeHtml(block.bold)}</p>`;
     if (block.list) return `<ul class="story-list">${block.list.map((item) => `<li>${storyParagraphHtml(item)}</li>`).join("")}</ul>`;
     if (block.text) return `<p>${emphasisHtml(block.text)}</p>`;
@@ -2039,6 +2042,7 @@
     els.tableNote.textContent = "";
     els.afterStory.hidden = true;
     els.afterStory.innerHTML = "";
+    showLazyLoadingSkeletons();
 
     const state = lazyState();
     if (state.year_start > state.year_end) state.year_start = state.year_end;
@@ -2086,6 +2090,12 @@
       els.message.hidden = false;
       els.message.className = "message error";
       els.message.textContent = error.message;
+      els.chart.querySelectorAll("[data-lazy-chart]").forEach((target) => {
+        target.innerHTML = `<div class="chart-empty">${escapeHtml(error.message)}</div>`;
+      });
+      els.chart.querySelectorAll("[data-lazy-table]").forEach((target) => {
+        target.innerHTML = "";
+      });
     }
   }
 
@@ -2566,10 +2576,7 @@
     els.message.className = "message";
     els.message.textContent = `${ui.loadingView} ${displayEndpoint(endpoint)}...`;
     els.rows.textContent = "";
-    els.metrics.innerHTML = "";
-    els.chart.innerHTML = "";
-    els.table.innerHTML = "";
-    els.tableNote.textContent = "";
+    showLoadingSkeletons();
 
     try {
       const response = await fetch(url);
@@ -2591,6 +2598,10 @@
       lastPayload = null;
       els.message.className = "message error";
       els.message.textContent = error.message;
+      els.metrics.hidden = true;
+      els.metrics.innerHTML = "";
+      els.chart.innerHTML = `<div class="chart-empty">${escapeHtml(error.message)}</div>`;
+      els.table.innerHTML = "";
     }
   }
 
@@ -2643,6 +2654,20 @@
       const metrics = section && section.querySelector('[data-role="panel-metrics"]');
       const panelChart = section && section.querySelector('[data-role="panel-chart"]');
       const storySlot = section && section.querySelector('[data-role="panel-story"]');
+      if (status) {
+        status.hidden = false;
+        status.className = "";
+        status.textContent = `${ui.loadingView}...`;
+      }
+      if (metrics && panel.metric && !panel.hideMetrics && !panel.chart.facetBy && panel.chart.type !== "rollingBars" && panel.chart.type !== "heatmap") {
+        metrics.hidden = false;
+        metrics.innerHTML = loadingSkeletonHtml("metrics");
+      }
+      if (panelChart) panelChart.innerHTML = loadingSkeletonHtml("chart");
+      if (storySlot) {
+        storySlot.hidden = true;
+        storySlot.innerHTML = "";
+      }
       try {
         const response = await fetch(url);
         const payload = await response.json();
@@ -2666,6 +2691,11 @@
           status.className = "error";
           status.textContent = error.message;
         }
+        if (metrics) {
+          metrics.hidden = true;
+          metrics.innerHTML = "";
+        }
+        if (panelChart) panelChart.innerHTML = `<div class="chart-empty">${escapeHtml(error.message)}</div>`;
       }
     }));
 
@@ -2967,6 +2997,91 @@
   function renderMetrics(payload) {
     const metrics = activeView.metric ? activeView.metric(payload) : [];
     renderMetricsInto(els.metrics, metrics);
+  }
+
+  function skeletonLine(width = "100%", extraClass = "") {
+    return `<span class="skeleton-line ${extraClass}" style="--skeleton-width:${escapeHtml(width)}"></span>`;
+  }
+
+  function loadingSkeletonHtml(kind = "chart") {
+    if (kind === "metrics") {
+      return Array.from({ length: 3 }, (_, index) => `
+        <div class="metric skeleton-metric" aria-hidden="true">
+          ${skeletonLine(index === 1 ? "54%" : "42%", "skeleton-line-label")}
+          ${skeletonLine(index === 2 ? "68%" : "52%", "skeleton-line-value")}
+          ${skeletonLine(index === 0 ? "72%" : "60%")}
+        </div>
+      `).join("");
+    }
+    if (kind === "table") {
+      const rows = Array.from({ length: 7 }, () => `
+        <div class="skeleton-table-row">
+          ${skeletonLine("22%")}
+          ${skeletonLine("16%")}
+          ${skeletonLine("18%")}
+          ${skeletonLine("14%")}
+        </div>
+      `).join("");
+      return `<div class="skeleton-table" aria-hidden="true">${rows}</div>`;
+    }
+    if (kind === "lazy-table") {
+      const rows = Array.from({ length: 6 }, () => `
+        <div class="skeleton-table-row skeleton-table-row-compact">
+          ${skeletonLine("28%")}
+          ${skeletonLine("18%")}
+          ${skeletonLine("18%")}
+        </div>
+      `).join("");
+      return `<div class="skeleton-table skeleton-table-compact" aria-hidden="true">${rows}</div>`;
+    }
+    return `
+      <div class="skeleton-chart" aria-hidden="true">
+        <div class="skeleton-chart-head">
+          ${skeletonLine("34%", "skeleton-title")}
+          ${skeletonLine("22%")}
+        </div>
+        <div class="skeleton-plot">
+          <span class="skeleton-axis skeleton-axis-y"></span>
+          <span class="skeleton-axis skeleton-axis-x"></span>
+          <span class="skeleton-grid-line skeleton-grid-line-a"></span>
+          <span class="skeleton-grid-line skeleton-grid-line-b"></span>
+          <span class="skeleton-grid-line skeleton-grid-line-c"></span>
+          <span class="skeleton-series skeleton-series-a"></span>
+          <span class="skeleton-series skeleton-series-b"></span>
+          <span class="skeleton-dot skeleton-dot-a"></span>
+          <span class="skeleton-dot skeleton-dot-b"></span>
+          <span class="skeleton-dot skeleton-dot-c"></span>
+        </div>
+        <div class="skeleton-chart-foot">
+          ${skeletonLine("18%")}
+          ${skeletonLine("26%")}
+          ${skeletonLine("14%")}
+        </div>
+      </div>
+    `;
+  }
+
+  function showLoadingSkeletons({ metrics = true, chart = true, table = true } = {}) {
+    if (metrics) {
+      els.metrics.hidden = false;
+      els.metrics.innerHTML = loadingSkeletonHtml("metrics");
+    }
+    if (chart) {
+      els.chart.innerHTML = loadingSkeletonHtml("chart");
+    }
+    if (table) {
+      els.table.innerHTML = loadingSkeletonHtml("table");
+      els.tableNote.textContent = "";
+    }
+  }
+
+  function showLazyLoadingSkeletons() {
+    els.chart.querySelectorAll("[data-lazy-chart]").forEach((target) => {
+      target.innerHTML = loadingSkeletonHtml("chart");
+    });
+    els.chart.querySelectorAll("[data-lazy-table]").forEach((target) => {
+      target.innerHTML = loadingSkeletonHtml("lazy-table");
+    });
   }
 
   function renderMetricsInto(target, metrics) {

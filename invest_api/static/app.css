@@ -339,6 +339,11 @@ h3 {
   margin: 10px 0 0;
 }
 
+.story-copy h4.story-intro-subheading {
+  font-size: 23px;
+  margin-top: 28px;
+}
+
 .story-copy p,
 .story-copy li {
   color: #1f52a0;
@@ -816,6 +821,207 @@ h3 {
 
 .message.error {
   color: var(--warn);
+}
+
+.skeleton-line,
+.skeleton-axis,
+.skeleton-grid-line,
+.skeleton-series,
+.skeleton-dot {
+  background: linear-gradient(90deg, #eef2ed 0%, #dfe7df 45%, #eef2ed 90%);
+  background-size: 220% 100%;
+  border-radius: 999px;
+  display: block;
+  overflow: hidden;
+  position: relative;
+  width: var(--skeleton-width, 100%);
+}
+
+.skeleton-line,
+.skeleton-axis,
+.skeleton-grid-line,
+.skeleton-series,
+.skeleton-dot {
+  animation: skeleton-shimmer 1.35s ease-in-out infinite;
+}
+
+.skeleton-line {
+  height: 10px;
+}
+
+.skeleton-line-label {
+  height: 9px;
+}
+
+.skeleton-line-value {
+  height: 22px;
+}
+
+.skeleton-title {
+  height: 18px;
+}
+
+.skeleton-metric {
+  background: linear-gradient(180deg, #ffffff 0%, #fbfcfa 100%);
+}
+
+.skeleton-chart {
+  display: grid;
+  gap: 18px;
+  min-height: 312px;
+  padding: 8px;
+  width: 100%;
+}
+
+.skeleton-chart-head,
+.skeleton-chart-foot {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.skeleton-chart-foot {
+  justify-content: flex-start;
+  padding-inline: 4px;
+}
+
+.skeleton-plot {
+  background:
+    linear-gradient(180deg, rgba(250, 251, 248, .92), rgba(255, 255, 255, .8));
+  border: 1px solid #e5eae4;
+  border-radius: 8px;
+  min-height: 260px;
+  overflow: hidden;
+  position: relative;
+}
+
+.skeleton-axis,
+.skeleton-grid-line,
+.skeleton-series {
+  position: absolute;
+}
+
+.skeleton-axis-y {
+  bottom: 34px;
+  height: calc(100% - 62px);
+  right: 58px;
+  width: 2px;
+}
+
+.skeleton-axis-x {
+  bottom: 34px;
+  height: 2px;
+  left: 36px;
+  right: 58px;
+  width: auto;
+}
+
+.skeleton-grid-line {
+  height: 1px;
+  left: 36px;
+  right: 58px;
+  width: auto;
+}
+
+.skeleton-grid-line-a {
+  top: 28%;
+}
+
+.skeleton-grid-line-b {
+  top: 49%;
+}
+
+.skeleton-grid-line-c {
+  top: 70%;
+}
+
+.skeleton-series {
+  height: 6px;
+  transform-origin: center;
+}
+
+.skeleton-series-a {
+  left: 16%;
+  top: 50%;
+  transform: rotate(-12deg);
+  width: 58%;
+}
+
+.skeleton-series-b {
+  left: 24%;
+  top: 62%;
+  transform: rotate(9deg);
+  width: 48%;
+}
+
+.skeleton-dot {
+  height: 14px;
+  position: absolute;
+  width: 14px;
+}
+
+.skeleton-dot-a {
+  right: 22%;
+  top: 37%;
+}
+
+.skeleton-dot-b {
+  right: 42%;
+  top: 58%;
+}
+
+.skeleton-dot-c {
+  right: 63%;
+  top: 44%;
+}
+
+.skeleton-table {
+  display: grid;
+  gap: 0;
+  padding: 8px 10px 14px;
+}
+
+.skeleton-table-row {
+  align-items: center;
+  border-bottom: 1px solid #edf1eb;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  min-height: 36px;
+}
+
+.skeleton-table-row:first-child .skeleton-line {
+  height: 12px;
+}
+
+.skeleton-table-compact {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  min-width: 320px;
+}
+
+.skeleton-table-row-compact {
+  grid-template-columns: 1.4fr 1fr 1fr;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 110% 0;
+  }
+  100% {
+    background-position: -110% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-line,
+  .skeleton-axis,
+  .skeleton-grid-line,
+  .skeleton-series,
+  .skeleton-dot {
+    animation: none;
+  }
 }
 
 .metrics {
@@ -2164,7 +2370,7 @@ tbody tr:hover {
 
 @media (max-width: 1120px) {
   .layout {
-    grid-template-columns: 245px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) 245px;
   }
 
   .field,
@@ -2197,10 +2403,22 @@ tbody tr:hover {
   .topbar {
     align-items: flex-start;
     flex-direction: column;
+    gap: 8px;
+    min-height: 0;
+    padding: 10px 14px;
   }
 
   .toolbar {
     width: 100%;
+  }
+
+  h1 {
+    font-size: 20px;
+    line-height: 1.2;
+  }
+
+  h2 {
+    font-size: 22px;
   }
 
   .layout {
@@ -2217,16 +2435,22 @@ tbody tr:hover {
   .workspace {
     grid-column: auto;
     grid-row: auto;
+    gap: 16px;
+    padding: 20px 16px 36px;
   }
 
   .nav {
     display: flex;
+    gap: 10px;
     overflow-x: auto;
+    padding: 10px 14px;
     position: static;
+    scroll-padding-inline: 14px;
   }
 
   .nav-group {
-    min-width: 220px;
+    flex: 0 0 210px;
+    min-width: 0;
   }
 
   .view-heading {
@@ -2235,7 +2459,8 @@ tbody tr:hover {
   }
 
   .controls {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 12px;
+    padding: 12px;
   }
 
   .story-panel {
@@ -2259,6 +2484,19 @@ tbody tr:hover {
     grid-template-columns: minmax(112px, 1fr) repeat(2, minmax(82px, 1fr));
   }
 
+  .chart-panel {
+    padding: 10px;
+  }
+
+  .chart-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .chart-actions button {
+    align-self: flex-start;
+  }
+
   .panel-controls {
     grid-template-columns: 1fr;
   }
@@ -2273,6 +2511,34 @@ tbody tr:hover {
 }
 
 @media (max-width: 560px) {
+  .topbar {
+    padding-inline: 12px;
+  }
+
+  .workspace {
+    padding: 18px 12px 32px;
+  }
+
+  .story-copy {
+    gap: 10px;
+  }
+
+  .story-copy h3 {
+    font-size: 20px;
+  }
+
+  .story-copy h4,
+  .story-copy h4.story-intro-subheading {
+    font-size: 18px;
+    margin-top: 16px;
+  }
+
+  .story-copy p,
+  .story-copy li {
+    font-size: 16px;
+    line-height: 1.65;
+  }
+
   .field,
   .field.wide,
   .field.xwide,
@@ -2296,5 +2562,59 @@ tbody tr:hover {
     flex-basis: 100%;
     max-width: none;
     min-width: 0;
+  }
+
+  .date-range-summary {
+    flex-wrap: wrap;
+  }
+
+  .date-range-thumb-labels span {
+    font-size: 11px;
+    min-width: 48px;
+  }
+
+  .portfolio-options {
+    grid-template-columns: 1fr;
+  }
+
+  .panel-picker[open] .panel-picker-menu {
+    box-shadow: none;
+    left: auto;
+    margin-top: 4px;
+    max-height: 260px;
+    position: static;
+    top: auto;
+  }
+
+  .skeleton-chart {
+    gap: 12px;
+    min-height: 250px;
+    padding: 2px;
+  }
+
+  .skeleton-plot {
+    min-height: 220px;
+  }
+
+  .skeleton-table {
+    padding-inline: 8px;
+  }
+
+  .skeleton-table-row {
+    gap: 10px;
+    grid-template-columns: 1.4fr 1fr 1fr;
+  }
+
+  .skeleton-table-row .skeleton-line:nth-child(4) {
+    display: none;
+  }
+
+  .table-title {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .chart-tooltip {
+    max-width: calc(100vw - 24px);
   }
 }
