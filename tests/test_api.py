@@ -28,6 +28,24 @@ ENDPOINT_FIXTURES = {
     "sp500_scv_after_tax": "sp500_scv_after_tax_default",
     "trinity": "trinity_default",
 }
+PHASE1_ENDPOINT_QUERIES = {
+    "tax_events": {"end": "2023-01-01"},
+    "commission_effect": {"end": "2023-01-01"},
+    "commission_tax": {"end": "2023-01-01"},
+    "sp500_risk": {"end": "2024-01-01"},
+    "portfolio_summary": {"year_end": "2023"},
+    "kupat_gemel": {"end": "2024-01-01"},
+    "kupat_gemel_pension": {"end": "2024-01-01"},
+    "independent_commissions": {"end": "2023-01-01"},
+    "tax_us_vs_il": {"end": "2023-01-01"},
+    "portfolio_over_time": {"year_end": "2023"},
+    "us_world_rolling": {"year_end": "2023"},
+    "us_global_rolling": {"year_end": "2023"},
+    "sp500_scv_rolling": {"year_end": "2023"},
+    "sp500_scv_heatmap": {"year_end": "2023"},
+    "sp500_scv_after_tax": {"year_end": "2023"},
+    "trinity": {"year_end": "2023"},
+}
 
 
 @pytest.fixture()
@@ -95,21 +113,21 @@ def test_frontend_assets_are_served(client):
     assert "legend-toggle" in body
     assert "chart-tooltip" in body
     assert "reset-zoom" in body
-    assert "static/us-vs-world.jpeg" in body
+    assert "static/us-vs-world-highlighted.png" in body
     assert 'fetch("/api/' not in body
 
 
-def test_frontend_original_static_image_is_served(client):
-    response = client.get("/static/us-vs-world.jpeg")
+def test_frontend_static_image_is_served(client):
+    response = client.get("/static/us-vs-world-highlighted.png")
 
     assert response.status_code == 200
-    assert response.content_type.startswith("image/jpeg")
+    assert response.content_type.startswith("image/png")
     assert len(response.get_data()) > 1000
 
 
 @pytest.mark.parametrize(("endpoint", "fixture_name"), ENDPOINT_FIXTURES.items())
 def test_endpoint_default_json_parity(client, endpoint, fixture_name):
-    response = client.get(f"/api/{endpoint}")
+    response = client.get(f"/api/{endpoint}", query_string=PHASE1_ENDPOINT_QUERIES[endpoint])
 
     assert response.status_code == 200
     payload = response.get_json()
@@ -118,7 +136,7 @@ def test_endpoint_default_json_parity(client, endpoint, fixture_name):
 
 
 def test_tax_events_accepts_no_cpi_parameter(client):
-    response = client.get("/api/tax_events?adjust_cpi=false")
+    response = client.get("/api/tax_events", query_string={"adjust_cpi": "false", "end": "2023-01-01"})
 
     assert response.status_code == 200
     assert_payload_matches_fixture(response.get_json(), "tax_events_no_cpi")

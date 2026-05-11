@@ -274,6 +274,25 @@ def portfolio_table(
     frame["Drop"] = frame[drop_column]
     frame = frame.sort_values(["Portfolio", "Year"]).copy()
     frame["v"] = frame.groupby("Portfolio", sort=True)["v"].transform(lambda values: values / values.dropna().iloc[0])
+    if year_end < data.LazyReturns1["Year"].max():
+        for _, group in frame.groupby("Portfolio", sort=True):
+            values = group["v"].to_numpy(dtype=float)
+            years = group["Year"].to_numpy(dtype=float)
+            shefel_years = []
+            drops = []
+            for pos, value in enumerate(values):
+                future = values[pos:]
+                future_years = years[pos:]
+                valid = ~np.isnan(future)
+                if np.isnan(value) or not valid.any():
+                    shefel_years.append(np.nan)
+                    drops.append(np.nan)
+                    continue
+                below_current = valid & (future <= value)
+                shefel_years.append((future_years[below_current].max() - years[pos]) if below_current.any() else 0)
+                drops.append(np.nanmin(future) / value - 1)
+            frame.loc[group.index, "ShefelYears"] = shefel_years
+            frame.loc[group.index, "Drop"] = drops
     frame["row_number"] = frame.groupby("Portfolio", sort=True).cumcount()
     frame = frame[frame["row_number"] > 0].drop(columns=["row_number"])
     return frame.reset_index(drop=True)
@@ -342,6 +361,7 @@ def kupat_gemel(
     with_pension: bool = False,
     age: int = DEFAULT_KUPAT_AGE,
     start_year: int = DEFAULT_KUPAT_START_YEAR,
+    end: str | pd.Timestamp | None = None,
     initial: float = DEFAULT_KUPAT_INITIAL,
     pension_months: int = DEFAULT_KUPAT_PENSION_MONTHS,
     adjust_cpi: bool = True,
@@ -362,6 +382,8 @@ def kupat_gemel(
     )
     frame["year"] = frame["date"].dt.year
     frame = frame[frame["year"] >= start_year].sort_values("date").reset_index(drop=True)
+    if end is not None:
+        frame = frame[frame["date"] <= _as_timestamp(end)].reset_index(drop=True)
     frame["year3"] = _year_fraction(frame["date"])
     frame["age"] = frame["year3"] - start_year + age
     frame["CPI"] = frame["CPI"] / frame["CPI"].iloc[0]
@@ -528,7 +550,7 @@ def portfolio_over_time(
     return pd.concat(frames, ignore_index=True)
 
 
-def us_global_rolling(data: InvestData | None = None, global_mix: bool = False) -> pd.DataFrame:
+def us_global_rolling(data: InvestData | None = None, global_mix: bool = False, year_end: int | None = None) -> pd.DataFrame:
     """Return S&P 500 rolling differences vs ex-US or a 60/40 global mix."""
 
     data = data or load_data()
@@ -537,6 +559,8 @@ def us_global_rolling(data: InvestData | None = None, global_mix: bool = False) 
         & (data.LazyReturns1["Portfolio"].isin(["S&P 500", "MSCI World ex USA index"])),
         ["Year", "Portfolio", "YearReturn"],
     ].copy()
+    if year_end is not None:
+        frame = frame[frame["Year"] <= year_end]
     frame = frame.groupby("Year").filter(lambda group: len(group) == 2).dropna().reset_index(drop=True)
 
     compare_to = "MSCI World ex USA index"
@@ -571,16 +595,17 @@ def us_global_rolling(data: InvestData | None = None, global_mix: bool = False) 
     return pd.DataFrame(rows, columns=["Year", "Diff5", "Diff10", "Diff15"])
 
 
-def us_world_rolling(data: InvestData | None = None) -> pd.DataFrame:
+def us_world_rolling(data: InvestData | None = None, year_end: int | None = None) -> pd.DataFrame:
     """Return S&P 500 rolling differences vs MSCI World ex USA."""
 
-    return us_global_rolling(data=data, global_mix=False)
+    return us_global_rolling(data=data, global_mix=False, year_end=year_end)
 
 
 def sp500_scv_rolling(
     data: InvestData | None = None,
     window: int = 15,
     after_tax: bool = False,
+    year_end: int | None = None,
 ) -> pd.DataFrame:
     """Return S&P 500 vs US Small Cap Value rolling comparison."""
 
@@ -592,7 +617,7 @@ def sp500_scv_rolling(
         & (source["Portfolio"].isin(["S&P 500", "US Small Cap Value"]))
         & (source["Year"] >= min_index_year)
         & (source["Year"] >= 1969 - window)
-        & (source["Year"] <= source["Year"].max()),
+        & (source["Year"] <= (year_end if year_end is not None else source["Year"].max())),
         ["Year", "Portfolio", "CPI_IL", "USD", "YearReturn", "index"],
     ].copy()
 
@@ -627,7 +652,7 @@ def sp500_scv_rolling(
     return pd.concat(frames, ignore_index=True).sort_values(["Year", "Portfolio"]).reset_index(drop=True)
 
 
-def sp500_scv_heatmap(data: InvestData | None = None, max_years: int = 20) -> pd.DataFrame:
+def sp500_scv_heatmap(data: InvestData | None = None, max_years: int = 20, year_end: int | None = None) -> pd.DataFrame:
     """Return all-start/all-end S&P 500 vs SCV comparison rows."""
 
     data = data or load_data()
@@ -639,6 +664,8 @@ def sp500_scv_heatmap(data: InvestData | None = None, max_years: int = 20) -> pd
         & (source["Year"] >= min_index_year),
         ["Portfolio", "Year", "index", "USD", "CPI_IL"],
     ].copy()
+    if year_end is not None:
+        frame = frame[frame["Year"] <= year_end]
     frame["v"] = frame["index"] * frame["USD"] / frame["CPI_IL"]
 
     long_frames = []
@@ -755,6 +782,7 @@ def trinity(
     yearly_draw: float = DEFAULT_TRINITY_DRAW,
     years: int = DEFAULT_TRINITY_YEARS,
     base: float = DEFAULT_TRINITY_BASE,
+    year_end: int | None = None,
 ) -> pd.DataFrame:
     """Return Trinity withdrawal simulation by starting year."""
 
@@ -763,6 +791,8 @@ def trinity(
         (data.LazyReturns1["Portfolio"] == portfolio) & (~data.LazyReturns1["CommissionUse"]),
         ["Year", "Portfolio", "commission", "CPI_US", "YearReturn"],
     ].copy()
+    if year_end is not None:
+        source = source[source["Year"] <= year_end]
     year_min = int(source["Year"].min())
     year_max = int(source["Year"].max() - years)
 

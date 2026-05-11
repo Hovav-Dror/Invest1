@@ -22,6 +22,9 @@ from invest_core.data import load_data
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE_DIR = ROOT / "tests" / "fixtures" / "r_outputs"
+PHASE1_TAX_END = "2023-01-01"
+PHASE1_MONTHLY_END = "2024-01-01"
+PHASE1_YEAR_END = 2023
 
 
 def read_fixture(name: str) -> pd.DataFrame:
@@ -39,68 +42,70 @@ def assert_matches_fixture(actual: pd.DataFrame, fixture_name: str) -> None:
 
 
 def test_tax_events_default_matches_r_fixture():
-    assert_matches_fixture(tax_events(load_data()), "tax_events_default")
+    assert_matches_fixture(tax_events(load_data(), end=PHASE1_TAX_END), "tax_events_default")
 
 
 def test_tax_events_no_cpi_matches_r_fixture():
-    assert_matches_fixture(tax_events(load_data(), adjust_cpi=False), "tax_events_no_cpi")
+    assert_matches_fixture(tax_events(load_data(), end=PHASE1_TAX_END, adjust_cpi=False), "tax_events_no_cpi")
 
 
 def test_commission_effect_default_matches_r_fixture():
-    assert_matches_fixture(commission_effect(load_data()), "commission_effect_default")
+    assert_matches_fixture(commission_effect(load_data(), end=PHASE1_TAX_END), "commission_effect_default")
 
 
 def test_commission_tax_default_matches_r_fixture():
-    assert_matches_fixture(commission_tax_scenarios(load_data()), "commission_tax_default")
+    assert_matches_fixture(commission_tax_scenarios(load_data(), end=PHASE1_TAX_END), "commission_tax_default")
 
 
 def test_sp500_risk_default_matches_r_fixture():
-    assert_matches_fixture(sp500_risk(load_data()), "sp500_risk_default")
+    assert_matches_fixture(sp500_risk(load_data(), end=PHASE1_MONTHLY_END), "sp500_risk_default")
 
 
 def test_portfolio_summary_default_matches_r_fixture():
-    assert_matches_fixture(portfolio_summary(load_data()), "portfolio_summary_default")
+    assert_matches_fixture(portfolio_summary(load_data(), year_end=PHASE1_YEAR_END), "portfolio_summary_default")
 
 
 def test_kupat_gemel_default_matches_r_fixture():
-    assert_matches_fixture(kupat_gemel(load_data()), "kupat_gemel_default")
+    actual = kupat_gemel(load_data()).loc[lambda df: df["date"] <= pd.Timestamp(PHASE1_MONTHLY_END)]
+    assert_matches_fixture(actual, "kupat_gemel_default")
 
 
 def test_kupat_gemel_pension_default_matches_r_fixture():
-    assert_matches_fixture(kupat_gemel(load_data(), with_pension=True), "kupat_gemel_pension_default")
+    actual = kupat_gemel(load_data(), with_pension=True).loc[lambda df: df["date"] <= pd.Timestamp(PHASE1_MONTHLY_END)]
+    assert_matches_fixture(actual, "kupat_gemel_pension_default")
 
 
 def test_independent_commissions_default_matches_r_fixture():
-    assert_matches_fixture(independent_commissions(load_data()), "independent_commissions_default")
+    assert_matches_fixture(independent_commissions(load_data(), end=PHASE1_TAX_END), "independent_commissions_default")
 
 
 def test_tax_us_vs_il_default_matches_r_fixture():
-    assert_matches_fixture(independent_commissions(load_data(), tax_mode="us_vs_il"), "tax_us_vs_il_default")
+    assert_matches_fixture(independent_commissions(load_data(), tax_mode="us_vs_il", end=PHASE1_TAX_END), "tax_us_vs_il_default")
 
 
 def test_portfolio_over_time_default_matches_r_fixture():
-    assert_matches_fixture(portfolio_over_time(load_data()), "portfolio_over_time_default")
+    assert_matches_fixture(portfolio_over_time(load_data(), year_end=PHASE1_YEAR_END), "portfolio_over_time_default")
 
 
 def test_us_world_rolling_default_matches_r_fixture():
-    assert_matches_fixture(us_world_rolling(load_data()), "us_world_rolling_default")
+    assert_matches_fixture(us_world_rolling(load_data(), year_end=PHASE1_YEAR_END), "us_world_rolling_default")
 
 
 def test_us_global_rolling_default_matches_r_fixture():
-    assert_matches_fixture(us_global_rolling(load_data(), global_mix=True), "us_global_rolling_default")
+    assert_matches_fixture(us_global_rolling(load_data(), global_mix=True, year_end=PHASE1_YEAR_END), "us_global_rolling_default")
 
 
 def test_sp500_scv_rolling_default_matches_r_fixture():
-    assert_matches_fixture(sp500_scv_rolling(load_data()), "sp500_scv_rolling_default")
+    assert_matches_fixture(sp500_scv_rolling(load_data(), year_end=PHASE1_YEAR_END), "sp500_scv_rolling_default")
 
 
 def test_sp500_scv_heatmap_default_matches_r_fixture():
-    assert_matches_fixture(sp500_scv_heatmap(load_data()), "sp500_scv_heatmap_default")
+    assert_matches_fixture(sp500_scv_heatmap(load_data(), year_end=PHASE1_YEAR_END), "sp500_scv_heatmap_default")
 
 
 def test_sp500_scv_after_tax_default_matches_r_fixture():
-    assert_matches_fixture(sp500_scv_rolling(load_data(), after_tax=True), "sp500_scv_after_tax_default")
+    assert_matches_fixture(sp500_scv_rolling(load_data(), after_tax=True, year_end=PHASE1_YEAR_END), "sp500_scv_after_tax_default")
 
 
 def test_trinity_default_matches_r_fixture():
-    assert_matches_fixture(trinity(load_data()), "trinity_default")
+    assert_matches_fixture(trinity(load_data(), year_end=PHASE1_YEAR_END), "trinity_default")

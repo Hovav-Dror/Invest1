@@ -244,6 +244,7 @@ def _parse_kupat_args(args) -> Params:
         {
             "age",
             "start_year",
+            "end",
             "initial",
             "pension_months",
             "adjust_cpi",
@@ -259,6 +260,7 @@ def _parse_kupat_args(args) -> Params:
         {
             "age": _get_int(args, "age", calc.DEFAULT_KUPAT_AGE, minimum=18, maximum=100),
             "start_year": _get_int(args, "start_year", calc.DEFAULT_KUPAT_START_YEAR, minimum=1871, maximum=2026),
+            "end": _get_date(args, "end", "2026-01-01"),
             "initial": _get_float(args, "initial", calc.DEFAULT_KUPAT_INITIAL, minimum=0),
             "pension_months": _get_int(args, "pension_months", calc.DEFAULT_KUPAT_PENSION_MONTHS, minimum=1, maximum=1200),
             "adjust_cpi": _get_bool(args, "adjust_cpi", True),
@@ -299,28 +301,43 @@ def _parse_independent_args(args) -> Params:
 
 
 def _parse_scv_rolling_args(args) -> Params:
-    _reject_unknown(args, {"window"})
-    return _freeze({"window": _get_int(args, "window", 15, minimum=1, maximum=100)})
+    _reject_unknown(args, {"window", "year_end"})
+    params: JsonDict = {"window": _get_int(args, "window", 15, minimum=1, maximum=100)}
+    if "year_end" in args:
+        params["year_end"] = _get_int(args, "year_end", 2025, minimum=1871, maximum=2025)
+    return _freeze(params)
 
 
 def _parse_heatmap_args(args) -> Params:
-    _reject_unknown(args, {"max_years"})
-    return _freeze({"max_years": _get_int(args, "max_years", 20, minimum=1, maximum=100)})
+    _reject_unknown(args, {"max_years", "year_end"})
+    params: JsonDict = {"max_years": _get_int(args, "max_years", 20, minimum=1, maximum=100)}
+    if "year_end" in args:
+        params["year_end"] = _get_int(args, "year_end", 2025, minimum=1871, maximum=2025)
+    return _freeze(params)
 
 
 def _parse_trinity_args(args) -> Params:
-    _reject_unknown(args, {"portfolio", "yearly_draw", "years", "base"})
+    _reject_unknown(args, {"portfolio", "yearly_draw", "years", "base", "year_end"})
     portfolio = args.get("portfolio", calc.DEFAULT_TRINITY_PORTFOLIO).strip()
     if portfolio not in set(_data().lazy_return_portfolios):
         raise ApiValidationError(f"Unknown portfolio: {portfolio}")
-    return _freeze(
-        {
-            "portfolio": portfolio,
-            "yearly_draw": _get_float(args, "yearly_draw", calc.DEFAULT_TRINITY_DRAW, minimum=0, maximum=1),
-            "years": _get_int(args, "years", calc.DEFAULT_TRINITY_YEARS, minimum=1, maximum=100),
-            "base": _get_float(args, "base", calc.DEFAULT_TRINITY_BASE, minimum=0),
-        }
-    )
+    params: JsonDict = {
+        "portfolio": portfolio,
+        "yearly_draw": _get_float(args, "yearly_draw", calc.DEFAULT_TRINITY_DRAW, minimum=0, maximum=1),
+        "years": _get_int(args, "years", calc.DEFAULT_TRINITY_YEARS, minimum=1, maximum=100),
+        "base": _get_float(args, "base", calc.DEFAULT_TRINITY_BASE, minimum=0),
+    }
+    if "year_end" in args:
+        params["year_end"] = _get_int(args, "year_end", 2025, minimum=1871, maximum=2025)
+    return _freeze(params)
+
+
+def _parse_year_end_args(args) -> Params:
+    _reject_unknown(args, {"year_end"})
+    params: JsonDict = {}
+    if "year_end" in args:
+        params["year_end"] = _get_int(args, "year_end", 2025, minimum=1871, maximum=2025)
+    return _freeze(params)
 
 
 def _parse_no_args(args) -> Params:
@@ -386,9 +403,9 @@ def _dispatch(name: str, params: Params) -> pd.DataFrame:
     if name == "portfolio_over_time":
         return calc.portfolio_over_time(data=data, **kwargs)
     if name == "us_world_rolling":
-        return calc.us_world_rolling(data=data)
+        return calc.us_world_rolling(data=data, **kwargs)
     if name == "us_global_rolling":
-        return calc.us_global_rolling(data=data, global_mix=True)
+        return calc.us_global_rolling(data=data, global_mix=True, **kwargs)
     if name == "global_vs_sp500_heatmap":
         return calc.global_vs_sp500_heatmap(data=data, **kwargs)
     if name == "sp500_scv_rolling":
@@ -426,8 +443,8 @@ PARSERS: dict[str, Callable[[Any], Params]] = {
     "independent_commissions": _parse_independent_args,
     "tax_us_vs_il": _parse_independent_args,
     "portfolio_over_time": _parse_portfolio_args,
-    "us_world_rolling": _parse_no_args,
-    "us_global_rolling": _parse_no_args,
+    "us_world_rolling": _parse_year_end_args,
+    "us_global_rolling": _parse_year_end_args,
     "global_vs_sp500_heatmap": _parse_heatmap_args,
     "sp500_scv_rolling": _parse_scv_rolling_args,
     "sp500_scv_heatmap": _parse_heatmap_args,
