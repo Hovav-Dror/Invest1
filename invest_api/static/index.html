@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>סייר תיקי ההשקעות של חובב</title>
+    <link rel="stylesheet" href="static/app.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand-block">
+          <h1>סייר תיקי ההשקעות של חובב</h1>
+        </div>
+      </header>
+
+      <main class="layout">
+        <aside class="sidebar">
+          <nav id="viewNav" class="nav" aria-label="חלקי אפליקציית ההשקעות"></nav>
+        </aside>
+
+        <section class="workspace">
+          <div class="view-heading">
+            <div>
+              <p id="viewKicker" class="kicker"></p>
+              <h2 id="viewTitle"></h2>
+            </div>
+            <p id="rowCount" class="row-count"></p>
+          </div>
+
+          <section id="story" class="story-panel" lang="he" aria-label="הסבר בעברית"></section>
+
+          <form id="controls" class="controls"></form>
+
+          <div id="message" class="message" role="status"></div>
+
+          <section id="metrics" class="metrics" aria-label="תוצאות מרכזיות"></section>
+
+          <section class="chart-panel" aria-label="גרף השקעות">
+            <div id="chart" class="chart"></div>
+          </section>
+
+          <section id="afterStory" class="story-panel story-panel-after" lang="he" aria-label="סיכום בעברית"></section>
+
+          <section class="table-panel" aria-label="טבלת נתונים">
+            <div class="table-title">
+              <h3>טבלת נתונים</h3>
+              <p id="tableNote"></p>
+            </div>
+            <div id="table" class="table-wrap"></div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <script src="static/app.js"></script>
+  </body>
+</html>

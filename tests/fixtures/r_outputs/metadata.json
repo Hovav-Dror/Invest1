@@ -1,0 +1,42 @@
+{
+  "fixture_version": "2026-05-09",
+  "source_dir": "/Users/hovav/Documents/R projects/Invest",
+  "source_git_head": "e2907dd",
+  "source_git_status": [" M .DS_Store", " M Invest.Rproj", " M app.R", " M triniti.R", "?? \"Copy Invest 2024-01-27.rda\"", "?? \"Invest before 2023-07-21.rda\"", "?? \"MSCI USA Small Cap Value Weighted Index.R\"", "?? \"Madad up to 2023-03-01.csv\"", "?? \"ZPRV USSC.csv\"", "?? appdelete.R", "?? deleteme.R", "?? deleteme2.R"],
+  "objects": {
+    "LazyReturns1": {
+      "rows": 5542,
+      "columns": 18,
+      "names": ["Year", "Portfolio", "commission", "Inflation", "CPI_US", "CPI_IL", "USD", "YearReturn", "index", "Index_CPI_US", "Index_CPI_IL", "BadYears", "Drop", "BadYears_CPI_US", "Drop_CPI_US", "BadYears_CPI_IL", "Drop_CPI_IL", "CommissionUse"]
+    },
+    "PortfoliosStructure": {
+      "rows": 118,
+      "columns": 5,
+      "names": ["Portfolio", "weight", "asset", "commission_i", "commission"]
+    },
+    "SP500DIV": {
+      "rows": 1837,
+      "columns": 5,
+      "names": ["date", "Real_Total_Return_Price", "dollar", "SP500wDividends", "CPI"],
+      "date_range": ["1871-01-01", "2024-01-01"]
+    },
+    "SP500US": {
+      "rows": 1837,
+      "columns": 3,
+      "names": ["date", "Real_Total_Return_Price", "CPI_US"],
+      "date_range": ["1871-01-01", "2024-01-01"]
+    },
+    "US_Small_Cap_Value_Monthly": {
+      "rows": 624,
+      "columns": 3,
+      "names": ["date", "value", "name"],
+      "date_range": ["1972-02-01", "2024-01-01"]
+    }
+  },
+  "defaults": {
+    "tax_dates": ["1993-01-01", "2023-01-01"],
+    "portfolio_cpi": "המרה לשקלים ומדד ישראל",
+    "portfolio_years": [1955, 2023],
+    "trinity_portfolio": "US Small Cap Value"
+  }
+}

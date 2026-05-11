@@ -1,0 +1,88 @@
+{
+  "generated_at": "2026-05-09T16:58:48+0300",
+  "source_rda": "/Users/hovav/Documents/R projects/Invest/Invest.rda",
+  "metadata_reference": "tests/fixtures/r_outputs/metadata.json",
+  "fixture_version": "2026-05-09",
+  "format": "parquet",
+  "objects": {
+    "LazyReturns1": {
+      "file": "LazyReturns1.parquet",
+      "rows": 5542,
+      "columns": 18,
+      "names": ["Year", "Portfolio", "commission", "Inflation", "CPI_US", "CPI_IL", "USD", "YearReturn", "index", "Index_CPI_US", "Index_CPI_IL", "BadYears", "Drop", "BadYears_CPI_US", "Drop_CPI_US", "BadYears_CPI_IL", "Drop_CPI_IL", "CommissionUse"],
+      "classes": {
+        "Year": "numeric",
+        "Portfolio": "character",
+        "commission": "numeric",
+        "Inflation": "numeric",
+        "CPI_US": "numeric",
+        "CPI_IL": "numeric",
+        "USD": "numeric",
+        "YearReturn": "numeric",
+        "index": "numeric",
+        "Index_CPI_US": "numeric",
+        "Index_CPI_IL": "numeric",
+        "BadYears": "numeric",
+        "Drop": "numeric",
+        "BadYears_CPI_US": "numeric",
+        "Drop_CPI_US": "numeric",
+        "BadYears_CPI_IL": "numeric",
+        "Drop_CPI_IL": "numeric",
+        "CommissionUse": "logical"
+      },
+      "date_range": null
+    },
+    "PortfoliosStructure": {
+      "file": "PortfoliosStructure.parquet",
+      "rows": 118,
+      "columns": 5,
+      "names": ["Portfolio", "weight", "asset", "commission_i", "commission"],
+      "classes": {
+        "Portfolio": "character",
+        "weight": "numeric",
+        "asset": "character",
+        "commission_i": "numeric",
+        "commission": "numeric"
+      },
+      "date_range": null
+    },
+    "SP500DIV": {
+      "file": "SP500DIV.parquet",
+      "rows": 1837,
+      "columns": 5,
+      "names": ["date", "Real_Total_Return_Price", "dollar", "SP500wDividends", "CPI"],
+      "classes": {
+        "date": "Date",
+        "Real_Total_Return_Price": "numeric",
+        "dollar": "numeric",
+        "SP500wDividends": "numeric",
+        "CPI": "numeric"
+      },
+      "date_range": ["1871-01-01", "2024-01-01"]
+    },
+    "SP500US": {
+      "file": "SP500US.parquet",
+      "rows": 1837,
+      "columns": 3,
+      "names": ["date", "Real_Total_Return_Price", "CPI_US"],
+      "classes": {
+        "date": "Date",
+        "Real_Total_Return_Price": "numeric",
+        "CPI_US": "numeric"
+      },
+      "date_range": ["1871-01-01", "2024-01-01"]
+    },
+    "US_Small_Cap_Value_Monthly": {
+      "file": "US_Small_Cap_Value_Monthly.parquet",
+      "rows": 624,
+      "columns": 3,
+      "names": ["date", "value", "name"],
+      "classes": {
+        "date": "Date",
+        "value": "numeric",
+        "name": "character"
+      },
+      "date_range": ["1972-02-01", "2024-01-01"]
+    }
+  }
+}
