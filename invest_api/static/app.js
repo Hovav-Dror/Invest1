@@ -714,7 +714,24 @@
                 ],
                 [
                   { text: "MSCI USA Small Cap Value Weighted", href: "https://www.msci.com/documents/10199/83700218-af0a-4993-b962-00de11158106" },
-                  ": מקור עדכון SCV לשנים 2024 ו-2025."
+                  ": מקור עדכון SCV לשנים 2024 ו-2025. קרנות כמו USSC/ZPRV מוזכרות בטאב ה-SCV כדוגמה לחשיפה מעשית, אבל מקור העדכון כאן הוא מדד MSCI עצמו."
+                ],
+                [
+                  { text: "FinanceCharts - ETF total return", href: "https://www.financecharts.com/etfs" },
+                  ": תשואות שנתיות של קרנות סל ששימשו כפרוקסי לעדכון 2024/2025 של סוגי נכסים חסרים, למשל VTI, VGK, VWO, BND, TLT, GLD, QQQ ואחרות."
+                ],
+                [
+                  { text: "BlackRock MEAR", href: "https://www.blackrock.com/us/individual/products/272112/ishares-short-maturity-municipal-bond-active-etf" },
+                  ": פרוקסי לעדכון Short Term Tax Exempt."
+                ],
+                [
+                  { text: "Slickcharts - Bitcoin yearly returns", href: "https://www.slickcharts.com/currency/btc/returns" },
+                  ": תשואות שנתיות של Bitcoin לעדכון 2024 ו-2025."
+                ],
+                [
+                  "הרכבי התיקים עצמם נשארים מתוך נתוני PortfoliosStructure המקומיים: אחרי עדכון סוגי הנכסים, תיקים מורכבים כמו השילוש הקדוש מחושבים מחדש לפי המשקולות המקוריות. התיעוד הטכני של זה מופיע גם ב",
+                  { text: "קובץ המקורות", href: "/api/sources" },
+                  "."
                 ],
                 [
                   { text: "Yahoo Finance", href: "https://finance.yahoo.com/" },

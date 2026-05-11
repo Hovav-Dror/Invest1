@@ -1,0 +1,141 @@
+{
+  "refresh_version": "2024-2025",
+  "target_years": [2024, 2025],
+  "composite_years": [2024, 2025],
+  "sp500_monthly_total_return": {
+    "2024-01-01": 1.68,
+    "2024-02-01": 5.34,
+    "2024-03-01": 3.22,
+    "2024-04-01": -4.08,
+    "2024-05-01": 4.96,
+    "2024-06-01": 3.59,
+    "2024-07-01": 1.22,
+    "2024-08-01": 2.43,
+    "2024-09-01": 2.14,
+    "2024-10-01": -0.91,
+    "2024-11-01": 5.87,
+    "2024-12-01": -2.38,
+    "2025-01-01": 2.78,
+    "2025-02-01": -1.3,
+    "2025-03-01": -5.63,
+    "2025-04-01": -0.68,
+    "2025-05-01": 6.29,
+    "2025-06-01": 5.09,
+    "2025-07-01": 2.24,
+    "2025-08-01": 2.03,
+    "2025-09-01": 3.65,
+    "2025-10-01": 2.34,
+    "2025-11-01": 0.25,
+    "2025-12-01": 0.06
+  },
+  "annual_returns": {
+    "10-Year US Treasury": {"2024": -0.64, "2025": 7.72},
+    "Bitcoin": {"2024": 121.05, "2025": -6.34},
+    "Cash": {"2024": 5.2, "2025": 4.15},
+    "Commodities": {"2024": 2.18, "2025": 8.1},
+    "Corporate Bonds": {"2024": 0.86, "2025": 7.9},
+    "Emerging Markets": {"2024": 10.59, "2025": 25.61},
+    "European Stocks": {"2024": 1.87, "2025": 35.84},
+    "European Small Cap Value": {"2023": 14.94, "2024": -0.61, "2025": 32.85},
+    "Global Bonds USD Hedged": {"2024": 3.56, "2025": 2.87},
+    "Global Bonds Unhedged": {"2024": -5.93, "2025": 7.67},
+    "Gold": {"2024": 26.66, "2025": 63.68},
+    "High Yield Corporate Bonds": {"2024": 7.97, "2025": 8.6},
+    "Intermediate Term Treasury": {"2024": -0.64, "2025": 7.72},
+    "Intermediate Term Tax Exempt": {"2024": 1.27, "2025": 3.78},
+    "International ex US Small Cap": {"2024": 2.94, "2025": 29.61},
+    "International ex US Value": {"2024": 5.35, "2025": 42.23},
+    "Intl Developed ex US Market": {"2024": 3.15, "2025": 35.17},
+    "Long Term Corporate Bonds": {"2024": -1.89, "2025": 7.18},
+    "Long Term Tax Exempt": {"2024": -0.01, "2025": 3.62},
+    "Long Term Treasury": {"2024": -8.05, "2025": 4.25},
+    "MSCI World ex USA index": {"2024": 3.15, "2025": 35.17},
+    "NASDAQ100": {"2024": 25.58, "2025": 20.77},
+    "Pacific Stocks": {"2024": 1.68, "2025": 32.66},
+    "Precious Metals": {"2024": 20.63, "2025": 87.25},
+    "REIT": {"2024": 4.81, "2025": 3.25},
+    "S&P 500": {"2024": 25.02, "2025": 17.88},
+    "Short Term Investment Grade": {"2024": 4.91, "2025": 6.77},
+    "Short Term Tax Exempt": {"2024": 3.36, "2025": 3.67},
+    "Short Term Treasury": {"2024": 3.92, "2025": 4.63},
+    "TIPS": {"2024": 1.65, "2025": 6.77},
+    "Total US Bond Market": {"2024": 1.38, "2025": 7.08},
+    "US Large Cap": {"2024": 25.25, "2025": 18.11},
+    "US Large Cap Growth": {"2024": 32.69, "2025": 19.41},
+    "US Large Cap Value": {"2024": 15.96, "2025": 15.27},
+    "US Mid Cap": {"2024": 15.31, "2025": 11.62},
+    "US Mid Cap Growth": {"2024": 16.38, "2025": 10.72},
+    "US Mid Cap Value": {"2024": 14.0, "2025": 12.08},
+    "US Micro Cap": {"2024": 13.45, "2025": 22.8},
+    "US Small Cap": {"2024": 14.17, "2025": 8.87},
+    "US Small Cap Growth": {"2024": 16.5, "2025": 8.5},
+    "US Small Cap Value": {"2024": 9.7, "2025": 13.71},
+    "US Stock Market": {"2024": 23.81, "2025": 17.1},
+    "X10 year Treasury": {"2024": -0.64, "2025": 7.72}
+  },
+  "sources": {
+    "sp500_monthly_total_return": {
+      "name": "YCharts S&P 500 Monthly Total Return",
+      "url": "https://ycharts.com/indicators/sp_500_monthly_total_return",
+      "coverage_applied": "2024-01 through 2025-12 monthly returns"
+    },
+    "sp500_annual_total_return_cross_check": {
+      "name": "Slickcharts S&P 500 Total Returns by Year",
+      "url": "https://www.slickcharts.com/sp500/returns",
+      "coverage_applied": "2024 and 2025 annual S&P 500 total-return cross-check"
+    },
+    "scv_annual_return": {
+      "name": "MSCI USA Small Cap Value Weighted Index factsheet, net USD returns",
+      "url": "https://www.msci.com/documents/10199/83700218-af0a-4993-b962-00de11158106",
+      "coverage_applied": "2024 and 2025 US Small Cap Value annual returns"
+    },
+    "european_stocks_annual_return": {
+      "name": "FinanceCharts VGK total return by year",
+      "url": "https://www.financecharts.com/etfs/VGK/performance/total-return",
+      "coverage_applied": "2024 and 2025 European Stocks annual returns, using Vanguard FTSE Europe ETF as proxy"
+    },
+    "emerging_markets_annual_return": {
+      "name": "FinanceCharts VWO total return by year",
+      "url": "https://www.financecharts.com/etfs/VWO/performance/total-return",
+      "coverage_applied": "2024 and 2025 Emerging Markets annual returns, using Vanguard FTSE Emerging Markets ETF as proxy"
+    },
+    "etf_proxy_annual_returns": {
+      "name": "FinanceCharts ETF total return by year",
+      "url": "https://www.financecharts.com/etfs",
+      "url_pattern": "https://www.financecharts.com/etfs/{ticker}/performance/total-return",
+      "tickers": ["BIL", "BND", "BNDX", "BWX", "DBC", "DFE", "EFV", "GLD", "GLTR", "HYG", "IEF", "IWC", "LQD", "MUB", "QQQ", "SHY", "TFI", "TIP", "TLT", "VB", "VBK", "VCLT", "VCSH", "VEA", "VGK", "VNQ", "VOT", "VO", "VOE", "VPL", "VSS", "VTI", "VTV", "VUG", "VV", "VWO"],
+      "coverage_applied": "2024 and 2025 proxy returns for remaining lazy-portfolio asset classes, plus 2023 for European Small Cap Value because the migrated series stopped in 2022: VTI, VV, VTV, VUG, VO, VOE, VOT, VB, VBK, VEA, VSS, VPL, BND, BNDX, BWX, SHY, IEF, TLT, TIP, VCSH, LQD, VCLT, HYG, VNQ, GLD, GLTR, DBC, BIL, QQQ, IWC, EFV, DFE, MUB, TFI"
+    },
+    "blackrock_short_muni_proxy": {
+      "name": "BlackRock iShares Short Maturity Municipal Bond Active ETF calendar-year returns",
+      "url": "https://www.blackrock.com/us/individual/products/272112/ishares-short-maturity-municipal-bond-active-etf",
+      "coverage_applied": "2024 and 2025 Short Term Tax Exempt proxy returns"
+    },
+    "bitcoin_annual_return": {
+      "name": "Slickcharts Bitcoin yearly returns",
+      "url": "https://www.slickcharts.com/currency/btc/returns",
+      "coverage_applied": "2024 and 2025 Bitcoin annual returns"
+    },
+    "portfolio_structure": {
+      "name": "Original R PortfoliosStructure weights",
+      "url": "repo:data/PortfoliosStructure.parquet",
+      "coverage_applied": "2024 and 2025 derived lazy-portfolio returns are computed as sum(weight * asset return) when every component has a refreshed return"
+    },
+    "usd_ils": {
+      "name": "Bank of Israel daily representative USD/ILS exchange rates",
+      "url": "https://edge.boi.gov.il/FusionEdgeServer/sdmx/v2/data/dataflow/BOI.STATISTICS/EXR/1.0/RER_USD_ILS?c%5BDATA_TYPE%5D=OF00&startperiod=2023-12-01&format=csv",
+      "coverage_applied": "monthly last available daily rate through 2026-01"
+    },
+    "israel_cpi": {
+      "name": "Israel Central Bureau of Statistics CPI, series 120010",
+      "url": "https://api.cbs.gov.il/index/data/price?id=120010&format=csv&download=false&startPeriod=01-2024&lang=en",
+      "coverage_applied": "monthly CPI through 2026-01, chained across the Average 2024 rebasing"
+    },
+    "us_cpi": {
+      "name": "FRED CPIAUCSL",
+      "url": "https://fred.stlouisfed.org/series/CPIAUCSL",
+      "download_url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CPIAUCSL",
+      "coverage_applied": "monthly CPI-U through 2026-01; one blank interior FRED CSV value is linearly interpolated"
+    }
+  }
+}

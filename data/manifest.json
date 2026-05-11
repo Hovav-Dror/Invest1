@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-11T10:31:59+0300",
+  "generated_at": "2026-05-11T12:19:45+0300",
   "source_rda": "/Users/hovav/Documents/R projects/Invest/Invest.rda",
   "metadata_reference": "tests/fixtures/r_outputs/metadata.json",
   "fixture_version": "2026-05-09",
@@ -7,7 +7,7 @@
   "objects": {
     "LazyReturns1": {
       "file": "LazyReturns1.parquet",
-      "rows": 5550,
+      "rows": 5792,
       "columns": 18,
       "names": [
         "Year",
@@ -134,5 +134,6 @@
     }
   },
   "refresh_version": "2024-2025",
-  "refresh_sources_file": "sources.json"
+  "refresh_sources_file": "sources.json",
+  "refresh_data_file": "data/manual_refresh_returns.json"
 }

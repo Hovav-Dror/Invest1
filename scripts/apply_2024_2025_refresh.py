@@ -1,13 +1,14 @@
-"""Apply the 2024/2025 source-data refresh to converted parquet data.
+"""Apply a structured source-data refresh to converted parquet data.
 
 This is intentionally small and explicit: the app currently consumes converted
 server-side parquet files, while the original R `.rda` source is not part of
-this repository. The script extends the migrated data with sourced 2024 and
-2025 rows, then records those sources in the manifest.
+this repository. The script extends the migrated data with rows from
+data/manual_refresh_returns.json, then records those sources in the manifest.
 """
 
 from __future__ import annotations
 
+import argparse
 from datetime import datetime
 import json
 from pathlib import Path
@@ -18,78 +19,27 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data"
+DEFAULT_REFRESH_FILE = DATA_DIR / "manual_refresh_returns.json"
 
-SP500_MONTHLY_TOTAL_RETURN = {
-    "2024-01-01": 1.68,
-    "2024-02-01": 5.34,
-    "2024-03-01": 3.22,
-    "2024-04-01": -4.08,
-    "2024-05-01": 4.96,
-    "2024-06-01": 3.59,
-    "2024-07-01": 1.22,
-    "2024-08-01": 2.43,
-    "2024-09-01": 2.14,
-    "2024-10-01": -0.91,
-    "2024-11-01": 5.87,
-    "2024-12-01": -2.38,
-    "2025-01-01": 2.78,
-    "2025-02-01": -1.30,
-    "2025-03-01": -5.63,
-    "2025-04-01": -0.68,
-    "2025-05-01": 6.29,
-    "2025-06-01": 5.09,
-    "2025-07-01": 2.24,
-    "2025-08-01": 2.03,
-    "2025-09-01": 3.65,
-    "2025-10-01": 2.34,
-    "2025-11-01": 0.25,
-    "2025-12-01": 0.06,
-}
 
-ANNUAL_RETURNS = {
-    "S&P 500": {
-        2024: 25.02,
-        2025: 17.88,
-    },
-    "US Small Cap Value": {
-        2024: 9.70,
-        2025: 13.71,
-    },
-}
+def load_refresh_config(path: Path) -> dict:
+    config = json.loads(path.read_text(encoding="utf-8"))
+    config["target_years"] = [int(year) for year in config["target_years"]]
+    config["composite_years"] = [int(year) for year in config.get("composite_years", config["target_years"])]
+    config["sp500_monthly_total_return"] = {
+        date: float(return_pct)
+        for date, return_pct in config["sp500_monthly_total_return"].items()
+    }
+    config["annual_returns"] = {
+        portfolio: {int(year): float(return_pct) for year, return_pct in returns.items()}
+        for portfolio, returns in config["annual_returns"].items()
+    }
+    return config
 
-SOURCES = {
-    "sp500_monthly_total_return": {
-        "name": "YCharts S&P 500 Monthly Total Return",
-        "url": "https://ycharts.com/indicators/sp_500_monthly_total_return",
-        "coverage_applied": "2024-01 through 2025-12 monthly returns",
-    },
-    "sp500_annual_total_return_cross_check": {
-        "name": "Slickcharts S&P 500 Total Returns by Year",
-        "url": "https://www.slickcharts.com/sp500/returns",
-        "coverage_applied": "2024 and 2025 annual S&P 500 total-return cross-check",
-    },
-    "scv_annual_return": {
-        "name": "MSCI USA Small Cap Value Weighted Index factsheet, net USD returns",
-        "url": "https://www.msci.com/documents/10199/83700218-af0a-4993-b962-00de11158106",
-        "coverage_applied": "2024 and 2025 US Small Cap Value annual returns",
-    },
-    "usd_ils": {
-        "name": "Bank of Israel daily representative USD/ILS exchange rates",
-        "url": "https://edge.boi.gov.il/FusionEdgeServer/sdmx/v2/data/dataflow/BOI.STATISTICS/EXR/1.0/RER_USD_ILS?c%5BDATA_TYPE%5D=OF00&startperiod=2023-12-01&format=csv",
-        "coverage_applied": "monthly last available daily rate through 2026-01",
-    },
-    "israel_cpi": {
-        "name": "Israel Central Bureau of Statistics CPI, series 120010",
-        "url": "https://api.cbs.gov.il/index/data/price?id=120010&format=csv&download=false&startPeriod=01-2024&lang=en",
-        "coverage_applied": "monthly CPI through 2026-01, chained across the Average 2024 rebasing",
-    },
-    "us_cpi": {
-        "name": "FRED CPIAUCSL",
-        "url": "https://fred.stlouisfed.org/series/CPIAUCSL",
-        "download_url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CPIAUCSL",
-        "coverage_applied": "monthly CPI-U through 2026-01; one blank interior FRED CSV value is linearly interpolated",
-    },
-}
+
+REFRESH_CONFIG = load_refresh_config(DEFAULT_REFRESH_FILE)
+REFRESH_FILE = DEFAULT_REFRESH_FILE
+SOURCES = REFRESH_CONFIG["sources"]
 
 
 def _read_parquet(name: str) -> pd.DataFrame:
@@ -109,6 +59,10 @@ def _read_csv_source(source_key: str, local_path: str, **kwargs) -> pd.DataFrame
 
 def _month_start(dates: pd.Series) -> pd.Series:
     return dates.dt.to_period("M").dt.to_timestamp()
+
+
+def _display_name(name: str) -> str:
+    return name.replace("_", " ")
 
 
 def load_usd_ils() -> pd.DataFrame:
@@ -161,7 +115,7 @@ def extend_sp500_monthly() -> None:
     last = sp500_us.loc[sp500_us["date"] == base_date].iloc[-1].copy()
     rows = []
     value = float(last["Real_Total_Return_Price"])
-    for return_month, return_pct in SP500_MONTHLY_TOTAL_RETURN.items():
+    for return_month, return_pct in REFRESH_CONFIG["sp500_monthly_total_return"].items():
         # Existing data already contains 2024-01-01. The January 2024 return
         # moves the series to 2024-02-01, and so on through 2026-01-01.
         target_date = pd.Timestamp(return_month) + pd.DateOffset(months=1)
@@ -224,6 +178,36 @@ def _recalculate_drawdowns(frame: pd.DataFrame) -> pd.DataFrame:
     return pd.concat(frames, ignore_index=True).sort_values(["Year", "Portfolio", "CommissionUse"]).reset_index(drop=True)
 
 
+def annual_returns_with_composites() -> dict[str, dict[int, float]]:
+    returns = {portfolio: dict(years) for portfolio, years in REFRESH_CONFIG["annual_returns"].items()}
+    returns["Global ex US Stock Market"] = {
+        year: 0.6 * returns["S&P 500"][year] + 0.4 * returns["MSCI World ex USA index"][year]
+        for year in REFRESH_CONFIG["composite_years"]
+    }
+    structure = _read_parquet("PortfoliosStructure")
+    for portfolio, group in structure.groupby("Portfolio", sort=False):
+        display_portfolio = _display_name(portfolio)
+        if display_portfolio in returns:
+            continue
+        if len(group) == 1 and float(group["weight"].iloc[0]) == 1:
+            continue
+
+        derived: dict[int, float] = {}
+        for year in REFRESH_CONFIG["composite_years"]:
+            total_return = 0.0
+            for _, component in group.iterrows():
+                asset = _display_name(str(component["asset"]))
+                asset_returns = returns.get(asset)
+                if not asset_returns or year not in asset_returns:
+                    break
+                total_return += float(component["weight"]) * float(asset_returns[year])
+            else:
+                derived[year] = total_return
+        if derived:
+            returns[display_portfolio] = derived
+    return returns
+
+
 def extend_lazy_returns() -> None:
     lazy = _read_parquet("LazyReturns1")
     lazy["Year"] = lazy["Year"].astype(float)
@@ -240,16 +224,37 @@ def extend_lazy_returns() -> None:
         .set_index("Year")["Inflation"]
     )
 
+    def yearly_value(source: pd.DataFrame, column: str, year: int, fallback_column: str) -> float:
+        values = source.loc[source["Year"] == year, column].dropna()
+        if not values.empty:
+            return float(values.iloc[0])
+        existing = lazy.loc[lazy["Year"] == float(year), fallback_column].dropna()
+        if existing.empty:
+            raise RuntimeError(f"Missing {fallback_column} value for {year}")
+        return float(existing.iloc[0])
+
     new_rows = []
-    for portfolio, returns in ANNUAL_RETURNS.items():
+    annual_returns = annual_returns_with_composites()
+    annual_returns["Inflation"] = {
+        year: float(inflation.loc[year])
+        for year in REFRESH_CONFIG["target_years"]
+        if year in inflation.index
+    }
+    for portfolio, returns in annual_returns.items():
         for commission_use in (False, True):
             group = lazy[(lazy["Portfolio"] == portfolio) & (lazy["CommissionUse"] == commission_use)].sort_values("Year")
-            previous = group[group["Year"] == 2023].iloc[-1].copy()
-            for year, return_pct in returns.items():
+            if group.empty:
+                continue
+            first_year = min(returns)
+            prior = group[group["Year"] < first_year]
+            if prior.empty:
+                continue
+            previous = prior.iloc[-1].copy()
+            for year, return_pct in sorted(returns.items()):
                 year = int(year)
                 cpi_us_value = float(previous["CPI_US"]) * (1 + float(inflation.loc[year]) / 100)
-                cpi_il_value = float(dec_cpi_il.loc[dec_cpi_il["Year"] == year, "CPI"].iloc[0])
-                usd_value = float(dec_usd.loc[dec_usd["Year"] == year, "dollar"].iloc[0])
+                cpi_il_value = yearly_value(dec_cpi_il, "CPI", year, "CPI_IL")
+                usd_value = yearly_value(dec_usd, "dollar", year, "USD")
                 growth = 1 + return_pct / 100
                 if commission_use:
                     growth *= 1 - float(previous["commission"]) / 100
@@ -275,7 +280,13 @@ def extend_lazy_returns() -> None:
                 new_rows.append(row)
                 previous = row
 
-    lazy = lazy[~((lazy["Portfolio"].isin(ANNUAL_RETURNS)) & (lazy["Year"].isin([2024.0, 2025.0])))]
+    refresh_pairs = {
+        (portfolio, float(year))
+        for portfolio, returns in annual_returns.items()
+        for year in returns
+    }
+    refresh_mask = lazy.apply(lambda row: (row["Portfolio"], float(row["Year"])) in refresh_pairs, axis=1)
+    lazy = lazy[~refresh_mask]
     lazy = pd.concat([lazy, pd.DataFrame(new_rows)], ignore_index=True)
     lazy = _recalculate_drawdowns(lazy)
     _write_parquet("LazyReturns1", lazy)
@@ -284,8 +295,13 @@ def extend_lazy_returns() -> None:
 def update_manifest() -> None:
     manifest_path = DATA_DIR / "manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    try:
+        refresh_data_file = str(REFRESH_FILE.relative_to(ROOT))
+    except ValueError:
+        refresh_data_file = str(REFRESH_FILE)
     manifest["generated_at"] = datetime.now().astimezone().strftime("%Y-%m-%dT%H:%M:%S%z")
-    manifest["refresh_version"] = "2024-2025"
+    manifest["refresh_version"] = REFRESH_CONFIG["refresh_version"]
+    manifest["refresh_data_file"] = refresh_data_file
     manifest["refresh_sources_file"] = "sources.json"
     for name, obj in manifest["objects"].items():
         frame = _read_parquet(name)
@@ -299,7 +315,24 @@ def update_manifest() -> None:
     (DATA_DIR / "sources.json").write_text(json.dumps(SOURCES, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--refresh-file",
+        type=Path,
+        default=DEFAULT_REFRESH_FILE,
+        help="Structured annual/monthly refresh data file.",
+    )
+    return parser.parse_args()
+
+
 def main() -> None:
+    global REFRESH_CONFIG, REFRESH_FILE, SOURCES
+    args = parse_args()
+    refresh_file = args.refresh_file if args.refresh_file.is_absolute() else ROOT / args.refresh_file
+    REFRESH_FILE = refresh_file
+    REFRESH_CONFIG = load_refresh_config(refresh_file)
+    SOURCES = REFRESH_CONFIG["sources"]
     extend_sp500_monthly()
     extend_lazy_returns()
     update_manifest()

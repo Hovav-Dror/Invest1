@@ -45,15 +45,24 @@ The fixture export loads `Invest.rda` once and records object metadata in `tests
 
 The original Phase 1 baseline above remains the parity reference for the R
 export. The migrated app now applies a separate, explicit refresh with
-`scripts/apply_2024_2025_refresh.py`:
+`data/manual_refresh_returns.json` and `scripts/apply_manual_data_refresh.py`:
 
 - `SP500DIV` and `SP500US` are extended through `2026-01-01`.
-- `LazyReturns1` is extended through 2025 for `S&P 500` and `US Small Cap Value`.
+- `LazyReturns1` is extended through 2025 for all 62 migrated portfolios/assets.
+  Direct asset-class series use sourced annual returns or ETF/crypto proxies,
+  and composite portfolios are recomputed from the original
+  `PortfoliosStructure` weights when all components have refreshed returns.
 - Refresh source metadata is stored in `data/sources.json` and linked from
   `data/manifest.json`.
 - SCV annual returns use the MSCI USA Small Cap Value Weighted net USD index
   factsheet, which is a closer direct source for the SCV exposure than the old
   stale local monthly export.
+- The remaining refreshed asset classes use documented ETF/crypto proxies,
+  including FinanceCharts total-return pages, BlackRock MEAR calendar-year
+  returns for short municipal bonds, and Slickcharts Bitcoin yearly returns.
+- Future annual updates should edit `data/manual_refresh_returns.json`, run
+  `python scripts/apply_manual_data_refresh.py`, and then run
+  `python scripts/validate_data_refresh.py --through-year <year>`.
 
 ## Fixture Script
 

@@ -14,6 +14,75 @@
     "url": "https://www.msci.com/documents/10199/83700218-af0a-4993-b962-00de11158106",
     "coverage_applied": "2024 and 2025 US Small Cap Value annual returns"
   },
+  "european_stocks_annual_return": {
+    "name": "FinanceCharts VGK total return by year",
+    "url": "https://www.financecharts.com/etfs/VGK/performance/total-return",
+    "coverage_applied": "2024 and 2025 European Stocks annual returns, using Vanguard FTSE Europe ETF as proxy"
+  },
+  "emerging_markets_annual_return": {
+    "name": "FinanceCharts VWO total return by year",
+    "url": "https://www.financecharts.com/etfs/VWO/performance/total-return",
+    "coverage_applied": "2024 and 2025 Emerging Markets annual returns, using Vanguard FTSE Emerging Markets ETF as proxy"
+  },
+  "etf_proxy_annual_returns": {
+    "name": "FinanceCharts ETF total return by year",
+    "url": "https://www.financecharts.com/etfs",
+    "url_pattern": "https://www.financecharts.com/etfs/{ticker}/performance/total-return",
+    "tickers": [
+      "BIL",
+      "BND",
+      "BNDX",
+      "BWX",
+      "DBC",
+      "DFE",
+      "EFV",
+      "GLD",
+      "GLTR",
+      "HYG",
+      "IEF",
+      "IWC",
+      "LQD",
+      "MUB",
+      "QQQ",
+      "SHY",
+      "TFI",
+      "TIP",
+      "TLT",
+      "VB",
+      "VBK",
+      "VCLT",
+      "VCSH",
+      "VEA",
+      "VGK",
+      "VNQ",
+      "VOT",
+      "VO",
+      "VOE",
+      "VPL",
+      "VSS",
+      "VTI",
+      "VTV",
+      "VUG",
+      "VV",
+      "VWO"
+    ],
+    "coverage_applied": "2024 and 2025 proxy returns for remaining lazy-portfolio asset classes, plus 2023 for European Small Cap Value because the migrated series stopped in 2022: VTI, VV, VTV, VUG, VO, VOE, VOT, VB, VBK, VEA, VSS, VPL, BND, BNDX, BWX, SHY, IEF, TLT, TIP, VCSH, LQD, VCLT, HYG, VNQ, GLD, GLTR, DBC, BIL, QQQ, IWC, EFV, DFE, MUB, TFI"
+  },
+  "blackrock_short_muni_proxy": {
+    "name": "BlackRock iShares Short Maturity Municipal Bond Active ETF calendar-year returns",
+    "url": "https://www.blackrock.com/us/individual/products/272112/ishares-short-maturity-municipal-bond-active-etf",
+    "coverage_applied": "2024 and 2025 Short Term Tax Exempt proxy returns"
+  },
+  "bitcoin_annual_return": {
+    "name": "Slickcharts Bitcoin yearly returns",
+    "url": "https://www.slickcharts.com/currency/btc/returns",
+    "coverage_applied": "2024 and 2025 Bitcoin annual returns"
+  },
+  "portfolio_structure": {
+    "name": "Original R PortfoliosStructure weights",
+    "url": "repo:data/PortfoliosStructure.parquet",
+    "coverage_applied": "2024 and 2025 derived lazy-portfolio returns are computed as sum(weight * asset return) when every component has a refreshed return"
+  },
   "usd_ils": {
     "name": "Bank of Israel daily representative USD/ILS exchange rates",
     "url": "https://edge.boi.gov.il/FusionEdgeServer/sdmx/v2/data/dataflow/BOI.STATISTICS/EXR/1.0/RER_USD_ILS?c%5BDATA_TYPE%5D=OF00&startperiod=2023-12-01&format=csv",
