@@ -930,6 +930,10 @@ h3 {
   max-height: 330px;
 }
 
+.lazy-picker .panel-picker-options {
+  max-height: 248px;
+}
+
 .lazy-number input {
   text-align: center;
 }
@@ -1198,14 +1202,60 @@ h3 {
   left: 0;
   max-height: 280px;
   min-width: 100%;
-  overflow: auto;
+  overflow: hidden;
   padding: 6px;
   position: absolute;
   top: calc(100% + 4px);
   z-index: 4;
 }
 
-.panel-picker-menu label {
+.panel-picker-tools {
+  border-bottom: 1px solid #eef2ef;
+  display: grid;
+  gap: 6px;
+  padding: 2px 2px 7px;
+}
+
+.panel-picker-search {
+  border: 1px solid #d9e1dc;
+  border-radius: 5px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+  min-height: 30px;
+  padding: 6px 9px;
+  width: 100%;
+}
+
+.panel-picker-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.panel-picker-actions button {
+  background: #f4f8f6;
+  border: 1px solid #d9e1dc;
+  border-radius: 5px;
+  color: #245d89;
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 760;
+  min-height: 26px;
+  padding: 4px 8px;
+}
+
+.panel-picker-actions button:hover {
+  background: #e9f3ee;
+}
+
+.panel-picker-options {
+  max-height: 198px;
+  overflow: auto;
+  padding-top: 6px;
+}
+
+.panel-picker-options label {
   align-items: center;
   border-radius: 4px;
   display: flex;
@@ -1214,17 +1264,23 @@ h3 {
   padding: 5px 7px;
 }
 
-.panel-picker-menu label:hover {
+.panel-picker-options label:hover {
   background: #eef5f2;
 }
 
-.panel-picker-menu input {
+.panel-picker-options input {
   height: 14px;
   width: 14px;
 }
 
-.panel-picker-menu span {
+.panel-picker-options span {
   font-size: 12px;
+}
+
+.panel-picker-empty {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 8px 4px 4px;
 }
 
 .panel-slider {
@@ -1362,50 +1418,75 @@ h3 {
 .chart svg {
   display: block;
   height: 300px;
+  margin-inline: auto;
   overflow: visible;
   width: 100%;
   direction: ltr;
 }
 
 .chart svg.tax-chart-svg {
-  height: min(68vh, 650px);
-  min-height: 480px;
+  aspect-ratio: 940 / 520;
+  height: auto;
+  max-width: 1175px;
+  min-height: 0;
 }
 
 .chart svg.faceted-chart-svg {
-  height: min(76vh, 720px);
-  min-height: 560px;
+  aspect-ratio: 1160 / 630;
+  height: auto;
+  max-width: 1325px;
+  min-height: 0;
 }
 
 .chart svg.kupat-chart-svg {
-  height: min(76vh, 720px);
-  min-height: 560px;
+  aspect-ratio: 1540 / 620;
+  height: auto;
+  max-width: 1788px;
+  min-height: 0;
 }
 
 .chart svg.risk-chart-svg {
-  height: min(80vh, 760px);
-  min-height: 520px;
+  aspect-ratio: 940 / 520;
+  height: auto;
+  max-width: 1373px;
+  min-height: 0;
 }
 
 .chart svg.trinity-chart-svg {
-  height: min(80vh, 760px);
-  min-height: 560px;
+  aspect-ratio: 940 / 620;
+  height: auto;
+  max-width: 1152px;
+  min-height: 0;
 }
 
 .chart svg.rolling-bars-svg {
-  height: min(82vh, 760px);
-  min-height: 620px;
+  aspect-ratio: 1160 / 650;
+  height: auto;
+  max-width: 1356px;
+  min-height: 0;
 }
 
 .chart svg.portfolio-cagr-svg {
-  height: min(82vh, 760px);
-  min-height: 620px;
+  aspect-ratio: 1160 / 650;
+  height: auto;
+  max-width: 1356px;
+  min-height: 0;
 }
 
 .chart svg.lazy-scatter-svg,
 .chart svg.lazy-time-svg {
-  height: min(82vh, 780px);
-  min-height: 620px;
+  height: auto;
+  min-height: 0;
+}
+
+.chart svg.lazy-scatter-svg {
+  aspect-ratio: 1120 / 720;
+  max-width: 1213px;
+}
+
+.chart svg.lazy-time-svg {
+  aspect-ratio: auto;
+  max-width: 1293px;
 }
 
 .chart-title {
@@ -1744,6 +1825,79 @@ h3 {
 .chart-help {
   color: var(--muted);
   font-size: 12px;
+  margin-top: 4px;
+}
+
+.chart-reading {
+  background: var(--panel-soft);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  margin: 10px auto 0;
+  max-width: 1180px;
+  padding: 12px 14px;
+  width: 100%;
+}
+
+.chart:has(svg.tax-chart-svg) .chart-reading {
+  max-width: 1175px;
+}
+
+.chart:has(svg.faceted-chart-svg) .chart-reading {
+  max-width: 1325px;
+}
+
+.chart:has(svg.kupat-chart-svg) .chart-reading {
+  max-width: 1788px;
+}
+
+.chart:has(svg.risk-chart-svg) .chart-reading {
+  max-width: 1373px;
+}
+
+.chart:has(svg.trinity-chart-svg) .chart-reading {
+  max-width: 1152px;
+}
+
+.chart:has(svg.rolling-bars-svg) .chart-reading,
+.chart:has(svg.portfolio-cagr-svg) .chart-reading {
+  max-width: 1356px;
+}
+
+.chart:has(svg.lazy-scatter-svg) .chart-reading {
+  max-width: 1213px;
+}
+
+.chart:has(svg.lazy-time-svg) .chart-reading {
+  max-width: 1293px;
+}
+
+.chart:has(svg.heatmap-svg) .chart-reading {
+  max-width: 1500px;
+}
+
+.chart-reading h4 {
+  font-size: 14px;
+  font-weight: 850;
+  margin: 0 0 6px;
+}
+
+.chart-reading p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+  margin: 0 0 8px;
+}
+
+.chart-reading ul {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+  margin: 0;
+  padding-inline-start: 20px;
+}
+
+.chart-reading li + li {
   margin-top: 4px;
 }
 

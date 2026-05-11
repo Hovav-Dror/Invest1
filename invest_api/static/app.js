@@ -461,8 +461,8 @@
         { html: "אגב, יש עוד מקומות רבים למצוא תיקים כאלה, למשל <a href=\"https://www.upmyinterest.com/\" target=\"_blank\" rel=\"noopener noreferrer\"> כאן</a>, ובהם כמובן גם במגרש הישראלי הביתי - <a href=\"https://www.hasolidit.com/25-%d7%aa%d7%99%d7%a7%d7%99-%d7%94%d7%a9%d7%a7%d7%a2%d7%95%d7%aa-%d7%9c%d7%94%d7%a8%d7%9b%d7%91%d7%94-%d7%a2%d7%a6%d7%9e%d7%99%d7%aa\" target=\"_blank\" rel=\"noopener noreferrer\">הסולידית</a>." },
         "התרשים הבא מאפשר להשוות בין התשואה הריאלית של תיקים שונים, למידת התנודתיות שלהם.",
         "לתשואה, נשתמש בשני מדדים - תשואה ריאלית (CAGR מתוקנן למדד) ופי כמה הכסף היה גדל, ריאלית, בהשקעה של 15 שנים עם תשואה כזו.",
-        "את התנודתיות נציג הן כסטיית התקן של התשואה, והן כמספר השנים של השפל הממושך ביותר (הנתון שלפחות אותי מטריד ביותר).",
-        { html: "את החישוב עשיתי בעצמי, מבלי שמישהו בדק את נכונותו. את נתוני הגלם של המרכיבים של כל תיק <a href=\"https://www.portfoliovisualizer.com/historical-asset-class-returns\" target=\"_blank\" rel=\"noopener noreferrer\">לקחתי מכאן</a>. דאגתי לאזן כל תיק מדי שנה. נדמה לי שנתוני הגלם לא כוללים חישוב של דיבידנדים." }
+        "את התנודתיות נציג הן כסטיית התקן של התשואה, והן כ\"שנות שפל\": מספר השנים הרצופות הארוך ביותר שבהן תיק היה מתחת לשיא הקודם שלו, עד שחזר לשיא חדש. זה הנתון שלפחות אותי מטריד ביותר, כי הוא מתאר כמה זמן המשקיע היה צריך לחכות כדי לצאת מהבור.",
+        { html: "את החישוב עשיתי בעצמי, מבלי שמישהו בדק את נכונותו. נתוני הבסיס ההיסטוריים של סוגי הנכסים בתיקים התבססו בעיקר על <a href=\"https://www.portfoliovisualizer.com/historical-asset-class-returns\" target=\"_blank\" rel=\"noopener noreferrer\">המקור הזה</a>, לצד מקורות נוספים שמפורטים בטאב אודות ובעדכוני 2024/2025. דאגתי לאזן כל תיק מדי שנה. נדמה לי שחלק מנתוני הגלם המקוריים לא כוללים חישוב של דיבידנדים." }
       ],
       notes: ["מקור: PortfolioPlot1a / p1i ו-PortfolioPlot2a / p2i", "קלטים מקוריים: PortfolioCPI, PortfolioSelect, PortfolioHighlight, Portfolio15years, PortfolioYears, PortfolioCommision"]
     },
@@ -1886,25 +1886,11 @@
         </fieldset>
         <details class="panel-picker lazy-picker" data-lazy-picker="portfolios">
           <summary><span>תיקים להצגה</span><b data-picker-summary></b></summary>
-          <div class="panel-picker-menu">
-            ${portfolioChoices.map((portfolio) => `
-              <label>
-                <input type="checkbox" name="portfolios" value="${escapeHtml(portfolio)}" ${selected.has(portfolio) ? "checked" : ""}>
-                <span>${escapeHtml(portfolio)}</span>
-              </label>
-            `).join("")}
-          </div>
+          ${panelPickerMenuHtml("portfolios", portfolioChoices, selected)}
         </details>
         <details class="panel-picker lazy-picker" data-lazy-picker="highlight">
           <summary><span>תיקים להדגשה</span><b data-picker-summary></b></summary>
-          <div class="panel-picker-menu">
-            ${portfolioChoices.map((portfolio) => `
-              <label>
-                <input type="checkbox" name="highlight" value="${escapeHtml(portfolio)}" ${portfolio === "S&P 500" ? "checked" : ""}>
-                <span>${escapeHtml(portfolio)}</span>
-              </label>
-            `).join("")}
-          </div>
+          ${panelPickerMenuHtml("highlight", portfolioChoices, new Set(["S&P 500"]))}
         </details>
         <label class="panel-field lazy-number">
           <span>שנים לחישוב תשואה</span>
@@ -1932,6 +1918,30 @@
           <input type="checkbox" name="commission_adjusted" checked>
           <span>חישוב משקלל דמי ניהול</span>
         </label>
+      </div>
+    `;
+  }
+
+  function panelPickerMenuHtml(name, options, selected) {
+    const normalizedOptions = options.map((option) => Array.isArray(option) ? option : [option, option]);
+    return `
+      <div class="panel-picker-menu">
+        <div class="panel-picker-tools">
+          <input type="search" class="panel-picker-search" data-picker-search placeholder="חיפוש תיק" aria-label="חיפוש תיק">
+          <div class="panel-picker-actions">
+            <button type="button" data-picker-action="select">בחר הכל</button>
+            <button type="button" data-picker-action="clear">נקה הכל</button>
+          </div>
+        </div>
+        <div class="panel-picker-options" data-picker-options>
+          ${normalizedOptions.map(([value, label]) => `
+            <label>
+              <input type="checkbox" name="${escapeHtml(name)}" value="${escapeHtml(value)}" ${selected.has(value) ? "checked" : ""}>
+              <span>${escapeHtml(label)}</span>
+            </label>
+          `).join("")}
+        </div>
+        <p class="panel-picker-empty" data-picker-empty hidden>לא נמצאו תיקים</p>
       </div>
     `;
   }
@@ -2012,11 +2022,7 @@
 
   function updateLazyControlUi(root = els.chart) {
     updatePanelControlUi(root);
-    root.querySelectorAll(".lazy-picker").forEach((picker) => {
-      const checked = [...picker.querySelectorAll("input[type='checkbox']:checked")].map((input) => input.value);
-      const summary = picker.querySelector("[data-picker-summary]");
-      if (summary) summary.textContent = checked.join(", ") || "בחרו תיקים";
-    });
+    updatePanelPickerUi(root);
   }
 
   async function runLazyPortfolioView(viewId, seq) {
@@ -2161,7 +2167,7 @@
         `CAGR ${formatTooltipPercent(numericValue(row.CAGR), 1)}`,
         `SD ${formatTooltipPercent(numericValue(row.SD), 0)}`,
         `אחרי ${state.factor_years} שנים השקעה של שקל אחד הניבה ${formatTooltipNumber(row.FactorN, 1)} שקלים`,
-        `שפל מרבי, בשנים: ${row.MaxShefelYears}`,
+        `שנות שפל מרביות: ${row.MaxShefelYears} שנים מתחת לשיא הקודם`,
         `הפסד מרבי: ${formatTooltipPercent(numericValue(row.MaxDrop), 1)}`
       ].join("\n");
       return `
@@ -2182,6 +2188,7 @@
         <text class="lazy-axis-title" transform="translate(30 ${(pad.top + plotBottom) / 2}) rotate(-90)" text-anchor="middle">${escapeHtml(yLabel)}</text>
       </svg>
       <p class="chart-caption chart-caption-rolling"><span>${escapeHtml(lazyCaption(state.value_mode))}</span></p>
+      ${lazyReadingHtml(mode === "factor" ? "factor" : "risk-return", state)}
       <div class="chart-help">${escapeHtml(ui.barHelp)}</div>
       <div class="chart-tooltip" role="status"></div>
     `;
@@ -2273,6 +2280,7 @@
         <text class="lazy-axis-title" transform="translate(30 ${(pad.top + plotBottom) / 2}) rotate(-90)" text-anchor="middle">${escapeHtml(yLabel)}</text>
       </svg>
       <p class="chart-caption chart-caption-rolling"><span>${escapeHtml(lazyCaption(state.value_mode))}</span></p>
+      ${lazyReadingHtml("time", state)}
       <div class="chart-help">${escapeHtml(ui.barHelp)}</div>
       <div class="chart-tooltip" role="status"></div>
     `;
@@ -2328,6 +2336,7 @@
         <text class="lazy-axis-title" x="${(pad.left + plotRight) / 2}" y="${height - 26}" text-anchor="middle">תשואה</text>
       </svg>
       <p class="chart-caption chart-caption-rolling"><span>${escapeHtml(lazyCaption(state.value_mode))}</span></p>
+      ${lazyReadingHtml("box", state)}
       <div class="chart-help">${escapeHtml(ui.barHelp)}</div>
       <div class="chart-tooltip" role="status"></div>
     `;
@@ -2391,6 +2400,7 @@
         <text class="lazy-axis-title" x="${(pad.left + plotRight) / 2}" y="${height - 28}" text-anchor="middle">${escapeHtml(`% start investment years where ${state.rolling_window} years investment in ${highLight} was better`)}</text>
       </svg>
       <p class="chart-caption chart-caption-rolling"><span>${escapeHtml(lazyCaption(state.value_mode))}</span></p>
+      ${lazyReadingHtml("highlight", state)}
       <div class="chart-help">${escapeHtml(ui.barHelp)}</div>
       <div class="chart-tooltip" role="status"></div>
     `;
@@ -2714,14 +2724,7 @@
                   <span>${escapeHtml(control.label)}</span>
                   <b data-picker-summary>${escapeHtml([...selected].join(", "))}</b>
                 </summary>
-                <div class="panel-picker-menu">
-                  ${control.options.map(([value, label]) => `
-                    <label>
-                      <input type="checkbox" name="${escapeHtml(control.name)}" value="${escapeHtml(value)}" ${selected.has(value) ? "checked" : ""}>
-                      <span>${escapeHtml(label)}</span>
-                    </label>
-                  `).join("")}
-                </div>
+                ${panelPickerMenuHtml(control.name, control.options, selected)}
               </details>
             `;
           }
@@ -2913,11 +2916,46 @@
         tracks.classList.toggle("labels-overlap", highPercent - lowPercent < 14);
       }
     });
-    root.querySelectorAll(".panel-picker").forEach((picker) => {
+    updatePanelPickerUi(root);
+  }
+
+  function updatePanelPickerUi(root) {
+    const pickers = root.matches && root.matches(".panel-picker")
+      ? [root]
+      : [...root.querySelectorAll(".panel-picker")];
+    pickers.forEach((picker) => {
       const checked = [...picker.querySelectorAll("input[type='checkbox']:checked")].map((input) => input.value);
       const summary = picker.querySelector("[data-picker-summary]");
       if (summary) summary.textContent = checked.join(", ") || "בחרו תיקים";
+      filterPanelPickerOptions(picker);
     });
+  }
+
+  function filterPanelPickerOptions(picker) {
+    const search = picker.querySelector("[data-picker-search]");
+    const query = normalizePickerText(search ? search.value : "");
+    const labels = [...picker.querySelectorAll("[data-picker-options] label")];
+    let visibleCount = 0;
+    labels.forEach((label) => {
+      const text = normalizePickerText(label.textContent || "");
+      const visible = !query || text.includes(query);
+      label.hidden = !visible;
+      if (visible) visibleCount += 1;
+    });
+    const empty = picker.querySelector("[data-picker-empty]");
+    if (empty) empty.hidden = visibleCount > 0;
+  }
+
+  function normalizePickerText(value) {
+    return value.toLocaleLowerCase().trim();
+  }
+
+  function applyPanelPickerAction(picker, action) {
+    const visibleInputs = [...picker.querySelectorAll("[data-picker-options] label:not([hidden]) input[type='checkbox']")];
+    visibleInputs.forEach((input) => {
+      input.checked = action === "select";
+    });
+    updatePanelPickerUi(picker);
   }
 
   function closePanelPickers(exceptPicker = null) {
@@ -3283,6 +3321,7 @@
         <text class="trinity-y-label" transform="translate(12 ${(pad.top + plotBottom) / 2}) rotate(-90)" text-anchor="middle">יתרת תיק ההשקעות</text>
         <rect class="zoom-box" hidden x="0" y="${pad.top}" width="0" height="${plotBottom - pad.top}"></rect>
       </svg>
+      ${chartReadingHtml(payload, { type: "trinity" })}
       <div class="chart-actions">
         <div class="chart-help">${escapeHtml(ui.chartHelp.replace(" לחיצה על המקרא מסתירה או מציגה סדרה.", ""))}</div>
         <button class="reset-zoom" type="button" ${zoom ? "" : "disabled"}>${escapeHtml(ui.resetZoom)}</button>
@@ -3402,6 +3441,7 @@
         <rect class="zoom-box" hidden x="0" y="${pad.top}" width="0" height="${plotBottom - pad.top}"></rect>
       </svg>
       ${chartCaption(chartConfig, payload, "risk")}
+      ${chartReadingHtml(payload, chartConfig)}
       <div class="chart-actions">
         <div class="chart-help">${escapeHtml(ui.chartHelp.replace(" לחיצה על המקרא מסתירה או מציגה סדרה.", ""))}</div>
         <button class="reset-zoom" type="button" ${zoom ? "" : "disabled"}>${escapeHtml(ui.resetZoom)}</button>
@@ -3528,6 +3568,7 @@
         <rect class="zoom-box" hidden x="0" y="${pad.top}" width="0" height="${plotBottom - pad.top}"></rect>
       </svg>
       ${chartCaption(chartConfig, payload, "kupat")}
+      ${chartReadingHtml(payload, chartConfig)}
       <div class="legend kupat-legend">${legend}</div>
       <div class="chart-actions">
         <div class="chart-help">${escapeHtml(ui.chartHelp)}</div>
@@ -3716,6 +3757,7 @@
         ${panels}
       </svg>
       ${chartCaption(chartConfig, payload, "rolling")}
+      ${chartReadingHtml(payload, chartConfig)}
       <div class="chart-help">${escapeHtml(ui.barHelp)}</div>
       <div class="chart-tooltip" role="status"></div>
     `;
@@ -3868,6 +3910,7 @@
         <text class="portfolio-y-label" transform="translate(${pad.left - 54} ${(pad.top + plotBottom) / 2}) rotate(-90)" text-anchor="middle">תשואה</text>
       </svg>
       ${chartCaption(chartConfig, payload, "rolling")}
+      ${chartReadingHtml(payload, chartConfig)}
       <div class="chart-help">${escapeHtml(ui.barHelp)}</div>
       <div class="chart-tooltip" role="status"></div>
     `;
@@ -3998,6 +4041,7 @@
         <rect class="zoom-box" hidden x="0" y="${pad.top}" width="0" height="${height - pad.top - pad.bottom}"></rect>
       </svg>
       ${chartCaption(chartConfig, payload, chartConfig.endLabels ? "tax" : "standard")}
+      ${chartReadingHtml(payload, chartConfig)}
       <div class="legend">${legend}</div>
       <div class="chart-actions">
         <div class="chart-help">${escapeHtml(ui.chartHelp)}</div>
@@ -4141,6 +4185,7 @@
         <rect class="zoom-box" hidden x="0" y="${plotTop}" width="0" height="${plotBottom - plotTop}"></rect>
       </svg>
       ${chartCaption(chartConfig, payload, "faceted")}
+      ${chartReadingHtml(payload, chartConfig)}
       <div class="legend facet-legend">${legend}</div>
       <div class="chart-actions">
         <div class="chart-help">${escapeHtml(ui.chartHelp)}</div>
@@ -4213,6 +4258,7 @@
         <text x="8" y="${yScale(min) + 4}" fill="#98a39e" font-size="11">${formatAxis(min)}</text>
         ${bars}
       </svg>
+      ${chartReadingHtml(payload, chartConfig)}
       <div class="chart-help">${escapeHtml(ui.barHelp)}</div>
       <div class="chart-tooltip" role="status"></div>
     `;
@@ -4308,6 +4354,7 @@
           <text x="${legendX + 34}" y="${legendY + 196}" class="heatmap-axis-text">${escapeHtml(chartConfig.negativeLabel || "-")} ${formatPercent(maxAbs, 0)}</text>
         </svg>
         ${caption}
+        ${chartReadingHtml(payload, chartConfig)}
       </div>
       <div class="chart-tooltip" role="status"></div>
     `;
@@ -4575,6 +4622,215 @@
     return value < 0 ? `\u200e-₪${amount}\u200e` : `₪${amount}`;
   }
 
+  function chartReadingSection(content) {
+    if (!content) return "";
+    const title = content.title || "איך לקרוא את הגרף";
+    const paragraphs = (content.paragraphs || [])
+      .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
+      .join("");
+    const list = (content.list || [])
+      .map((item) => `<li>${escapeHtml(item)}</li>`)
+      .join("");
+    return `
+      <section class="chart-reading" aria-label="${escapeHtml(title)}">
+        <h4>${escapeHtml(title)}</h4>
+        ${paragraphs}
+        ${list ? `<ul>${list}</ul>` : ""}
+      </section>
+    `;
+  }
+
+  function chartReadingHtml(payload, chartConfig) {
+    return chartReadingSection(chartReadingContent(payload, chartConfig || {}));
+  }
+
+  function lazyReadingHtml(kind, state) {
+    return chartReadingSection(lazyReadingContent(kind, state));
+  }
+
+  function chartReadingContent(payload, chartConfig) {
+    const endpoint = payload && payload.endpoint;
+    const rollingWindow = chartConfig.rollingWindow || chartConfig.windowParam || "הנבחר";
+    if (chartConfig.type === "heatmap") {
+      return {
+        list: [
+          "כל תא הוא תקופת השקעה אחת: שנת הסיום בציר האופקי ומספר שנות ההשקעה בציר האנכי.",
+          `הצבע מראה מי הוביל בתשואה השנתית הממוצעת: ${chartConfig.positiveLabel || "הצד החיובי"} מול ${chartConfig.negativeLabel || "הצד השלילי"}. ככל שהצבע חזק יותר, הפער גדול יותר.`,
+          "מעבר עם העכבר מציג את שנת ההתחלה, שנת הסיום, התשואות של שני הצדדים ואת הפער המדויק."
+        ]
+      };
+    }
+    if (chartConfig.type === "portfolioCagrBars") {
+      const valueText = chartConfig.returnMode === "cumulative"
+        ? "התשואה המצטברת לאורך כל חלון ההשקעה"
+        : "התשואה השנתית הממוצעת, CAGR, לאורך חלון ההשקעה";
+      return {
+        list: [
+          `כל נקודה או עמודה מתייחסת להשקעה שהסתיימה בשנה שמופיעה בציר האופקי, ובדרך כלל נמשכה ${rollingWindow} שנים.`,
+          `הציר האנכי מציג את ${valueText}; ערך גבוה יותר אומר שהתיק הניב יותר באותו חלון היסטורי.`,
+          "ההשוואה החשובה היא לא שנה בודדת אלא הרצף: האם היתרון חוזר בהרבה שנות סיום, או מופיע רק בתקופה נוחה אחת."
+        ]
+      };
+    }
+    switch (endpoint) {
+      case "tax_events":
+        return {
+          list: [
+            "הציר האופקי הוא הזמן, והציר האנכי הוא שווי ההשקעה לאחר מס ובהתאם לבחירת התקנון למדד.",
+            "כל קו מייצג תדירות אחרת של מימוש ומס: רק בסוף התקופה, פעם בשנה, פעם בחצי שנה או כל חודש.",
+            "הפער בין הקווים הוא המחיר המצטבר של אירועי מס חוזרים. קו גבוה יותר משאיר יותר כסף אצל המשקיע."
+          ]
+        };
+      case "commission_effect":
+        return {
+          list: [
+            "כל קו מייצג דמי ניהול שנתיים אחרים, על אותה השקעה בסיסית.",
+            "הציר האנכי מציג כמה נשאר לאחר דמי ניהול ומס בסוף התקופה; קו גבוה יותר טוב יותר.",
+            "גם פער שנראה קטן באחוזים בכל שנה יכול להפוך לפער גדול בכסף לאחר שנים רבות."
+          ]
+        };
+      case "commission_tax":
+        return {
+          list: [
+            "כל פאנל מייצג רמת דמי ניהול אחרת, ובתוכו הקווים מייצגים תדירויות שונות של אירועי מס.",
+            "כך אפשר להפריד בין שני כוחות: דמי ניהול שגורעים כסף בכל שנה, ומימושים שמקדימים תשלום מס.",
+            "השוואה בין פאנלים מראה את השפעת דמי הניהול; השוואה בין הקווים באותו פאנל מראה את השפעת תדירות המימוש."
+          ]
+        };
+      case "kupat_gemel":
+        return {
+          list: [
+            "הציר האופקי הוא גיל המשקיע, ומעליו מופיעה גם השנה הקלנדרית המתאימה.",
+            "הציר האנכי הוא שווי הכסף לאחר ההנחות שנבחרו: מס, דמי ניהול ועלויות קנייה/מכירה.",
+            "הקו האנכי סביב גיל 60 מסמן את נקודת הטבת המס בקופת גמל להשקעה. השאלה היא האם ההטבה מפצה על דמי הניהול והעלויות."
+          ]
+        };
+      case "kupat_gemel_pension":
+        return {
+          list: [
+            "הציר האופקי הוא גיל, והציר האנכי הוא כסף בערכים שמתאימים לבחירת התקנון למדד.",
+            "הקווים הכחולים/אדומים מציגים יתרות השקעה; קו הקצבה המצטברת מציג סכום שנמשך, ולכן אינו עוד יתרה שממשיכה להיות מושקעת.",
+            "ההשוואה העיקרית היא בין יתרת קופת הגמל לאחר קצבה לבין השקעה עצמאית שממנה מושכים קצבה דומה."
+          ]
+        };
+      case "sp500_risk":
+        return {
+          list: [
+            "כל נקודה היא חלון השקעה היסטורי באורך השנים שנבחר, שמסתיים בתאריך שעל הציר האופקי.",
+            "הציר האנכי הוא התשואה השנתית הממוצעת הריאלית באותו חלון. מעל אפס פירושו תשואה חיובית אחרי אינפלציה.",
+            "הטקסט בתוך הגרף מסכם כמה מהחלונות הפסידו כסף, כמה עברו את הסף שנבחר ומה הייתה התשואה החציונית."
+          ]
+        };
+      case "independent_commissions":
+        return {
+          list: [
+            "הקו לפני עלויות מציג את ההשקעה כאילו לא היו עמלות מסחר, המרת מטבע או דמי ניהול.",
+            "הקו אחרי עלויות מציג את אותו תרחיש לאחר ההנחות שהוזנו למעלה.",
+            "הפער בין הקווים הוא העלות המצטברת של מסחר עצמאי בתרחיש שנבחר."
+          ]
+        };
+      case "tax_us_vs_il":
+        return {
+          list: [
+            "הקו לפני מס ומכירה הוא נקודת הייחוס: מה היה שווי ההשקעה לפני חישוב המס בסוף.",
+            "שני הקווים האחרים משווים שתי שיטות חישוב מס: מס ישראלי צמוד מדד מול מס דולרי/נומינלי.",
+            "הפער ביניהם מדגים עד כמה סוג הקרן ואופן המיסוי יכולים לשנות את התוצאה נטו."
+          ]
+        };
+      case "us_world_rolling":
+      case "us_global_rolling":
+        return {
+          list: [
+            "כל עמודה מראה פער בתשואה שנתית ממוצעת בין S&P 500 לבין החלופה הגלובלית, בתקופה שהסתיימה בשנה שעל הציר.",
+            "הפאנלים מפרידים בין חלונות של 5, 10 ו-15 שנים. חלון ארוך יותר מסנן יותר רעש של שנה בודדת.",
+            "עמודה מעל האפס פירושה יתרון ל-S&P 500; עמודה מתחת לאפס פירושה יתרון לחלופה הגלובלית."
+          ]
+        };
+      case "trinity":
+        return {
+          list: [
+            "כל נקודה מייצגת תקופת פרישה היסטורית אחרת: מתחילים בשנה מסוימת, מושכים לאורך מספר השנים שנבחר, ומסיימים בשנה שעל הציר האופקי.",
+            "הקו השחור מציג כמה כסף נשאר בסוף התקופה. הקו האפור מציג את השפל בדרך.",
+            "ערך מתחת לאפס אינו תיק השקעות שלילי, אלא סכום שהיה חסר כדי להמשיך לממן את המשיכות לאחר שהכסף נגמר."
+          ]
+        };
+      default:
+        if (chartConfig.facetBy) {
+          return {
+            list: [
+              "כל פאנל הוא תרחיש נפרד לפי הערך שמופיע בכותרת הפאנל.",
+              "בתוך כל פאנל, כל קו הוא סדרה אחרת; הציר האופקי הוא זמן והציר האנכי הוא הערך הכספי או האחוזי שנמדד.",
+              "השוואה בתוך פאנל מראה הבדל בין סדרות, והשוואה בין פאנלים מראה את השפעת הפרמטר שמפריד ביניהם."
+            ]
+          };
+        }
+        return {
+          list: [
+            "הציר האופקי מציג זמן או קטגוריה, והציר האנכי מציג את המדד המרכזי של הגרף.",
+            "צבעים שונים מייצגים סדרות או חלופות שונות. מעבר עם העכבר מציג את הערכים המדויקים.",
+            "כדאי לקרוא את הפערים והמגמה לאורך זמן, ולא רק נקודה אחת בודדת."
+          ]
+        };
+    }
+  }
+
+  function lazyReadingContent(kind, state) {
+    const years = state && state.factor_years ? state.factor_years : 15;
+    const rollingWindow = state && state.rolling_window ? state.rolling_window : 10;
+    const timeType = state && state.time_type ? state.time_type : "Accumulate";
+    if (kind === "factor") {
+      return {
+        list: [
+          `כל נקודה היא תיק השקעות אחד. נקודה גבוהה יותר אומרת ששקל אחד גדל יותר לאורך ${years} השנים שנבחרו.`,
+          "ימינה יותר פירושו יותר שנות שפל: יותר שנים רצופות שבהן התיק היה מתחת לשיא הקודם שלו, עד שחזר לשיא חדש.",
+          `גודל הנקודה מייצג כמה שנות נתונים זמינות לתיק. נקודות קטנות נשענות על היסטוריה קצרה יותר, ולכן צריך לקרוא אותן בזהירות.`
+        ]
+      };
+    }
+    if (kind === "risk-return") {
+      return {
+        list: [
+          "כל נקודה היא תיק השקעות אחד. למעלה יותר פירושו תשואה שנתית ממוצעת גבוהה יותר.",
+          "ימינה יותר פירושו סטיית תקן גבוהה יותר, כלומר תנודתיות שנתית גבוהה יותר.",
+          "גודל הנקודה מייצג את אורך ההיסטוריה הזמינה. השוואה בין נקודות בגודל שונה אינה סימטרית לגמרי."
+        ]
+      };
+    }
+    if (kind === "time") {
+      const modeText = {
+        Accumulate: "שווי מצטבר לאורך זמן",
+        "CAGR (acc)": "תשואה שנתית ממוצעת מתחילת הנתונים ועד כל שנה",
+        "CAGR (n years)": `תשואה שנתית ממוצעת בחלון נע של ${rollingWindow} שנים`
+      }[timeType] || "מדד התשואה שנבחר";
+      return {
+        list: [
+          `הגרף מציג ${modeText}.`,
+          "כל קו הוא תיק השקעות אחר; תווית הקצה מציגה את התוצאה האחרונה בטווח שנבחר.",
+          "השוואה לאורך זמן עוזרת לראות לא רק מי סיים גבוה יותר, אלא גם כמה קשה היה להחזיק את התיק בתקופות חלשות."
+        ]
+      };
+    }
+    if (kind === "box") {
+      return {
+        list: [
+          `כל שורה מסכמת את התפלגות התשואות השנתיות בחלונות השקעה בני ${rollingWindow} שנים.`,
+          "הקו במרכז הקופסה הוא החציון, הקופסה היא הטווח המרכזי, והקו הדק מציג את הקצוות ההיסטוריים.",
+          "זו תצוגה טובה להשוואת יציבות: תיק עם חציון גבוה אבל קצה תחתון חלש עלול להיות קשה יותר להחזקה."
+        ]
+      };
+    }
+    if (kind === "highlight") {
+      return {
+        list: [
+          `כל עמודה מציגה באיזה אחוז משנות ההתחלה התיק המודגש ניצח תיק אחר בחלון של ${rollingWindow} שנים.`,
+          "עמודה ארוכה יותר פירושה שהבחירה המודגשת הובילה ביותר חלונות היסטוריים.",
+          "זה אינו חישוב הסתברות לעתיד, כי חלונות מתגלגלים חופפים זה לזה, אבל הוא כן מראה עד כמה היתרון עקבי בעבר."
+        ]
+      };
+    }
+    return null;
+  }
+
   function chartCaption(chartConfig, payload, layout = "standard") {
     if (!chartConfig.caption && !chartConfig.captionLines) return "";
     const parts = chartConfig.captionLines
@@ -4726,6 +4982,12 @@
     scheduleRun();
   });
   els.chart.addEventListener("input", (event) => {
+    const pickerSearch = event.target.closest("[data-picker-search]");
+    if (pickerSearch) {
+      const picker = pickerSearch.closest(".panel-picker");
+      if (picker) filterPanelPickerOptions(picker);
+      return;
+    }
     const lazyControls = event.target.closest("[data-lazy-controls]");
     const lazyTimeControls = event.target.closest("[data-lazy-time-controls]");
     if (lazyControls) {
@@ -4763,6 +5025,25 @@
     }
   });
   els.chart.addEventListener("click", (event) => {
+    const pickerAction = event.target.closest("[data-picker-action]");
+    if (pickerAction) {
+      event.preventDefault();
+      event.stopPropagation();
+      const picker = pickerAction.closest(".panel-picker");
+      if (!picker) return;
+      applyPanelPickerAction(picker, pickerAction.dataset.pickerAction);
+      const lazyControls = picker.closest("[data-lazy-controls]");
+      const controls = picker.closest("[data-role='panel-controls']");
+      if (lazyControls) {
+        syncLazyControls(lazyControls);
+        updateLazyControlUi();
+        scheduleRun();
+      } else if (controls) {
+        updatePanelControlUi(controls);
+        scheduleRun();
+      }
+      return;
+    }
     const lazyPicker = event.target.closest(".lazy-picker");
     if (lazyPicker && event.target.closest("summary")) {
       closePanelPickers(lazyPicker);
