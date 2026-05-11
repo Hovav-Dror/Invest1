@@ -671,55 +671,80 @@
         {
           title: "אודות",
           paragraphs: [
-            "יום אחד החלטתי לעשות קצת סדר בחסכונות וההשקעות שלי, ומשיכה קטנה בקצה חבל הובילה לעדר פילים.",
+            "זה אתר אישי ולימודי שמנסה לעזור לחשוב על השקעות פאסיביות דרך נתונים היסטוריים, ולא דרך תחושת בטן או הנחה כללית של תשואה שנתית קבועה.",
             [
-              "קודם כל יצרתי מערכת להשוואת קרנות השתלמות, קופות גמל, קופות גמל להשקעה, פוליסות חסכון וקרנות פנסיה. תוכלו ",
-              { text: "למצוא אותה כאן", href: "https://numbersguys.com/GemelNet/GemelNetApp" }
+              "את הסיפור האישי והדרך שהובילו לכאן כתבתי בהרחבה בטאב ",
+              { text: "מסחר עצמאי - הקדמה", href: "#intro" },
+              ". כאן ריכזתי בעיקר מה האתר עושה, מה הוא לא עושה, ואיפה הנתונים."
             ],
-            [
-              "למה? כי היה לי קשה לראות את מה שרציתי בגמלנט. בכל מקרה, חלק ממה שלמדתי מהתהליך אפשר לקרוא ",
-              { text: "בבלוג", href: "https://wp.me/p9vBZz-WR" },
-              "."
-            ],
-            "בין התגליות היו \"הוצאות ניהול השקעות\" שמהרבה בחינות הם דמי ניהול מוסתרים. אז ראיתי שאני משלם על פוליסת חסכון בשילוב של דמי ניהול והוצאות ניהול השקעות בערך 1% מכל הכסף שיש שם, כל שנה.",
-            "זה היה האות להבין כמה זה באמת עולה לי, והאם יש חלופות. אופס, פתאום מדברים על השקעות פאסיביות וחשבון מסחר עצמאי.",
-            "אם יש מתעניינים - ימצאו כאן שיתוף של תהליך הלמידה האישי שאני עובר. אני משתף אותו לא כמומחה, אלא כמי שניסה להבין את המספרים שלו, ומתוך תקווה שזה יעזור גם לאחרים לשאול שאלות טובות יותר.",
-            "חוץ מזה, תוך כדי יצרתי משהו שמאפשר להשוות תיקי השקעות באופן אותו קיוויתי לראות, אך לא מצאתי בקלות: פחות הנחות כלליות כמו \"נניח 5% בשנה\", ויותר עבודה עם נתונים היסטוריים, שערי דולר-שקל, מדד מחירים, דיבידנדים, מס ודמי ניהול.",
-            "עניין אותי גם להציג תשואה וסיכון בדרכים שפחות ראיתי במקומות אחרים: לא רק ממוצע שנתי, אלא גם מה קרה לאורך תקופות שונות, כמה פעמים תיק הפסיד כסף, פי כמה הכסף גדל, ואיך תיקים עצלים שונים מתנהגים זה מול זה.",
-            "גם לשונית Trinity כאן קצת שונה מההצגה המקובלת: היא מתמקדת במשיכה שנתית של סכום שקלי קבוע וצמוד למדד, ולא במשיכה חוזרת של אחוז מהתיק בדולרים. עבורי זה תרחיש קרוב יותר לשאלה המעשית של קצבה חודשית.",
+            "הכלי מאפשר להשוות תיקים, תקופות השקעה, דמי ניהול, אירועי מס, שערי מטבע, אינפלציה ומשיכות בפרישה. הוא לא מנסה לחזות את העתיד, אלא לשאול מה היה קורה בעבר תחת הנחות שונות.",
+            "החישובים כאן נעשים מנקודת מבט של משקיע ישראלי: אפשר לראות תוצאות בשקלים, להתחשב בשער דולר-שקל, ולבחור האם לתקנן למדד הישראלי, למדד האמריקאי או לא לתקנן בכלל.",
             "כסת\"ח, אבל בעברית פשוטה: יתכנו כאן טעויות חישוביות וגם טעויות מחשבתיות. לא תיקפתי את כל החישובים, ואני לא מומחה השקעות. זה שיתוף של מסע אישי ושל כמה שיעורים שלמדתי בדרך, לא יעוץ פיננסי, וכל שימוש במידע הוא באחריות המשתמש.",
             "ולמען הסר ספק: אין כאן שירות, המלצה מסחרית או ניסיון למכור משהו. אני לא מבקש פרטים אישיים, לא מקבל תמורה מאף גוף, ולא מנסה לשכנע לעבוד עם ספק או בית השקעות מסוים.",
-            [
-              "כל נתוני הגלם מגיעים ממקורות מידע גלויים. חלקם כתובים בדפים עצמם. בכל מקרה, יש שימוש ",
-              { text: "בנתוני הלמ\"ס על מדד המחירים לצרכן", href: "https://api.cbs.gov.il/index/data/price?id=120010&format=csv&download=false&startPeriod=01-2024&lang=en" },
-              " ועל ",
-              { text: "שער הדולר", href: "https://edge.boi.gov.il/FusionEdgeServer/sdmx/v2/data/dataflow/BOI.STATISTICS/EXR/1.0/RER_USD_ILS?c%5BDATA_TYPE%5D=OF00&startperiod=1999-01-01&format=csv" },
-              " לאורך החודשים והשנים, ב",
-              { text: "מדד המחירים האמריקאי CPIAUCSL של FRED", href: "https://fred.stlouisfed.org/series/CPIAUCSL" },
-              ", בנתוני ",
-              { text: "S&P 500 Total Return חודשיים", href: "https://ycharts.com/indicators/sp_500_monthly_total_return" },
-              " ובבדיקת תשואה שנתית מול ",
-              { text: "Slickcharts", href: "https://www.slickcharts.com/sp500/returns" },
-              ", בנתוני ",
-              { text: "MSCI USA Small Cap Value Weighted", href: "https://www.msci.com/documents/10199/83700218-af0a-4993-b962-00de11158106" },
-              " עבור עדכון SCV ל-2024 ו-2025, ב API של ",
-              { text: "Yahoo Finance", href: "https://finance.yahoo.com/" },
-              " דרך ",
-              { text: "quantmod", href: "https://www.quantmod.com/" },
-              " לנתונים הסטוריים על מדדים שונים ובפרט לגבי מדדי ת\"א 125, נאסדק, Dow Jones וגם S&P 500 לפני חלוקת דיוידנדים, בנתוני דיוידנדים של S&P 500 ואופן חישוב ",
-              { text: "המדד כשהוא כולל השקעה חוזרת של הדיוידנדים", href: "http://www.econ.yale.edu/~shiller/data.htm" },
-              " בהסתמכות על פר’ רוברט שילר מאוניברסיטת yale, ",
-              { text: "בתיקים עצלים מכאן", href: "https://www.optimizedportfolio.com/lazy-portfolios/" },
-              " ",
-              { text: "ומכאן", href: "https://www.upmyinterest.com/list_portfolios/" },
-              ", ב",
-              { text: "נתונים הסטוריים על סוגי נכסים מכאן", href: "https://www.portfoliovisualizer.com/historical-asset-class-returns" },
-              " ו",
-              { text: "מכאן", href: "https://www.upmyinterest.com/" },
-              "."
-            ],
-            "חישובי התשואות והתקנון למדד, לדולר, לדמי הניהול ולהשקעה חוזרת של דיוידנדים לאחר מיסוי - עשיתי בעצמי (עם מעט מאוד בדיקות שאין שגיאות במתודולוגיה או במימוש).",
+            "כל נתוני הגלם מגיעים ממקורות מידע גלויים. המקורות המרכזיים, ומה כל אחד מהם מזין באתר, מופיעים בסעיף הבא.",
+            "חישובי התשואות והתקנון למדד, לדולר, לדמי הניהול, למס ולהשקעה חוזרת של דיוידנדים לאחר מיסוי - עשיתי בעצמי. לכן גם אם מקור הנתונים תקין, עדיין יכולה להיות טעות בדרך שבה השתמשתי בו.",
             "מאחל לכם מספיק כסף כדי שיהיו מעט דאגות כלכליות, ויותר דברים מעניינים אחרים בחיים."
+          ]
+        },
+        {
+          title: "מקורות הנתונים",
+          paragraphs: [
+            "המקורות כאן משמשים כבסיס לנתוני העבר באתר. חלק מהסדרות עברו עיבוד, התאמה חודשית, המרה לשקלים או תקנון למדד, ולכן כל טעות אפשרית במימוש היא שלי.",
+            {
+              list: [
+                [
+                  { text: "הלמ\"ס - מדד המחירים לצרכן", href: "https://api.cbs.gov.il/index/data/price?id=120010&format=csv&download=false&startPeriod=01-2024&lang=en" },
+                  ": מדד המחירים הישראלי, כולל עדכון 2024/2025 ושרשור בסיס המדד החדש."
+                ],
+                [
+                  { text: "בנק ישראל - שער דולר/שקל יציג", href: "https://edge.boi.gov.il/FusionEdgeServer/sdmx/v2/data/dataflow/BOI.STATISTICS/EXR/1.0/RER_USD_ILS?c%5BDATA_TYPE%5D=OF00&startperiod=1999-01-01&format=csv" },
+                  ": שערי דולר חודשיים לחישובי השקעה דולרית בשקלים."
+                ],
+                [
+                  { text: "FRED CPIAUCSL", href: "https://fred.stlouisfed.org/series/CPIAUCSL" },
+                  ": מדד המחירים האמריקאי לחישובי תשואה ריאלית בדולרים."
+                ],
+                [
+                  { text: "YCharts - S&P 500 Monthly Total Return", href: "https://ycharts.com/indicators/sp_500_monthly_total_return" },
+                  ": תשואות חודשיות של S&P 500 Total Return לעדכון 2024 ו-2025."
+                ],
+                [
+                  { text: "Slickcharts - S&P 500 Total Returns by Year", href: "https://www.slickcharts.com/sp500/returns" },
+                  ": בדיקת סבירות מול תשואות שנתיות של S&P 500."
+                ],
+                [
+                  { text: "MSCI USA Small Cap Value Weighted", href: "https://www.msci.com/documents/10199/83700218-af0a-4993-b962-00de11158106" },
+                  ": מקור עדכון SCV לשנים 2024 ו-2025."
+                ],
+                [
+                  { text: "Yahoo Finance", href: "https://finance.yahoo.com/" },
+                  " דרך ",
+                  { text: "quantmod", href: "https://www.quantmod.com/" },
+                  ": נתונים היסטוריים על מדדים שונים, ובהם ת\"א 125, נאסדק, Dow Jones ו-S&P 500 לפני חלוקת דיוידנדים."
+                ],
+                [
+                  { text: "Robert Shiller data", href: "http://www.econ.yale.edu/~shiller/data.htm" },
+                  ": נתוני S&P 500, דיוידנדים ואינפלציה היסטוריים ששימשו לבניית סדרת תשואה כוללת."
+                ],
+                [
+                  { text: "Optimized Portfolio", href: "https://www.optimizedportfolio.com/lazy-portfolios/" },
+                  " ו",
+                  { text: "Up My Interest", href: "https://www.upmyinterest.com/list_portfolios/" },
+                  ": הרכבי תיקים עצלים והשוואות תיקי השקעות."
+                ],
+                [
+                  { text: "Portfolio Visualizer - Historical Asset Class Returns", href: "https://www.portfoliovisualizer.com/historical-asset-class-returns" },
+                  " ו",
+                  { text: "Up My Interest", href: "https://www.upmyinterest.com/" },
+                  ": נתונים היסטוריים על סוגי נכסים ששימשו את בסיס הנתונים המקורי."
+                ]
+              ]
+            },
+            [
+              "למי שרוצה לבדוק את רשימת המקורות בצורה טכנית, יש גם ",
+              { text: "קובץ JSON עם המקורות", href: "/api/sources" },
+              "."
+            ]
           ]
         },
         {
@@ -1621,6 +1646,7 @@
     if (block.heading) return `<h3>${escapeHtml(block.heading)}</h3>`;
     if (block.subheading) return `<h4>${escapeHtml(block.subheading)}</h4>`;
     if (block.bold) return `<p class="story-emphasis">${escapeHtml(block.bold)}</p>`;
+    if (block.list) return `<ul class="story-list">${block.list.map((item) => `<li>${storyParagraphHtml(item)}</li>`).join("")}</ul>`;
     if (block.text) return `<p>${emphasisHtml(block.text)}</p>`;
     return "";
   }

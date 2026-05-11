@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable, Iterable, Mapping
 from functools import lru_cache
 import math
+from pathlib import Path
 from typing import Any
 
 from flask import Flask, jsonify, request
@@ -16,6 +17,7 @@ from invest_core.data import load_data
 
 JsonDict = dict[str, Any]
 Params = tuple[tuple[str, Any], ...]
+DATA_DIR = Path(__file__).resolve().parents[1] / "data"
 
 
 ENDPOINT_NAMES = (
@@ -454,6 +456,7 @@ def create_app() -> Flask:
                 "status": "ok",
                 "api": "invest",
                 "endpoints": list(ENDPOINT_NAMES),
+                "sources": "/api/sources",
                 "data_objects": {
                     "LazyReturns1": len(data.LazyReturns1),
                     "PortfoliosStructure": len(data.PortfoliosStructure),
@@ -462,6 +465,16 @@ def create_app() -> Flask:
                     "US_Small_Cap_Value_Monthly": len(data.US_Small_Cap_Value_Monthly),
                 },
             }
+        )
+
+    @app.get("/api/sources")
+    def sources():
+        sources_path = DATA_DIR / "sources.json"
+        if not sources_path.exists():
+            return jsonify({"error": "Source metadata is unavailable"}), 404
+        return app.response_class(
+            sources_path.read_text(encoding="utf-8"),
+            mimetype="application/json",
         )
 
     @app.get("/api/<name>")
