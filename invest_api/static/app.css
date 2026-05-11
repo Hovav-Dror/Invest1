@@ -292,6 +292,10 @@ h3 {
   align-items: start;
 }
 
+.controls[data-view="trinity"] {
+  align-items: start;
+}
+
 .story-panel {
   background: transparent;
   border: 0;
@@ -326,6 +330,14 @@ h3 {
   line-height: 1.25;
 }
 
+.story-copy h4 {
+  color: var(--warn);
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.35;
+  margin: 10px 0 0;
+}
+
 .story-copy p,
 .story-copy li {
   color: #1f52a0;
@@ -356,6 +368,11 @@ h3 {
   font-weight: 800;
 }
 
+.story-emphasis {
+  color: var(--warn) !important;
+  font-weight: 800;
+}
+
 .story-panel-after {
   border-color: #cfd7cf;
 }
@@ -373,8 +390,9 @@ h3 {
   display: block;
   max-height: none;
   max-width: 100%;
+  margin: 0 auto;
   object-fit: contain;
-  width: 100%;
+  width: min(90%, 1500px);
 }
 
 .field {
@@ -399,13 +417,13 @@ h3 {
 }
 
 .trinity-draw-summary {
-  align-self: end;
+  align-self: start;
   color: var(--ink);
   display: grid;
   gap: 4px;
-  grid-column: span 3;
+  grid-column: 1 / -1;
   min-height: 40px;
-  padding: 8px 0 0;
+  padding: 2px 0 0;
 }
 
 .trinity-draw-summary p {
@@ -413,6 +431,12 @@ h3 {
   font-size: 13px;
   font-weight: 760;
   line-height: 1.25;
+}
+
+.controls[data-view="trinity"] .field,
+.controls[data-view="trinity"] .field.wide {
+  grid-column: span 3;
+  grid-template-rows: auto 46px minmax(18px, auto);
 }
 
 .field label,
@@ -2042,6 +2066,10 @@ tbody tr:hover {
 
   .story-panel {
     grid-template-columns: 1fr;
+  }
+
+  .story-image {
+    width: 100%;
   }
 
   .field,

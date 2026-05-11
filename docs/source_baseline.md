@@ -71,7 +71,7 @@ The exported defaults mirror the visible Shiny UI defaults where practical:
 | Portfolio summary / over time | CPI mode `המרה לשקלים ומדד ישראל`, years `1955` to `2023`, commission-adjusted portfolio table, highlighted portfolio `S&P 500` |
 | US/global comparisons | S&P 500 vs world ex-US and S&P 500 vs 60/40 US/world mix |
 | S&P 500 vs SCV | Israeli-CPI/shekel adjusted, rolling window `15` years, heatmap windows `1` to `20` years |
-| Trinity | `US Small Cap Value`, `4%` annual draw, `30` years, base `4000000` |
+| Trinity | `S&P 500`, `4%` annual draw, `30` years, base `4000000` |
 
 ## Fixture Files
 
