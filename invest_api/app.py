@@ -462,6 +462,7 @@ def create_app() -> Flask:
         return app.send_static_file("index.html")
 
     @app.errorhandler(ApiValidationError)
+    @app.errorhandler(calc.CalculationInputError)
     def validation_error(error: ApiValidationError):
         return jsonify({"error": str(error)}), 400
 

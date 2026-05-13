@@ -47,6 +47,10 @@ DEFAULT_PORTFOLIOS = (
 )
 
 
+class CalculationInputError(ValueError):
+    """Raised when calculation inputs cannot produce a meaningful result."""
+
+
 def _as_timestamp(value: str | pd.Timestamp) -> pd.Timestamp:
     return pd.Timestamp(value)
 
@@ -275,6 +279,8 @@ def portfolio_table(
     frame = frame.sort_values(["Portfolio", "Year"]).copy()
     frame["v"] = frame.groupby("Portfolio", sort=True)["v"].transform(lambda values: values / values.dropna().iloc[0])
     if year_end < data.LazyReturns1["Year"].max():
+        # Match fixture-time R behavior: drawdown and underwater years are
+        # recomputed within the user's selected history window.
         for _, group in frame.groupby("Portfolio", sort=True):
             values = group["v"].to_numpy(dtype=float)
             years = group["Year"].to_numpy(dtype=float)
@@ -404,6 +410,8 @@ def kupat_gemel(
 
     kh60 = frame.loc[frame["age"] == 60, "KH"].sum()
     cpi60 = frame.loc[frame["age"] == 60, "CPI"].sum()
+    if (frame["age"] > 60).any() and cpi60 == 0:
+        raise CalculationInputError("kupat_gemel requires an age-60 CPI anchor before pension-age rows")
     frame["Kitzba"] = np.where(frame["age"] > 60, (kh60 / pension_months) * (frame["CPI"] / cpi60), 0)
     frame["KH"] = np.where(frame["age"] > 60, kh60 * frame["CPI"] / cpi60, frame["KH"])
 

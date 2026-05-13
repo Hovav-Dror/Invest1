@@ -228,6 +228,13 @@ def test_frontend_independent_tax_parameter_smoke(client):
     assert payload["rows"] > 0
 
 
+def test_kupat_gemel_rejects_post_60_without_age_60_anchor(client):
+    response = client.get("/api/kupat_gemel", query_string={"age": "61"})
+
+    assert response.status_code == 400
+    assert "age-60 CPI anchor" in response.get_json()["error"]
+
+
 def test_frontend_scv_heatmap_parameter_smoke(client):
     response = client.get("/api/sp500_scv_heatmap?max_years=5")
 

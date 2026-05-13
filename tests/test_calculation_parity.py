@@ -2,8 +2,10 @@ from pathlib import Path
 
 import pandas as pd
 from pandas.testing import assert_frame_equal
+import pytest
 
 from invest_core.calculations import (
+    CalculationInputError,
     commission_effect,
     commission_tax_scenarios,
     independent_commissions,
@@ -73,6 +75,11 @@ def test_kupat_gemel_default_matches_r_fixture():
 def test_kupat_gemel_pension_default_matches_r_fixture():
     actual = kupat_gemel(load_data(), with_pension=True).loc[lambda df: df["date"] <= pd.Timestamp(PHASE1_MONTHLY_END)]
     assert_matches_fixture(actual, "kupat_gemel_pension_default")
+
+
+def test_kupat_gemel_rejects_post_60_without_age_60_anchor():
+    with pytest.raises(CalculationInputError, match="age-60 CPI anchor"):
+        kupat_gemel(load_data(), age=61)
 
 
 def test_independent_commissions_default_matches_r_fixture():

@@ -4,6 +4,8 @@
   const palette = ["#145f59", "#a94d2a", "#385f9f", "#76611b", "#75518b", "#2f7646", "#a23f68", "#55736f"];
   const TABLE_LIMIT = 250;
   const HEATMAP_LIMIT = 1600;
+  const STORY_PREVIEW_BLOCKS = 3;
+  const STATIC_STORY_PREVIEW_BLOCKS = 8;
   const locale = "he-IL";
   const percentColumns = new Set([
     "TotalReturnP",
@@ -49,6 +51,11 @@
     columns: "עמודות",
     showing: "מוצגות",
     defaultColumns: "שורות עם עמודות הבדיקה המרכזיות"
+  };
+
+  const storyToggleText = {
+    more: "קרא עוד",
+    less: "הצג פחות"
   };
 
   const groupLabels = {
@@ -795,6 +802,7 @@
       title: "מסחר עצמאי - הקדמה",
       nav: "מסחר עצמאי - הקדמה",
       kicker: "נקודת הפתיחה של האפליקציה המקורית",
+      takeaway: "האתר נועד להפוך שאלות על השקעות פסיביות, מסים ודמי ניהול לגרפים שאפשר לבדוק בעצמכם.",
       staticOnly: true,
       controls: []
     },
@@ -804,6 +812,7 @@
       title: "למה לא להתעסק בזה?",
       nav: "למה לא",
       kicker: "כמה עולה להזיז כסף במקום לתת לו לעבוד",
+      takeaway: "שינויים משמעותיים בתיק, אפילו רק אחת לשנה, עלולים להקטין מאוד את התשואה בגלל אירועי מס מצטברים - גם אם כל שינוי נראה נכון בפני עצמו.",
       endpoint: "tax_events",
       controls: [dateRangeSlider(), cpiCheckbox(), field("initial", "השקעה ראשונית", "text", "100000", undefined, "שקלים")],
       chart: {
@@ -833,6 +842,7 @@
       title: "השפעת עמלות ומסים",
       nav: "השפעת עמלות ומסים",
       kicker: "דמי ניהול, אירועי מס, ומה קורה כשהם נפגשים לאורך שנים",
+      takeaway: "פער קטן בדמי ניהול נראה שולי בשנה אחת, אבל לאורך עשרות שנים הוא יכול להפוך לסכום גדול מאוד.",
       multiChart: true,
       controls: [
         dateRangeSlider(),
@@ -894,6 +904,7 @@
       title: "קופת גמל, פוליסת חסכון והשקעה עצמאית",
       nav: "קופת גמל להשקעה",
       kicker: "הטבת מס, דמי ניהול וגמישות מול מסחר עצמאי",
+      takeaway: "הטבת המס של קופת גמל להשקעה לא בהכרח מפצה על דמי הניהול, המגבלות והחלופה של השקעה עצמאית זולה.",
       multiChart: true,
       controls: [
         field("age", "גיל היום", "number", "40", "1", "גיל"),
@@ -963,6 +974,7 @@
       title: "הסיכון ב-S&P 500",
       nav: "הסיכון",
       kicker: "חלונות היסטוריים, שנים רעות, ומה קורה גם אחרי עשור ויותר",
+      takeaway: "גם השקעה ארוכת טווח במניות יכולה לעבור שנים קשות, ולכן אופק ההשקעה חשוב כמו התשואה הממוצעת.",
       endpoint: "sp500_risk",
       controls: [
         dateRangeSlider({ start: "1871-01-01", end: "2026-01-01" }),
@@ -985,6 +997,7 @@
       title: "כמה באמת עולה מסחר עצמאי",
       nav: "עמלות",
       kicker: "המרת מטבע, מינימום פעולה, דמי משמרת והשוואת מס ישראלי מול דולרי",
+      takeaway: "מסחר עצמאי יכול להיות זול מאוד, אבל כדאי לראות במפורש איך עמלות ומיסוי משפיעים על השורה הסופית.",
       multiChart: true,
       controls: [
         dateRangeSlider({ start: "2000-01-01", end: "2026-01-01" }),
@@ -1051,6 +1064,7 @@
       title: "IRA",
       nav: "IRA",
       kicker: "קופות גמל וקרנות השתלמות בניהול אישי",
+      takeaway: "IRA נותן יותר שליטה על ההשקעה, אבל מעביר יותר אחריות אל החוסך.",
       staticOnly: true,
       controls: []
     },
@@ -1060,6 +1074,7 @@
       title: "אמריקה מול העולם",
       nav: "אמריקה",
       kicker: "מתי S&P 500 מוביל, ומתי פיזור עולמי נראה פתאום פחות משעמם",
+      takeaway: "פיזור עולמי נשמע הגיוני, אבל הנתונים ההיסטוריים מראים שזו המלצה שכדאי לבחון היטב.",
       multiChart: true,
       controls: [],
       panels: [
@@ -1207,6 +1222,7 @@
       title: "S&P 500 מול מניות ערך קטנות",
       nav: "מניות ערך קטנות",
       kicker: "לפני מס, אחרי מס, ובדיקת כל תקופות ההתחלה והסיום",
+      takeaway: "מניות ערך קטנות עשויות להיות מרכיב גדול ומשמעותי בתיק של משקיע פרטי, ולא רק תבלין קטן בשוליים.",
       multiChart: true,
       controls: [],
       panels: [
@@ -1349,6 +1365,7 @@
       title: "טריניטי: כמה אפשר למשוך?",
       nav: "Trinity",
       kicker: "סימולציית משיכה שנתית לפי שנת התחלה היסטורית",
+      takeaway: "אפשר להעריך כמה כסף תוכלו למשוך בכל חודש בלי לחשוש שהכסף ייגמר בדרך.",
       endpoint: "trinity",
       controls: [
         select("portfolio", "תיק", portfolioChoices.map((name) => [name, name]), "S&P 500"),
@@ -1363,9 +1380,10 @@
     {
       id: "about",
       group: "Intro",
-      title: "אודות",
+      title: "על האתר",
       nav: "אודות",
       kicker: "רקע קצר על האפליקציה",
+      takeaway: "זהו כלי לימודי אישי שמציג נתוני עבר והנחות חישוב, לא ייעוץ השקעות או המלצה לפעולה.",
       staticOnly: true,
       controls: []
     }
@@ -1376,6 +1394,7 @@
     controls: document.getElementById("controls"),
     title: document.getElementById("viewTitle"),
     kicker: document.getElementById("viewKicker"),
+    takeaway: document.getElementById("viewTakeaway"),
     rows: document.getElementById("rowCount"),
     message: document.getElementById("message"),
     story: document.getElementById("story"),
@@ -1395,6 +1414,7 @@
   let dragStart = null;
   let runTimer = null;
   let requestSeq = 0;
+  let storyCollapseSeq = 0;
   let chartHost = null;
   const moneyInputNames = new Set(["initial", "base"]);
   const percentFractionInputNames = new Set(["dollar_commission", "yearly_commission"]);
@@ -1613,6 +1633,28 @@
     `;
   }
 
+  function collapsibleStoryBlocksHtml(blocks, renderBlock = storyContentBlockHtml, previewBlocks = STORY_PREVIEW_BLOCKS) {
+    if (!blocks || blocks.length <= previewBlocks) return (blocks || []).map(renderBlock).join("");
+    const id = `story-extra-${storyCollapseSeq += 1}`;
+    return `
+      ${blocks.slice(0, previewBlocks).map(renderBlock).join("")}
+      <div id="${id}" class="story-extra" hidden>
+        ${blocks.slice(previewBlocks).map(renderBlock).join("")}
+      </div>
+      <button type="button" class="story-toggle" aria-expanded="false" aria-controls="${id}">${storyToggleText.more}</button>
+    `;
+  }
+
+  function renderStorySection(section, index) {
+    const previewBlocks = activeView.staticOnly ? STATIC_STORY_PREVIEW_BLOCKS : STORY_PREVIEW_BLOCKS;
+    return `
+      <section class="story-section ${index > 0 ? "story-section-separated" : ""}">
+        <h3>${escapeHtml(section.title)}</h3>
+        ${collapsibleStoryBlocksHtml(section.paragraphs, storyContentBlockHtml, previewBlocks)}
+      </section>
+    `;
+  }
+
   function renderStory() {
     const story = stories[activeView.id];
     if (!story) {
@@ -1622,14 +1664,10 @@
     }
 
     els.story.hidden = false;
+    const previewBlocks = activeView.staticOnly ? STATIC_STORY_PREVIEW_BLOCKS : STORY_PREVIEW_BLOCKS;
     const paragraphs = story.sections
-      ? story.sections.map((section, index) => `
-        <section class="story-section ${index > 0 ? "story-section-separated" : ""}">
-          <h3>${escapeHtml(section.title)}</h3>
-          ${section.paragraphs.map(storyContentBlockHtml).join("")}
-        </section>
-      `).join("")
-      : story.paragraphs.map(storyContentBlockHtml).join("");
+      ? story.sections.map(renderStorySection).join("")
+      : collapsibleStoryBlocksHtml(story.paragraphs || [], storyContentBlockHtml, previewBlocks);
     const image = story.image ? `
       <figure class="story-media">
         <img class="story-image" src="${escapeHtml(story.image)}" alt="השוואת מניות ארה&quot;ב מול מניות מחוץ לארה&quot;ב">
@@ -1699,7 +1737,7 @@
     els.afterStory.hidden = false;
     els.afterStory.innerHTML = `
       <div class="story-copy">
-        ${afterChart.map((block) => afterStoryBlockHtml(block)).join("")}
+        ${collapsibleStoryBlocksHtml(afterChart, afterStoryBlockHtml)}
       </div>
     `;
   }
@@ -1847,10 +1885,12 @@
       <section class="lazy-section">
         ${lazySharedControlsHtml("b")}
         <div class="story-copy lazy-copy">
-          <p>יש הרבה הסתייגויות להשוואות האלה. אחת מהן היא שמספר השנים עליהן יש נתונים לחישוב תשואה של תיקים שונים - אינו זהה. בשל כך גודל הנקודה בתרשימים מעיד על מספר השנים בשימוש, ונקודות קטנות יש לקחת בערבות מוגבל.</p>
-          <p>זו גם הסיבה שאפשר לצמצם את התקופה ולבחור שנים שונות, באמצעות הכלי שמתחת לתרשימים.</p>
-          <p>בעיניים שלי, הלא מיומנות והסובייקטיביות - רוב התיקים העצלים לא מקנים יתרון משמעותי על תיקים מאוד פשוטים, בהם נצמדים לאינדקס אחד בלבד.</p>
-          <p>מזכיר שוב, שאינני מומחה בתחום, וגם שהחישובים שלי לא עברו בדיקה חיצונית (ובקושי בדיקה שעשיתי לעצמי).</p>
+          ${collapsibleStoryBlocksHtml([
+            "יש הרבה הסתייגויות להשוואות האלה. אחת מהן היא שמספר השנים עליהן יש נתונים לחישוב תשואה של תיקים שונים - אינו זהה. בשל כך גודל הנקודה בתרשימים מעיד על מספר השנים בשימוש, ונקודות קטנות יש לקחת בערבות מוגבל.",
+            "זו גם הסיבה שאפשר לצמצם את התקופה ולבחור שנים שונות, באמצעות הכלי שמתחת לתרשימים.",
+            "בעיניים שלי, הלא מיומנות והסובייקטיביות - רוב התיקים העצלים לא מקנים יתרון משמעותי על תיקים מאוד פשוטים, בהם נצמדים לאינדקס אחד בלבד.",
+            "מזכיר שוב, שאינני מומחה בתחום, וגם שהחישובים שלי לא עברו בדיקה חיצונית (ובקושי בדיקה שעשיתי לעצמי)."
+          ])}
         </div>
         ${lazyTimeControlsHtml()}
         <div class="chart lazy-chart" data-lazy-chart="time"></div>
@@ -2629,7 +2669,7 @@
             <h3>${escapeHtml(panel.title)}</h3>
             <p data-role="panel-status">${escapeHtml(ui.loadingView)}...</p>
           </header>`}
-          ${panel.intro ? `<div class="story-copy panel-intro">${panel.intro.map(storyContentBlockHtml).join("")}</div>` : ""}
+          ${panel.intro ? `<div class="story-copy panel-intro">${collapsibleStoryBlocksHtml(panel.intro)}</div>` : ""}
           ${panel.controls ? renderPanelControls(panel) : ""}
           <div class="metrics panel-metrics" data-role="panel-metrics" hidden></div>
           <div class="chart multi-chart" data-role="panel-chart" data-multi-endpoint="${escapeHtml(panel.endpoint)}"></div>
@@ -3103,7 +3143,7 @@
     target.hidden = false;
     target.innerHTML = `
       <div class="story-copy">
-        ${paragraphs.map(storyContentBlockHtml).join("")}
+        ${collapsibleStoryBlocksHtml(paragraphs)}
       </div>
     `;
   }
@@ -5060,6 +5100,7 @@
 
   function renderView() {
     requestSeq += 1;
+    storyCollapseSeq = 0;
     clearTimeout(runTimer);
     lastPayload = null;
     currentChartConfig = null;
@@ -5069,6 +5110,8 @@
     renderNav();
     els.title.textContent = activeView.title;
     els.kicker.textContent = activeView.kicker;
+    els.takeaway.textContent = activeView.takeaway || "";
+    els.takeaway.hidden = !activeView.takeaway;
     renderStory();
     renderControls();
     runActiveView();
@@ -5081,6 +5124,16 @@
 
   els.controls.addEventListener("submit", (event) => {
     event.preventDefault();
+  });
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest(".story-toggle");
+    if (!button) return;
+    const extra = document.getElementById(button.getAttribute("aria-controls"));
+    if (!extra) return;
+    const expanded = button.getAttribute("aria-expanded") === "true";
+    button.setAttribute("aria-expanded", String(!expanded));
+    button.textContent = expanded ? storyToggleText.more : storyToggleText.less;
+    extra.hidden = expanded;
   });
   els.controls.addEventListener("input", (event) => {
     if (event.target.matches(".date-range-control input")) updateDateRangeReadout();

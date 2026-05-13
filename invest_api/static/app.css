@@ -251,6 +251,7 @@ h3 {
 }
 
 .workspace {
+  align-content: start;
   display: grid;
   gap: 20px;
   min-width: 0;
@@ -267,6 +268,15 @@ h3 {
 .kicker {
   font-weight: 760;
   margin-bottom: 4px;
+}
+
+.takeaway {
+  color: #28433d;
+  font-size: 15px;
+  font-weight: 760;
+  line-height: 1.45;
+  margin-top: 8px;
+  max-width: 760px;
 }
 
 .controls {
@@ -367,6 +377,28 @@ h3 {
   font-weight: 760;
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+.story-extra {
+  display: grid;
+  gap: 12px;
+}
+
+.story-toggle {
+  align-self: start;
+  background: #ffffff;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 820;
+  min-height: 34px;
+  padding: 0 13px;
+}
+
+.story-toggle:hover {
+  background: var(--soft);
+  border-color: var(--accent);
 }
 
 .story-bottom-line {
