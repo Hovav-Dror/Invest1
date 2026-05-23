@@ -1408,6 +1408,7 @@
   let activeView = views.find((view) => view.id === location.hash.slice(1)) || views[0];
   let lastPayload = null;
   let currentChartConfig = null;
+  const viewScrollPositions = new Map();
   const hiddenSeries = new Set();
   const chartZoom = {};
   const multiPayloads = new Map();
@@ -1416,6 +1417,7 @@
   let requestSeq = 0;
   let storyCollapseSeq = 0;
   let chartHost = null;
+  let skipNextHashChange = false;
   const moneyInputNames = new Set(["initial", "base"]);
   const percentFractionInputNames = new Set(["dollar_commission", "yearly_commission"]);
 
@@ -1488,11 +1490,29 @@
       if (view.navPriority) button.dataset.priority = view.navPriority;
       if (view.id === activeView.id) button.setAttribute("aria-current", "page");
       button.addEventListener("click", () => {
+        if (view.id === activeView.id) return;
+        rememberActiveViewScroll();
         activeView = view;
-        location.hash = view.id;
-        renderView();
+        if (location.hash.slice(1) !== view.id) {
+          skipNextHashChange = true;
+          location.hash = view.id;
+        }
+        renderView({ restoreScroll: true });
       });
       els.nav.appendChild(button);
+    });
+  }
+
+  function rememberActiveViewScroll() {
+    if (!activeView) return;
+    viewScrollPositions.set(activeView.id, window.scrollY || document.documentElement.scrollTop || 0);
+  }
+
+  function restoreViewScroll(viewId) {
+    const top = viewScrollPositions.has(viewId) ? viewScrollPositions.get(viewId) : 0;
+    requestAnimationFrame(() => {
+      if (activeView.id !== viewId) return;
+      window.scrollTo({ top, left: 0, behavior: "auto" });
     });
   }
 
@@ -2578,12 +2598,10 @@
     const viewId = activeView.id;
     const seq = ++requestSeq;
     if (activeView.lazyPortfolio) {
-      runLazyPortfolioView(viewId, seq);
-      return;
+      return runLazyPortfolioView(viewId, seq);
     }
     if (activeView.multiChart) {
-      runMultiChartView(viewId, seq);
-      return;
+      return runMultiChartView(viewId, seq);
     }
     if (activeView.staticOnly) {
       lastPayload = null;
@@ -5098,7 +5116,7 @@
     return String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
   }
 
-  function renderView() {
+  function renderView({ restoreScroll = false } = {}) {
     requestSeq += 1;
     storyCollapseSeq = 0;
     clearTimeout(runTimer);
@@ -5114,7 +5132,12 @@
     els.takeaway.hidden = !activeView.takeaway;
     renderStory();
     renderControls();
-    runActiveView();
+    const viewId = activeView.id;
+    const run = runActiveView();
+    if (restoreScroll) {
+      restoreViewScroll(viewId);
+      Promise.resolve(run).finally(() => restoreViewScroll(viewId));
+    }
   }
 
   function scheduleRun() {
@@ -5325,8 +5348,13 @@
     if (event.key === "Escape") closePanelPickers();
   });
   window.addEventListener("hashchange", () => {
+    if (skipNextHashChange) {
+      skipNextHashChange = false;
+      return;
+    }
+    rememberActiveViewScroll();
     activeView = views.find((view) => view.id === location.hash.slice(1)) || activeView;
-    renderView();
+    renderView({ restoreScroll: true });
   });
 
   renderView();
