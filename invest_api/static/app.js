@@ -1,6 +1,5 @@
 import { renderChart as drawChartCore, chartMessage as drawMessage, releaseChart, PALETTE } from "./js/charts.js";
 import { parseHash, buildHash, scoped, prefixed, applyEntries } from "./js/route.js";
-import { createTaxTimingScreen } from "./js/screens/tax-timing.js";
 import {
   escapeHtml,
   numericValue,
@@ -858,16 +857,9 @@ import {
         caption: "נתוני S&P 500, כולל צבירת דיוידנדים וללא דמי ניהול"
       },
       tableColumns: ["date", "v", "End25", "Every120Months", "Every60Months", "Every12Months", "EveryMonth"],
-      metric: metricLast(["v", "End25", "EveryMonth", "Every12Months"])
-    },
-    {
-      id: "tax-timing",
-      group: "Tax and fee drag",
-      title: "כמה עולה למכור מוקדם?",
-      nav: "מס ותדירות מימוש (דוגמה)",
-      kicker: "דוגמה למבנה עמוד חדש: קודם התשובה, אחר כך הגרף, ובסוף ההעמקה",
-      custom: createTaxTimingScreen(),
-      controls: []
+      metric: metricTaxScenarios,
+      storyOpen: true,
+      leadParagraphs: 2
     },
     {
       id: "commission-drag",
@@ -1433,6 +1425,7 @@ import {
     rows: document.getElementById("rowCount"),
     message: document.getElementById("message"),
     story: document.getElementById("story"),
+    storyLead: document.getElementById("storyLead"),
     afterStory: document.getElementById("afterStory"),
     metrics: document.getElementById("metrics"),
     chart: document.getElementById("chart"),
@@ -1702,6 +1695,12 @@ import {
     `;
   }
 
+  /** How many blocks of a story section show before "קרא עוד" (views can keep the whole story open). */
+  function storyPreviewBlocks() {
+    if (activeView.storyOpen) return Infinity;
+    return activeView.staticOnly ? STATIC_STORY_PREVIEW_BLOCKS : STORY_PREVIEW_BLOCKS;
+  }
+
   function collapsibleStoryBlocksHtml(blocks, renderBlock = storyContentBlockHtml, previewBlocks = STORY_PREVIEW_BLOCKS) {
     if (!blocks || blocks.length <= previewBlocks) return (blocks || []).map(renderBlock).join("");
     const id = `story-extra-${storyCollapseSeq += 1}`;
@@ -1715,7 +1714,7 @@ import {
   }
 
   function renderStorySection(section, index) {
-    const previewBlocks = activeView.staticOnly ? STATIC_STORY_PREVIEW_BLOCKS : STORY_PREVIEW_BLOCKS;
+    const previewBlocks = storyPreviewBlocks();
     return `
       <section class="story-section ${index > 0 ? "story-section-separated" : ""}">
         <h3>${escapeHtml(section.title)}</h3>
@@ -1733,7 +1732,7 @@ import {
     }
 
     els.story.hidden = false;
-    const previewBlocks = activeView.staticOnly ? STATIC_STORY_PREVIEW_BLOCKS : STORY_PREVIEW_BLOCKS;
+    const previewBlocks = storyPreviewBlocks();
     const paragraphs = story.sections
       ? story.sections.map(renderStorySection).join("")
       : collapsibleStoryBlocksHtml(story.paragraphs || [], storyContentBlockHtml, previewBlocks);
@@ -1798,7 +1797,13 @@ import {
       ? story.afterChartByEndpoint[endpoint]
       : story && story.afterChart;
 
-    if (!story || !afterChart) {
+    const leadCount = activeView.leadParagraphs || 0;
+    els.storyLead.hidden = !(story && afterChart && leadCount);
+    els.storyLead.innerHTML = els.storyLead.hidden ? "" : `
+      <div class="story-copy">${afterChart.slice(0, leadCount).map(afterStoryBlockHtml).join("")}</div>
+    `;
+    const rest = afterChart ? afterChart.slice(leadCount) : [];
+    if (!story || !rest.length) {
       els.afterStory.hidden = true;
       els.afterStory.innerHTML = "";
       return;
@@ -1806,7 +1811,7 @@ import {
     els.afterStory.hidden = false;
     els.afterStory.innerHTML = `
       <div class="story-copy">
-        ${collapsibleStoryBlocksHtml(afterChart, afterStoryBlockHtml)}
+        ${collapsibleStoryBlocksHtml(rest, afterStoryBlockHtml, storyPreviewBlocks())}
       </div>
     `;
   }
@@ -2953,8 +2958,9 @@ import {
   }
 
   function renderMetricsInto(target, metrics) {
+    target.classList.toggle("metric-tiles", metrics.some((metric) => metric.color));
     target.innerHTML = metrics.map((metric) => `
-      <div class="metric">
+      <div class="metric"${metric.color ? ` style="--tile:${escapeHtml(metric.color)}"` : ""}>
         <span>${escapeHtml(displayLabel(metric.label))}</span>
         <strong>${formatMetricValue(metric)}</strong>
         <small>${escapeHtml(metric.note || "")}</small>
@@ -2974,6 +2980,31 @@ import {
         ${collapsibleStoryBlocksHtml(paragraphs)}
       </div>
     `;
+  }
+
+  /** One tile per tax scenario: what is left, and how much less than paying tax only at the end. */
+  function metricTaxScenarios(payload) {
+    const row = lastRow(payload.data);
+    if (!row) return [];
+    const scenarios = [
+      ["End25", "מימוש רק בסוף", "#2457ff"],
+      ["Every120Months", "מימוש כל 10 שנים", "#2f9e8f"],
+      ["Every60Months", "מימוש כל 5 שנים", "#ff941f"],
+      ["Every12Months", "מימוש כל שנה", "#ff3b30"],
+      ["EveryMonth", "מימוש כל חודש", "#2b2f31"]
+    ];
+    const atEnd = numericValue(row.End25);
+    return scenarios.map(([key, label, color]) => {
+      const value = numericValue(row[key]);
+      const less = atEnd ? 1 - value / atEnd : 0;
+      return {
+        label,
+        value,
+        format: "shekel",
+        color,
+        note: key === "End25" ? "נקודת ההשוואה" : `${formatPercent(less, 0)} פחות`
+      };
+    });
   }
 
   function metricLast(columns) {
@@ -4005,6 +4036,7 @@ import {
 
   function formatMetricValue(metric) {
     if (metric.value === null || metric.value === undefined) return "";
+    if (metric.format === "shekel") return escapeHtml(formatShekel(Number(metric.value), 0));
     if (metric.format === "percent") return escapeHtml(formatPercent(Number(metric.value), metric.digits ?? 1));
     return formatCell(metric.value);
   }
@@ -4324,6 +4356,8 @@ import {
     currentChartConfig = null;
     els.afterStory.hidden = true;
     els.afterStory.innerHTML = "";
+    els.storyLead.hidden = true;
+    els.storyLead.innerHTML = "";
     els.chart.dataset.view = "";
     releaseChart(els.chart);
     renderNav();
