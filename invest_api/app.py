@@ -473,6 +473,7 @@ def create_app() -> Flask:
             {
                 "status": "ok",
                 "api": "invest",
+                "calculation_version": calc.CALCULATION_VERSION,
                 "endpoints": list(ENDPOINT_NAMES),
                 "sources": "/api/sources",
                 "data_objects": {

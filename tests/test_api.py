@@ -10,41 +10,15 @@ ROOT = Path(__file__).resolve().parents[1]
 FIXTURE_DIR = ROOT / "tests" / "fixtures" / "r_outputs"
 
 
+# Endpoints whose rules are unchanged since the R port. The others are covered
+# by hand-computed tests in test_calculations.py.
 ENDPOINT_FIXTURES = {
-    "tax_events": "tax_events_default",
-    "commission_effect": "commission_effect_default",
-    "commission_tax": "commission_tax_default",
-    "sp500_risk": "sp500_risk_default",
-    "portfolio_summary": "portfolio_summary_default",
-    "kupat_gemel": "kupat_gemel_default",
-    "kupat_gemel_pension": "kupat_gemel_pension_default",
-    "independent_commissions": "independent_commissions_default",
-    "tax_us_vs_il": "tax_us_vs_il_default",
-    "portfolio_over_time": "portfolio_over_time_default",
-    "us_world_rolling": "us_world_rolling_default",
-    "us_global_rolling": "us_global_rolling_default",
     "sp500_scv_rolling": "sp500_scv_rolling_default",
     "sp500_scv_heatmap": "sp500_scv_heatmap_default",
-    "sp500_scv_after_tax": "sp500_scv_after_tax_default",
-    "trinity": "trinity_default",
 }
 PHASE1_ENDPOINT_QUERIES = {
-    "tax_events": {"end": "2023-01-01"},
-    "commission_effect": {"end": "2023-01-01"},
-    "commission_tax": {"end": "2023-01-01"},
-    "sp500_risk": {"end": "2024-01-01"},
-    "portfolio_summary": {"year_end": "2023"},
-    "kupat_gemel": {"end": "2024-01-01"},
-    "kupat_gemel_pension": {"end": "2024-01-01"},
-    "independent_commissions": {"end": "2023-01-01"},
-    "tax_us_vs_il": {"end": "2023-01-01"},
-    "portfolio_over_time": {"year_end": "2023"},
-    "us_world_rolling": {"year_end": "2023"},
-    "us_global_rolling": {"year_end": "2023"},
     "sp500_scv_rolling": {"year_end": "2023"},
     "sp500_scv_heatmap": {"year_end": "2023"},
-    "sp500_scv_after_tax": {"year_end": "2023"},
-    "trinity": {"year_end": "2023"},
 }
 
 
@@ -136,10 +110,11 @@ def test_endpoint_default_json_parity(client, endpoint, fixture_name):
 
 
 def test_tax_events_accepts_no_cpi_parameter(client):
-    response = client.get("/api/tax_events", query_string={"adjust_cpi": "false", "end": "2023-01-01"})
+    real = client.get("/api/tax_events", query_string={"end": "2023-01-01"}).get_json()
+    nominal = client.get("/api/tax_events", query_string={"adjust_cpi": "false", "end": "2023-01-01"}).get_json()
 
-    assert response.status_code == 200
-    assert_payload_matches_fixture(response.get_json(), "tax_events_no_cpi")
+    assert nominal["params"]["adjust_cpi"] is False
+    assert nominal["data"][-1]["v"] > real["data"][-1]["v"]
 
 
 def test_frontend_default_commission_tax_smoke(client):
@@ -228,11 +203,20 @@ def test_frontend_independent_tax_parameter_smoke(client):
     assert payload["rows"] > 0
 
 
-def test_kupat_gemel_rejects_post_60_without_age_60_anchor(client):
-    response = client.get("/api/kupat_gemel", query_string={"age": "61"})
+def test_kupat_gemel_pension_starts_immediately_after_60(client):
+    response = client.get("/api/kupat_gemel_pension", query_string={"age": "61"})
 
-    assert response.status_code == 400
-    assert "age-60 CPI anchor" in response.get_json()["error"]
+    assert response.status_code == 200
+    rows = response.get_json()["data"]
+    assert rows[0]["Kitzba"] == 0
+    assert rows[1]["Kitzba"] > 0
+
+
+def test_global_heatmap_accepts_year_end(client):
+    response = client.get("/api/global_vs_sp500_heatmap", query_string={"year_end": "2020", "max_years": "5"})
+
+    assert response.status_code == 200
+    assert max(row["EndYear"] for row in response.get_json()["data"]) == 2020
 
 
 def test_frontend_scv_heatmap_parameter_smoke(client):

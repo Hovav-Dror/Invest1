@@ -80,8 +80,8 @@ Parquet inputs server-only. Available JSON endpoints:
 The source `/Users/hovav/Documents/R projects/Invest/Invest.rda` remains
 private. No static frontend assets are generated in this phase.
 
-Phase 3 parity tests compare Python outputs against
-`tests/fixtures/r_outputs/*.csv` for the default tax-event, management-fee,
-S&P 500 rolling-risk, and lazy-portfolio summary calculations. Numeric
-comparisons use tight floating-point tolerances to allow normal R/Python
-rounding differences while preserving fixture-level behavior.
+Calculation rules are documented in `docs/methodology.md`. Version 2 corrected
+several rules inherited from the R app (date alignment, tax on losses, CAGR,
+provident-fund, Trinity), so `tests/test_calculations.py` checks them against
+small hand-computed examples. R parity tests remain only for calculations whose
+rules did not change.
