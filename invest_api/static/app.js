@@ -13,8 +13,8 @@ import {
 
   const TABLE_LIMIT = 250;
   const HEATMAP_LIMIT = 1600;
-  const STORY_PREVIEW_BLOCKS = 3;
-  const STATIC_STORY_PREVIEW_BLOCKS = 8;
+  // The author's text is the core of every screen, so it is never folded away.
+  const STORY_PREVIEW_BLOCKS = Infinity;
   const locale = "he-IL";
   const percentColumns = new Set([
     "TotalReturnP",
@@ -858,7 +858,6 @@ import {
       },
       tableColumns: ["date", "v", "End25", "Every120Months", "Every60Months", "Every12Months", "EveryMonth"],
       metric: metricTaxScenarios,
-      storyOpen: true,
       leadParagraphs: 2
     },
     {
@@ -892,7 +891,7 @@ import {
             title: "השפעת גובה דמי הניהול",
             caption: "נתוני S&P 500, כולל צבירת דיוידנדים"
           },
-          metric: metricLastBy("commission", "tax_at_end"),
+          metric: metricFees,
           tableColumns: ["date", "commission", "SP500_in_NIS", "tax_at_end"]
         },
         {
@@ -962,7 +961,7 @@ import {
             title: "היתרון (?) של הטבת המס בקופת גמל להשקעה מול דמי ניהול נמוכים",
             caption: "ההבדלים הם מס, דמי ניהול ועלויות קניה ומכירה; מדד S&P 500, מחקה מושלם"
           },
-          metric: metricLast(["II", "KH", "PH"]),
+          metric: metricKupat,
           tableColumns: ["date", "age", "KH", "PH", "II"]
         },
         {
@@ -987,7 +986,7 @@ import {
             title: "קופת גמל עם פטור ממס מול השקעה עצמאית עם משיכת קצבה זהה",
             caption: "החל מגיל 60 מושכים קצבה לפי מקדם ההמרה בשתי החלופות"
           },
-          metric: metricLast(["IIb", "II", "KH", "Kitzba"]),
+          metric: metricKupat,
           tableColumns: ["date", "age", "KH", "II", "IIb", "Kitzba"]
         }
       ],
@@ -1695,10 +1694,8 @@ import {
     `;
   }
 
-  /** How many blocks of a story section show before "קרא עוד" (views can keep the whole story open). */
   function storyPreviewBlocks() {
-    if (activeView.storyOpen) return Infinity;
-    return activeView.staticOnly ? STATIC_STORY_PREVIEW_BLOCKS : STORY_PREVIEW_BLOCKS;
+    return STORY_PREVIEW_BLOCKS;
   }
 
   function collapsibleStoryBlocksHtml(blocks, renderBlock = storyContentBlockHtml, previewBlocks = STORY_PREVIEW_BLOCKS) {
@@ -3036,9 +3033,9 @@ import {
       ? Number(payload.params.threshold)
       : 0.04;
     return [
-      { label: "זמן בהפסד", value: 1 - numericValue(row.Above0), note: "חלונות שהסתיימו מתחת לאפס", format: "percent", digits: 1 },
-      { label: `מעל ${formatPercent(threshold, 0)}`, value: row.AboveThreshold, note: "שיעור החלונות מעל הסף", format: "percent", digits: 1 },
-      { label: "תשואה חציונית", value: row.Median, note: "תשואה שנתית ממוצעת", format: "percent", digits: 1 }
+      { label: "הפסידו כסף", value: 1 - numericValue(row.Above0), note: "מהתקופות, אחרי אינפלציה", format: "percent", digits: 1, color: "#e0532f" },
+      { label: `הרוויחו מעל ${formatPercent(threshold, 0)} בשנה`, value: row.AboveThreshold, note: "מהתקופות", format: "percent", digits: 1, color: "#2f9e8f" },
+      { label: "תשואה שנתית חציונית", value: row.Median, note: "אחרי אינפלציה", format: "percent", digits: 1, color: "#145f59" }
     ];
   }
 
@@ -3051,19 +3048,19 @@ import {
     const afterIl = numericValue(row.v_final_il);
     const afterDollar = numericValue(row.v_final_dollar);
 
+    const change = (value) => (start && value !== null ? `תשואה ${formatPercent(value / start - 1, 0)}` : "");
     if (payload.endpoint === "tax_us_vs_il") {
       return [
-        { label: "לפני מס ומכירה", value: base, note: row.date },
-        { label: "אחרי מס ישראלי", value: afterIl, note: start ? `תשואה ${formatPercent(afterIl / start - 1, 0)}` : row.date },
-        { label: "אחרי מס דולרי", value: afterDollar, note: start ? `תשואה ${formatPercent(afterDollar / start - 1, 0)}` : row.date },
-        { label: "פער מס", value: afterIl !== null && afterDollar !== null ? afterIl - afterDollar : null, note: "ישראלי פחות דולרי" }
+        { label: "לפני מס ומכירה", value: base, note: change(base), format: "shekel", color: "#145f59" },
+        { label: "אחרי מס ישראלי", value: afterIl, note: change(afterIl), format: "shekel", color: "#a94d2a" },
+        { label: "אחרי מס דולרי", value: afterDollar, note: change(afterDollar), format: "shekel", color: "#385f9f" }
       ];
     }
 
     return [
-      { label: "ללא עלויות", value: base, note: row.date },
-      { label: "אחרי עלויות", value: afterCosts, note: start ? `תשואה ${formatPercent(afterCosts / start - 1, 0)}` : row.date },
-      { label: "עלות מצטברת", value: base !== null && afterCosts !== null ? base - afterCosts : null, note: "פער מול מסלול ללא עלויות" }
+      { label: "בלי עלויות", value: base, note: change(base), format: "shekel", color: "#145f59" },
+      { label: "אחרי כל העלויות", value: afterCosts, note: change(afterCosts), format: "shekel", color: "#a94d2a" },
+      { label: "העלות המצטברת", value: base !== null && afterCosts !== null ? base - afterCosts : null, note: "הפער בין שני הקווים", format: "shekel", color: "#68736f" }
     ];
   }
 
@@ -3114,14 +3111,65 @@ import {
 
   function metricTrinity(payload) {
     const rows = payload.data || [];
-    const success = rows.filter((row) => numericValue(row.Investment_low) > 0).length;
-    const worst = rows.slice().sort((a, b) => numericValue(a.Investment_low) - numericValue(b.Investment_low))[0];
-    const best = rows.slice().sort((a, b) => numericValue(b.Investment_remained) - numericValue(a.Investment_remained))[0];
+    const params = payload.params || {};
+    const base = Number(params.base) || 0;
+    const count = Math.max(rows.length, 1);
+    const depleted = rows.filter((row) => row.depleted_year !== null && row.depleted_year !== undefined);
+    const above = rows.filter((row) => numericValue(row.Investment_remained) >= base).length;
+    const ends = rows.map((row) => numericValue(row.Investment_remained)).filter((value) => value !== null).sort((a, b) => a - b);
     return [
-      { label: "שיעור הצלחה", value: success / Math.max(rows.length, 1), note: "ההון נשאר חיובי לאורך התקופה", format: "percent", digits: 1 },
-      { label: "השפל הגרוע ביותר", value: worst && worst.Investment_low, note: worst && `התחלה ${worst.start_year}` },
-      { label: "הסיום הטוב ביותר", value: best && best.Investment_remained, note: best && `התחלה ${best.start_year}` }
+      { label: "משיכה חודשית", value: (base * (Number(params.yearly_draw) || 0)) / 12, note: "צמודה למדד", format: "shekel", color: "#145f59" },
+      { label: "הכסף נגמר", value: `${depleted.length} מתוך ${rows.length}`, note: depleted.length ? `התחלה ב-${depleted.map((row) => row.start_year).join(", ")}` : "באף תקופה", color: "#e0532f" },
+      { label: "נשאר יותר מההתחלה", value: above / count, note: "מהתקופות", format: "percent", digits: 0, color: "#2f9e8f" },
+      { label: "יתרה חציונית בסוף", value: quantile(ends, 0.5), note: `אחרי ${params.years || ""} שנים`, format: "shekel", color: "#17201d" }
     ];
+  }
+
+  /** Provident fund panels: one tile per line, colored like it, with the return on the deposit. */
+  function metricKupat(payload) {
+    const rows = payload.data || [];
+    const row = lastRow(rows);
+    if (!row) return [];
+    const initial = Number(payload.params && payload.params.initial) || 0;
+    const ret = (value) => (initial && value !== null ? `תשואה ${kupatReturnText(value, initial)}` : "");
+    const age = `בגיל ${Math.floor(numericValue(row.age))}`;
+    if (payload.endpoint === "kupat_gemel_pension") {
+      const received = rows.reduce((sum, item) => sum + (numericValue(item.Kitzba) || 0), 0);
+      return [
+        { label: "קצבה חודשית", value: numericValue(row.Kitzba), note: "מגיל 60, צמודה למדד", format: "shekel", color: "#f09a11" },
+        { label: "קצבה שהתקבלה עד כה", value: received, note: age, format: "shekel", color: "#f09a11" },
+        { label: "נשאר בהשקעה העצמאית", value: numericValue(row.IIb), note: `${age}, אחרי אותן משיכות`, format: "shekel", color: "#2457ff" }
+      ];
+    }
+    return [
+      { label: "השקעה עצמאית", value: numericValue(row.II), note: `${age} · ${ret(numericValue(row.II))}`, format: "shekel", color: "#1748ff" },
+      kupatAtConversion(rows, ret),
+      { label: "פוליסת חסכון", value: numericValue(row.PH), note: `${age} · ${ret(numericValue(row.PH))}`, format: "shekel", color: "#111111" }
+    ];
+  }
+
+  /** The fund converts to an annuity at 60, so its tile shows the balance at conversion. */
+  function kupatAtConversion(rows, ret) {
+    const row = rows.find((item) => numericValue(item.age) >= 60);
+    if (!row) {
+      const last = lastRow(rows);
+      return { label: "קופת גמל להשקעה", value: numericValue(last.KH), note: ret(numericValue(last.KH)), format: "shekel", color: "#ef3326" };
+    }
+    return { label: "קופת גמל להשקעה", value: numericValue(row.KH), note: `בגיל 60, הומרה לקצבה פטורה ממס · ${ret(numericValue(row.KH))}`, format: "shekel", color: "#ef3326" };
+  }
+
+  /** Management-fee panel: what is left at each fee level, and how much less than with no fee. */
+  function metricFees(payload) {
+    const groups = Object.entries(groupRows(payload.data || [], "commission")).sort((a, b) => Number(a[0]) - Number(b[0]));
+    const values = groups.map(([fee, rows]) => [Number(fee), numericValue(lastRow(rows).tax_at_end)]);
+    const reference = values.length ? values[0][1] : null;
+    return values.map(([fee, value], index) => ({
+      label: `דמי ניהול ${fee}%`,
+      value,
+      format: "shekel",
+      color: PALETTE[index % PALETTE.length],
+      note: index === 0 || !reference ? "אחרי מס, בסוף התקופה" : `${formatPercent(1 - value / reference, 0)} פחות מ-${values[0][0]}%`
+    }));
   }
 
   function formatParams(params) {
