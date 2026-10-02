@@ -2342,3 +2342,14 @@ button.vchart-legend-item[aria-pressed="false"] {
     padding: 8px 12px 14px;
   }
 }
+
+.vchart-download {
+  min-height: 32px;
+  padding: 4px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+}

@@ -88,6 +88,9 @@ function frameHtml(spec, instance, result) {
     ? `<button type="button" class="vchart-reset" data-vchart-reset ${instance.zoom ? "" : "hidden"}>הצג טווח מלא</button>`
     : "";
   const help = result.help || "";
+  const download = spec.download && spec.download.rows && spec.download.rows.length
+    ? `<button type="button" class="vchart-download" data-vchart-download>הורדת הנתונים (CSV)</button>`
+    : "";
   return `
     <figure class="vchart vchart-${escapeHtml(spec.kind)}">
       ${head}
@@ -100,7 +103,7 @@ function frameHtml(spec, instance, result) {
       ${notesHtml}
       ${spec.captionHtml ? `<p class="vchart-caption">${spec.captionHtml}</p>` : spec.caption ? `<p class="vchart-caption">${escapeHtml(spec.caption)}</p>` : ""}
       ${spec.footerHtml || ""}
-      ${help || zoomButton ? `<div class="vchart-actions"><span class="vchart-help">${escapeHtml(help)}</span>${zoomButton}</div>` : ""}
+      ${help || zoomButton || download ? `<div class="vchart-actions"><span class="vchart-help">${escapeHtml(help)}</span>${zoomButton}${download}</div>` : ""}
     </figure>
   `;
 }
@@ -845,6 +848,10 @@ function attachEvents(target, instance) {
       draw(target, instance);
       return;
     }
+    if (event.target.closest("[data-vchart-download]") && instance.spec && instance.spec.download) {
+      downloadCsv(instance.spec.download);
+      return;
+    }
     if (event.target.closest("[data-vchart-reset]")) {
       instance.zoom = null;
       draw(target, instance);
@@ -944,3 +951,32 @@ function hide(target) {
   target.querySelectorAll(":scope > .vchart .vchart-cursor").forEach((cursor) => cursor.setAttribute("hidden", ""));
 }
 
+
+// ---------------------------------------------------------------------------
+// CSV export
+// ---------------------------------------------------------------------------
+
+/** Build CSV text. Cells that a spreadsheet would run as a formula are prefixed with '. */
+export function toCsv(columns, rows) {
+  const cell = (value) => {
+    if (value === null || value === undefined) return "";
+    let text = String(value);
+    if (/^[=+\-@\t\r]/.test(text) && typeof value !== "number") text = `'${text}`;
+    return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+  };
+  return [columns.map(cell).join(","), ...rows.map((row) => columns.map((column) => cell(row[column])).join(","))].join("\r\n");
+}
+
+function downloadCsv({ filename, columns, rows }) {
+  const cols = columns && columns.length ? columns : Object.keys(rows[0] || {});
+  // The byte-order mark makes Excel open Hebrew text correctly.
+  const blob = new Blob(["\ufeff", toCsv(cols, rows)], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${filename || "data"}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}

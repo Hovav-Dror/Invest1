@@ -1,4 +1,4 @@
-import { renderChart as drawChart, chartMessage as drawMessage, releaseChart, PALETTE } from "./js/charts.js";
+import { renderChart as drawChartCore, chartMessage as drawMessage, releaseChart, PALETTE } from "./js/charts.js";
 import { parseHash, buildHash, scoped, prefixed, applyEntries } from "./js/route.js";
 import {
   escapeHtml,
@@ -2175,8 +2175,10 @@ import {
       els.chart.classList.remove("is-updating");
       els.message.hidden = true;
       els.message.textContent = "";
+      activeDownload = downloadFor(summaryPayload);
       renderLazySummaryScatter(summaryPayload, state, "factor", els.chart.querySelector('[data-lazy-chart="factor"]'));
       renderLazySummaryScatter(summaryPayload, state, "risk-return", els.chart.querySelector('[data-lazy-chart="risk-return"]'));
+      activeDownload = downloadFor(timePayload);
       renderLazyTimeChart(timePayload, state, els.chart.querySelector('[data-lazy-chart="time"]'));
       renderLazyDataTable(structurePayload, els.chart.querySelector('[data-lazy-table="structure"]'), "structure");
       renderLazyDataTable(commissionPayload, els.chart.querySelector('[data-lazy-table="commissions"]'), "commissions");
@@ -3078,6 +3080,7 @@ import {
   }
 
   function renderChart(payload, chartConfig) {
+    activeDownload = downloadFor(payload);
     if (!chartConfig || !(payload.data || []).length) {
       chartMessage(ui.noChartRows);
       return;
@@ -3166,6 +3169,20 @@ import {
       yKey: key,
       rows
     }));
+  }
+
+  // Data offered for download with the chart being drawn (set by the caller).
+  let activeDownload = null;
+
+  function drawChart(target, spec) {
+    drawChartCore(target, { ...spec, download: spec.download || activeDownload });
+  }
+
+  function downloadFor(payload, name) {
+    if (!payload || !payload.data) return null;
+    const params = payload.params || {};
+    const suffix = params.start && params.end ? `_${params.start}_${params.end}` : "";
+    return { filename: `${name || payload.endpoint}${suffix}`, columns: payload.columns, rows: payload.data };
   }
 
   function valueFormat(chartConfig) {

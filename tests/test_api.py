@@ -256,7 +256,14 @@ def test_unknown_parameter_is_rejected(client):
     response = client.get("/api/sp500_risk?surprise=1")
 
     assert response.status_code == 400
-    assert "Unknown query parameter" in response.get_json()["error"]
+    assert "פרמטר לא מוכר" in response.get_json()["error"]
+
+
+def test_validation_errors_use_percent_for_fraction_fields(client):
+    response = client.get("/api/trinity?yearly_draw=2")
+
+    assert response.status_code == 400
+    assert response.get_json()["error"] == "אחוז המשיכה השנתית: הערך המרבי הוא 100%"
 
 
 def test_responses_are_gzipped_when_accepted(client):

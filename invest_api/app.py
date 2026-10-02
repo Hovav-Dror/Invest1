@@ -63,7 +63,55 @@ EXPENSIVE_ENDPOINTS = {
 
 
 class ApiValidationError(ValueError):
-    """Raised when API query parameters are invalid."""
+    """Raised when API query parameters are invalid. Messages are shown to users, in Hebrew."""
+
+
+FIELD_LABELS = {
+    "start": "תאריך התחלה",
+    "end": "תאריך סיום",
+    "adjust_cpi": "התאמה למדד",
+    "initial": "הסכום ההתחלתי",
+    "commissions": "דמי ניהול",
+    "years": "מספר השנים",
+    "threshold": "סף התשואה",
+    "portfolios": "תיקים",
+    "portfolio": "תיק",
+    "year_start": "שנת התחלה",
+    "year_end": "שנת סיום",
+    "commission_adjusted": "דמי ניהול",
+    "rolling_window": "מספר שנות ההשקעה",
+    "full_history_rolling": "היסטוריה מלאה",
+    "age": "גיל",
+    "start_year": "שנת התחלה",
+    "pension_months": "מקדם ההמרה לקצבה",
+    "kh_buy_sell": "עלות קנייה ומכירה (קופת גמל)",
+    "kh_annual_fee": "דמי ניהול (קופת גמל)",
+    "ph_buy_sell": "עלות קנייה ומכירה (פוליסה)",
+    "ph_annual_fee": "דמי ניהול (פוליסה)",
+    "ii_buy_sell": "עלות קנייה ומכירה (השקעה עצמאית)",
+    "ii_annual_fee": "דמי ניהול (השקעה עצמאית)",
+    "share_price": "מחיר יחידה",
+    "dollar_commission": "עמלת המרה",
+    "commission_per_share": "עמלה ליחידה",
+    "min_dollar_commission": "מינימום עמלה",
+    "yearly_commission": "דמי ניהול שנתיים",
+    "window": "מספר שנות ההשקעה",
+    "max_years": "מספר שנות ההשקעה המרבי",
+    "yearly_draw": "אחוז המשיכה השנתית",
+    "base": "הסכום ההתחלתי",
+}
+# Sent as fractions but shown to users as percentages.
+FRACTION_FIELDS = {"dollar_commission", "yearly_commission", "yearly_draw", "threshold"}
+
+
+def _label(name: str) -> str:
+    return FIELD_LABELS.get(name, name)
+
+
+def _limit(name: str, value: float) -> str:
+    if name in FRACTION_FIELDS:
+        return f"{value * 100:g}%"
+    return f"{value:g}"
 
 
 @lru_cache(maxsize=1)
@@ -77,18 +125,18 @@ def _parse_bool(raw: str, name: str) -> bool:
         return True
     if normalized in {"0", "false", "f", "no", "n", "off"}:
         return False
-    raise ApiValidationError(f"{name} must be a boolean")
+    raise ApiValidationError(f"{_label(name)}: הערך צריך להיות כן או לא")
 
 
 def _parse_int(raw: str, name: str, *, minimum: int | None = None, maximum: int | None = None) -> int:
     try:
         value = int(raw)
     except ValueError as exc:
-        raise ApiValidationError(f"{name} must be an integer") from exc
+        raise ApiValidationError(f"{_label(name)}: צריך להזין מספר שלם") from exc
     if minimum is not None and value < minimum:
-        raise ApiValidationError(f"{name} must be at least {minimum}")
+        raise ApiValidationError(f"{_label(name)}: הערך המינימלי הוא {_limit(name, minimum)}")
     if maximum is not None and value > maximum:
-        raise ApiValidationError(f"{name} must be at most {maximum}")
+        raise ApiValidationError(f"{_label(name)}: הערך המרבי הוא {_limit(name, maximum)}")
     return value
 
 
@@ -96,13 +144,13 @@ def _parse_float(raw: str, name: str, *, minimum: float | None = None, maximum: 
     try:
         value = float(raw)
     except ValueError as exc:
-        raise ApiValidationError(f"{name} must be numeric") from exc
+        raise ApiValidationError(f"{_label(name)}: צריך להזין מספר") from exc
     if not math.isfinite(value):
-        raise ApiValidationError(f"{name} must be finite")
+        raise ApiValidationError(f"{_label(name)}: צריך להזין מספר")
     if minimum is not None and value < minimum:
-        raise ApiValidationError(f"{name} must be at least {minimum}")
+        raise ApiValidationError(f"{_label(name)}: הערך המינימלי הוא {_limit(name, minimum)}")
     if maximum is not None and value > maximum:
-        raise ApiValidationError(f"{name} must be at most {maximum}")
+        raise ApiValidationError(f"{_label(name)}: הערך המרבי הוא {_limit(name, maximum)}")
     return value
 
 
@@ -110,9 +158,9 @@ def _parse_date(raw: str, name: str) -> str:
     try:
         value = pd.Timestamp(raw)
     except ValueError as exc:
-        raise ApiValidationError(f"{name} must be a valid date") from exc
+        raise ApiValidationError(f"{_label(name)}: התאריך לא תקין") from exc
     if pd.isna(value):
-        raise ApiValidationError(f"{name} must be a valid date")
+        raise ApiValidationError(f"{_label(name)}: התאריך לא תקין")
     return value.strftime("%Y-%m-%d")
 
 
@@ -122,7 +170,7 @@ def _parse_float_list(values: list[str], name: str) -> tuple[float, ...]:
         parts = [part.strip() for part in raw.split(",")]
         parsed.extend(_parse_float(part, name, minimum=0) for part in parts if part)
     if not parsed:
-        raise ApiValidationError(f"{name} cannot be empty")
+        raise ApiValidationError(f"{_label(name)}: צריך לבחור לפחות ערך אחד")
     return tuple(parsed)
 
 
@@ -131,12 +179,12 @@ def _parse_portfolios(values: list[str], name: str) -> tuple[str, ...]:
     for raw in values:
         parsed.extend(part.strip() for part in raw.split(",") if part.strip())
     if not parsed:
-        raise ApiValidationError(f"{name} cannot be empty")
+        raise ApiValidationError(f"{_label(name)}: צריך לבחור לפחות ערך אחד")
 
     valid = set(_data().lazy_return_portfolios)
     unknown = [portfolio for portfolio in parsed if portfolio not in valid]
     if unknown:
-        raise ApiValidationError(f"Unknown portfolio: {unknown[0]}")
+        raise ApiValidationError(f"תיק לא מוכר: {unknown[0]}")
     return tuple(parsed)
 
 
@@ -167,12 +215,12 @@ def _reject_unknown(args: Mapping[str, str], allowed: Iterable[str]) -> None:
     allowed_set = set(allowed)
     unknown = sorted(key for key in args if key not in allowed_set)
     if unknown:
-        raise ApiValidationError(f"Unknown query parameter: {unknown[0]}")
+        raise ApiValidationError(f"פרמטר לא מוכר: {unknown[0]}")
 
 
 def _normalize_common_dates(params: JsonDict, *, start_key: str = "start", end_key: str = "end") -> None:
     if pd.Timestamp(params[start_key]) > pd.Timestamp(params[end_key]):
-        raise ApiValidationError(f"{start_key} must be on or before {end_key}")
+        raise ApiValidationError("תאריך ההתחלה צריך להיות לפני תאריך הסיום")
 
 
 def _parse_tax_args(args) -> Params:
@@ -220,7 +268,7 @@ def _parse_portfolio_args(args) -> Params:
     _reject_unknown(args, {"portfolios", "year_start", "year_end", "commission_adjusted", "value_mode", "rolling_window", "full_history_rolling"})
     value_mode = args.get("value_mode", "cpi_il")
     if value_mode not in {"cpi_il", "cpi_us", "nominal"}:
-        raise ApiValidationError("value_mode must be one of cpi_il, cpi_us, nominal")
+        raise ApiValidationError("סוג התקנון למדד לא מוכר")
     params: JsonDict = {
         "portfolios": (
             _parse_portfolios(args.getlist("portfolios"), "portfolios")
@@ -235,7 +283,7 @@ def _parse_portfolio_args(args) -> Params:
         "full_history_rolling": _get_bool(args, "full_history_rolling", False),
     }
     if params["year_start"] > params["year_end"]:
-        raise ApiValidationError("year_start must be on or before year_end")
+        raise ApiValidationError("שנת ההתחלה צריכה להיות לפני שנת הסיום")
     return _freeze(params)
 
 
@@ -321,7 +369,7 @@ def _parse_trinity_args(args) -> Params:
     _reject_unknown(args, {"portfolio", "yearly_draw", "years", "base", "year_end"})
     portfolio = args.get("portfolio", calc.DEFAULT_TRINITY_PORTFOLIO).strip()
     if portfolio not in set(_data().lazy_return_portfolios):
-        raise ApiValidationError(f"Unknown portfolio: {portfolio}")
+        raise ApiValidationError(f"תיק לא מוכר: {portfolio}")
     params: JsonDict = {
         "portfolio": portfolio,
         "yearly_draw": _get_float(args, "yearly_draw", calc.DEFAULT_TRINITY_DRAW, minimum=0, maximum=1),
