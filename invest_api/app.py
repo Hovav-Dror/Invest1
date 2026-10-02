@@ -456,6 +456,9 @@ PARSERS: dict[str, Callable[[Any], Params]] = {
 def create_app() -> Flask:
     app = Flask(__name__)
     app.json.sort_keys = False
+    # Static files are small; always revalidate (cheap 304s) so a deploy never
+    # mixes an old index.html with new JavaScript modules.
+    app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
 
     @app.get("/")
     def index():

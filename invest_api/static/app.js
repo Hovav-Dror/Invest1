@@ -1,7 +1,15 @@
-(function () {
-  "use strict";
+import { renderChart as drawChart, chartMessage as drawMessage, releaseChart, PALETTE } from "./js/charts.js";
+import {
+  escapeHtml,
+  numericValue,
+  ltrText,
+  formatShekelShort,
+  formatMonthYear,
+  toYearValue
+} from "./js/format.js";
 
-  const palette = ["#145f59", "#a94d2a", "#385f9f", "#76611b", "#75518b", "#2f7646", "#a23f68", "#55736f"];
+{
+
   const TABLE_LIMIT = 250;
   const HEATMAP_LIMIT = 1600;
   const STORY_PREVIEW_BLOCKS = 3;
@@ -1420,10 +1428,7 @@
   let lastPayload = null;
   let currentChartConfig = null;
   const viewScrollPositions = new Map();
-  const hiddenSeries = new Set();
-  const chartZoom = {};
   const multiPayloads = new Map();
-  let dragStart = null;
   let runTimer = null;
   let requestSeq = 0;
   let storyCollapseSeq = 0;
@@ -1905,6 +1910,7 @@
 
   function renderLazyPortfolioShell() {
     els.chart.dataset.view = activeView.id;
+    releaseChart(els.chart);
     els.chart.innerHTML = `
       <section class="lazy-section">
         ${lazySharedControlsHtml("a")}
@@ -2194,299 +2200,6 @@
     }[valueMode] || "תשואה ריאלית בתיק שקלי";
   }
 
-  function renderLazySummaryScatter(payload, state, mode, target) {
-    const rows = (payload.data || [])
-      .map((row) => ({ ...row, FactorN: (1 + numericValue(row.CAGR)) ** state.factor_years }))
-      .filter((row) => numericValue(mode === "factor" ? row.FactorN : row.CAGR) !== null);
-    if (!rows.length) {
-      target.innerHTML = `<div class="chart-empty">${escapeHtml(ui.noChartRows)}</div>`;
-      return;
-    }
-    const highlight = new Set(state.highlight);
-    const width = 1120;
-    const height = 720;
-    const pad = { top: 92, right: 80, bottom: 92, left: 92 };
-    const xKey = mode === "factor" ? "MaxShefelYears" : "SD";
-    const yKey = mode === "factor" ? "FactorN" : "CAGR";
-    const xValues = rows.map((row) => numericValue(row[xKey])).filter((value) => value !== null);
-    const yValues = rows.map((row) => numericValue(row[yKey])).filter((value) => value !== null);
-    const xTicks = niceTicks(0, Math.max(...xValues) * 1.08, mode === "factor" ? 10 : 8);
-    const yTicks = niceTicks(0, Math.max(...yValues) * 1.08, 9);
-    const xMin = xTicks[0];
-    const xMax = xTicks[xTicks.length - 1];
-    const yMin = yTicks[0];
-    const yMax = yTicks[yTicks.length - 1];
-    const plotRight = width - pad.right;
-    const plotBottom = height - pad.bottom;
-    const xScale = (value) => pad.left + ((value - xMin) / (xMax - xMin || 1)) * (plotRight - pad.left);
-    const yScale = (value) => pad.top + (1 - (value - yMin) / (yMax - yMin || 1)) * (plotBottom - pad.top);
-    const nValues = rows.map((row) => numericValue(row.N)).filter((value) => value !== null);
-    const nMin = Math.min(...nValues);
-    const nMax = Math.max(...nValues);
-    const rScale = (value) => 5 + ((value - nMin) / (nMax - nMin || 1)) * 10;
-    const subtitle = mode === "factor" ? "תקופת שפל מרבית בשנים, וההכפלה האופיינית של הכסף" : lazyCpiSubtitle(state.value_mode);
-    const xLabel = mode === "factor" ? "שפל מרבי, בשנים" : "סטיית תקן של התשואה השנתית";
-    const yLabel = mode === "factor" ? `פי כמה הוכפל שקל אחד ב ${state.factor_years} שנים` : lazyCpiYLabel(state.value_mode);
-    const formatY = (value) => mode === "factor" ? formatNumber(value) : formatPercent(value, 0);
-    const formatX = (value) => mode === "factor" ? formatNumber(value) : formatPercent(value, 0);
-    const grid = yTicks.map((tick) => `
-      <line class="grid-line" x1="${pad.left}" y1="${yScale(tick).toFixed(2)}" x2="${plotRight}" y2="${yScale(tick).toFixed(2)}"></line>
-      <text x="${pad.left - 12}" y="${yScale(tick).toFixed(2)}" text-anchor="end" dominant-baseline="middle" fill="#56615d" font-size="12">${escapeHtml(formatY(tick))}</text>
-    `).join("");
-    const xGrid = xTicks.map((tick) => `
-      <line class="grid-line" x1="${xScale(tick).toFixed(2)}" y1="${pad.top}" x2="${xScale(tick).toFixed(2)}" y2="${plotBottom}"></line>
-      <text x="${xScale(tick).toFixed(2)}" y="${plotBottom + 26}" text-anchor="middle" fill="#56615d" font-size="12">${escapeHtml(formatX(tick))}</text>
-    `).join("");
-    const points = rows.map((row) => {
-      const x = numericValue(row[xKey]);
-      const y = numericValue(row[yKey]);
-      const isHighlighted = highlight.has(row.Portfolio);
-      const radius = rScale(numericValue(row.N)) * (isHighlighted ? 1.16 : 1);
-      const tooltip = [
-        `${row.Portfolio}`,
-        `Using ${row.N} Years of Data (Since ${row.FirstYear})`,
-        `CAGR ${formatTooltipPercent(numericValue(row.CAGR), 1)}`,
-        `SD ${formatTooltipPercent(numericValue(row.SD), 0)}`,
-        `אחרי ${state.factor_years} שנים השקעה של שקל אחד הניבה ${formatTooltipNumber(row.FactorN, 1)} שקלים`,
-        `שנות שפל מרביות: ${row.MaxShefelYears} שנים מתחת לשיא הקודם`,
-        `הפסד מרבי: ${formatTooltipPercent(numericValue(row.MaxDrop), 1)}`
-      ].join("\n");
-      return `
-        <circle class="lazy-scatter-point${isHighlighted ? " highlighted" : ""}" cx="${xScale(x).toFixed(2)}" cy="${yScale(y).toFixed(2)}" r="${radius.toFixed(2)}" data-tooltip="${escapeHtml(tooltip)}"></circle>
-        <text class="lazy-scatter-label${isHighlighted ? " highlighted" : ""}" x="${(xScale(x) + radius + 4).toFixed(2)}" y="${(yScale(y) - radius - 4).toFixed(2)}">${escapeHtml(row.Portfolio)}</text>
-      `;
-    }).join("");
-    target.innerHTML = `
-      <svg class="lazy-scatter-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="השוואת תיקי השקעות">
-        <text class="lazy-scatter-title" x="${width / 2}" y="32" text-anchor="middle">השוואת תיקי השקעות</text>
-        <text class="lazy-scatter-subtitle" x="${width / 2}" y="58" text-anchor="middle">${escapeHtml(subtitle)}</text>
-        ${grid}
-        ${xGrid}
-        <line x1="${pad.left}" y1="${plotBottom}" x2="${plotRight}" y2="${plotBottom}" stroke="#66736e"></line>
-        <line x1="${pad.left}" y1="${pad.top}" x2="${pad.left}" y2="${plotBottom}" stroke="#66736e"></line>
-        ${points}
-        <text class="lazy-axis-title" x="${(pad.left + plotRight) / 2}" y="${height - 28}" text-anchor="middle">${escapeHtml(xLabel)}</text>
-        <text class="lazy-axis-title" transform="translate(30 ${(pad.top + plotBottom) / 2}) rotate(-90)" text-anchor="middle">${escapeHtml(yLabel)}</text>
-      </svg>
-      <p class="chart-caption chart-caption-rolling"><span>${escapeHtml(lazyCaption(state.value_mode))}</span></p>
-      ${lazyReadingHtml(mode === "factor" ? "factor" : "risk-return", state)}
-      <div class="chart-help">${escapeHtml(ui.barHelp)}</div>
-      <div class="chart-tooltip" role="status"></div>
-    `;
-  }
-
-  function renderLazyTimeChart(payload, state, target) {
-    if (state.time_type === "BoxPlot") {
-      renderLazyBoxPlot(payload, state, target);
-      return;
-    }
-    if (state.time_type === "Hghlght") {
-      renderLazyHighlightChart(payload, state, target);
-      return;
-    }
-    const yKey = state.time_type === "Accumulate" ? "v" : state.time_type === "CAGR (acc)" ? "CAGR" : "RollingCAGR";
-    const rows = (payload.data || []).filter((row) => numericValue(row[yKey]) !== null);
-    if (!rows.length) {
-      target.innerHTML = `<div class="chart-empty">${escapeHtml(ui.noChartRows)}</div>`;
-      return;
-    }
-    const grouped = groupRows(rows, "Portfolio");
-    const portfolios = state.portfolios.filter((portfolio) => grouped[portfolio]);
-    const years = rows.map((row) => Number(row.Year)).filter(Number.isFinite);
-    const values = rows.map((row) => numericValue(row[yKey])).filter((value) => value !== null);
-    const width = 1160;
-    const height = 700;
-    const pad = { top: 88, right: 220, bottom: 70, left: 82 };
-    const plotRight = width - pad.right;
-    const plotBottom = height - pad.bottom;
-    const yTicks = niceTicks(Math.min(0, ...values), Math.max(...values) * 1.08, 8);
-    const yMin = yTicks[0];
-    const yMax = yTicks[yTicks.length - 1];
-    const xMin = Math.min(...years);
-    const xMax = Math.max(...years);
-    const xScale = (year) => pad.left + ((year - xMin) / (xMax - xMin || 1)) * (plotRight - pad.left);
-    const yScale = (value) => pad.top + (1 - (value - yMin) / (yMax - yMin || 1)) * (plotBottom - pad.top);
-    const title = state.time_type === "Accumulate"
-      ? "השוואת התיקים על ציר הזמן"
-      : state.time_type === "CAGR (acc)"
-        ? " מחושבת לאורך כל שנות הנתונים (CAGR) התשואה השנתית הממוצעת "
-        : `(CAGR) התשואה השנתית הממוצעת\nמחושבת לאורך ${state.rolling_window} השנים האחרונות`;
-    const yLabel = state.time_type === "Accumulate" ? "תשואה מצטברת" : "תשואה";
-    const color = Object.fromEntries(portfolios.map((portfolio, index) => [portfolio, palette[index % palette.length]]));
-    const axisYears = [];
-    for (let year = Math.ceil(xMin / 10) * 10; year <= xMax; year += 10) axisYears.push(year);
-    if (!axisYears.includes(xMin)) axisYears.unshift(xMin);
-    if (!axisYears.includes(xMax)) axisYears.push(xMax);
-    const grid = yTicks.map((tick) => `
-      <line class="grid-line" x1="${pad.left}" y1="${yScale(tick).toFixed(2)}" x2="${plotRight}" y2="${yScale(tick).toFixed(2)}"></line>
-      <text x="${pad.left - 12}" y="${yScale(tick).toFixed(2)}" text-anchor="end" dominant-baseline="middle" fill="#56615d" font-size="12">${escapeHtml(state.time_type === "Accumulate" ? formatNumber(tick) : formatPercent(tick, 0))}</text>
-    `).join("");
-    const xGrid = axisYears.map((year) => `
-      <line class="grid-line" x1="${xScale(year).toFixed(2)}" y1="${pad.top}" x2="${xScale(year).toFixed(2)}" y2="${plotBottom}"></line>
-      <text x="${xScale(year).toFixed(2)}" y="${plotBottom + 26}" text-anchor="middle" fill="#56615d" font-size="12">${year}</text>
-    `).join("");
-    const lines = portfolios.map((portfolio) => {
-      const group = grouped[portfolio].filter((row) => numericValue(row[yKey]) !== null);
-      const path = group.map((row, index) => `${index ? "L" : "M"} ${xScale(Number(row.Year)).toFixed(2)} ${yScale(numericValue(row[yKey])).toFixed(2)}`).join(" ");
-      const last = group[group.length - 1];
-      const lastValue = numericValue(last[yKey]);
-      const endText = state.time_type === "Accumulate"
-        ? `${portfolio} ${formatPercent(numericValue(last.v) - 1, 0)} (${formatPercent((numericValue(last.v) ** (1 / Math.max(numericValue(last.N) || 1, 1))) - 1, 1)})`
-        : `${portfolio} ${formatPercent(lastValue, 1)}`;
-      const points = group.map((row) => {
-        const tooltip = [
-          portfolio,
-          `${row.Year} (${formatTooltipPercent(numericValue(row.OneYear), 1)})`,
-          `Return: ${formatTooltipNumber(numericValue(row.v), 1)}`,
-          `CAGR: ${formatTooltipPercent(numericValue(row.CAGR), 1)}`,
-          `CAGR last ${state.rolling_window} years: ${formatTooltipPercent(numericValue(row.RollingCAGR), 1)}`
-        ].join("\n");
-        return `<circle class="hit-point" cx="${xScale(Number(row.Year)).toFixed(2)}" cy="${yScale(numericValue(row[yKey])).toFixed(2)}" r="7" data-tooltip="${escapeHtml(tooltip)}"></circle>`;
-      }).join("");
-      return `
-        <path class="lazy-time-line" d="${path}" fill="none" stroke="${color[portfolio]}" stroke-width="2.4" vector-effect="non-scaling-stroke"></path>
-        ${points}
-        <text class="lazy-time-end-label" x="${(plotRight + 8).toFixed(2)}" y="${yScale(lastValue).toFixed(2)}" fill="${color[portfolio]}">${escapeHtml(endText)}</text>
-      `;
-    }).join("");
-    target.innerHTML = `
-      <svg class="lazy-time-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeHtml(title)}">
-        ${title.split("\n").map((line, index) => `<text class="lazy-scatter-title" x="${width / 2}" y="${32 + index * 24}" text-anchor="middle">${escapeHtml(line)}</text>`).join("")}
-        ${grid}
-        ${xGrid}
-        <line class="portfolio-zero-line" x1="${pad.left}" y1="${yScale(0).toFixed(2)}" x2="${plotRight}" y2="${yScale(0).toFixed(2)}"></line>
-        <line x1="${pad.left}" y1="${plotBottom}" x2="${plotRight}" y2="${plotBottom}" stroke="#66736e"></line>
-        <line x1="${pad.left}" y1="${pad.top}" x2="${pad.left}" y2="${plotBottom}" stroke="#66736e"></line>
-        ${lines}
-        <text class="lazy-axis-title" transform="translate(30 ${(pad.top + plotBottom) / 2}) rotate(-90)" text-anchor="middle">${escapeHtml(yLabel)}</text>
-      </svg>
-      <p class="chart-caption chart-caption-rolling"><span>${escapeHtml(lazyCaption(state.value_mode))}</span></p>
-      ${lazyReadingHtml("time", state)}
-      <div class="chart-help">${escapeHtml(ui.barHelp)}</div>
-      <div class="chart-tooltip" role="status"></div>
-    `;
-  }
-
-  function renderLazyBoxPlot(payload, state, target) {
-    const rows = (payload.data || []).filter((row) => numericValue(row.RollingCAGR) !== null);
-    const grouped = groupRows(rows, "Portfolio");
-    const portfolios = state.portfolios.filter((portfolio) => grouped[portfolio]);
-    if (!portfolios.length) {
-      target.innerHTML = `<div class="chart-empty">${escapeHtml(ui.noBars)}</div>`;
-      return;
-    }
-    const stats = portfolios.map((portfolio) => {
-      const values = grouped[portfolio].map((row) => numericValue(row.RollingCAGR)).filter((value) => value !== null).sort((a, b) => a - b);
-      return { portfolio, values, min: values[0], q1: quantile(values, 0.25), median: quantile(values, 0.5), q3: quantile(values, 0.75), max: values[values.length - 1] };
-    });
-    const allValues = stats.flatMap((item) => item.values);
-    const width = 1160;
-    const rowHeight = 32;
-    const height = Math.max(520, 150 + portfolios.length * rowHeight);
-    const pad = { top: 96, right: 48, bottom: 72, left: 280 };
-    const plotRight = width - pad.right;
-    const plotBottom = height - pad.bottom;
-    const xTicks = niceTicks(Math.min(0, ...allValues), Math.max(...allValues), 8);
-    const xMin = xTicks[0];
-    const xMax = xTicks[xTicks.length - 1];
-    const xScale = (value) => pad.left + ((value - xMin) / (xMax - xMin || 1)) * (plotRight - pad.left);
-    const yScale = (index) => pad.top + index * rowHeight + rowHeight / 2;
-    const highlight = new Set(state.highlight);
-    const grid = xTicks.map((tick) => `
-      <line class="grid-line" x1="${xScale(tick).toFixed(2)}" y1="${pad.top - 16}" x2="${xScale(tick).toFixed(2)}" y2="${plotBottom}"></line>
-      <text x="${xScale(tick).toFixed(2)}" y="${plotBottom + 26}" text-anchor="middle" fill="#56615d" font-size="12">${formatPercent(tick, 0)}</text>
-    `).join("");
-    const boxes = stats.map((item, index) => {
-      const y = yScale(index);
-      const color = highlight.has(item.portfolio) ? "orange" : "#A635E3";
-      const tooltip = `${item.portfolio}\nMedian: ${formatPercent(item.median, 1)}\nQ1-Q3: ${formatPercent(item.q1, 1)} - ${formatPercent(item.q3, 1)}`;
-      return `
-        <text x="${pad.left - 12}" y="${y.toFixed(2)}" text-anchor="end" dominant-baseline="middle" fill="#111" font-size="12">${escapeHtml(item.portfolio)}</text>
-        <line x1="${xScale(item.min).toFixed(2)}" y1="${y.toFixed(2)}" x2="${xScale(item.max).toFixed(2)}" y2="${y.toFixed(2)}" stroke="${color}" stroke-width="1.8"></line>
-        <rect class="lazy-box" x="${xScale(item.q1).toFixed(2)}" y="${(y - 10).toFixed(2)}" width="${Math.max(xScale(item.q3) - xScale(item.q1), 1).toFixed(2)}" height="20" fill="${color}" data-tooltip="${escapeHtml(tooltip)}"></rect>
-        <line x1="${xScale(item.median).toFixed(2)}" y1="${(y - 12).toFixed(2)}" x2="${xScale(item.median).toFixed(2)}" y2="${(y + 12).toFixed(2)}" stroke="#111" stroke-width="2"></line>
-      `;
-    }).join("");
-    target.innerHTML = `
-      <svg class="lazy-time-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="BoxPlot">
-        <text class="lazy-scatter-title" x="${width / 2}" y="32" text-anchor="middle">(CAGR) התפלגות התשואה השנתית הממוצעת</text>
-        <text class="lazy-scatter-title" x="${width / 2}" y="58" text-anchor="middle">מחושבת לאורך ${state.rolling_window} שנים</text>
-        ${grid}
-        <line class="portfolio-zero-line" x1="${xScale(0).toFixed(2)}" y1="${pad.top - 16}" x2="${xScale(0).toFixed(2)}" y2="${plotBottom}"></line>
-        ${boxes}
-        <text class="lazy-axis-title" x="${(pad.left + plotRight) / 2}" y="${height - 26}" text-anchor="middle">תשואה</text>
-      </svg>
-      <p class="chart-caption chart-caption-rolling"><span>${escapeHtml(lazyCaption(state.value_mode))}</span></p>
-      ${lazyReadingHtml("box", state)}
-      <div class="chart-help">${escapeHtml(ui.barHelp)}</div>
-      <div class="chart-tooltip" role="status"></div>
-    `;
-  }
-
-  function renderLazyHighlightChart(payload, state, target) {
-    const highLight = state.highlight[0] || state.portfolios[0] || "S&P 500";
-    const rows = (payload.data || []).filter((row) => numericValue(row.RollingCAGR) !== null);
-    const byYear = groupRows(rows, "Year");
-    const totals = {};
-    Object.values(byYear).forEach((yearRows) => {
-      const highRow = yearRows.find((row) => row.Portfolio === highLight);
-      const highValue = highRow && numericValue(highRow.RollingCAGR);
-      if (highValue === null || highValue === undefined) return;
-      yearRows.forEach((row) => {
-        if (row.Portfolio === highLight) return;
-        const value = numericValue(row.RollingCAGR);
-        if (value === null) return;
-        if (!totals[row.Portfolio]) totals[row.Portfolio] = { Years: 0, HighBetter: 0 };
-        totals[row.Portfolio].Years += 1;
-        if (value <= highValue) totals[row.Portfolio].HighBetter += 1;
-      });
-    });
-    const data = Object.entries(totals).map(([portfolio, stats]) => ({ portfolio, ...stats, P: stats.HighBetter / Math.max(stats.Years, 1) })).sort((a, b) => a.P - b.P);
-    if (!data.length) {
-      target.innerHTML = `<div class="chart-empty">${escapeHtml(ui.noBars)}</div>`;
-      return;
-    }
-    const width = 1160;
-    const rowHeight = 30;
-    const height = Math.max(520, 140 + data.length * rowHeight);
-    const pad = { top: 86, right: 58, bottom: 84, left: 300 };
-    const plotRight = width - pad.right;
-    const plotBottom = height - pad.bottom;
-    const xScale = (value) => pad.left + value * (plotRight - pad.left);
-    const bars = data.map((row, index) => {
-      const y = pad.top + index * rowHeight;
-      const tooltip = [
-        row.portfolio,
-        `${highLight} was better`,
-        `for investments of ${state.rolling_window} years`,
-        `in ${row.HighBetter} of ${row.Years} investment start years`,
-        `(${formatPercent(row.P, 0)})`
-      ].join("\n");
-      return `
-        <text x="${pad.left - 12}" y="${(y + rowHeight / 2).toFixed(2)}" text-anchor="end" dominant-baseline="middle" fill="#111" font-size="12">${escapeHtml(row.portfolio)}</text>
-        <rect class="lazy-highlight-bar" x="${pad.left}" y="${(y + 4).toFixed(2)}" width="${Math.max(xScale(row.P) - pad.left, 1).toFixed(2)}" height="${rowHeight - 8}" data-tooltip="${escapeHtml(tooltip)}"></rect>
-        <text x="${Math.max(xScale(row.P) - 10, pad.left + 34).toFixed(2)}" y="${(y + rowHeight / 2).toFixed(2)}" text-anchor="end" dominant-baseline="middle" fill="#fff" font-size="12">${formatPercent(row.P, 0)}</text>
-      `;
-    }).join("");
-    const ticks = [0, 0.25, 0.5, 0.75, 1].map((tick) => `
-      <line class="grid-line" x1="${xScale(tick).toFixed(2)}" y1="${pad.top}" x2="${xScale(tick).toFixed(2)}" y2="${plotBottom}"></line>
-      <text x="${xScale(tick).toFixed(2)}" y="${plotBottom + 26}" text-anchor="middle" fill="#56615d" font-size="12">${formatPercent(tick, 0)}</text>
-    `).join("");
-    target.innerHTML = `
-      <svg class="lazy-time-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Hghlght">
-        <text class="lazy-scatter-title" x="${width / 2}" y="32" text-anchor="middle">${escapeHtml(`${highLight} vs Others`)}</text>
-        <text class="lazy-scatter-title" x="${width / 2}" y="58" text-anchor="middle">${escapeHtml(`(% ${state.rolling_window} years with better return)`)}</text>
-        ${ticks}
-        ${bars}
-        <text class="lazy-axis-title" x="${(pad.left + plotRight) / 2}" y="${height - 28}" text-anchor="middle">${escapeHtml(`% start investment years where ${state.rolling_window} years investment in ${highLight} was better`)}</text>
-      </svg>
-      <p class="chart-caption chart-caption-rolling"><span>${escapeHtml(lazyCaption(state.value_mode))}</span></p>
-      ${lazyReadingHtml("highlight", state)}
-      <div class="chart-help">${escapeHtml(ui.barHelp)}</div>
-      <div class="chart-tooltip" role="status"></div>
-    `;
-  }
-
   function renderLazyDataTable(payload, target, mode) {
     const columns = payload.columns || [];
     const rows = payload.data || [];
@@ -2655,7 +2368,6 @@
       lastPayload = payload;
       multiPayloads.clear();
       currentChartConfig = chartFor(endpoint, state);
-      delete chartZoom[payload.endpoint];
       els.message.hidden = true;
       els.message.textContent = "";
       els.rows.textContent = "";
@@ -2692,6 +2404,7 @@
     const panels = activeView.panels || [];
     if (els.chart.dataset.view !== activeView.id) {
       els.chart.dataset.view = activeView.id;
+      releaseChart(els.chart);
       els.chart.innerHTML = panels.map((panel, index) => `
         <section class="multi-chart-section${panel.noTopBorder ? " multi-chart-section-no-top-border" : ""}" data-panel-index="${index}" data-panel="${escapeHtml(panel.endpoint)}">
           ${panel.hideHeader ? "" : `<header class="multi-chart-header">
@@ -2941,7 +2654,8 @@
     const controls = section.querySelector('[data-role="panel-controls"]');
     if (!controls) return [];
     const entries = [];
-    controls.querySelectorAll("input, select").forEach((input) => {
+    controls.querySelectorAll("input[name], select[name]").forEach((input) => {
+      if (!input.name) return;
       if (input.type === "radio" && !input.checked) return;
       if (input.type === "checkbox" && !input.checked) return;
       entries.push([input.name, input.value]);
@@ -3313,12 +3027,6 @@
       .replace(/בשורה התחתונה:/g, "<strong>בשורה התחתונה:</strong>");
   }
 
-  function numericValue(value) {
-    if (value === null || value === undefined || value === "") return null;
-    const number = Number(value);
-    return Number.isFinite(number) ? number : null;
-  }
-
   function chartTarget() {
     return chartHost || els.chart;
   }
@@ -3335,10 +3043,6 @@
   function renderChart(payload, chartConfig) {
     if (!chartConfig || !(payload.data || []).length) {
       chartMessage(ui.noChartRows);
-      return;
-    }
-    if (chartConfig.type === "bar") {
-      renderBarChart(payload, chartConfig);
       return;
     }
     if (chartConfig.type === "heatmap") {
@@ -3368,400 +3072,6 @@
     renderLineChart(payload, chartConfig);
   }
 
-  function renderTrinityChart(payload) {
-    const rows = payload.data || [];
-    const base = Number(payload.params && payload.params.base) || 0;
-    const yearlyDraw = Number(payload.params && payload.params.yearly_draw) || 0;
-    const years = Number(payload.params && payload.params.years) || 0;
-    const portfolio = payload.params && payload.params.portfolio ? payload.params.portfolio : "";
-    const visibleRows = rows.filter((row) => numericValue(row.end_year) !== null);
-    if (!visibleRows.length) {
-      chartMessage(ui.noNumericSeries);
-      return;
-    }
-
-    const width = 940;
-    const height = 620;
-    const pad = { top: 104, right: 42, bottom: 96, left: 86 };
-    const plotRight = width - pad.right;
-    const plotBottom = height - pad.bottom;
-    const xValues = visibleRows.map((row) => Number(row.end_year));
-    const yValues = [0, base];
-    visibleRows.forEach((row) => {
-      const remained = numericValue(row.Investment_remained);
-      const low = numericValue(row.Investment_low);
-      if (remained !== null) yValues.push(remained);
-      if (low !== null) yValues.push(low);
-    });
-    const baseXMin = Math.min(...xValues);
-    const baseXMax = Math.max(...xValues);
-    const zoom = chartZoom[payload.endpoint];
-    const xMin = zoom ? zoom[0] : baseXMin;
-    const xMax = zoom ? zoom[1] : baseXMax;
-    const visibleY = visibleRows.filter((row) => {
-      const x = Number(row.end_year);
-      return x >= xMin && x <= xMax;
-    }).flatMap((row) => [numericValue(row.Investment_remained), numericValue(row.Investment_low)]).filter((value) => value !== null);
-    const yTicks = niceTicks(Math.min(0, ...visibleY, base), Math.max(0, ...visibleY, base) * 1.04, 10);
-    const yMin = Math.min(0, yTicks[0]);
-    const yMax = yTicks[yTicks.length - 1];
-    const xSpan = xMax - xMin || 1;
-    const ySpan = yMax - yMin || 1;
-    const xScale = (value) => pad.left + ((value - xMin) / xSpan) * (plotRight - pad.left);
-    const yScale = (value) => pad.top + (1 - (value - yMin) / ySpan) * (plotBottom - pad.top);
-    const annualDraw = base * yearlyDraw;
-    const monthlyDraw = annualDraw / 12;
-    const withdrawn = years * annualDraw;
-    const positive = rows.filter((row) => numericValue(row.Investment_low) > 0).length;
-    const aboveBase = rows.filter((row) => numericValue(row.Investment_remained) >= base).length;
-
-    const pathFor = (key) => {
-      let path = "";
-      let open = false;
-      visibleRows.forEach((row) => {
-        const x = Number(row.end_year);
-        const y = numericValue(row[key]);
-        if (y === null || x < xMin || x > xMax) {
-          open = false;
-          return;
-        }
-        path += `${open ? " L" : "M"} ${xScale(x).toFixed(2)} ${yScale(y).toFixed(2)}`;
-        open = true;
-      });
-      return path;
-    };
-    const axisYears = [];
-    for (let year = Math.ceil(xMin / 10) * 10; year <= xMax; year += 10) axisYears.push(year);
-    if (!axisYears.includes(baseXMin) && Math.min(...axisYears.map((year) => Math.abs(year - baseXMin))) >= 4) axisYears.unshift(baseXMin);
-    if (!axisYears.includes(baseXMax) && Math.min(...axisYears.map((year) => Math.abs(year - baseXMax))) >= 4) axisYears.push(baseXMax);
-    const grid = yTicks.map((tick) => `
-      <line class="grid-line" x1="${pad.left}" y1="${yScale(tick).toFixed(2)}" x2="${plotRight}" y2="${yScale(tick).toFixed(2)}"></line>
-      <text x="${pad.left - 10}" y="${yScale(tick).toFixed(2)}" text-anchor="end" dominant-baseline="middle" fill="#5e6864" font-size="11">${formatShekel(tick, 0)}</text>
-    `).join("");
-    const xGrid = axisYears.map((year) => {
-      const x = xScale(year);
-      return `
-        <line class="grid-line" x1="${x.toFixed(2)}" y1="${pad.top}" x2="${x.toFixed(2)}" y2="${plotBottom}"></line>
-        <text x="${x.toFixed(2)}" y="${plotBottom + 25}" text-anchor="middle" fill="#5e6864" font-size="12">${year}</text>
-      `;
-    }).join("");
-    const points = visibleRows.map((row) => {
-      const x = Number(row.end_year);
-      const y = numericValue(row.Investment_remained);
-      if (y === null || x < xMin || x > xMax) return "";
-      const text = [
-        `${years} שנים שהסתיימו בשנת ${row.end_year} (התחלה בשנת ${row.start_year})`,
-        `משיכה של ${formatPercent(yearlyDraw, 0)} מהסכום ההתחלתי בכל שנה`,
-        `מתוך סכום התחלתי של ${formatShekel(base, 1)}`,
-        `כלומר ${formatShekel(monthlyDraw, 1)} בחודש, צמוד למדד`,
-        "",
-        `נותר אחרי ${years} שנים: ${formatShekel(y, 1)}`,
-        `היתרה הנמוכה ביותר היתה: ${formatShekel(numericValue(row.Investment_low), 1)}`,
-        "",
-        "היתרה מוצגת בערכים מתואמים לאינפלציה",
-        "ערך שלילי מייצג סכום חסר למימון המשיכות לאחר שהתיק התרוקן"
-      ].join("\n");
-      return `<circle class="trinity-point hit-point" cx="${xScale(x).toFixed(2)}" cy="${yScale(y).toFixed(2)}" r="5.5" data-tooltip="${escapeHtml(text)}"></circle>`;
-    }).join("");
-    const portfolioLabel = ltrText(portfolio);
-    const titleLines = [
-      `ביצועי תיק ${portfolioLabel} לאורך ${years} שנים`,
-      `עם משיכה שנתית של ${formatPercent(yearlyDraw, 0)} (${formatShekel(monthlyDraw, 1)} בחודש)`
-    ];
-    const explanationLines = [
-      "כל נקודה מייצגת תקופה היסטורית אחרת: התחלה בשנה מסוימת וסיום אחרי מספר השנים שנבחר.",
-      "הקו השחור מציג את היתרה בסוף התקופה. הקו האפור מציג את היתרה הנמוכה ביותר בדרך.",
-      "ערך מתחת לאפס אינו השקעה שלילית, אלא סכום שהיה חסר כדי להמשיך לממן את המשיכות."
-    ];
-    const summaryLines = [
-      `מתוך ${rows.length} תקופות השקעה שנבדקו, ההון נשאר חיובי ב-${positive} (${formatPercent(positive / Math.max(rows.length, 1), 1)}).`,
-      `במהלך כל תקופה הסימולציה סופרת משיכות מצטברות של ${formatShekel(withdrawn, 1)}, גם אם התיק התרוקן בדרך.`,
-      `ב-${aboveBase} מתוך ${rows.length} תקופות (${formatPercent(aboveBase / Math.max(rows.length, 1), 1)}), היתרה בסיום היתה גבוהה מהסכום ההתחלתי, למרות המשיכות.`
-    ];
-
-    chartTarget().innerHTML = `
-      <svg class="trinity-chart-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeHtml(titleLines.join(" "))}" data-endpoint="${escapeHtml(payload.endpoint)}" data-x-min="${baseXMin}" data-x-max="${baseXMax}" data-plot-left="${pad.left}" data-plot-right="${plotRight}">
-        <defs><clipPath id="clip-${escapeHtml(payload.endpoint)}"><rect x="${pad.left}" y="${pad.top}" width="${plotRight - pad.left}" height="${plotBottom - pad.top}"></rect></clipPath></defs>
-        ${titleLines.map((line, index) => `<text class="trinity-title" x="${width / 2}" y="${30 + index * 24}" text-anchor="middle" direction="rtl" unicode-bidi="plaintext">${escapeHtml(line)}</text>`).join("")}
-        <text class="trinity-subtitle" x="${width / 2}" y="80" text-anchor="middle" direction="rtl" unicode-bidi="plaintext">${escapeHtml(`בהנחת משיכה שנתית של ${formatPercent(yearlyDraw, 0)} לאורך ${years} שנים`)}</text>
-        ${grid}
-        ${xGrid}
-        <line class="trinity-base-line" x1="${pad.left}" y1="${yScale(base).toFixed(2)}" x2="${plotRight}" y2="${yScale(base).toFixed(2)}"></line>
-        <line class="trinity-zero-line" x1="${pad.left}" y1="${yScale(0).toFixed(2)}" x2="${plotRight}" y2="${yScale(0).toFixed(2)}"></line>
-        <line x1="${pad.left}" y1="${plotBottom}" x2="${plotRight}" y2="${plotBottom}" stroke="#5e6864"></line>
-        <line x1="${pad.left}" y1="${pad.top}" x2="${pad.left}" y2="${plotBottom}" stroke="#5e6864"></line>
-        <rect class="plot-area" x="${pad.left}" y="${pad.top}" width="${plotRight - pad.left}" height="${plotBottom - pad.top}" fill="transparent"></rect>
-        <g clip-path="url(#clip-${escapeHtml(payload.endpoint)})">
-          <path d="${pathFor("Investment_low")}" fill="none" stroke="#9a9a9a" stroke-width="2" vector-effect="non-scaling-stroke"></path>
-          <path d="${pathFor("Investment_remained")}" fill="none" stroke="#111111" stroke-width="2.1" vector-effect="non-scaling-stroke"></path>
-          ${points}
-        </g>
-        <g class="trinity-annotation">
-          ${explanationLines.map((line, index) => `<text x="${pad.left + 14}" y="${pad.top + 18 + index * 16}">${escapeHtml(line)}</text>`).join("")}
-          ${summaryLines.map((line, index) => `<text x="${pad.left + 14}" y="${pad.top + 76 + index * 17}">${escapeHtml(line)}</text>`).join("")}
-        </g>
-        <text class="trinity-note" x="${pad.left}" y="${height - 22}">הערה: הסכומים מתואמים למדד המחירים לצרכן</text>
-        <text class="trinity-x-label" x="${(pad.left + plotRight) / 2}" y="${height - 48}" text-anchor="middle">${escapeHtml(`שנת סיום של תקופת השקעה בת ${years} שנים, מסכום התחלתי של ${formatShekel(base, 1)}`)}</text>
-        <text class="trinity-y-label" transform="translate(12 ${(pad.top + plotBottom) / 2}) rotate(-90)" text-anchor="middle">יתרת תיק ההשקעות</text>
-        <rect class="zoom-box" hidden x="0" y="${pad.top}" width="0" height="${plotBottom - pad.top}"></rect>
-      </svg>
-      ${chartReadingHtml(payload, { type: "trinity" })}
-      <div class="chart-actions">
-        <div class="chart-help">${escapeHtml(ui.chartHelp.replace(" לחיצה על המקרא מסתירה או מציגה סדרה.", ""))}</div>
-        <button class="reset-zoom" type="button" ${zoom ? "" : "disabled"}>${escapeHtml(ui.resetZoom)}</button>
-      </div>
-      <div class="chart-tooltip" role="status"></div>
-    `;
-  }
-
-  function renderSp500RiskChart(payload, chartConfig) {
-    const rows = payload.data || [];
-    const yKey = chartConfig.y;
-    const xKey = chartConfig.x;
-    const values = rows.map((row) => numericValue(row[yKey])).filter((value) => value !== null);
-    if (!values.length) {
-      chartMessage(ui.noNumericSeries);
-      return;
-    }
-
-    const width = 940;
-    const height = 520;
-    const pad = { top: 54, right: 48, bottom: 72, left: 70 };
-    const xValues = rows.map((row, index) => xPositionValue(row[xKey], index));
-    const baseXMin = Math.min(...xValues);
-    const baseXMax = Math.max(...xValues);
-    const zoom = chartZoom[payload.endpoint];
-    const xMin = zoom ? zoom[0] : baseXMin;
-    const xMax = zoom ? zoom[1] : baseXMax;
-    const visibleRows = rows.filter((row, index) => {
-      const x = xPositionValue(row[xKey], index);
-      return x >= xMin && x <= xMax;
-    });
-    const visibleValues = visibleRows.map((row) => numericValue(row[yKey])).filter((value) => value !== null);
-    const dataMin = Math.min(...visibleValues, 0);
-    const dataMax = Math.max(...visibleValues, 0);
-    const yMin = Math.floor((dataMin - 0.01) / 0.02) * 0.02;
-    const yMax = Math.ceil((dataMax + 0.01) / 0.02) * 0.02;
-    const yTicks = [];
-    for (let tick = yMin; tick <= yMax + 0.001; tick += 0.02) {
-      yTicks.push(Math.abs(tick) < 0.0001 ? 0 : tick);
-    }
-    const xSpan = xMax - xMin || 1;
-    const ySpan = yMax - yMin || 1;
-    const plotRight = width - pad.right;
-    const plotBottom = height - pad.bottom;
-    const xScale = (value) => pad.left + ((value - xMin) / xSpan) * (plotRight - pad.left);
-    const yScale = (value) => pad.top + (1 - (value - yMin) / ySpan) * (plotBottom - pad.top);
-    const median = numericValue(rows[0] && rows[0].Median);
-    const above0 = numericValue(rows[0] && rows[0].Above0);
-    const aboveThreshold = numericValue(rows[0] && rows[0].AboveThreshold);
-    const threshold = payload.params && Number.isFinite(Number(payload.params.threshold))
-      ? Number(payload.params.threshold)
-      : 0.04;
-    const years = payload.params && payload.params.years ? payload.params.years : "";
-    const title = (chartConfig.title || "").replace("{years}", years);
-
-    let path = "";
-    let open = false;
-    rows.forEach((row, index) => {
-      const y = numericValue(row[yKey]);
-      const x = xPositionValue(row[xKey], index);
-      if (y === null || x < xMin || x > xMax) {
-        open = false;
-        return;
-      }
-      path += `${open ? " L" : "M"} ${xScale(x).toFixed(2)} ${yScale(y).toFixed(2)}`;
-      open = true;
-    });
-    const grid = yTicks.map((tick) => `
-      <line class="grid-line" x1="${pad.left}" y1="${yScale(tick).toFixed(2)}" x2="${plotRight}" y2="${yScale(tick).toFixed(2)}"></line>
-      <text x="${pad.left - 9}" y="${yScale(tick).toFixed(2)}" text-anchor="end" dominant-baseline="middle" fill="#56615d" font-size="11">${formatPercent(tick, 0)}</text>
-      <text x="${plotRight + 9}" y="${yScale(tick).toFixed(2)}" dominant-baseline="middle" fill="#56615d" font-size="11">${formatPercent(tick, 0)}</text>
-    `).join("");
-    const yearTicks = dateTicks(visibleRows, xKey, 10);
-    const xGrid = yearTicks.map((tick) => {
-      const x = xScale(xPositionValue(tick.value, 0));
-      return `
-        <line class="grid-line" x1="${x.toFixed(2)}" y1="${pad.top}" x2="${x.toFixed(2)}" y2="${plotBottom}"></line>
-        <text x="${x.toFixed(2)}" y="${plotBottom + 24}" text-anchor="middle" fill="#56615d" font-size="11">${escapeHtml(tick.label)}</text>
-      `;
-    }).join("");
-    const medianLine = median !== null && median >= yMin && median <= yMax
-      ? `<line class="risk-median-line" x1="${pad.left}" y1="${yScale(median).toFixed(2)}" x2="${plotRight}" y2="${yScale(median).toFixed(2)}"></line>`
-      : "";
-    const zeroLine = 0 >= yMin && 0 <= yMax
-      ? `<line class="risk-zero-line" x1="${pad.left}" y1="${yScale(0).toFixed(2)}" x2="${plotRight}" y2="${yScale(0).toFixed(2)}"></line>`
-      : "";
-    const statText = [
-      `Money lost in ${formatPercent(1 - above0, 0)} of the time`,
-      `Return > ${formatPercent(threshold, 0)} in ${formatPercent(aboveThreshold, 0)} of the time`,
-      `Median return ${formatPercent(median, 1)}`
-    ];
-    const statBlock = statText.map((text, index) => (
-      `<text x="${pad.left + 10}" y="${plotBottom - 56 + index * 18}" fill="#1c2b27" font-size="13">${escapeHtml(text)}</text>`
-    )).join("");
-    const points = rows.map((row, index) => {
-      const y = numericValue(row[yKey]);
-      const x = xPositionValue(row[xKey], index);
-      if (y === null || x < xMin || x > xMax) return "";
-      const tooltip = `${row[xKey]}\n${displayLabel(yKey)}: ${formatPercent(y, 2)}`;
-      return `<circle class="hit-point" cx="${xScale(x).toFixed(2)}" cy="${yScale(y).toFixed(2)}" r="6" data-tooltip="${escapeHtml(tooltip)}"></circle>`;
-    }).join("");
-
-    chartTarget().innerHTML = `
-      <svg class="risk-chart-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeHtml(title)}" data-endpoint="${escapeHtml(payload.endpoint)}" data-x-min="${baseXMin}" data-x-max="${baseXMax}" data-plot-left="${pad.left}" data-plot-right="${plotRight}">
-        <defs><clipPath id="clip-${escapeHtml(payload.endpoint)}"><rect x="${pad.left}" y="${pad.top}" width="${plotRight - pad.left}" height="${plotBottom - pad.top}"></rect></clipPath></defs>
-        <text class="chart-title risk-title" x="${width / 2}" y="28" text-anchor="middle">${escapeHtml(title)}</text>
-        ${grid}
-        ${xGrid}
-        ${medianLine}
-        ${zeroLine}
-        <line x1="${pad.left}" y1="${plotBottom}" x2="${plotRight}" y2="${plotBottom}" stroke="#56615d"></line>
-        <line x1="${pad.left}" y1="${pad.top}" x2="${pad.left}" y2="${plotBottom}" stroke="#56615d"></line>
-        <line x1="${plotRight}" y1="${pad.top}" x2="${plotRight}" y2="${plotBottom}" stroke="#b5bdb8"></line>
-        <rect class="plot-area" x="${pad.left}" y="${pad.top}" width="${plotRight - pad.left}" height="${plotBottom - pad.top}" fill="transparent"></rect>
-        <g clip-path="url(#clip-${escapeHtml(payload.endpoint)})"><path d="${path}" fill="none" stroke="#145f59" stroke-width="2.2" vector-effect="non-scaling-stroke"></path>${points}</g>
-        ${statBlock}
-        <rect class="zoom-box" hidden x="0" y="${pad.top}" width="0" height="${plotBottom - pad.top}"></rect>
-      </svg>
-      ${chartCaption(chartConfig, payload, "risk")}
-      ${chartReadingHtml(payload, chartConfig)}
-      <div class="chart-actions">
-        <div class="chart-help">${escapeHtml(ui.chartHelp.replace(" לחיצה על המקרא מסתירה או מציגה סדרה.", ""))}</div>
-        <button class="reset-zoom" type="button" ${zoom ? "" : "disabled"}>${escapeHtml(ui.resetZoom)}</button>
-      </div>
-      <div class="chart-tooltip" role="status"></div>
-    `;
-  }
-
-  function renderKupatChart(payload, chartConfig) {
-    const rows = (payload.data || []).map((row) => ({ ...row }));
-    const initial = Number(payload.params && payload.params.initial) || 1;
-    const startYear = Number(payload.params && payload.params.start_year) || 0;
-    const startAge = Number(payload.params && payload.params.age) || 0;
-    if (chartConfig.mode === "pension") {
-      let cumulativePension = 0;
-      rows.forEach((row) => {
-        const kitzba = numericValue(row.Kitzba) || 0;
-        cumulativePension += kitzba;
-        row.KitzbaTotal = cumulativePension;
-        const kh = numericValue(row.KH);
-        row.KHAfterPension = kh === null ? null : Math.max(kh - cumulativePension, 0);
-      });
-    }
-
-    const seriesDefs = kupatSeries(chartConfig).filter((series) =>
-      rows.some((row) => numericValue(row[series.yKey]) !== null)
-    );
-    if (!seriesDefs.length) {
-      chartMessage(ui.noNumericSeries);
-      return;
-    }
-
-    const width = 1540;
-    const height = 620;
-    const pad = { top: 78, right: 92, bottom: 76, left: 86 };
-    const xValues = rows.map((row) => numericValue(row.age)).filter((value) => value !== null);
-    const yValues = [];
-    seriesDefs.forEach((series) => {
-      rows.forEach((row) => {
-        const value = numericValue(row[series.yKey]);
-        if (value !== null) yValues.push(value);
-      });
-    });
-    yValues.push(0, initial);
-    const baseXMin = Math.floor(Math.min(...xValues));
-    const baseXMax = Math.ceil(Math.max(...xValues));
-    const zoom = chartZoom[payload.endpoint];
-    const xMin = zoom ? zoom[0] : baseXMin;
-    const xMax = zoom ? zoom[1] : baseXMax;
-    const yTicks = niceTicks(0, Math.max(...yValues) * 1.08, 9);
-    const yMin = yTicks[0];
-    const yMax = yTicks[yTicks.length - 1];
-    const ySpan = yMax - yMin || 1;
-    const xSpan = xMax - xMin || 1;
-    const xScale = (value) => pad.left + ((value - xMin) / xSpan) * (width - pad.left - pad.right);
-    const yScale = (value) => pad.top + (1 - (value - yMin) / ySpan) * (height - pad.top - pad.bottom);
-    const visibleRows = rows.filter((row) => {
-      const x = numericValue(row.age);
-      return x !== null && x >= xMin && x <= xMax;
-    });
-
-    const ageTicks = [];
-    for (let age = Math.ceil(xMin / 5) * 5; age <= xMax; age += 5) ageTicks.push(age);
-    if (!ageTicks.includes(baseXMin)) ageTicks.unshift(baseXMin);
-    if (!ageTicks.includes(baseXMax)) ageTicks.push(baseXMax);
-    const axisColor = "#5d6763";
-    const plotRight = width - pad.right;
-    const plotBottom = height - pad.bottom;
-    const clipId = `clip-${payload.endpoint}-${chartConfig.mode}`;
-
-    const grid = yTicks.map((tick) => `
-      <line class="grid-line" x1="${pad.left}" y1="${yScale(tick).toFixed(2)}" x2="${plotRight}" y2="${yScale(tick).toFixed(2)}"></line>
-      <text x="${pad.left - 10}" y="${yScale(tick).toFixed(2)}" text-anchor="end" dominant-baseline="middle" fill="${axisColor}" font-size="12">${formatChartAxis(tick, { currency: true })}</text>
-      <text x="${plotRight + 10}" y="${yScale(tick).toFixed(2)}" dominant-baseline="middle" fill="${axisColor}" font-size="12">${formatChartAxis(tick, { currency: true })}</text>
-    `).join("");
-    const xGrid = ageTicks.map((age) => {
-      const x = xScale(age);
-      const year = Math.round(startYear + age - startAge);
-      return `
-        <line class="grid-line" x1="${x.toFixed(2)}" y1="${pad.top}" x2="${x.toFixed(2)}" y2="${plotBottom}"></line>
-        <text x="${x.toFixed(2)}" y="${plotBottom + 28}" text-anchor="middle" fill="${axisColor}" font-size="12">${age}</text>
-        <text x="${x.toFixed(2)}" y="${pad.top - 14}" text-anchor="middle" fill="${axisColor}" font-size="12" font-weight="760">${year}</text>
-      `;
-    }).join("");
-    const paths = seriesDefs.map((series) => {
-      const parts = kupatPathParts(rows, series, xMin, xMax, xScale, yScale);
-      return parts.map((part) => `<path d="${part.path}" fill="none" stroke="${series.color}" stroke-width="${part.width || series.width || 3}" stroke-dasharray="${part.dash || series.dash || ""}" vector-effect="non-scaling-stroke"></path>`).join("");
-    }).join("");
-    const points = seriesDefs.map((series) => rows.map((row) => {
-      const y = numericValue(row[series.yKey]);
-      const x = numericValue(row.age);
-      if (x === null || y === null || x < xMin || x > xMax) return "";
-      const tooltip = `${series.label}\nגיל: ${formatAge(x)}\n${formatChartValue(y, { currency: true })}`;
-      return `<circle class="hit-point" cx="${xScale(x).toFixed(2)}" cy="${yScale(y).toFixed(2)}" r="6" data-tooltip="${escapeHtml(tooltip)}"></circle>`;
-    }).join("")).join("");
-    const baselineLine = initial >= yMin && initial <= yMax
-      ? `<line class="baseline-line" x1="${pad.left}" y1="${yScale(initial).toFixed(2)}" x2="${plotRight}" y2="${yScale(initial).toFixed(2)}"></line>`
-      : "";
-    const age60Line = 60 >= xMin && 60 <= xMax
-      ? `<line class="age-60-line" x1="${xScale(60).toFixed(2)}" y1="${pad.top}" x2="${xScale(60).toFixed(2)}" y2="${plotBottom}"></line>
-         <text class="kupat-note" x="${(xScale(60) - 8).toFixed(2)}" y="${pad.top + 18}" text-anchor="end">הטבת מס בקופת גמל להשקעה &lt;--</text>`
-      : "";
-    const annotations = chartConfig.mode === "pension"
-      ? kupatPensionAnnotations(rows, seriesDefs, initial, xMin, xMax, xScale, yScale, plotRight)
-      : kupatAccumulationAnnotations(rows, seriesDefs, initial, xMin, xMax, xScale, yScale, plotRight);
-    const legend = seriesDefs.map((series) => `<span><i class="swatch" style="background:${series.color}"></i>${escapeHtml(series.label)}</span>`).join("");
-
-    chartTarget().innerHTML = `
-      <svg class="kupat-chart-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeHtml(chartConfig.title)}" data-endpoint="${escapeHtml(payload.endpoint)}" data-x-min="${baseXMin}" data-x-max="${baseXMax}" data-plot-left="${pad.left}" data-plot-right="${plotRight}">
-        <defs><clipPath id="${clipId}"><rect x="${pad.left}" y="${pad.top}" width="${plotRight - pad.left}" height="${plotBottom - pad.top}"></rect></clipPath></defs>
-        <text class="chart-title kupat-title" x="${width / 2}" y="28" text-anchor="middle">${escapeHtml(chartConfig.title)}</text>
-        <text class="kupat-subtitle" x="${width / 2}" y="52" text-anchor="middle" direction="rtl" unicode-bidi="plaintext">ההבדלים הם מס, דמי ניהול ועלויות קניה ומכירה - מדד S&amp;P 500, מחקה מושלם</text>
-        ${grid}
-        ${xGrid}
-        ${baselineLine}
-        ${age60Line}
-        <line x1="${pad.left}" y1="${plotBottom}" x2="${plotRight}" y2="${plotBottom}" stroke="${axisColor}"></line>
-        <line x1="${pad.left}" y1="${pad.top}" x2="${pad.left}" y2="${plotBottom}" stroke="${axisColor}"></line>
-        <line x1="${plotRight}" y1="${pad.top}" x2="${plotRight}" y2="${plotBottom}" stroke="${axisColor}"></line>
-        <rect class="plot-area" x="${pad.left}" y="${pad.top}" width="${plotRight - pad.left}" height="${plotBottom - pad.top}" fill="transparent"></rect>
-        <g clip-path="url(#${clipId})">${paths}${points}</g>
-        ${annotations}
-        <text x="${(pad.left + plotRight) / 2}" y="${height - 18}" text-anchor="middle" fill="#111" font-size="13" font-weight="760">age</text>
-        <rect class="zoom-box" hidden x="0" y="${pad.top}" width="0" height="${plotBottom - pad.top}"></rect>
-      </svg>
-      ${chartCaption(chartConfig, payload, "kupat")}
-      ${chartReadingHtml(payload, chartConfig)}
-      <div class="legend kupat-legend">${legend}</div>
-      <div class="chart-actions">
-        <div class="chart-help">${escapeHtml(ui.chartHelp)}</div>
-        <button class="reset-zoom" type="button" ${zoom ? "" : "disabled"}>${escapeHtml(ui.resetZoom)}</button>
-      </div>
-      <div class="chart-tooltip" role="status"></div>
-    `;
-  }
-
   function kupatSeries(chartConfig) {
     if (chartConfig.mode === "pension") {
       return [
@@ -3776,34 +3086,6 @@
       { yKey: "KH", label: "קופת גמל להשקעה", color: "#ef3326", width: 3 },
       { yKey: "PH", label: "פוליסת חסכון", color: "#111111", width: 3 }
     ];
-  }
-
-  function kupatPathParts(rows, series, xMin, xMax, xScale, yScale) {
-    if (series.yKey !== "KHAfterPension") {
-      return [{ path: svgLinePath(rows, "age", series.yKey, xMin, xMax, xScale, yScale) }];
-    }
-    const before = rows.filter((row) => numericValue(row.age) <= 60);
-    const after = rows.filter((row) => numericValue(row.age) >= 60);
-    return [
-      { path: svgLinePath(before, "age", "KH", xMin, xMax, xScale, yScale), width: 3 },
-      { path: svgLinePath(after, "age", "KHAfterPension", xMin, xMax, xScale, yScale), width: 2.4, dash: "7 5" }
-    ].filter((part) => part.path);
-  }
-
-  function svgLinePath(rows, xKey, yKey, xMin, xMax, xScale, yScale) {
-    let path = "";
-    let open = false;
-    rows.forEach((row) => {
-      const x = numericValue(row[xKey]);
-      const y = numericValue(row[yKey]);
-      if (x === null || y === null || x < xMin || x > xMax) {
-        open = false;
-        return;
-      }
-      path += `${open ? " L" : "M"} ${xScale(x).toFixed(2)} ${yScale(y).toFixed(2)}`;
-      open = true;
-    });
-    return path;
   }
 
   function rowNearestAge(rows, age) {
@@ -3821,562 +3103,6 @@
 
   function formatAge(value) {
     return Number(value).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-  }
-
-  function kupatAccumulationAnnotations(rows, seriesDefs, initial, xMin, xMax, xScale, yScale, plotRight) {
-    const age60 = rowNearestAge(rows, 60);
-    const age60X = xScale(Math.min(Math.max(60, xMin), xMax));
-    const labels = [
-      { key: "KH", label: "קופת גמל להשקעה", color: "#ef3326", dy: -18 },
-      { key: "II", label: "השקעה עצמאית", color: "#1748ff", dy: 12 },
-      { key: "PH", label: "פוליסת חסכון", color: "#111111", dy: 42 }
-    ].map((item) => {
-      const value = age60 && numericValue(age60[item.key]);
-      if (value === null || value === undefined) return "";
-      return `<text class="kupat-inline-label" x="${(age60X - 12).toFixed(2)}" y="${(yScale(value) + item.dy).toFixed(2)}" fill="${item.color}" text-anchor="end">${escapeHtml(`${item.label}: תשואה בגיל 60 ${kupatReturnText(value, initial)}`)}</text>`;
-    }).join("");
-    const ends = seriesDefs.map((series) => {
-      const point = lastVisiblePoint(rows, "age", series.yKey, xMin, xMax);
-      if (!point) return "";
-      const value = numericValue(point.row[series.yKey]);
-      return `<text class="kupat-end-label" x="${(plotRight - 14).toFixed(2)}" y="${yScale(value).toFixed(2)}" fill="${series.color}" text-anchor="end">${escapeHtml(`${series.label} | תשואה ${kupatReturnText(value, initial)}`)}</text>`;
-    }).join("");
-    return labels + ends;
-  }
-
-  function kupatPensionAnnotations(rows, seriesDefs, initial, xMin, xMax, xScale, yScale, plotRight) {
-    const ends = seriesDefs.map((series) => {
-      const point = lastVisiblePoint(rows, "age", series.yKey, xMin, xMax);
-      if (!point) return "";
-      const value = numericValue(point.row[series.yKey]);
-      const label = series.yKey === "KitzbaTotal"
-        ? series.label
-        : `${series.label} | תשואה ${kupatReturnText(value, initial)}`;
-      return `<text class="kupat-end-label" x="${(plotRight - 14).toFixed(2)}" y="${yScale(value).toFixed(2)}" fill="${series.color}" text-anchor="end">${escapeHtml(label)}</text>`;
-    }).join("");
-    const age60 = rowNearestAge(rows, 60);
-    const kh = age60 && numericValue(age60.KH);
-    const age60Label = kh === null || kh === undefined ? "" : `
-      <text class="kupat-inline-label" x="${(xScale(60) - 12).toFixed(2)}" y="${(yScale(kh) - 10).toFixed(2)}" fill="#ef3326" text-anchor="end">${escapeHtml(`קופת גמל להשקעה: תשואה בגיל 60 ${kupatReturnText(kh, initial)}`)}</text>
-    `;
-    return age60Label + ends;
-  }
-
-  function renderRollingBarsChart(payload, chartConfig) {
-    const rows = payload.data || [];
-    const xKey = chartConfig.x;
-    const series = [
-      { key: "Diff5", years: 5, label: "ממוצע של 5 שנים קודמות" },
-      { key: "Diff10", years: 10, label: "ממוצע של 10 שנים קודמות" },
-      { key: "Diff15", years: 15, label: "ממוצע של 15 שנים קודמות" }
-    ].filter((item) => rows.some((row) => numericValue(row[item.key]) !== null));
-    if (!rows.length || !series.length) {
-      chartMessage(ui.noBars);
-      return;
-    }
-
-    const width = 1160;
-    const panelHeight = 150;
-    const gap = 34;
-    const height = 650;
-    const pad = { top: 48, right: 58, bottom: 86, left: 74 };
-    const plotWidth = width - pad.left - pad.right;
-    const stripHeight = 24;
-    const xMin = Math.min(...rows.map((row) => Number(row[xKey])));
-    const xMax = Math.max(...rows.map((row) => Number(row[xKey])));
-    const firstSourceYear = xMin - 5;
-    const allValues = [];
-    series.forEach((item) => rows.forEach((row) => {
-      const value = numericValue(row[item.key]);
-      if (Number(row[xKey]) >= firstSourceYear + item.years && value !== null) allValues.push(value);
-    }));
-    const maxAbs = Math.max(0.16, ...allValues.map((value) => Math.abs(value)));
-    const yTicks = [-0.1, 0, 0.1];
-    const xSpan = xMax - xMin + 1;
-    const barWidth = plotWidth / xSpan * 0.82;
-    const xScale = (year) => pad.left + ((Number(year) - xMin + 0.5) / xSpan) * plotWidth;
-    const axisYears = [];
-    for (let year = Math.ceil(xMin / 5) * 5; year <= xMax; year += 5) axisYears.push(year);
-
-    const panels = series.map((item, index) => {
-      const plotTop = pad.top + 26 + index * (panelHeight + gap);
-      const plotBottom = plotTop + panelHeight;
-      const yScale = (value) => plotTop + (1 - (value + maxAbs) / (maxAbs * 2)) * panelHeight;
-      const zero = yScale(0);
-      const validRows = rows.filter((row) => Number(row[xKey]) >= firstSourceYear + item.years && numericValue(row[item.key]) !== null);
-      const better = validRows.filter((row) => numericValue(row[item.key]) > 0).length;
-      const annotation = `S&P 500 was better in ${better} / ${validRows.length} (${Math.round((better / Math.max(validRows.length, 1)) * 100)}%) cases`;
-      const grid = yTicks.map((tick) => `
-        <line class="grid-line" x1="${pad.left}" y1="${yScale(tick).toFixed(2)}" x2="${width - pad.right}" y2="${yScale(tick).toFixed(2)}"></line>
-        <text x="${pad.left - 12}" y="${yScale(tick).toFixed(2)}" text-anchor="end" dominant-baseline="middle" fill="#333" font-size="14">${formatPercent(tick, 0)}</text>
-      `).join("");
-      const xGrid = axisYears.map((year) => `
-        <line class="grid-line" x1="${xScale(year).toFixed(2)}" y1="${plotTop}" x2="${xScale(year).toFixed(2)}" y2="${plotBottom}"></line>
-        ${index === series.length - 1 ? `<text x="${xScale(year).toFixed(2)}" y="${plotBottom + 24}" text-anchor="middle" fill="#333" font-size="14">${year}</text>` : ""}
-      `).join("");
-      const bars = validRows.map((row) => {
-        const value = numericValue(row[item.key]);
-        const x = xScale(row[xKey]) - barWidth / 2;
-        const y = Math.min(yScale(value), zero);
-        const h = Math.max(Math.abs(zero - yScale(value)), 1);
-        const tooltip = `${row[xKey]}\n${item.label}\n${formatPercent(value, 2)}`;
-        return `<rect class="rolling-bar" x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barWidth.toFixed(2)}" height="${h.toFixed(2)}" data-tooltip="${escapeHtml(tooltip)}"></rect>`;
-      }).join("");
-      return `
-        <rect class="rolling-strip" x="${pad.left}" y="${plotTop - stripHeight}" width="${plotWidth}" height="${stripHeight}"></rect>
-        <text class="rolling-strip-text" x="${pad.left + plotWidth / 2}" y="${plotTop - stripHeight / 2 + 1}" text-anchor="middle" dominant-baseline="middle">${escapeHtml(item.label)}</text>
-        ${grid}
-        ${xGrid}
-        <line x1="${pad.left}" y1="${zero.toFixed(2)}" x2="${width - pad.right}" y2="${zero.toFixed(2)}" stroke="#8a8a8a" stroke-width="1.2"></line>
-        <line x1="${pad.left}" y1="${plotTop}" x2="${pad.left}" y2="${plotBottom}" stroke="#666"></line>
-        <line x1="${pad.left}" y1="${plotBottom}" x2="${width - pad.right}" y2="${plotBottom}" stroke="#666"></line>
-        <text x="${pad.left + 134}" y="${plotTop + 34}" fill="#111" font-size="12">${escapeHtml(annotation)}</text>
-        ${bars}
-      `;
-    }).join("");
-
-    chartTarget().innerHTML = `
-      <svg class="rolling-bars-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeHtml(chartConfig.title)}">
-        <text class="rolling-title" x="${width / 2}" y="30" text-anchor="middle">${escapeHtml(chartConfig.title)}</text>
-        ${panels}
-      </svg>
-      ${chartCaption(chartConfig, payload, "rolling")}
-      ${chartReadingHtml(payload, chartConfig)}
-      <div class="chart-help">${escapeHtml(ui.barHelp)}</div>
-      <div class="chart-tooltip" role="status"></div>
-    `;
-  }
-
-  function renderPortfolioCagrBarsChart(payload, chartConfig) {
-    const rollingWindow = chartConfig.rollingWindow || 10;
-    const valueKey = chartConfig.returnMode === "cumulative" ? "__RollingTotalReturn" : chartConfig.y;
-    const rows = (payload.data || [])
-      .map((row) => {
-        const rolling = numericValue(row[chartConfig.y]);
-        return {
-          ...row,
-          __RollingTotalReturn: rolling === null ? null : ((1 + rolling) ** rollingWindow) - 1
-        };
-      })
-      .filter((row) => numericValue(row[valueKey]) !== null)
-      .sort((a, b) => Number(a.Year) - Number(b.Year) || String(a.Portfolio).localeCompare(String(b.Portfolio)));
-    if (!rows.length) {
-      chartMessage(ui.noBars);
-      return;
-    }
-
-    const grouped = groupRows(rows, "Portfolio");
-    const order = chartConfig.portfolioOrder || [];
-    const portfolios = order.length
-      ? order.filter((portfolio) => grouped[portfolio])
-      : Object.keys(grouped).sort((a, b) => a.localeCompare(b));
-    const years = [...new Set(rows.map((row) => Number(row.Year)))].sort((a, b) => a - b);
-    const values = rows.map((row) => numericValue(row[valueKey])).filter((value) => value !== null);
-    const width = 1160;
-    const height = 650;
-    const titleLineCount = chartConfig.titleLines ? chartConfig.titleLines.length : 2;
-    const pad = { top: titleLineCount > 2 ? 112 : 88, right: 52, bottom: 82, left: 80 };
-    const plotRight = width - pad.right;
-    const plotBottom = height - pad.bottom;
-    const yTicks = niceTicks(Math.min(0, ...values), Math.max(0.01, ...values) * 1.06, 7);
-    const yMin = yTicks[0];
-    const yMax = yTicks[yTicks.length - 1];
-    const xMin = Math.min(...years);
-    const xMax = Math.max(...years);
-    const xSpan = xMax - xMin + 1;
-    const yearBand = (plotRight - pad.left) / xSpan;
-    const barWidth = Math.max(2, Math.min(9, yearBand * 0.78 / Math.max(portfolios.length, 1)));
-    const xScale = (year) => pad.left + ((Number(year) - xMin + 0.5) / xSpan) * (plotRight - pad.left);
-    const yScale = (value) => pad.top + (1 - (value - yMin) / (yMax - yMin || 1)) * (plotBottom - pad.top);
-    const seriesColors = ["#17178f", "#efff14", "#2f8fdb", "#a94d2a", "#2f7646", "#75518b", "#76611b", "#a23f68"];
-    const color = Object.fromEntries(portfolios.map((portfolio, index) => [portfolio, seriesColors[index % seriesColors.length]]));
-    const fill = Object.fromEntries(portfolios.map((portfolio, index) => [portfolio, hexToRgba(seriesColors[index % seriesColors.length], index === 1 ? 0.28 : 0.18)]));
-    const multiSeriesMode = portfolios.length > 2;
-    const titleLines = chartConfig.titleLines
-      ? chartConfig.titleLines.map((line) => line.replace("{years}", rollingWindow))
-      : [
-          chartConfig.returnMode === "cumulative" ? "התשואה המצטברת" : "התשואה השנתית הממוצעת (CAGR)",
-          `בהשקעה של ${rollingWindow} שנים, שמסתיימת בשנה המוצגת`
-        ];
-    const axisYears = [];
-    for (let year = Math.ceil(xMin / 10) * 10; year <= xMax; year += 10) axisYears.push(year);
-    if (!axisYears.includes(xMin)) axisYears.unshift(xMin);
-    if (!axisYears.includes(xMax)) axisYears.push(xMax);
-
-    const grid = yTicks.map((tick) => `
-      <line class="grid-line" x1="${pad.left}" y1="${yScale(tick).toFixed(2)}" x2="${plotRight}" y2="${yScale(tick).toFixed(2)}"></line>
-      <text x="${pad.left - 12}" y="${yScale(tick).toFixed(2)}" text-anchor="end" dominant-baseline="middle" fill="#111" font-size="13">${formatPercent(tick, 0)}</text>
-    `).join("");
-    const xGrid = axisYears.map((year) => `
-      <line class="grid-line" x1="${xScale(year).toFixed(2)}" y1="${pad.top}" x2="${xScale(year).toFixed(2)}" y2="${plotBottom}"></line>
-      <text x="${xScale(year).toFixed(2)}" y="${plotBottom + 26}" text-anchor="middle" fill="#111" font-size="13">${year}</text>
-    `).join("");
-    const zeroLine = `<line class="portfolio-zero-line" x1="${pad.left}" y1="${yScale(0).toFixed(2)}" x2="${plotRight}" y2="${yScale(0).toFixed(2)}"></line>`;
-    const portfolioTooltip = (row) => {
-      const endYear = Number(row.Year);
-      const oneYear = numericValue(row.OneYear);
-      const rollingCagr = numericValue(row[chartConfig.y]);
-      const rollingReturn = numericValue(row.__RollingTotalReturn);
-      return [
-        row.Portfolio,
-        oneYear === null ? String(endYear) : `${endYear} (${formatPercent(oneYear, 1)})`,
-        `CAGR last ${rollingWindow} years: ${formatPercent(rollingCagr, 1)}`,
-        `Return last ${rollingWindow} years: ${formatPercent(rollingReturn, 1)}`
-      ].join("\n");
-    };
-    const leadAnnotation = (() => {
-      if (!chartConfig.leadAnnotation) return "";
-      const leader = chartConfig.leadAnnotation.portfolio;
-      const benchmark = chartConfig.leadAnnotation.benchmark;
-      let wins = 0;
-      let comparisons = 0;
-      years.forEach((year) => {
-        const leaderRow = grouped[leader] && grouped[leader].find((row) => Number(row.Year) === year);
-        const benchmarkRow = grouped[benchmark] && grouped[benchmark].find((row) => Number(row.Year) === year);
-        const leaderValue = leaderRow ? numericValue(leaderRow[valueKey]) : null;
-        const benchmarkValue = benchmarkRow ? numericValue(benchmarkRow[valueKey]) : null;
-        if (leaderValue === null || benchmarkValue === null) return;
-        comparisons += 1;
-        if (leaderValue > benchmarkValue) wins += 1;
-      });
-      if (!comparisons) return "";
-      const pct = Math.round((wins / comparisons) * 100);
-      return `<text x="${pad.left + 22}" y="${pad.top + 28}" fill="#111" font-size="13" font-weight="700">${escapeHtml(`${chartConfig.leadAnnotation.label} in ${wins} / ${comparisons} cases (${pct}%)`)}</text>`;
-    })();
-    const areas = multiSeriesMode ? "" : portfolios.map((portfolio) => {
-      const points = grouped[portfolio].map((row) => `${xScale(row.Year).toFixed(2)},${yScale(row[valueKey]).toFixed(2)}`).join(" ");
-      const base = grouped[portfolio].slice().reverse().map((row) => `${xScale(row.Year).toFixed(2)},${yScale(0).toFixed(2)}`).join(" ");
-      return `<polygon points="${points} ${base}" fill="${fill[portfolio]}" stroke="none"></polygon>`;
-    }).join("");
-    const bars = multiSeriesMode ? "" : rows.map((row) => {
-      const value = numericValue(row[valueKey]);
-      const portfolioIndex = portfolios.indexOf(row.Portfolio);
-      if (portfolioIndex < 0) return "";
-      const x = xScale(row.Year) + (portfolioIndex - (portfolios.length - 1) / 2) * (barWidth + 1) - barWidth / 2;
-      const y = Math.min(yScale(value), yScale(0));
-      const h = Math.max(Math.abs(yScale(0) - yScale(value)), 1);
-      const tooltip = portfolioTooltip(row);
-      return `<rect class="portfolio-cagr-bar" x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barWidth.toFixed(2)}" height="${h.toFixed(2)}" fill="${color[row.Portfolio]}" data-tooltip="${escapeHtml(tooltip)}"></rect>`;
-    }).join("");
-    const lines = portfolios.map((portfolio) => {
-      const path = grouped[portfolio].map((row, index) => {
-        const prefix = index === 0 ? "M" : "L";
-        return `${prefix} ${xScale(row.Year).toFixed(2)} ${yScale(row[valueKey]).toFixed(2)}`;
-      }).join(" ");
-      const points = grouped[portfolio].map((row) => `
-        <circle class="portfolio-cagr-point" cx="${xScale(row.Year).toFixed(2)}" cy="${yScale(row[valueKey]).toFixed(2)}" r="${multiSeriesMode ? "4.2" : "2.2"}" fill="${color[portfolio]}" data-tooltip="${escapeHtml(portfolioTooltip(row))}"></circle>
-      `).join("");
-      return `<path class="portfolio-cagr-line" d="${path}" fill="none" stroke="${color[portfolio]}" stroke-width="${multiSeriesMode ? 3.2 : 2.4}" vector-effect="non-scaling-stroke"></path>${points}`;
-    }).join("");
-    const legend = portfolios.map((portfolio, index) => `
-      <g transform="translate(${pad.left + 20} ${pad.top + 34 + index * 24})">
-        <rect width="34" height="7" fill="${multiSeriesMode ? color[portfolio] : fill[portfolio]}" stroke="none"></rect>
-        <rect width="34" height="7" fill="${color[portfolio]}" opacity="${multiSeriesMode ? "1" : ".55"}"></rect>
-        <text x="44" y="7" fill="#111" font-size="13">${escapeHtml(portfolio)}</text>
-      </g>
-    `).join("");
-    const selectedLabel = `<text x="${plotRight}" y="${pad.top - 18}" text-anchor="end" fill="#4b5652" font-size="13">${escapeHtml(`${portfolios.length} תיקים מוצגים: ${portfolios.join(", ")}`)}</text>`;
-
-    chartTarget().innerHTML = `
-      <svg class="portfolio-cagr-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeHtml(chartConfig.title)}">
-        ${titleLines.map((line, index) => `<text class="portfolio-cagr-title" x="${width / 2}" y="${30 + index * 25}" text-anchor="middle">${escapeHtml(line)}</text>`).join("")}
-        ${grid}
-        ${xGrid}
-        ${zeroLine}
-        <line x1="${pad.left}" y1="${plotBottom}" x2="${plotRight}" y2="${plotBottom}" stroke="#777"></line>
-        <line x1="${pad.left}" y1="${pad.top}" x2="${pad.left}" y2="${plotBottom}" stroke="#777"></line>
-        ${selectedLabel}
-        ${areas}
-        ${bars}
-        ${lines}
-        ${leadAnnotation}
-        ${legend}
-        <text class="portfolio-y-label" transform="translate(${pad.left - 54} ${(pad.top + plotBottom) / 2}) rotate(-90)" text-anchor="middle">תשואה</text>
-      </svg>
-      ${chartCaption(chartConfig, payload, "rolling")}
-      ${chartReadingHtml(payload, chartConfig)}
-      <div class="chart-help">${escapeHtml(ui.barHelp)}</div>
-      <div class="chart-tooltip" role="status"></div>
-    `;
-  }
-
-  function renderLineChart(payload, chartConfig) {
-    if (chartConfig.facetBy && chartConfig.series) {
-      renderFacetedLineChart(payload, chartConfig);
-      return;
-    }
-    const rows = payload.data || [];
-    const xKey = payload.columns.includes(chartConfig.x) ? chartConfig.x : payload.columns[0];
-    const allSeriesDefs = lineSeries(rows, chartConfig);
-    const seriesDefs = allSeriesDefs.filter((series) => !hiddenSeries.has(seriesKey(payload.endpoint, series.label)));
-    if (!allSeriesDefs.length) {
-      chartMessage(ui.noNumericSeries);
-      return;
-    }
-    if (!seriesDefs.length) {
-      chartMessage(ui.allHidden);
-      chartTarget().insertAdjacentHTML("beforeend", `<div class="legend">${allSeriesDefs.map((series, index) => legendItem(payload.endpoint, series.label, index)).join("")}</div>`);
-      return;
-    }
-
-    const width = 940;
-    const height = chartConfig.endLabels ? 520 : 300;
-    const pad = chartConfig.endLabels
-      ? { top: 48, right: 260, bottom: 58, left: 82 }
-      : { top: 16, right: 26, bottom: 34, left: 62 };
-    const xValues = rows.map((row, index) => xPositionValue(row[xKey], index));
-    const allX = [];
-    const allY = [];
-    seriesDefs.forEach((series) => {
-      series.rows.forEach((row, index) => {
-        const y = numericValue(row[series.yKey]);
-        if (y !== null) {
-          allY.push(y);
-          allX.push(xPositionValue(row[xKey], index));
-        }
-      });
-    });
-    const baseXMin = Math.min(...(allX.length ? allX : xValues));
-    const baseXMax = Math.max(...(allX.length ? allX : xValues));
-    const zoom = chartZoom[payload.endpoint];
-    const xMin = zoom ? zoom[0] : baseXMin;
-    const xMax = zoom ? zoom[1] : baseXMax;
-    const dataYMin = chartConfig.forceZero ? Math.min(0, ...allY) : Math.min(...allY);
-    const dataYMax = Math.max(...allY);
-    const yTicks = niceTicks(dataYMin, dataYMax, chartConfig.endLabels ? 8 : 4);
-    const yMin = yTicks[0];
-    const yMax = yTicks[yTicks.length - 1];
-    const ySpan = yMax - yMin || 1;
-    const xSpan = xMax - xMin || 1;
-    const xScale = (value) => pad.left + ((value - xMin) / xSpan) * (width - pad.left - pad.right);
-    const yScale = (value) => pad.top + (1 - (value - yMin) / ySpan) * (height - pad.top - pad.bottom);
-    const axisColor = "#7c8782";
-    const gridColor = "#e4e8e3";
-    const visibleRows = rows.filter((row, index) => {
-      const x = xPositionValue(row[xKey], index);
-      return x >= xMin && x <= xMax;
-    });
-    const yearTicks = dateTicks(visibleRows, xKey, chartConfig.endLabels ? 5 : 2);
-    const baseline = chartConfig.baselineKey ? Number(payload.params && payload.params[chartConfig.baselineKey]) : null;
-    const lineColors = chartConfig.colors || palette;
-
-    const paths = seriesDefs.map((series, index) => {
-      let path = "";
-      let open = false;
-      series.rows.forEach((row, rowIndex) => {
-        const y = numericValue(row[series.yKey]);
-        if (y === null) return;
-        const x = xPositionValue(row[xKey], rowIndex);
-        if (x < xMin || x > xMax) {
-          open = false;
-          return;
-        }
-        path += `${open ? " L" : "M"} ${xScale(x).toFixed(2)} ${yScale(y).toFixed(2)}`;
-        open = true;
-      });
-      return `<path d="${path}" fill="none" stroke="${lineColors[index % lineColors.length]}" stroke-width="${chartConfig.endLabels ? 2.2 : 2}" vector-effect="non-scaling-stroke"></path>`;
-    }).join("");
-
-    const points = seriesDefs.map((series, index) => series.rows.map((row, rowIndex) => {
-      const y = numericValue(row[series.yKey]);
-      if (y === null) return "";
-      const x = xPositionValue(row[xKey], rowIndex);
-      if (x < xMin || x > xMax) return "";
-      const tooltip = `${displayLabel(series.label)}\n${displayLabel(xKey)}: ${row[xKey]}\n${displayLabel(series.yKey)}: ${formatChartValue(y, chartConfig)}`;
-      return `<circle class="hit-point" cx="${xScale(x).toFixed(2)}" cy="${yScale(y).toFixed(2)}" r="7" data-tooltip="${escapeHtml(tooltip)}"></circle>`;
-    }).join("")).join("");
-
-    const grid = yTicks.map((tick) => `
-      <line class="grid-line" x1="${pad.left}" y1="${yScale(tick).toFixed(2)}" x2="${width - pad.right}" y2="${yScale(tick).toFixed(2)}"></line>
-      <text x="${pad.left - 9}" y="${yScale(tick).toFixed(2)}" text-anchor="end" dominant-baseline="middle" fill="${axisColor}" font-size="11">${formatChartAxis(tick, chartConfig)}</text>
-      ${chartConfig.endLabels ? `<text x="${width - pad.right + 9}" y="${yScale(tick).toFixed(2)}" dominant-baseline="middle" fill="${axisColor}" font-size="11">${formatChartAxis(tick, chartConfig)}</text>` : ""}
-    `).join("");
-    const xGrid = yearTicks.map((tick) => {
-      const value = xPositionValue(tick.value, 0);
-      return `
-        <line class="grid-line" x1="${xScale(value).toFixed(2)}" y1="${pad.top}" x2="${xScale(value).toFixed(2)}" y2="${height - pad.bottom}"></line>
-        <text x="${xScale(value).toFixed(2)}" y="${height - pad.bottom + 22}" text-anchor="middle" fill="${axisColor}" font-size="12">${escapeHtml(tick.label)}</text>
-      `;
-    }).join("");
-    const endLabels = chartConfig.endLabels ? seriesDefs.map((series, index) => {
-      const last = lastVisiblePoint(series.rows, xKey, series.yKey, xMin, xMax);
-      if (!last) return "";
-      const y = numericValue(last.row[series.yKey]);
-      const percent = baseline && baseline > 0 ? formatPercent((y / baseline) - 1, 0) : "";
-      const text = percent ? `${displayLabel(series.label)} | תשואה ${percent}` : displayLabel(series.label);
-      return `<text class="line-end-label" x="${Math.min(xScale(last.x) + 10, width - pad.right + 4).toFixed(2)}" y="${yScale(y).toFixed(2)}" fill="${lineColors[index % lineColors.length]}">${escapeHtml(text)}</text>`;
-    }).join("") : "";
-    const baselineLine = Number.isFinite(baseline) && baseline >= yMin && baseline <= yMax
-      ? `<line class="baseline-line" x1="${pad.left}" y1="${yScale(baseline).toFixed(2)}" x2="${width - pad.right}" y2="${yScale(baseline).toFixed(2)}"></line>`
-      : "";
-    const legend = allSeriesDefs.map((series, index) => legendItem(payload.endpoint, series.label, index)).join("");
-    chartTarget().innerHTML = `
-      <svg class="${chartConfig.endLabels ? "tax-chart-svg" : ""}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeHtml(displayEndpoint(payload.endpoint))}" data-endpoint="${escapeHtml(payload.endpoint)}" data-x-min="${baseXMin}" data-x-max="${baseXMax}" data-plot-left="${pad.left}" data-plot-right="${width - pad.right}">
-        <defs><clipPath id="clip-${escapeHtml(payload.endpoint)}"><rect x="${pad.left}" y="${pad.top}" width="${width - pad.left - pad.right}" height="${height - pad.top - pad.bottom}"></rect></clipPath></defs>
-        ${chartConfig.title ? `<text class="chart-title" x="${(pad.left + width - pad.right) / 2}" y="24" text-anchor="middle">${escapeHtml(chartConfig.title)}</text>` : ""}
-        ${grid}
-        ${xGrid}
-        ${baselineLine}
-        <line x1="${pad.left}" y1="${height - pad.bottom}" x2="${width - pad.right}" y2="${height - pad.bottom}" stroke="${axisColor}"></line>
-        <line x1="${pad.left}" y1="${pad.top}" x2="${pad.left}" y2="${height - pad.bottom}" stroke="${axisColor}"></line>
-        <rect class="plot-area" x="${pad.left}" y="${pad.top}" width="${width - pad.left - pad.right}" height="${height - pad.top - pad.bottom}" fill="transparent"></rect>
-        <g clip-path="url(#clip-${escapeHtml(payload.endpoint)})">${paths}${points}</g>
-        ${endLabels}
-        <rect class="zoom-box" hidden x="0" y="${pad.top}" width="0" height="${height - pad.top - pad.bottom}"></rect>
-      </svg>
-      ${chartCaption(chartConfig, payload, chartConfig.endLabels ? "tax" : "standard")}
-      ${chartReadingHtml(payload, chartConfig)}
-      <div class="legend">${legend}</div>
-      <div class="chart-actions">
-        <div class="chart-help">${escapeHtml(ui.chartHelp)}</div>
-        <button class="reset-zoom" type="button" ${zoom ? "" : "disabled"}>${escapeHtml(ui.resetZoom)}</button>
-      </div>
-      <div class="chart-tooltip" role="status"></div>
-    `;
-  }
-
-  function renderFacetedLineChart(payload, chartConfig) {
-    const rows = payload.data || [];
-    const xKey = payload.columns.includes(chartConfig.x) ? chartConfig.x : payload.columns[0];
-    const groups = Object.entries(groupRows(rows, chartConfig.facetBy)).sort((a, b) => Number(a[0]) - Number(b[0]));
-    const seriesKeys = chartConfig.series.filter((key) => rows.some((row) => numericValue(row[key]) !== null));
-    if (!groups.length || !seriesKeys.length) {
-      chartMessage(ui.noNumericSeries);
-      return;
-    }
-
-    const width = 1160;
-    const height = 630;
-    const pad = { top: 56, right: 34, bottom: 58, left: 68 };
-    const gap = 8;
-    const stripHeight = 24;
-    const panelWidth = (width - pad.left - pad.right - gap * (groups.length - 1)) / groups.length;
-    const plotTop = pad.top + stripHeight;
-    const plotBottom = height - pad.bottom;
-    const allY = [];
-    const allX = [];
-    rows.forEach((row, index) => {
-      allX.push(xPositionValue(row[xKey], index));
-      seriesKeys.forEach((key) => {
-        const y = numericValue(row[key]);
-        if (y !== null) allY.push(y);
-      });
-    });
-    const baseXMin = Math.min(...allX);
-    const baseXMax = Math.max(...allX);
-    const zoom = chartZoom[payload.endpoint];
-    const xMin = zoom ? zoom[0] : baseXMin;
-    const xMax = zoom ? zoom[1] : baseXMax;
-    const dataYMin = chartConfig.forceZero ? Math.min(0, ...allY) : Math.min(...allY);
-    const dataYMax = Math.max(...allY);
-    const yTicks = niceTicks(dataYMin, dataYMax, 8);
-    const yMin = yTicks[0];
-    const yMax = yTicks[yTicks.length - 1];
-    const ySpan = yMax - yMin || 1;
-    const xSpan = xMax - xMin || 1;
-    const yScale = (value) => plotTop + (1 - (value - yMin) / ySpan) * (plotBottom - plotTop);
-    const xScale = (panelX, value) => panelX + ((value - xMin) / xSpan) * panelWidth;
-    const lineColors = chartConfig.colors || palette;
-    const visibleRows = rows.filter((row, index) => {
-      const x = xPositionValue(row[xKey], index);
-      return x >= xMin && x <= xMax;
-    });
-    const yearTicks = dateTicks(visibleRows, xKey, 4);
-
-    const panels = groups.map(([group, groupRowsForPanel], groupIndex) => {
-      const panelX = pad.left + groupIndex * (panelWidth + gap);
-      const clipId = `clip-${payload.endpoint}-${String(group).replace(/\W+/g, "-")}`;
-      const grid = yTicks.map((tick) => `
-        <line class="grid-line" x1="${panelX}" y1="${yScale(tick).toFixed(2)}" x2="${panelX + panelWidth}" y2="${yScale(tick).toFixed(2)}"></line>
-        ${groupIndex === 0 ? `<text x="${panelX - 9}" y="${yScale(tick).toFixed(2)}" text-anchor="end" dominant-baseline="middle" fill="#56615d" font-size="11">${formatChartAxis(tick, chartConfig)}</text>` : ""}
-        ${groupIndex === groups.length - 1 ? `<text x="${panelX + panelWidth + 9}" y="${yScale(tick).toFixed(2)}" dominant-baseline="middle" fill="#56615d" font-size="11">${formatChartAxis(tick, chartConfig)}</text>` : ""}
-      `).join("");
-      const xGrid = yearTicks.map((tick) => {
-        const value = xPositionValue(tick.value, 0);
-        const year = Number(tick.label);
-        const firstYear = Number(yearTicks[0] && yearTicks[0].label);
-        const lastYear = Number(yearTicks[yearTicks.length - 1] && yearTicks[yearTicks.length - 1].label);
-        const hideBoundaryLabel =
-          (year === firstYear && groupIndex > 0) ||
-          (year === lastYear && groupIndex < groups.length - 1);
-        return `
-          <line class="grid-line" x1="${xScale(panelX, value).toFixed(2)}" y1="${plotTop}" x2="${xScale(panelX, value).toFixed(2)}" y2="${plotBottom}"></line>
-          ${hideBoundaryLabel ? "" : `<text x="${xScale(panelX, value).toFixed(2)}" y="${plotBottom + 22}" text-anchor="middle" fill="#56615d" font-size="11">${escapeHtml(tick.label)}</text>`}
-        `;
-      }).join("");
-      const paths = seriesKeys.map((seriesKey, seriesIndex) => {
-        let path = "";
-        let open = false;
-        groupRowsForPanel.forEach((row, rowIndex) => {
-          const y = numericValue(row[seriesKey]);
-          if (y === null) return;
-          const x = xPositionValue(row[xKey], rowIndex);
-          if (x < xMin || x > xMax) {
-            open = false;
-            return;
-          }
-          path += `${open ? " L" : "M"} ${xScale(panelX, x).toFixed(2)} ${yScale(y).toFixed(2)}`;
-          open = true;
-        });
-        return `<path d="${path}" fill="none" stroke="${lineColors[seriesIndex % lineColors.length]}" stroke-width="1.25" vector-effect="non-scaling-stroke"></path>`;
-      }).join("");
-      const finalGuides = seriesKeys.map((seriesKey, seriesIndex) => {
-        const last = lastVisiblePoint(groupRowsForPanel, xKey, seriesKey, xMin, xMax);
-        if (!last) return "";
-        const y = numericValue(last.row[seriesKey]);
-        const returnText = payload.params && payload.params.initial
-          ? formatPercent((y / Number(payload.params.initial)) - 1, 0)
-          : formatChartValue(y, chartConfig);
-        const label = `${displayLabel(chartConfig.facetBy)} ${group}% | ${displayLabel(seriesKey)}\nתשואה ${returnText}`;
-        const labelX = panelX + panelWidth * (seriesIndex === 3 ? 0.34 : 0.34 + seriesIndex * 0.02);
-        const labelY = yScale(y) + (seriesIndex - 1.5) * 14;
-        return `
-          <line x1="${panelX}" y1="${yScale(y).toFixed(2)}" x2="${panelX + panelWidth}" y2="${yScale(y).toFixed(2)}" stroke="${lineColors[seriesIndex % lineColors.length]}" stroke-dasharray="2 3" stroke-width="1"></line>
-          <text class="facet-end-label" x="${labelX.toFixed(2)}" y="${labelY.toFixed(2)}" fill="${lineColors[seriesIndex % lineColors.length]}">${escapeHtml(label)}</text>
-        `;
-      }).join("");
-      const points = seriesKeys.map((seriesKey, seriesIndex) => groupRowsForPanel.map((row, rowIndex) => {
-        const y = numericValue(row[seriesKey]);
-        if (y === null) return "";
-        const x = xPositionValue(row[xKey], rowIndex);
-        if (x < xMin || x > xMax) return "";
-        const tooltip = `${displayLabel(chartConfig.facetBy)}: ${group}\n${displayLabel(seriesKey)}\n${displayLabel(xKey)}: ${row[xKey]}\n${formatChartValue(y, chartConfig)}`;
-        return `<circle class="hit-point" cx="${xScale(panelX, x).toFixed(2)}" cy="${yScale(y).toFixed(2)}" r="5" data-tooltip="${escapeHtml(tooltip)}"></circle>`;
-      }).join("")).join("");
-
-      return `
-        <rect class="facet-strip" x="${panelX}" y="${pad.top}" width="${panelWidth}" height="${stripHeight}"></rect>
-        <text class="facet-strip-text" x="${panelX + panelWidth / 2}" y="${pad.top + stripHeight / 2 + 1}" text-anchor="middle" dominant-baseline="middle">${escapeHtml(`Commission: ${Number(group) === 0 ? "0" : `${group}%`}`)}</text>
-        ${grid}
-        ${xGrid}
-        <line x1="${panelX}" y1="${plotBottom}" x2="${panelX + panelWidth}" y2="${plotBottom}" stroke="#56615d"></line>
-        <line x1="${panelX}" y1="${plotTop}" x2="${panelX}" y2="${plotBottom}" stroke="#56615d"></line>
-        <line x1="${panelX + panelWidth}" y1="${plotTop}" x2="${panelX + panelWidth}" y2="${plotBottom}" stroke="#b5bdb8"></line>
-        <rect class="plot-area" x="${panelX}" y="${plotTop}" width="${panelWidth}" height="${plotBottom - plotTop}" fill="transparent"></rect>
-        <defs><clipPath id="${clipId}"><rect x="${panelX}" y="${plotTop}" width="${panelWidth}" height="${plotBottom - plotTop}"></rect></clipPath></defs>
-        <g clip-path="url(#${clipId})">${paths}${points}</g>
-        ${finalGuides}
-      `;
-    }).join("");
-
-    const legend = seriesKeys.map((seriesKey, index) => `
-      <span><i class="swatch" style="background:${lineColors[index % lineColors.length]}"></i>${escapeHtml(displayLabel(seriesKey))}</span>
-    `).join("");
-    chartTarget().innerHTML = `
-      <svg class="faceted-chart-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeHtml(displayEndpoint(payload.endpoint))}" data-endpoint="${escapeHtml(payload.endpoint)}" data-x-min="${baseXMin}" data-x-max="${baseXMax}" data-plot-left="${pad.left}" data-plot-right="${width - pad.right}">
-        ${chartConfig.title ? `<text class="chart-title" x="${width / 2}" y="24" text-anchor="middle">${escapeHtml(chartConfig.title)}</text>` : ""}
-        ${panels}
-        <rect class="zoom-box" hidden x="0" y="${plotTop}" width="0" height="${plotBottom - plotTop}"></rect>
-      </svg>
-      ${chartCaption(chartConfig, payload, "faceted")}
-      ${chartReadingHtml(payload, chartConfig)}
-      <div class="legend facet-legend">${legend}</div>
-      <div class="chart-actions">
-        <div class="chart-help">${escapeHtml(ui.chartHelp)}</div>
-        <button class="reset-zoom" type="button" ${zoom ? "" : "disabled"}>${escapeHtml(ui.resetZoom)}</button>
-      </div>
-      <div class="chart-tooltip" role="status"></div>
-    `;
   }
 
   function lineSeries(rows, chartConfig) {
@@ -4405,194 +3131,633 @@
     }));
   }
 
-  function renderBarChart(payload, chartConfig) {
-    const rows = (payload.data || []).filter((row) => numericValue(row[chartConfig.y]) !== null);
+  function valueFormat(chartConfig) {
+    if (chartConfig.currency) return { format: (value) => formatShekel(value, 0), tick: (value) => formatShekelShort(value) };
+    if (chartConfig.percent) return { format: (value) => formatPercent(value, 1), tick: (value) => formatPercent(value, 0) };
+    return { format: (value) => formatNumber(value), tick: (value) => formatNumber(value) };
+  }
+
+  function xAxisFor(rows, xKey) {
+    const isDate = rows.some((row) => /^\d{4}-\d{2}/.test(String(row[xKey] ?? "")));
+    return isDate
+      ? { format: formatMonthYear, tick: (value) => String(Math.round(value)), snap: 0.05 }
+      : { format: (value) => String(Math.round(value)), tick: (value) => String(Math.round(value)) };
+  }
+
+  function captionHtml(chartConfig, payload) {
+    const parts = [];
+    if (chartConfig.captionLines) {
+      chartConfig.captionLines.forEach((line) => {
+        if (typeof line === "string") parts.push(escapeHtml(line));
+        else if (line.text) parts.push(escapeHtml(line.text));
+        else {
+          const link = line.href ? `<a href="${escapeHtml(line.href)}" target="_blank" rel="noopener noreferrer">${escapeHtml(line.linkText || line.href)}</a>` : "";
+          parts.push(`${escapeHtml(line.textBefore || "")}${link}${escapeHtml(line.textAfter || "")}`);
+        }
+      });
+    } else if (chartConfig.caption) {
+      parts.push(escapeHtml(chartConfig.caption));
+    }
+    if (payload && payload.params && Object.prototype.hasOwnProperty.call(payload.params, "adjust_cpi")) {
+      parts.push(payload.params.adjust_cpi ? "כולל תקנון למדד המחירים לצרכן" : "ללא תקנון למדד");
+    }
+    return parts.join(" · ");
+  }
+
+  function renderLineChart(payload, chartConfig) {
+    if (chartConfig.facetBy && chartConfig.series) {
+      renderFacetedLineChart(payload, chartConfig);
+      return;
+    }
+    const rows = payload.data || [];
+    const xKey = payload.columns.includes(chartConfig.x) ? chartConfig.x : payload.columns[0];
+    const defs = lineSeries(rows, chartConfig);
+    if (!defs.length) {
+      chartMessage(ui.noNumericSeries);
+      return;
+    }
+    const colors = chartConfig.colors || PALETTE;
+    const baseline = chartConfig.baselineKey ? Number(payload.params && payload.params[chartConfig.baselineKey]) : null;
+    const values = valueFormat(chartConfig);
+    const series = defs.map((def, index) => {
+      const points = def.rows
+        .map((row) => ({ x: toYearValue(row[xKey]), y: numericValue(row[def.yKey]), data: row }))
+        .filter((point) => point.x !== null);
+      const last = [...points].reverse().find((point) => Number.isFinite(point.y));
+      const label = displayLabel(def.label);
+      const change = last && baseline > 0 ? formatPercent(last.y / baseline - 1, 0) : "";
+      return {
+        id: String(def.label),
+        label,
+        color: colors[index % colors.length],
+        width: 2.2,
+        points,
+        endLabel: change ? `${label} · ${change}` : label,
+        legendValue: last ? (change || values.tick(last.y)) : ""
+      };
+    });
+    drawChart(chartTarget(), {
+      kind: "line",
+      key: payload.endpoint,
+      title: chartConfig.title,
+      captionHtml: captionHtml(chartConfig, payload),
+      footerHtml: chartReadingHtml(payload, chartConfig),
+      x: xAxisFor(rows, xKey),
+      y: { format: values.format, tick: values.tick, zero: chartConfig.forceZero },
+      series,
+      refLines: Number.isFinite(baseline) && baseline > 0 ? [{ y: baseline, label: "ההשקעה הראשונית" }] : [],
+      endLabels: chartConfig.endLabels
+    });
+  }
+
+  function renderFacetedLineChart(payload, chartConfig) {
+    const rows = payload.data || [];
+    const xKey = payload.columns.includes(chartConfig.x) ? chartConfig.x : payload.columns[0];
+    const groups = Object.entries(groupRows(rows, chartConfig.facetBy)).sort((a, b) => Number(a[0]) - Number(b[0]));
+    const keys = chartConfig.series.filter((key) => rows.some((row) => numericValue(row[key]) !== null));
+    if (!groups.length || !keys.length) {
+      chartMessage(ui.noNumericSeries);
+      return;
+    }
+    const colors = chartConfig.colors || PALETTE;
+    const values = valueFormat(chartConfig);
+    const seriesFor = (groupRowsForFacet) => keys.map((key, index) => ({
+      id: key,
+      label: (chartConfig.seriesLabels && chartConfig.seriesLabels[key]) || displayLabel(key),
+      color: colors[index % colors.length],
+      width: 1.8,
+      points: groupRowsForFacet.map((row) => ({ x: toYearValue(row[xKey]), y: numericValue(row[key]), data: row }))
+    }));
+    drawChart(chartTarget(), {
+      kind: "facets",
+      key: payload.endpoint,
+      title: chartConfig.title,
+      captionHtml: captionHtml(chartConfig, payload),
+      footerHtml: chartReadingHtml(payload, chartConfig),
+      legendSeries: seriesFor([]),
+      facets: groups.map(([group, groupRowsForFacet]) => ({
+        title: `${displayLabel(chartConfig.facetBy)} ${group}%`,
+        spec: {
+          kind: "line",
+          x: xAxisFor(rows, xKey),
+          y: { format: values.format, tick: values.tick, zero: chartConfig.forceZero },
+          series: seriesFor(groupRowsForFacet),
+          zoomable: false
+        }
+      }))
+    });
+  }
+
+  function renderTrinityChart(payload) {
+    const rows = payload.data || [];
+    const params = payload.params || {};
+    const base = Number(params.base) || 0;
+    const yearlyDraw = Number(params.yearly_draw) || 0;
+    const years = Number(params.years) || 0;
+    const portfolio = params.portfolio || "";
+    if (!rows.length) {
+      chartMessage(ui.noNumericSeries);
+      return;
+    }
+    const monthlyDraw = (base * yearlyDraw) / 12;
+    const count = rows.length;
+    const depleted = rows.filter((row) => row.depleted_year !== null && row.depleted_year !== undefined).length;
+    const aboveBase = rows.filter((row) => numericValue(row.Investment_remained) >= base).length;
+    const pointsFor = (key) => rows.map((row) => ({ x: Number(row.end_year), y: numericValue(row[key]), data: row }));
+    drawChart(chartTarget(), {
+      kind: "line",
+      key: "trinity",
+      title: `${ltrText(portfolio)}: משיכה של ${formatPercent(yearlyDraw, 1)} בשנה לאורך ${years} שנים`,
+      subtitle: `${formatShekel(monthlyDraw, 0)} בחודש מתוך ${formatShekel(base, 0)}, צמוד למדד. כל נקודה היא תקופה היסטורית אחרת, לפי שנת הסיום שלה.`,
+      notes: [
+        `הכסף נגמר ב-${depleted} מתוך ${count} התקופות (${formatPercent(depleted / count, 0)}).`,
+        `ב-${aboveBase} מתוך ${count} התקופות (${formatPercent(aboveBase / count, 0)}) נשאר בסוף יותר מהסכום ההתחלתי, למרות המשיכות.`
+      ],
+      caption: "הסכומים מתואמים לאינפלציה בארה״ב. תיק שהכסף בו נגמר מוצג כאפס.",
+      footerHtml: chartReadingHtml(payload, { type: "trinity" }),
+      x: { format: (value) => `שנת סיום ${Math.round(value)}`, tick: (value) => String(Math.round(value)) },
+      y: { format: (value) => formatShekel(value, 0), tick: formatShekelShort, zero: true },
+      series: [
+        { id: "remained", label: "יתרה בסוף התקופה", color: "#17201d", width: 2.2, points: pointsFor("Investment_remained") },
+        { id: "low", label: "היתרה הנמוכה בדרך", color: "#9aa39f", width: 2, points: pointsFor("Investment_low") }
+      ],
+      refLines: [{ y: base, label: "הסכום ההתחלתי" }],
+      tooltip: (x, hits) => {
+        const row = hits[0].point.data;
+        return {
+          header: `${row.start_year}–${row.end_year}`,
+          rows: [
+            ...hits.map((hit) => ({ color: hit.series.color, label: hit.series.label, value: formatShekel(hit.point.y, 0) })),
+            row.depleted_year ? { label: "הכסף נגמר בשנת", value: String(row.depleted_year) } : null
+          ].filter(Boolean)
+        };
+      }
+    });
+  }
+
+  function renderSp500RiskChart(payload, chartConfig) {
+    const rows = payload.data || [];
+    const params = payload.params || {};
+    const yKey = chartConfig.y;
+    const points = rows.map((row) => ({ x: toYearValue(row[chartConfig.x]), y: numericValue(row[yKey]), data: row }));
+    if (!points.some((point) => Number.isFinite(point.y))) {
+      chartMessage(ui.noNumericSeries);
+      return;
+    }
+    const median = numericValue(rows[0] && rows[0].Median);
+    const above0 = numericValue(rows[0] && rows[0].Above0);
+    const aboveThreshold = numericValue(rows[0] && rows[0].AboveThreshold);
+    const threshold = Number.isFinite(Number(params.threshold)) ? Number(params.threshold) : 0.04;
+    const years = params.years || "";
+    drawChart(chartTarget(), {
+      kind: "line",
+      key: "sp500_risk",
+      title: `תשואה ריאלית שנתית ממוצעת של S&P 500 בכל תקופה של ${years} שנים`,
+      subtitle: "כל נקודה היא השקעה שהסתיימה בתאריך שעל הציר. כולל דיבידנדים, אחרי אינפלציה בארה״ב.",
+      notes: [
+        `ב-${formatPercent(1 - above0, 0)} מהתקופות ההשקעה הפסידה כסף אחרי אינפלציה.`,
+        `ב-${formatPercent(aboveThreshold, 0)} מהתקופות התשואה השנתית הממוצעת עלתה על ${formatPercent(threshold, 1)}.`,
+        `התשואה החציונית: ${formatPercent(median, 1)} בשנה.`
+      ],
+      caption: "נתוני S&P 500 עם השקעה מחדש של כ-85% מהדיבידנדים. תקופות סמוכות חופפות ברובן, ולכן האחוזים מתארים את העבר ואינם הסתברות.",
+      footerHtml: chartReadingHtml(payload, chartConfig),
+      x: xAxisFor(rows, chartConfig.x),
+      y: { format: (value) => formatPercent(value, 1), tick: (value) => formatPercent(value, 0) },
+      series: [{ id: "return", label: "תשואה שנתית ממוצעת", color: PALETTE[0], width: 1.8, points }],
+      refLines: [
+        { y: 0, className: "strong" },
+        median === null ? null : { y: median, label: `חציון ${formatPercent(median, 1)}` }
+      ].filter(Boolean)
+    });
+  }
+
+  function renderKupatChart(payload, chartConfig) {
+    const rows = (payload.data || []).map((row) => ({ ...row }));
+    const params = payload.params || {};
+    const initial = Number(params.initial) || 1;
+    const startYear = Number(params.start_year) || 0;
+    const startAge = Number(params.age) || 0;
+    if (chartConfig.mode === "pension") {
+      let cumulativePension = 0;
+      rows.forEach((row) => {
+        cumulativePension += numericValue(row.Kitzba) || 0;
+        row.KitzbaTotal = cumulativePension;
+        const kh = numericValue(row.KH);
+        row.KHAfterPension = kh === null ? null : Math.max(kh - cumulativePension, 0);
+      });
+    }
+    const pointsFor = (key, filter = () => true) => rows
+      .filter(filter)
+      .map((row) => ({ x: numericValue(row.age), y: numericValue(row[key]), data: row }))
+      .filter((point) => point.x !== null);
+    const series = [];
+    kupatSeries(chartConfig).forEach((def) => {
+      if (def.yKey === "KHAfterPension") {
+        series.push({ id: "KH", label: "קופת גמל להשקעה", color: def.color, width: def.width, points: pointsFor("KH", (row) => numericValue(row.age) <= 60) });
+        series.push({ id: "KHAfterPension", label: def.label, color: def.color, width: 2.2, dash: "6 4", points: pointsFor("KHAfterPension", (row) => numericValue(row.age) >= 60) });
+        return;
+      }
+      series.push({ id: def.yKey, label: def.label, color: def.color, width: def.width, dash: def.dash, points: pointsFor(def.yKey) });
+    });
+    const visibleSeries = series.filter((item) => item.points.some((point) => Number.isFinite(point.y)));
+    if (!visibleSeries.length) {
+      chartMessage(ui.noNumericSeries);
+      return;
+    }
+    visibleSeries.forEach((item) => {
+      const last = [...item.points].reverse().find((point) => Number.isFinite(point.y));
+      const change = item.id === "KitzbaTotal" || !last ? "" : kupatReturnText(last.y, initial);
+      item.endLabel = change ? `${item.label} · ${change}` : item.label;
+      item.legendValue = change || (last ? formatShekelShort(last.y) : "");
+    });
+    const age60 = rowNearestAge(rows, 60);
+    const ageText = (age) => `גיל ${formatAge(age)} (${Math.floor(startYear + age - startAge)})`;
+    const notes = age60 && Math.abs(numericValue(age60.age) - 60) < 0.1
+      ? [`בגיל 60: ${visibleSeries
+          .filter((item) => ["KH", "II", "PH"].includes(item.id))
+          .map((item) => `${item.label} ${kupatReturnText(numericValue(age60[item.id]), initial)}`)
+          .join(" · ")}`]
+      : [];
+    drawChart(chartTarget(), {
+      kind: "line",
+      key: payload.endpoint,
+      title: chartConfig.title,
+      subtitle: chartConfig.caption,
+      notes,
+      captionHtml: captionHtml({}, payload),
+      footerHtml: chartReadingHtml(payload, chartConfig),
+      x: {
+        format: ageText,
+        tick: (value) => String(Math.round(value)),
+        secondary: (value) => String(Math.round(startYear + value - startAge)),
+        label: "גיל (ומעל הגרף: שנה)",
+        snap: 0.05
+      },
+      y: { format: (value) => formatShekel(value, 0), tick: formatShekelShort, zero: true },
+      series,
+      vLines: [{ x: 60, label: "גיל 60" }],
+      refLines: [{ y: initial, label: "ההפקדה" }],
+      endLabels: true
+    });
+  }
+
+  function renderRollingBarsChart(payload, chartConfig) {
+    const rows = payload.data || [];
+    const xKey = chartConfig.x;
+    const panels = [
+      { key: "Diff5", label: "השקעה ל-5 שנים" },
+      { key: "Diff10", label: "השקעה ל-10 שנים" },
+      { key: "Diff15", label: "השקעה ל-15 שנים" }
+    ].map((item) => {
+      const points = rows
+        .map((row) => ({ x: Number(row[xKey]), y: numericValue(row[item.key]), data: row }))
+        .filter((point) => Number.isFinite(point.y));
+      const better = points.filter((point) => point.y > 0).length;
+      return {
+        id: item.key,
+        label: item.label,
+        note: points.length ? `S&P 500 הוביל ב-${better} מתוך ${points.length} (${formatPercent(better / points.length, 0)})` : "",
+        points
+      };
+    }).filter((panel) => panel.points.length);
+    if (!panels.length) {
+      chartMessage(ui.noBars);
+      return;
+    }
+    drawChart(chartTarget(), {
+      kind: "bars",
+      key: payload.endpoint,
+      title: chartConfig.title,
+      subtitle: "פער התשואה השנתית הממוצעת בתקופה שהסתיימה בכל שנה. עמודה מעל 0: S&P 500 הוביל.",
+      captionHtml: captionHtml(chartConfig, payload),
+      footerHtml: chartReadingHtml(payload, chartConfig),
+      x: { format: (value) => String(value) },
+      y: { format: (value) => formatPercent(value, 1), tick: (value) => formatPercent(value, 0) },
+      colors: { positive: PALETTE[2], negative: PALETTE[1] },
+      panels,
+      tooltip: (panel, point) => ({
+        header: `${panel.label}, עד ${point.x}`,
+        rows: [{ label: point.y >= 0 ? "S&P 500 הוביל ב-" : "החלופה הובילה ב-", value: formatPercent(Math.abs(point.y), 1) }]
+      })
+    });
+  }
+
+  function renderPortfolioCagrBarsChart(payload, chartConfig) {
+    const rollingWindow = chartConfig.rollingWindow || 10;
+    const cumulative = chartConfig.returnMode === "cumulative";
+    const valueOf = (row) => {
+      const rolling = numericValue(row[chartConfig.y]);
+      if (rolling === null) return null;
+      return cumulative ? (1 + rolling) ** rollingWindow - 1 : rolling;
+    };
+    const rows = (payload.data || []).filter((row) => valueOf(row) !== null);
     if (!rows.length) {
       chartMessage(ui.noBars);
       return;
     }
-    const width = 940;
-    const height = 300;
-    const pad = { top: 18, right: 20, bottom: 82, left: 62 };
-    const values = rows.map((row) => numericValue(row[chartConfig.y]));
-    const min = Math.min(0, ...values);
-    const max = Math.max(...values);
-    const span = max - min || 1;
-    const yScale = (value) => pad.top + (1 - (value - min) / span) * (height - pad.top - pad.bottom);
-    const barWidth = (width - pad.left - pad.right) / rows.length;
-    const zero = yScale(0);
-    const bars = rows.map((row, index) => {
-      const value = numericValue(row[chartConfig.y]);
-      const x = pad.left + index * barWidth + 2;
-      const y = Math.min(yScale(value), zero);
-      const h = Math.abs(zero - yScale(value));
-      const color = palette[index % palette.length];
-      const tooltip = `${row[chartConfig.x]}\n${displayLabel(chartConfig.y)}: ${formatCellRaw(value)}`;
-      return `
-        <rect class="hit-bar" x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${Math.max(barWidth - 4, 2).toFixed(2)}" height="${Math.max(h, 1).toFixed(2)}" fill="${color}" data-tooltip="${escapeHtml(tooltip)}"></rect>
-        <text transform="translate(${(x + barWidth / 2).toFixed(2)} ${height - 10}) rotate(-45)" text-anchor="end" fill="#68736f" font-size="10">${escapeHtml(String(row[chartConfig.x]))}</text>
-      `;
-    }).join("");
-
-    chartTarget().innerHTML = `
-      <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeHtml(displayEndpoint(payload.endpoint))}">
-        <line x1="${pad.left}" y1="${zero}" x2="${width - pad.right}" y2="${zero}" stroke="#98a39e"></line>
-        <line x1="${pad.left}" y1="${pad.top}" x2="${pad.left}" y2="${height - pad.bottom}" stroke="#98a39e"></line>
-        <text x="8" y="${yScale(max) + 4}" fill="#98a39e" font-size="11">${formatAxis(max)}</text>
-        <text x="8" y="${yScale(min) + 4}" fill="#98a39e" font-size="11">${formatAxis(min)}</text>
-        ${bars}
-      </svg>
-      ${chartReadingHtml(payload, chartConfig)}
-      <div class="chart-help">${escapeHtml(ui.barHelp)}</div>
-      <div class="chart-tooltip" role="status"></div>
-    `;
+    const grouped = groupRows(rows, "Portfolio");
+    const order = chartConfig.portfolioOrder || [];
+    const portfolios = order.length
+      ? order.filter((portfolio) => grouped[portfolio])
+      : Object.keys(grouped).sort((a, b) => a.localeCompare(b));
+    const series = portfolios.map((portfolio, index) => ({
+      id: portfolio,
+      label: portfolio,
+      color: PALETTE[[2, 1, 0, 3, 4, 5, 6, 7][index % 8]],
+      width: 2.2,
+      area: portfolios.length <= 2,
+      points: grouped[portfolio]
+        .map((row) => ({ x: Number(row.Year), y: valueOf(row), data: row }))
+        .sort((a, b) => a.x - b.x)
+    }));
+    const notes = [];
+    if (chartConfig.leadAnnotation) {
+      const { portfolio: leader, benchmark } = chartConfig.leadAnnotation;
+      const leaderByYear = new Map((grouped[leader] || []).map((row) => [Number(row.Year), valueOf(row)]));
+      let wins = 0;
+      let comparisons = 0;
+      (grouped[benchmark] || []).forEach((row) => {
+        const leaderValue = leaderByYear.get(Number(row.Year));
+        const benchmarkValue = valueOf(row);
+        if (leaderValue === undefined || leaderValue === null || benchmarkValue === null) return;
+        comparisons += 1;
+        if (leaderValue > benchmarkValue) wins += 1;
+      });
+      if (comparisons) notes.push(`${leader} הוביל ב-${wins} מתוך ${comparisons} תקופות (${formatPercent(wins / comparisons, 0)})`);
+    }
+    const titleLines = chartConfig.titleLines
+      ? chartConfig.titleLines.map((line) => line.replace("{years}", rollingWindow))
+      : [
+          cumulative ? "התשואה המצטברת" : "התשואה השנתית הממוצעת (CAGR)",
+          `בהשקעה של ${rollingWindow} שנים שמסתיימת בשנה המוצגת`
+        ];
+    drawChart(chartTarget(), {
+      kind: "line",
+      key: `${payload.endpoint}:${chartConfig.y}`,
+      title: titleLines[0],
+      subtitle: titleLines.slice(1).join(" · "),
+      notes,
+      captionHtml: captionHtml(chartConfig, payload),
+      footerHtml: chartReadingHtml(payload, chartConfig),
+      x: { format: (value) => `${Math.round(value)}`, tick: (value) => String(Math.round(value)) },
+      y: { format: (value) => formatPercent(value, 1), tick: (value) => formatPercent(value, 0), zero: true },
+      series,
+      refLines: [{ y: 0, className: "strong", inDomain: false }],
+      tooltip: (x, hits) => ({
+        header: `${rollingWindow} שנים עד ${Math.round(x)}`,
+        rows: [...hits].sort((a, b) => b.point.y - a.point.y).map((hit) => ({
+          color: hit.series.color,
+          label: hit.series.label,
+          value: formatPercent(hit.point.y, 1)
+        }))
+      })
+    });
   }
 
   function renderHeatmap(payload, chartConfig) {
-    const rows = (payload.data || []).slice(0, HEATMAP_LIMIT);
+    const rows = payload.data || [];
     if (!rows.length) {
       chartMessage(ui.noHeatmap);
       return;
     }
-    const xValues = [...new Set(rows.map((row) => row[chartConfig.x]))].sort((a, b) => Number(a) - Number(b));
-    const yValues = [...new Set(rows.map((row) => row[chartConfig.y]))].sort((a, b) => Number(a) - Number(b));
-    const lookup = new Map(rows.map((row) => [`${row[chartConfig.x]}|${row[chartConfig.y]}`, row]));
-    const values = rows.map((row) => numericValue(row[chartConfig.value])).filter((value) => value !== null);
-    const maxAbs = chartConfig.colorLimit || Math.max(...values.map((value) => Math.abs(value)), 0.001);
-    const width = 1280;
-    const height = 660;
-    const pad = { top: 28, right: 132, bottom: 72, left: 92 };
-    const plotWidth = width - pad.left - pad.right;
-    const plotHeight = height - pad.top - pad.bottom;
-    const cellWidth = plotWidth / xValues.length;
-    const cellHeight = plotHeight / yValues.length;
-    const title = chartConfig.title ? `<h3 class="heatmap-title">${escapeHtml(chartConfig.title)}</h3>` : "";
-    const subtitle = chartConfig.subtitle ? `<p class="heatmap-subtitle">${escapeHtml(chartConfig.subtitle)}</p>` : "";
-    const colorSign = chartConfig.colorSign || 1;
-    const xTicks = xValues.filter((year, index) => index % Math.max(Math.ceil(xValues.length / 7), 1) === 0 || index === xValues.length - 1);
-    const yTicks = yValues.filter((year) => Number(year) % 5 === 0 || Number(year) === 1 || Number(year) === Number(yValues[yValues.length - 1]));
-    const cells = [];
-    yValues.forEach((y, yIndex) => {
-      xValues.forEach((x, xIndex) => {
-        const row = lookup.get(`${x}|${y}`);
-        if (!row) return;
-        const value = numericValue(row[chartConfig.value]);
-        const colorValue = value === null ? null : value * colorSign;
-        const rectX = pad.left + xIndex * cellWidth;
-        const rectY = pad.top + (yValues.length - yIndex - 1) * cellHeight;
-        cells.push(`
-          <rect class="heatmap-tile"
-            x="${rectX.toFixed(2)}"
-            y="${rectY.toFixed(2)}"
-            width="${Math.max(cellWidth + 0.4, 1).toFixed(2)}"
-            height="${Math.max(cellHeight + 0.4, 1).toFixed(2)}"
-            fill="${heatColor(colorValue, maxAbs)}"
-            data-tooltip="${escapeHtml(heatmapTooltip(row, chartConfig))}">
-          </rect>
-        `);
-      });
+    const sign = chartConfig.colorSign || 1;
+    const cells = rows
+      .map((row) => ({ x: Number(row[chartConfig.x]), y: Number(row[chartConfig.y]), value: numericValue(row[chartConfig.value]), data: row }))
+      .filter((cell) => cell.value !== null)
+      .map((cell) => ({ ...cell, value: cell.value * sign }));
+    const limit = chartConfig.colorLimit || Math.max(...cells.map((cell) => Math.abs(cell.value)), 0.001);
+    drawChart(chartTarget(), {
+      kind: "heatmap",
+      key: payload.endpoint,
+      title: chartConfig.title,
+      subtitle: chartConfig.subtitle,
+      captionHtml: captionHtml(chartConfig, payload),
+      footerHtml: chartReadingHtml(payload, chartConfig),
+      cells,
+      x: { label: chartConfig.xAxisLabel, format: (value) => String(value) },
+      y: { label: chartConfig.yAxisLabel, format: (value) => String(value) },
+      color: (value) => heatColor(value, limit),
+      legend: {
+        min: -limit,
+        max: limit,
+        minLabel: `${chartConfig.negativeLabel} +${formatPercent(limit, 0)}`,
+        maxLabel: `${chartConfig.positiveLabel} +${formatPercent(limit, 0)}`
+      },
+      tooltip: (cell) => heatmapTooltipContent(cell.data, chartConfig)
     });
-    const verticalGrid = xTicks.map((year) => {
-      const index = xValues.indexOf(year);
-      const x = pad.left + (index + 0.5) * cellWidth;
-      return `<line x1="${x.toFixed(2)}" y1="${pad.top}" x2="${x.toFixed(2)}" y2="${pad.top + plotHeight}" class="heatmap-grid-line"></line>
-        <text x="${x.toFixed(2)}" y="${height - pad.bottom + 30}" text-anchor="middle" class="heatmap-axis-text">${escapeHtml(String(year))}</text>`;
-    }).join("");
-    const horizontalGrid = yTicks.map((year) => {
-      const index = yValues.indexOf(year);
-      const y = pad.top + (yValues.length - index - 0.5) * cellHeight;
-      return `<line x1="${pad.left}" y1="${y.toFixed(2)}" x2="${pad.left + plotWidth}" y2="${y.toFixed(2)}" class="heatmap-grid-line"></line>
-        <text x="${pad.left - 14}" y="${y.toFixed(2)}" text-anchor="end" dominant-baseline="middle" class="heatmap-axis-text">${escapeHtml(String(year))}</text>`;
-    }).join("");
-    const legendStops = [
-      { offset: "0%", color: heatColor(maxAbs, maxAbs) },
-      { offset: "50%", color: heatColor(0, maxAbs) },
-      { offset: "100%", color: heatColor(-maxAbs, maxAbs) }
-    ].map((stop) => `<stop offset="${stop.offset}" stop-color="${stop.color}"></stop>`).join("");
-    const legendX = width - pad.right + 54;
-    const legendY = pad.top + 210;
-    const legendTitle = String(chartConfig.legendTitle || displayLabel(chartConfig.value)).split("\n").map((line, index) => (
-      `<tspan x="${legendX + 42}" dy="${index === 0 ? 0 : 16}">${escapeHtml(line)}</tspan>`
-    )).join("");
-    const caption = chartCaption(chartConfig, payload);
-
-    chartTarget().innerHTML = `
-      <div class="heatmap-chart">
-        ${title}
-        ${subtitle}
-        <svg class="heatmap-svg" width="1500" height="774" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeHtml(displayEndpoint(payload.endpoint))}">
-          <defs>
-            <linearGradient id="heatmap-gradient-${escapeHtml(payload.endpoint)}" x1="0" x2="0" y1="0" y2="1">${legendStops}</linearGradient>
-          </defs>
-          <rect x="${pad.left}" y="${pad.top}" width="${plotWidth}" height="${plotHeight}" fill="#f7f8f6" stroke="#9aa39f"></rect>
-          ${verticalGrid}
-          ${horizontalGrid}
-          ${cells.join("")}
-          <rect x="${pad.left}" y="${pad.top}" width="${plotWidth}" height="${plotHeight}" fill="none" stroke="#8f9894" stroke-width="1.2"></rect>
-          <text x="${pad.left + plotWidth / 2}" y="${height - 22}" text-anchor="middle" class="heatmap-axis-title">${escapeHtml(chartConfig.xAxisLabel || displayLabel(chartConfig.x))}</text>
-          <text x="28" y="${pad.top + plotHeight / 2}" text-anchor="middle" transform="rotate(-90 28 ${pad.top + plotHeight / 2})" class="heatmap-axis-title">${escapeHtml(chartConfig.yAxisLabel || displayLabel(chartConfig.y))}</text>
-          <text x="${legendX + 42}" y="${legendY - 34}" text-anchor="middle" class="heatmap-legend-title">${legendTitle}</text>
-          <rect x="${legendX}" y="${legendY}" width="24" height="196" fill="url(#heatmap-gradient-${escapeHtml(payload.endpoint)})" stroke="#56615d"></rect>
-          <text x="${legendX + 34}" y="${legendY + 5}" class="heatmap-axis-text">${escapeHtml(chartConfig.positiveLabel || "+")} ${formatPercent(maxAbs, 0)}</text>
-          <text x="${legendX + 34}" y="${legendY + 101}" class="heatmap-axis-text">0%</text>
-          <text x="${legendX + 34}" y="${legendY + 196}" class="heatmap-axis-text">${escapeHtml(chartConfig.negativeLabel || "-")} ${formatPercent(maxAbs, 0)}</text>
-        </svg>
-        ${caption}
-        ${chartReadingHtml(payload, chartConfig)}
-      </div>
-      <div class="chart-tooltip" role="status"></div>
-    `;
   }
 
   function heatColor(value, maxAbs) {
-    if (value === null) return "#f0f2ee";
+    if (value === null || !Number.isFinite(value)) return "#f0f2ee";
     const strength = Math.min(Math.abs(value) / maxAbs, 1);
-    const alpha = 0.16 + strength * 0.8;
-    if (value > 0) return `rgba(45, 54, 160, ${alpha})`;
-    if (value < 0) return `rgba(143, 36, 34, ${alpha})`;
+    const alpha = 0.12 + strength * 0.83;
+    if (value > 0) return `rgba(45, 54, 160, ${alpha.toFixed(3)})`;
+    if (value < 0) return `rgba(168, 52, 30, ${alpha.toFixed(3)})`;
     return "#f7f4f2";
   }
 
-  function heatmapTooltip(row, chartConfig) {
-    const left = chartConfig.leftSeries || row.Portfolio || "Portfolio 1";
-    const right = chartConfig.rightSeries || row.Portfolio2 || "Portfolio 2";
-    const years = Number(row.InvYears);
-    const start = Number(row.StartYear);
-    const end = Number(row.EndYear);
+  function heatmapTooltipContent(row, chartConfig) {
+    const left = chartConfig.leftSeries || row.Portfolio;
+    const right = chartConfig.rightSeries || row.Portfolio2;
     const leftCagr = numericValue(row.cagr1);
     const rightCagr = numericValue(row.cagr2);
-    const delta = leftCagr !== null && rightCagr !== null
-      ? (chartConfig.deltaDirection === "rightMinusLeft" ? rightCagr - leftCagr : leftCagr - rightCagr)
-      : null;
-    return [
-      chartConfig.comparisonTitle || `${left} vs ${right}`,
-      "",
-      `Investment of ${formatNumber(years)} Years`,
-      `from ${formatNumber(start)} to ${formatNumber(end)}`,
-      "",
-      "Return:",
-      `${left}: ${formatPercent(numericValue(row.val1), 1)}`,
-      `${right}: ${formatPercent(numericValue(row.val2), 1)}`,
-      "",
-      "CAGR:",
-      `${left}: ${formatPercent(leftCagr, 1)}`,
-      `${right}: ${formatPercent(rightCagr, 1)}`,
-      `Delta in CAGR: ${formatPercent(delta, 1)}`,
-      "",
-      "Return adjusted for",
-      "Israeli inflation and changes in USD/NIS",
-      "",
-      "Return before tax"
-    ].join("\n");
+    const delta = leftCagr !== null && rightCagr !== null ? rightCagr - leftCagr : null;
+    const leader = delta === null ? "" : delta > 0 ? right : left;
+    return {
+      header: `${Number(row.StartYear)}–${Number(row.EndYear)} (${Number(row.InvYears)} שנים)`,
+      rows: [
+        { label: left, value: `${formatPercent(leftCagr, 1)} בשנה` },
+        { label: right, value: `${formatPercent(rightCagr, 1)} בשנה` },
+        delta === null ? null : { label: `${leader} הוביל ב-`, value: formatPercent(Math.abs(delta), 1) }
+      ].filter(Boolean)
+    };
   }
 
-  function hexToRgba(hex, alpha) {
-    const normalized = hex.replace("#", "");
-    const value = parseInt(normalized.length === 3 ? normalized.split("").map((char) => char + char).join("") : normalized, 16);
-    const r = (value >> 16) & 255;
-    const g = (value >> 8) & 255;
-    const b = value & 255;
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  function renderLazySummaryScatter(payload, state, mode, target) {
+    const rows = (payload.data || [])
+      .map((row) => ({ ...row, FactorN: (1 + numericValue(row.CAGR)) ** state.factor_years }))
+      .filter((row) => numericValue(mode === "factor" ? row.FactorN : row.CAGR) !== null);
+    if (!rows.length) {
+      drawMessage(target, ui.noChartRows);
+      return;
+    }
+    const highlight = new Set(state.highlight);
+    const xKey = mode === "factor" ? "MaxShefelYears" : "SD";
+    const yKey = mode === "factor" ? "FactorN" : "CAGR";
+    const nValues = rows.map((row) => numericValue(row.N)).filter((value) => value !== null);
+    const nMin = Math.min(...nValues);
+    const nMax = Math.max(...nValues);
+    const radius = (n) => 4 + ((n - nMin) / (nMax - nMin || 1)) * 7;
+    const formatY = (value) => (mode === "factor" ? `×${formatNumber(value, 1)}` : formatPercent(value, 0));
+    const formatX = (value) => (mode === "factor" ? formatNumber(value, 0) : formatPercent(value, 0));
+    drawChart(target, {
+      kind: "scatter",
+      key: `lazy-${mode}`,
+      title: mode === "factor" ? `פי כמה גדל הכסף ב-${state.factor_years} שנים, מול השפל הארוך ביותר` : "תשואה מול תנודתיות",
+      subtitle: mode === "factor" ? "למעלה: גדל יותר. ימינה: שנים רבות יותר מתחת לשיא הקודם." : lazyCpiSubtitle(state.value_mode),
+      caption: lazyCaption(state.value_mode),
+      footerHtml: lazyReadingHtml(mode === "factor" ? "factor" : "risk-return", state),
+      x: { label: mode === "factor" ? "השפל הארוך ביותר, בשנים" : "סטיית תקן של התשואה השנתית", format: formatX },
+      y: { label: mode === "factor" ? `פי כמה גדל שקל ב-${state.factor_years} שנים` : lazyCpiYLabel(state.value_mode), format: formatY },
+      points: rows.map((row) => ({
+        x: numericValue(row[xKey]),
+        y: numericValue(row[yKey]),
+        r: radius(numericValue(row.N)),
+        label: row.Portfolio,
+        highlight: highlight.has(row.Portfolio),
+        data: row
+      })),
+      tooltip: (point) => {
+        const row = point.data;
+        return {
+          header: row.Portfolio,
+          rows: [
+            { label: "שנות נתונים", value: `${row.N} (מ-${row.FirstYear})` },
+            { label: "תשואה שנתית ממוצעת", value: formatPercent(numericValue(row.CAGR), 1) },
+            { label: "סטיית תקן", value: formatPercent(numericValue(row.SD), 0) },
+            { label: `שקל אחד אחרי ${state.factor_years} שנים`, value: `×${formatNumber(row.FactorN, 1)}` },
+            { label: "השפל הארוך ביותר", value: `${row.MaxShefelYears} שנים` },
+            { label: "הירידה הגדולה ביותר", value: formatPercent(numericValue(row.MaxDrop), 1) }
+          ]
+        };
+      }
+    });
+  }
+
+  function renderLazyTimeChart(payload, state, target) {
+    if (state.time_type === "BoxPlot") {
+      renderLazyBoxPlot(payload, state, target);
+      return;
+    }
+    if (state.time_type === "Hghlght") {
+      renderLazyHighlightChart(payload, state, target);
+      return;
+    }
+    const accumulate = state.time_type === "Accumulate";
+    const yKey = accumulate ? "v" : state.time_type === "CAGR (acc)" ? "CAGR" : "RollingCAGR";
+    const rows = (payload.data || []).filter((row) => numericValue(row[yKey]) !== null);
+    if (!rows.length) {
+      drawMessage(target, ui.noChartRows);
+      return;
+    }
+    const grouped = groupRows(rows, "Portfolio");
+    const portfolios = state.portfolios.filter((portfolio) => grouped[portfolio]);
+    const format = accumulate ? (value) => `×${formatNumber(value, 1)}` : (value) => formatPercent(value, 1);
+    const tick = accumulate ? (value) => `×${formatNumber(value, 0)}` : (value) => formatPercent(value, 0);
+    const series = portfolios.map((portfolio, index) => {
+      const points = grouped[portfolio].map((row) => ({ x: Number(row.Year), y: numericValue(row[yKey]), data: row }));
+      const last = points[points.length - 1];
+      return {
+        id: portfolio,
+        label: portfolio,
+        color: PALETTE[index % PALETTE.length],
+        width: 2,
+        points,
+        endLabel: `${portfolio} ${format(last.y)}`,
+        legendValue: format(last.y)
+      };
+    });
+    const title = accumulate
+      ? "פי כמה גדל הכסף לאורך הזמן"
+      : state.time_type === "CAGR (acc)"
+        ? "תשואה שנתית ממוצעת מתחילת התקופה"
+        : `תשואה שנתית ממוצעת ב-${state.rolling_window} השנים האחרונות`;
+    drawChart(target, {
+      kind: "line",
+      key: `lazy-time-${state.time_type}`,
+      title,
+      caption: lazyCaption(state.value_mode),
+      footerHtml: lazyReadingHtml("time", state),
+      x: { format: (value) => String(Math.round(value)), tick: (value) => String(Math.round(value)) },
+      y: { format, tick, zero: !accumulate },
+      series,
+      refLines: [{ y: accumulate ? 1 : 0, className: "strong", inDomain: false }],
+      endLabels: true
+    });
+  }
+
+  function renderLazyBoxPlot(payload, state, target) {
+    const rows = (payload.data || []).filter((row) => numericValue(row.RollingCAGR) !== null);
+    const grouped = groupRows(rows, "Portfolio");
+    const portfolios = state.portfolios.filter((portfolio) => grouped[portfolio]);
+    if (!portfolios.length) {
+      drawMessage(target, ui.noBars);
+      return;
+    }
+    const highlight = new Set(state.highlight);
+    const stats = portfolios.map((portfolio) => {
+      const values = grouped[portfolio].map((row) => numericValue(row.RollingCAGR)).sort((a, b) => a - b);
+      return {
+        label: portfolio,
+        min: values[0],
+        q1: quantile(values, 0.25),
+        median: quantile(values, 0.5),
+        q3: quantile(values, 0.75),
+        max: values[values.length - 1],
+        highlight: highlight.has(portfolio)
+      };
+    });
+    drawChart(target, {
+      kind: "box",
+      key: "lazy-box",
+      title: `התפלגות התשואה השנתית הממוצעת בתקופות של ${state.rolling_window} שנים`,
+      caption: lazyCaption(state.value_mode),
+      footerHtml: lazyReadingHtml("box", state),
+      x: { format: (value) => formatPercent(value, 0), label: "תשואה שנתית ממוצעת" },
+      rows: stats,
+      tooltip: (row) => ({
+        header: row.label,
+        rows: [
+          { label: "חציון", value: formatPercent(row.median, 1) },
+          { label: "רבע תחתון–עליון", value: `${formatPercent(row.q1, 1)} – ${formatPercent(row.q3, 1)}` },
+          { label: "הגרוע–הטוב", value: `${formatPercent(row.min, 1)} – ${formatPercent(row.max, 1)}` }
+        ]
+      })
+    });
+  }
+
+  function renderLazyHighlightChart(payload, state, target) {
+    const leader = state.highlight[0] || state.portfolios[0] || "S&P 500";
+    const rows = (payload.data || []).filter((row) => numericValue(row.RollingCAGR) !== null);
+    const totals = {};
+    Object.values(groupRows(rows, "Year")).forEach((yearRows) => {
+      const leaderRow = yearRows.find((row) => row.Portfolio === leader);
+      const leaderValue = leaderRow && numericValue(leaderRow.RollingCAGR);
+      if (leaderValue === null || leaderValue === undefined) return;
+      yearRows.forEach((row) => {
+        if (row.Portfolio === leader) return;
+        const value = numericValue(row.RollingCAGR);
+        if (value === null) return;
+        if (!totals[row.Portfolio]) totals[row.Portfolio] = { years: 0, wins: 0 };
+        totals[row.Portfolio].years += 1;
+        if (value <= leaderValue) totals[row.Portfolio].wins += 1;
+      });
+    });
+    const data = Object.entries(totals)
+      .map(([portfolio, stats]) => ({ label: portfolio, value: stats.wins / Math.max(stats.years, 1), ...stats }))
+      .sort((a, b) => a.value - b.value);
+    if (!data.length) {
+      drawMessage(target, ui.noBars);
+      return;
+    }
+    drawChart(target, {
+      kind: "hbars",
+      key: "lazy-highlight",
+      title: `באיזה חלק מהתקופות ${leader} הוביל`,
+      subtitle: `השקעה ל-${state.rolling_window} שנים, מול כל תיק אחר`,
+      caption: lazyCaption(state.value_mode),
+      footerHtml: lazyReadingHtml("highlight", state),
+      x: { format: (value) => formatPercent(value, 0), domain: [0, 1] },
+      rows: data,
+      tooltip: (row) => ({
+        header: row.label,
+        rows: [{ label: `${leader} הוביל ב-`, value: `${row.wins} מתוך ${row.years} (${formatPercent(row.value, 0)})` }]
+      })
+    });
+  }
+
+  function chartMessage(message) {
+    drawMessage(chartTarget(), message);
   }
 
   function renderTable(payload) {
@@ -4614,18 +3779,6 @@
     const wanted = new Set(activeView.tableColumns || []);
     const configured = payload.columns.filter((column) => wanted.has(column));
     return configured.length ? configured : payload.columns;
-  }
-
-  function chartMessage(message) {
-    chartTarget().innerHTML = `<div class="chart-empty">${escapeHtml(message)}</div>`;
-  }
-
-  function xPositionValue(value, index) {
-    if (typeof value === "number") return value;
-    const date = Date.parse(value);
-    if (Number.isFinite(date)) return date;
-    const numeric = Number(value);
-    return Number.isFinite(numeric) ? numeric : index;
   }
 
   function monthIndex(value) {
@@ -4707,16 +3860,6 @@
 
   function lastRow(rows) {
     return rows && rows.length ? rows[rows.length - 1] : null;
-  }
-
-  function legendItem(endpoint, label, index) {
-    const key = seriesKey(endpoint, label);
-    const pressed = hiddenSeries.has(key) ? "false" : "true";
-    return `<button class="legend-toggle" type="button" data-series="${escapeHtml(key)}" aria-pressed="${pressed}"><i class="swatch" style="background:${palette[index % palette.length]}"></i>${escapeHtml(displayLabel(label))}</button>`;
-  }
-
-  function seriesKey(endpoint, label) {
-    return `${endpoint}:${label}`;
   }
 
   function formatCell(value) {
@@ -4935,7 +4078,7 @@
           list: [
             "כל נקודה מייצגת תקופת פרישה היסטורית אחרת: מתחילים בשנה מסוימת, מושכים לאורך מספר השנים שנבחר, ומסיימים בשנה שעל הציר האופקי.",
             "הקו השחור מציג כמה כסף נשאר בסוף התקופה. הקו האפור מציג את השפל בדרך.",
-            "ערך מתחת לאפס אינו תיק השקעות שלילי, אלא סכום שהיה חסר כדי להמשיך לממן את המשיכות לאחר שהכסף נגמר."
+            "תקופה שבה הכסף נגמר מוצגת כאפס, ובמעבר על הנקודה מופיעה השנה שבה זה קרה."
           ]
         };
       default:
@@ -5015,91 +4158,9 @@
     return null;
   }
 
-  function chartCaption(chartConfig, payload, layout = "standard") {
-    if (!chartConfig.caption && !chartConfig.captionLines) return "";
-    const parts = chartConfig.captionLines
-      ? chartConfig.captionLines.map((line) => {
-        if (typeof line === "string") return `<span>${escapeHtml(line)}</span>`;
-        const link = line.href && line.linkText
-          ? `<a href="${escapeHtml(line.href)}" target="_blank" rel="noopener noreferrer">${escapeHtml(line.linkText)}</a>`
-          : "";
-        return `<span>${escapeHtml(line.text || line.textBefore || "")}${line.text ? "" : link}${escapeHtml(line.text ? "" : line.textAfter || "")}</span>`;
-      })
-      : [`<span dir="rtl">${escapeHtml(chartConfig.caption)}</span>`];
-    if (payload.params && Object.prototype.hasOwnProperty.call(payload.params, "adjust_cpi")) {
-      const cpi = payload.params.adjust_cpi ? "כולל תקנון למדד המחירים לצרכן" : "ללא תקנון למדד";
-      parts.push(`<span dir="rtl">${escapeHtml(cpi)}</span>`);
-    }
-    return `<p class="chart-caption chart-caption-${escapeHtml(layout)}">${parts.join("")}</p>`;
-  }
-
-  function niceTicks(minValue, maxValue, targetCount = 8) {
-    if (!Number.isFinite(minValue) || !Number.isFinite(maxValue)) return [0, 1];
-    if (minValue === maxValue) return [minValue - 1, minValue, minValue + 1];
-    const span = maxValue - minValue;
-    const rawStep = span / Math.max(targetCount, 1);
-    const power = 10 ** Math.floor(Math.log10(rawStep));
-    const fraction = rawStep / power;
-    const niceFraction = fraction <= 1 ? 1 : fraction <= 2 ? 2 : fraction <= 5 ? 5 : 10;
-    const step = niceFraction * power;
-    const niceMin = Math.floor(minValue / step) * step;
-    const niceMax = Math.ceil(maxValue / step) * step;
-    const ticks = [];
-    for (let value = niceMin; value <= niceMax + step * 0.5; value += step) {
-      ticks.push(Math.abs(value) < step / 1000 ? 0 : value);
-    }
-    return ticks;
-  }
-
-  function dateTicks(rows, xKey, count) {
-    if (!rows.length) return [];
-    if (rows.every((row) => numericValue(row[xKey]) !== null)) {
-      const values = rows.map((row) => numericValue(row[xKey]));
-      const min = Math.min(...values);
-      const max = Math.max(...values);
-      const span = max - min || 1;
-      return Array.from({ length: count }, (_, index) => {
-        const value = min + (span * index) / Math.max(count - 1, 1);
-        return { value, label: formatNumber(value) };
-      });
-    }
-    const dates = rows
-      .map((row) => ({ raw: row[xKey], time: Date.parse(row[xKey]) }))
-      .filter((item) => Number.isFinite(item.time));
-    if (!dates.length) {
-      const step = Math.max(Math.floor(rows.length / Math.max(count - 1, 1)), 1);
-      return rows.filter((_, index) => index % step === 0).slice(0, count).map((row) => ({ value: row[xKey], label: String(row[xKey]) }));
-    }
-    const first = new Date(dates[0].time).getUTCFullYear();
-    const last = new Date(dates[dates.length - 1].time).getUTCFullYear();
-    if (last <= first) return [{ value: dates[0].raw, label: String(first) }];
-    const yearStep = Math.max(Math.ceil((last - first) / Math.max(count - 1, 1)), 1);
-    const years = [];
-    for (let year = Math.ceil(first / yearStep) * yearStep; year <= last; year += yearStep) {
-      years.push(year);
-    }
-    if (!years.includes(first)) years.unshift(first);
-    if (!years.includes(last)) years.push(last);
-    return years.map((year) => ({ value: `${year}-01-01`, label: String(year) }));
-  }
-
-  function lastVisiblePoint(rows, xKey, yKey, xMin, xMax) {
-    for (let index = rows.length - 1; index >= 0; index -= 1) {
-      const row = rows[index];
-      const y = numericValue(row[yKey]);
-      const x = xPositionValue(row[xKey], index);
-      if (y !== null && x >= xMin && x <= xMax) return { row, x };
-    }
-    return null;
-  }
-
   function formatPercent(value, maximumFractionDigits = 2) {
     if (!Number.isFinite(value)) return "";
     return value.toLocaleString(undefined, { style: "percent", maximumFractionDigits });
-  }
-
-  function ltrText(value) {
-    return `\u2066${String(value)}\u2069`;
   }
 
   function formatTooltipNumber(value, maximumFractionDigits = 1) {
@@ -5112,8 +4173,12 @@
     return `\u200e${value.toLocaleString(undefined, { style: "percent", maximumFractionDigits })}\u200e`;
   }
 
-  function formatNumber(value) {
+  function formatNumber(value, digits) {
     if (!Number.isFinite(value)) return "";
+    if (digits !== undefined) {
+      const text = value.toLocaleString(locale, { maximumFractionDigits: digits });
+      return value < 0 ? `\u200e${text}\u200e` : text;
+    }
     const abs = Math.abs(value);
     let formatted;
     if (abs < 1 && abs !== 0) formatted = value.toLocaleString(undefined, { maximumFractionDigits: 6 });
@@ -5121,10 +4186,6 @@
     else if (abs >= 1000) formatted = value.toLocaleString(undefined, { maximumFractionDigits: 0 });
     else formatted = value.toLocaleString(undefined, { maximumFractionDigits: 4 });
     return value < 0 ? `\u200e${formatted}\u200e` : formatted;
-  }
-
-  function escapeHtml(value) {
-    return String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
   }
 
   function renderView({ restoreScroll = false } = {}) {
@@ -5136,6 +4197,7 @@
     els.afterStory.hidden = true;
     els.afterStory.innerHTML = "";
     els.chart.dataset.view = "";
+    releaseChart(els.chart);
     renderNav();
     els.title.textContent = activeView.title;
     els.kicker.textContent = activeView.kicker;
@@ -5250,107 +4312,6 @@
     if (lazyPicker && event.target.closest("summary")) {
       closePanelPickers(lazyPicker);
     }
-    const toggle = event.target.closest(".legend-toggle");
-    if (toggle) {
-      const key = toggle.dataset.series;
-      if (hiddenSeries.has(key)) hiddenSeries.delete(key);
-      else hiddenSeries.add(key);
-      const endpoint = key.split(":")[0];
-      const panel = multiPayloads.get(endpoint);
-      if (panel && panel.target) {
-        renderChartTo(panel.payload, panel.chart, panel.target);
-        return;
-      }
-      if (lastPayload && currentChartConfig) renderChart(lastPayload, currentChartConfig);
-      return;
-    }
-    const reset = event.target.closest(".reset-zoom");
-    if (reset) {
-      const panelChart = reset.closest('[data-multi-endpoint]');
-      const endpoint = panelChart && panelChart.dataset.multiEndpoint;
-      const panel = endpoint && multiPayloads.get(endpoint);
-      if (panel) {
-        delete chartZoom[endpoint];
-        renderChartTo(panel.payload, panel.chart, panel.target);
-        return;
-      }
-    }
-    if (reset && lastPayload) {
-      delete chartZoom[lastPayload.endpoint];
-      renderChart(lastPayload, currentChartConfig);
-    }
-  });
-  els.chart.addEventListener("mouseover", (event) => {
-    const target = event.target.closest("[data-tooltip]");
-    if (!target) return;
-    showTooltip(target.dataset.tooltip, event);
-  });
-  els.chart.addEventListener("mousemove", (event) => {
-    const chart = event.target.closest(".chart") || els.chart;
-    const tooltip = chart.querySelector(".chart-tooltip.visible");
-    if (tooltip) positionTooltip(tooltip, event);
-  });
-  els.chart.addEventListener("mouseout", (event) => {
-    if (event.target.closest("[data-tooltip]")) hideTooltip();
-  });
-  els.chart.addEventListener("mousedown", (event) => {
-    const area = event.target.closest(".plot-area");
-    if (!area) return;
-    const svg = area.closest("svg");
-    dragStart = { svg, x: svgPoint(svg, event).x, endpoint: svg.dataset.endpoint };
-    const box = svg.querySelector(".zoom-box");
-    box.hidden = false;
-    box.setAttribute("x", dragStart.x);
-    box.setAttribute("width", 0);
-  });
-  window.addEventListener("mousemove", (event) => {
-    if (!dragStart) return;
-    const point = svgPoint(dragStart.svg, event);
-    const left = Number(dragStart.svg.dataset.plotLeft);
-    const right = Number(dragStart.svg.dataset.plotRight);
-    const x1 = clamp(dragStart.x, left, right);
-    const x2 = clamp(point.x, left, right);
-    const box = dragStart.svg.querySelector(".zoom-box");
-    box.setAttribute("x", Math.min(x1, x2));
-    box.setAttribute("width", Math.abs(x2 - x1));
-  });
-  window.addEventListener("mouseup", (event) => {
-    if (!dragStart) return;
-    const svg = dragStart.svg;
-    const point = svgPoint(svg, event);
-    const left = Number(svg.dataset.plotLeft);
-    const right = Number(svg.dataset.plotRight);
-    const start = clamp(dragStart.x, left, right);
-    const end = clamp(point.x, left, right);
-    const box = svg.querySelector(".zoom-box");
-    box.hidden = true;
-    dragStart = null;
-    if (Math.abs(end - start) < 8) return;
-    const baseMin = Number(svg.dataset.xMin);
-    const baseMax = Number(svg.dataset.xMax);
-    const toDomain = (x) => baseMin + ((x - left) / (right - left)) * (baseMax - baseMin);
-    const endpoint = svg.dataset.endpoint;
-    chartZoom[endpoint] = [Math.min(toDomain(start), toDomain(end)), Math.max(toDomain(start), toDomain(end))];
-    const panel = multiPayloads.get(endpoint);
-    if (panel) {
-      renderChartTo(panel.payload, panel.chart, panel.target);
-      return;
-    }
-    if (!lastPayload || !currentChartConfig) return;
-    renderChart(lastPayload, currentChartConfig);
-  });
-  els.chart.addEventListener("dblclick", (event) => {
-    const svg = event.target.closest("svg[data-endpoint]");
-    const endpoint = svg && svg.dataset.endpoint;
-    const panel = endpoint && multiPayloads.get(endpoint);
-    if (panel) {
-      delete chartZoom[endpoint];
-      renderChartTo(panel.payload, panel.chart, panel.target);
-      return;
-    }
-    if (!lastPayload) return;
-    delete chartZoom[lastPayload.endpoint];
-    renderChart(lastPayload, currentChartConfig);
   });
   document.addEventListener("click", (event) => {
     closePanelPickers(event.target.closest(".panel-picker"));
@@ -5369,33 +4330,4 @@
   });
 
   renderView();
-
-  function showTooltip(text, event) {
-    const chart = event.target.closest(".chart") || els.chart;
-    const tooltip = chart.querySelector(".chart-tooltip");
-    if (!tooltip) return;
-    tooltip.textContent = text || "";
-    tooltip.classList.add("visible");
-    positionTooltip(tooltip, event);
-  }
-
-  function positionTooltip(tooltip, event) {
-    tooltip.style.left = `${event.clientX + 14}px`;
-    tooltip.style.top = `${event.clientY + 14}px`;
-  }
-
-  function hideTooltip() {
-    els.chart.querySelectorAll(".chart-tooltip.visible").forEach((tooltip) => tooltip.classList.remove("visible"));
-  }
-
-  function svgPoint(svg, event) {
-    const point = svg.createSVGPoint();
-    point.x = event.clientX;
-    point.y = event.clientY;
-    return point.matrixTransform(svg.getScreenCTM().inverse());
-  }
-
-  function clamp(value, min, max) {
-    return Math.min(Math.max(value, min), max);
-  }
-})();
+}

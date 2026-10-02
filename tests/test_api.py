@@ -84,11 +84,21 @@ def test_frontend_assets_are_served(client):
     assert "renderView();" in body
     assert '"portfolio_over_time"' in body
     assert "plotTaxEvents" in body
-    assert "legend-toggle" in body
-    assert "chart-tooltip" in body
-    assert "reset-zoom" in body
+    assert 'from "./js/charts.js"' in body
     assert "static/us-vs-world-highlighted.png" in body
     assert 'fetch("/api/' not in body
+
+
+def test_frontend_modules_are_served(client):
+    index = client.get("/").get_data(as_text=True)
+    assert '<script type="module" src="static/app.js">' in index
+
+    for path, marker in (("/static/js/charts.js", "data-vchart-series"), ("/static/js/format.js", "formatShekel")):
+        response = client.get(path)
+        assert response.status_code == 200
+        assert "javascript" in response.content_type
+        assert marker in response.get_data(as_text=True)
+        assert "no-cache" in response.headers.get("Cache-Control", "")
 
 
 def test_frontend_static_image_is_served(client):
