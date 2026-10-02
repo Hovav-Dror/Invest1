@@ -53,7 +53,8 @@ def test_basic_portfolio_lists_match_phase1_baseline():
     assert metadata["defaults"]["trinity_portfolio"] in data.lazy_return_portfolios
     assert "S&P 500" in data.lazy_return_portfolios
 
-    fixture_portfolios = sorted(fixture_summary["Portfolio"].dropna().unique().tolist())
+    renamed = {"Precious Metals": "Gold Miners"}
+    fixture_portfolios = sorted(renamed.get(name, name) for name in fixture_summary["Portfolio"].dropna().unique())
     lazy_portfolios = set(data.lazy_return_portfolios)
     structure_portfolios = {name.replace("_", " ") for name in data.portfolio_names}
 

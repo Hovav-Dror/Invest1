@@ -98,8 +98,9 @@ import {
     v: "שווי ללא מס עד הסוף",
     End25: "מימוש בסוף",
     EveryMonth: "מימוש כל חודש",
-    EveryNMonths: "מימוש תקופתי",
     Every12Months: "מימוש פעם בשנה",
+    Every60Months: "מימוש כל 5 שנים",
+    Every120Months: "מימוש כל 10 שנים",
     Gain: "רווח",
     "SP500 in NIS": "S&P 500 בשקלים",
     "אירוע מס בסוף התקופה בלבד": "מימוש בסוף התקופה",
@@ -110,8 +111,9 @@ import {
     SP500_in_NIS: "S&P 500 בשקלים",
     tax_at_end: "שווי בסוף",
     tax_every_month: "מימוש חודשי",
-    tax_every_6_months: "מימוש חצי שנתי",
     tax_every_12_months: "מימוש שנתי",
+    tax_every_60_months: "מימוש כל 5 שנים",
+    tax_every_120_months: "מימוש כל 10 שנים",
     TotalReturnP: "תשואה שנתית ממוצעת",
     Median: "חציון",
     AboveThreshold: "מעל הסף",
@@ -181,7 +183,7 @@ import {
     "REIT",
     "Gold",
     "Commodities",
-    "Precious Metals",
+    "Gold Miners",
     "Global Bonds USD Hedged",
     "Global Bonds Unhedged",
     "European Stocks",
@@ -217,7 +219,7 @@ import {
     "US Mid Cap Value",
     "US Small Cap Value",
     "Short Term Treasury",
-    "Precious Metals",
+    "Gold Miners",
     "European Stocks",
     "Bogleheads Three Funds",
     "Bill Bernstein No Brainer",
@@ -325,7 +327,7 @@ import {
             "אפשר לדלג על החלק הזה. הוא מיועד למי שמוכן להתעמק קצת ולהבין עד כמה הנסיון להיות חכמים ולהזיז את הכסף למקום \"טוב יותר\" הוא מסוכן.",
             "אם אתם מדלגים יש דבר אחד שחייבים להבין - אם תנסו להעביר את ההשקעה הפאסיבית שלכם בין מסלולים לעיתים תכופות (כן, אחת לשנה זה לעיתים תכופות) אתם לא משקיעים פאסיביים, ועלולים לשלם על זה הרבה כסף.",
             "נניח שהשקעתם בכלי שמחקה את S&P 500 כולל דיוידנדים ובשקלים. נניח שאין לכם כלל דמי ניהול, אך יש מס על הרווח בסך 25% ממנו בכל פעם שמושכים את הכסף. לאחר כל משיכה הכסף חוזר לאותה השקעה מחדש, בניקוי המס.",
-            "נשווה את התשואה שנקבל אם נמשוך את הכסף ונחזיר אותו מחדש כל חודש, פעם בחצי שנה, פעם בשנה או רק בסוף התקופה."
+            "נשווה את התשואה שנקבל אם נמשוך את הכסף ונחזיר אותו מחדש כל חודש, פעם בשנה, פעם ב-5 שנים, פעם ב-10 שנים או רק בסוף התקופה."
           ]
         }
       ],
@@ -838,14 +840,15 @@ import {
       chart: {
         type: "line",
         x: "date",
-        series: ["End25", "Every12Months", "EveryNMonths", "EveryMonth"],
+        series: ["End25", "Every120Months", "Every60Months", "Every12Months", "EveryMonth"],
         seriesLabels: {
-          End25: "אירוע מס בסוף התקופה בלבד",
-          Every12Months: "אירוע מס כל שנה",
-          EveryMonth: "אירוע מס כל חודש",
-          EveryNMonths: "אירוע מס כל חצי שנה"
+          End25: "מימוש רק בסוף התקופה",
+          Every120Months: "מימוש כל 10 שנים",
+          Every60Months: "מימוש כל 5 שנים",
+          Every12Months: "מימוש כל שנה",
+          EveryMonth: "מימוש כל חודש"
         },
-        colors: ["#2457ff", "#ff941f", "#ff3b30", "#2b2f31"],
+        colors: ["#2457ff", "#2f9e8f", "#ff941f", "#ff3b30", "#2b2f31"],
         baselineKey: "initial",
         currency: true,
         endLabels: true,
@@ -853,7 +856,7 @@ import {
         title: "עד כמה תכיפות הוצאת והכנסת הכסף משמעותית בגלל אירוע המס",
         caption: "נתוני S&P 500, כולל צבירת דיוידנדים וללא דמי ניהול"
       },
-      tableColumns: ["date", "v", "End25", "EveryMonth", "EveryNMonths", "Every12Months", "Gain"],
+      tableColumns: ["date", "v", "End25", "Every120Months", "Every60Months", "Every12Months", "EveryMonth"],
       metric: metricLast(["v", "End25", "EveryMonth", "Every12Months"])
     },
     {
@@ -896,15 +899,16 @@ import {
           chart: {
             type: "line",
             x: "date",
-            series: ["tax_at_end", "tax_every_12_months", "tax_every_6_months", "tax_every_month"],
+            series: ["tax_at_end", "tax_every_120_months", "tax_every_60_months", "tax_every_12_months", "tax_every_month"],
             seriesLabels: {
               tax_at_end: "מימוש בסוף התקופה",
+              tax_every_120_months: "מימוש כל 10 שנים",
+              tax_every_60_months: "מימוש כל 5 שנים",
               tax_every_12_months: "מימוש כל שנה",
-              tax_every_6_months: "מימוש כל חצי שנה",
               tax_every_month: "מימוש כל חודש"
             },
             facetBy: "commission",
-            colors: ["#2457ff", "#2b2f31", "#ff3b30", "#ff941f"],
+            colors: ["#2457ff", "#2f9e8f", "#ff941f", "#ff3b30", "#2b2f31"],
             baselineKey: "initial",
             currency: true,
             forceZero: true,
@@ -912,10 +916,10 @@ import {
             caption: "נתוני S&P 500, כולל צבירת דיוידנדים"
           },
           metric: metricLastBy("commission", "tax_every_12_months"),
-          tableColumns: ["date", "commission", "SP500_in_NIS", "tax_at_end", "tax_every_month", "tax_every_6_months", "tax_every_12_months"]
+          tableColumns: ["date", "commission", "SP500_in_NIS", "tax_at_end", "tax_every_month", "tax_every_12_months", "tax_every_60_months", "tax_every_120_months"]
         }
       ],
-      tableColumns: ["date", "commission", "SP500_in_NIS", "tax_at_end", "tax_every_month", "tax_every_6_months", "tax_every_12_months"],
+      tableColumns: ["date", "commission", "SP500_in_NIS", "tax_at_end", "tax_every_month", "tax_every_12_months", "tax_every_60_months", "tax_every_120_months"],
       metric: (payload) => payload.endpoint === "commission_tax" ? metricLastBy("commission", "tax_every_12_months")(payload) : metricLastBy("commission", "tax_at_end")(payload)
     },
     {
@@ -970,7 +974,7 @@ import {
             seriesLabels: {
               IIb: "השקעה עצמאית עם קצבה",
               II: "השקעה עצמאית ללא קצבה",
-              KH: "יתרת קופת גמל לאחר קצבה",
+              KH: "קופת גמל להשקעה עד ההמרה",
               Kitzba: "קצבה חודשית"
             },
             colors: ["#2457ff", "#75518b", "#d53a2f", "#d48219"],
@@ -3115,10 +3119,10 @@ import {
   function kupatSeries(chartConfig) {
     if (chartConfig.mode === "pension") {
       return [
-        { yKey: "IIb", label: "השקעה עצמאית עם קצבה", color: "#2457ff", width: 3.2 },
-        { yKey: "II", label: "השקעה עצמאית ללא קצבה", color: "#7a558f", width: 2.4, dash: "3 6" },
-        { yKey: "KHAfterPension", label: "יתרת קופת גמל לאחר קצבה", color: "#ef3326", width: 3 },
-        { yKey: "KitzbaTotal", label: "קצבה מצטברת", color: "#f09a11", width: 3 }
+        { yKey: "IIb", label: "השקעה עצמאית: היתרה אחרי משיכת אותה קצבה", color: "#2457ff", width: 3.2 },
+        { yKey: "II", label: "השקעה עצמאית בלי משיכות", color: "#7a558f", width: 2.4, dash: "3 6" },
+        { yKey: "KHUntil60", label: "קופת גמל להשקעה עד ההמרה", color: "#ef3326", width: 3 },
+        { yKey: "KitzbaTotal", label: "קצבה מצטברת שהתקבלה (זהה בשתי החלופות)", color: "#f09a11", width: 3 }
       ];
     }
     return [
@@ -3409,8 +3413,6 @@ import {
       rows.forEach((row) => {
         cumulativePension += numericValue(row.Kitzba) || 0;
         row.KitzbaTotal = cumulativePension;
-        const kh = numericValue(row.KH);
-        row.KHAfterPension = kh === null ? null : Math.max(kh - cumulativePension, 0);
       });
     }
     const pointsFor = (key, filter = () => true) => rows
@@ -3419,9 +3421,9 @@ import {
       .filter((point) => point.x !== null);
     const series = [];
     kupatSeries(chartConfig).forEach((def) => {
-      if (def.yKey === "KHAfterPension") {
-        series.push({ id: "KH", label: "קופת גמל להשקעה", color: def.color, width: def.width, points: pointsFor("KH", (row) => numericValue(row.age) <= 60) });
-        series.push({ id: "KHAfterPension", label: def.label, color: def.color, width: 2.2, dash: "6 4", points: pointsFor("KHAfterPension", (row) => numericValue(row.age) >= 60) });
+      if (def.yKey === "KHUntil60") {
+        // After conversion the fund has no balance of its own: it pays the annuity for life.
+        series.push({ id: "KH", label: def.label, color: def.color, width: def.width, points: pointsFor("KH", (row) => numericValue(row.age) <= 60) });
         return;
       }
       series.push({ id: def.yKey, label: def.label, color: def.color, width: def.width, dash: def.dash, points: pointsFor(def.yKey) });
@@ -4086,7 +4088,7 @@ import {
         return {
           list: [
             "הציר האופקי הוא הזמן, והציר האנכי הוא שווי ההשקעה לאחר מס ובהתאם לבחירת התקנון למדד.",
-            "כל קו מייצג תדירות אחרת של מימוש ומס: רק בסוף התקופה, פעם בשנה, פעם בחצי שנה או כל חודש.",
+            "כל קו מייצג תדירות אחרת של מימוש ומס: רק בסוף התקופה, כל 10 שנים, כל 5 שנים, כל שנה או כל חודש.",
             "הפער בין הקווים הוא המחיר המצטבר של אירועי מס חוזרים. קו גבוה יותר משאיר יותר כסף אצל המשקיע."
           ]
         };
@@ -4118,8 +4120,9 @@ import {
         return {
           list: [
             "הציר האופקי הוא גיל, והציר האנכי הוא כסף בערכים שמתאימים לבחירת התקנון למדד.",
-            "הקווים הכחולים/אדומים מציגים יתרות השקעה; קו הקצבה המצטברת מציג סכום שנמשך, ולכן אינו עוד יתרה שממשיכה להיות מושקעת.",
-            "ההשוואה העיקרית היא בין יתרת קופת הגמל לאחר קצבה לבין השקעה עצמאית שממנה מושכים קצבה דומה."
+            "בגיל 60 קופת הגמל הופכת לקצבה צמודה למדד, לכל החיים. מאותו רגע אין לה יתרה משלה, ולכן הקו האדום נעצר.",
+            "הקו הכתום הוא סך הקצבה שהתקבלה עד כל גיל. ההשקעה העצמאית משלמת לעצמה בדיוק את אותה קצבה, אחרי מס.",
+            "הקו הכחול הוא מה שנשאר בהשקעה העצמאית אחרי המשיכות: כסף שעדיין שלכם ושאפשר להוריש. אם הוא מגיע לאפס, הכסף נגמר, בעוד שהקצבה מהקופה ממשיכה."
           ]
         };
       case "sp500_risk":

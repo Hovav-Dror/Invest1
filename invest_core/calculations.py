@@ -30,6 +30,9 @@ from invest_core.data import InvestData, load_data
 CALCULATION_VERSION = "2.0.0"
 
 TAX_RATE = 0.25
+# Realization schedules compared by the tax screens, in months (the first is
+# selling every month).
+REALIZATION_MONTHS = (1, 12, 60, 120)
 PRICE_POINT_IN_TIME_FROM = pd.Timestamp("2011-02-01")
 
 DEFAULT_TAX_START = "1993-01-01"
@@ -54,7 +57,7 @@ DEFAULT_PORTFOLIOS = (
     "US Mid Cap Value",
     "US Small Cap Value",
     "Short Term Treasury",
-    "Precious Metals",
+    "Gold Miners",
     "European Stocks",
     "Bogleheads Three Funds",
     "Bill Bernstein No Brainer",
@@ -207,8 +210,8 @@ def _tax_scenarios(
     frame["with_fee"] = frame["gross"] * fee ** np.arange(len(frame))
     frame["at_end"] = _tax_ledger(value, cpi, None, fee)
     frame["every_1"] = _tax_ledger(value, cpi, 1, fee)
-    frame["every_6"] = _tax_ledger(value, cpi, 6, fee)
-    frame["every_12"] = _tax_ledger(value, cpi, 12, fee)
+    for months in REALIZATION_MONTHS[1:]:
+        frame[f"every_{months}"] = _tax_ledger(value, cpi, months, fee)
     return frame
 
 
@@ -219,7 +222,7 @@ def tax_events(
     adjust_cpi: bool = True,
     initial: float = 1.0,
 ) -> pd.DataFrame:
-    """S&P 500 in shekels: tax once at the end vs selling every 1, 6 or 12 months."""
+    """S&P 500 in shekels: tax once at the end vs selling every month, year, 5 or 10 years."""
 
     frame = _tax_scenarios(data or load_data(), start, end, 0.0)
     scale = initial / (frame["cpi_ratio"] if adjust_cpi else 1.0)
@@ -230,8 +233,9 @@ def tax_events(
             "Gain_i": frame["gross"].pct_change().fillna(0) + 1,
             "End25": frame["at_end"] * scale,
             "EveryMonth": frame["every_1"] * scale,
-            "EveryNMonths": frame["every_6"] * scale,
             "Every12Months": frame["every_12"] * scale,
+            "Every60Months": frame["every_60"] * scale,
+            "Every120Months": frame["every_120"] * scale,
         }
     )
     result["Gain"] = (result["EveryMonth"].pct_change().fillna(0) + 1).to_numpy()
@@ -256,8 +260,9 @@ def commission_tax(
             "SP500_in_NIS": frame["gross"] * scale,
             "tax_at_end": frame["at_end"] * scale,
             "tax_every_month": frame["every_1"] * scale,
-            "tax_every_6_months": frame["every_6"] * scale,
             "tax_every_12_months": frame["every_12"] * scale,
+            "tax_every_60_months": frame["every_60"] * scale,
+            "tax_every_120_months": frame["every_120"] * scale,
             "commission": commission,
         }
     )

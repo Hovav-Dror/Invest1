@@ -149,8 +149,9 @@ def test_frontend_default_commission_tax_smoke(client):
         "SP500_in_NIS",
         "tax_at_end",
         "tax_every_month",
-        "tax_every_6_months",
         "tax_every_12_months",
+        "tax_every_60_months",
+        "tax_every_120_months",
         "commission",
     ]
     assert payload["rows"] > 0

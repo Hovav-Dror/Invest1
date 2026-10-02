@@ -125,18 +125,20 @@ def test_realized_losses_offset_later_gains():
 
 
 def test_periodic_sales_happen_exactly_every_n_months():
-    # +1% per month for 12 months: the 12-month sale pays tax at month 12 only,
-    # so every point equals the tax-at-end value.
-    prices = 100 * 1.01 ** np.arange(13)
+    # +1% per month for 10 years. The 5-year schedule sells at month 60 and 120.
+    prices = 100 * 1.01 ** np.arange(121)
     data = monthly_data(list(prices))
-    result = calc.tax_events(data, start="2000-01-01", end="2001-01-01")
-    assert result["Every12Months"].tolist() == pytest.approx(result["End25"].tolist())
-    # Selling every 6 months pays at month 6, so month 12 is lower than one sale at the end.
-    assert result["EveryNMonths"].iloc[-1] < result["End25"].iloc[-1]
-    expected_6 = 1 + 0.75 * (1.01**6 - 1)
-    expected_12 = expected_6 * (1 + 0.75 * (1.01**6 - 1))
-    assert result["EveryNMonths"].iloc[6] == pytest.approx(expected_6)
-    assert result["EveryNMonths"].iloc[12] == pytest.approx(expected_12)
+    result = calc.tax_events(data, start="2000-01-01", end="2010-01-01")
+    # Selling every 10 years pays exactly once, at the end: same as tax at the end.
+    assert result["Every120Months"].tolist() == pytest.approx(result["End25"].tolist())
+    five_years = 1 + 0.75 * (1.01**60 - 1)
+    assert result["Every60Months"].iloc[60] == pytest.approx(five_years)
+    assert result["Every60Months"].iloc[120] == pytest.approx(five_years**2)
+    one_year = 1 + 0.75 * (1.01**12 - 1)
+    assert result["Every12Months"].iloc[24] == pytest.approx(one_year**2)
+    # More frequent realization leaves less.
+    last = result.iloc[-1]
+    assert last["EveryMonth"] < last["Every12Months"] < last["Every60Months"] < last["End25"]
 
 
 def test_annual_fee_removes_exactly_that_percentage_per_year():
@@ -330,5 +332,5 @@ def test_no_negative_money_on_real_data(endpoint_call):
 
 def test_after_tax_never_exceeds_before_tax_on_real_data():
     result = calc.tax_events(load_data())
-    for column in ("End25", "EveryMonth", "EveryNMonths", "Every12Months"):
+    for column in ("End25", "EveryMonth", "Every12Months", "Every60Months", "Every120Months"):
         assert (result[column] <= result["v"] + 1e-9).all()

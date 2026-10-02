@@ -1,4 +1,8 @@
 {
+  "rename_portfolios": {
+    "_note": "Applied first. Old names are still accepted by the API.",
+    "Precious Metals": "Gold Miners"
+  },
   "description": "Corrections applied on top of the converted data and the 2024-2025 refresh by scripts/apply_data_corrections.py. See docs/data_audit_findings.md for the evidence behind each value.",
   "annual_returns": {
     "S&P 500": {
@@ -10,10 +14,10 @@
       "2025": 32.55,
       "_source": "MSCI World ex USA index factsheet, gross returns in USD (same index as the 1970-2023 history; the refresh used VEA, a different index)"
     },
-    "Precious Metals": {
+    "Gold Miners": {
       "2024": 10.64,
       "2025": 154.77,
-      "_source": "GDX, Portfolio Visualizer's proxy fund since 2018 (totalrealreturns.com/n/GDX)"
+      "_source": "GDX, Portfolio Visualizer's proxy fund since 2018 (totalrealreturns.com/n/GDX). Renamed from Precious Metals: the series is precious-metals mining stocks (VGPMX, then GDX), not the metals."
     },
     "Commodities": {
       "2024": 8.52,

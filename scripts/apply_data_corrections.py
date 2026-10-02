@@ -53,6 +53,22 @@ def recompute_lazy(lazy: pd.DataFrame) -> pd.DataFrame:
     return _recalculate_drawdowns(pd.concat(out, ignore_index=True))
 
 
+def rename_portfolios() -> None:
+    renames = _values(CORRECTIONS.get("rename_portfolios", {}))
+    if not renames:
+        return
+    lazy_path = DATA_DIR / "LazyReturns1.parquet"
+    structure_path = DATA_DIR / "PortfoliosStructure.parquet"
+    lazy = pd.read_parquet(lazy_path)
+    structure = pd.read_parquet(structure_path)
+    lazy["Portfolio"] = lazy["Portfolio"].replace(renames)
+    underscored = {old.replace(" ", "_"): new.replace(" ", "_") for old, new in renames.items()}
+    for column in ("Portfolio", "asset"):
+        structure[column] = structure[column].replace(underscored)
+    lazy.to_parquet(lazy_path, index=False)
+    structure.to_parquet(structure_path, index=False)
+
+
 def correct_annual() -> None:
     path = DATA_DIR / "LazyReturns1.parquet"
     lazy = pd.read_parquet(path)
@@ -171,6 +187,7 @@ def correct_monthly() -> None:
 
 
 def main() -> None:
+    rename_portfolios()
     correct_annual()
     correct_monthly()
     manifest_path = DATA_DIR / "manifest.json"

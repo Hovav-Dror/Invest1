@@ -62,6 +62,10 @@ EXPENSIVE_ENDPOINTS = {
 }
 
 
+# Old portfolio names still accepted in links.
+PORTFOLIO_ALIASES = {"Precious Metals": "Gold Miners"}
+
+
 class ApiValidationError(ValueError):
     """Raised when API query parameters are invalid. Messages are shown to users, in Hebrew."""
 
@@ -181,6 +185,7 @@ def _parse_portfolios(values: list[str], name: str) -> tuple[str, ...]:
     if not parsed:
         raise ApiValidationError(f"{_label(name)}: צריך לבחור לפחות ערך אחד")
 
+    parsed = [PORTFOLIO_ALIASES.get(portfolio, portfolio) for portfolio in parsed]
     valid = set(_data().lazy_return_portfolios)
     unknown = [portfolio for portfolio in parsed if portfolio not in valid]
     if unknown:
@@ -368,6 +373,7 @@ def _parse_heatmap_args(args) -> Params:
 def _parse_trinity_args(args) -> Params:
     _reject_unknown(args, {"portfolio", "yearly_draw", "years", "base", "year_end"})
     portfolio = args.get("portfolio", calc.DEFAULT_TRINITY_PORTFOLIO).strip()
+    portfolio = PORTFOLIO_ALIASES.get(portfolio, portfolio)
     if portfolio not in set(_data().lazy_return_portfolios):
         raise ApiValidationError(f"תיק לא מוכר: {portfolio}")
     params: JsonDict = {
