@@ -135,5 +135,6 @@
   },
   "refresh_version": "2024-2025",
   "refresh_sources_file": "sources.json",
-  "refresh_data_file": "data/manual_refresh_returns.json"
+  "refresh_data_file": "data/manual_refresh_returns.json",
+  "corrections_file": "data_corrections.json"
 }

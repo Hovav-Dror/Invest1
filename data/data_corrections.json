@@ -1,0 +1,69 @@
+{
+  "description": "Corrections applied on top of the converted data and the 2024-2025 refresh by scripts/apply_data_corrections.py. See docs/data_audit_findings.md for the evidence behind each value.",
+  "annual_returns": {
+    "S&P 500": {
+      "2021": 28.71,
+      "_source": "Official S&P 500 total return (S&P Dow Jones Indices, via slickcharts.com/sp500/returns); the original upmyinterest value 30.92 is wrong"
+    },
+    "MSCI World ex USA index": {
+      "2024": 5.26,
+      "2025": 32.55,
+      "_source": "MSCI World ex USA index factsheet, gross returns in USD (same index as the 1970-2023 history; the refresh used VEA, a different index)"
+    },
+    "Precious Metals": {"2024": 10.64, "2025": 154.77, "_source": "GDX, Portfolio Visualizer's proxy fund since 2018 (totalrealreturns.com/n/GDX)"},
+    "Commodities": {"2024": 8.52, "2025": 5.93, "_source": "GSG, Portfolio Visualizer's proxy fund (totalrealreturns.com/n/GSG)"},
+    "REIT": {"2024": 8.0, "2025": 4.4, "_source": "Dow Jones Select RESI via upmyinterest.com/us-real-estate (same as history)"},
+    "Gold": {"2024": 27.2, "2025": 64.6, "_source": "Gold price via upmyinterest.com/gold (same as history)"},
+    "NASDAQ100": {"2024": 25.88, "2025": 21.0, "_source": "NASDAQ-100 total return via upmyinterest.com/nasdaq100 (same as history)"},
+    "US Large Cap": {"2024": 24.84, "2025": 17.72, "_source": "VFINX, Portfolio Visualizer's proxy fund"},
+    "Emerging Markets": {"2024": 10.81, "2025": 24.59, "_source": "VEIEX, Portfolio Visualizer's proxy fund"},
+    "European Stocks": {"2024": 1.88, "2025": 35.23, "_source": "VEURX, Portfolio Visualizer's proxy fund"},
+    "Pacific Stocks": {"2024": 1.14, "2025": 32.92, "_source": "VPACX, Portfolio Visualizer's proxy fund"},
+    "Short Term Treasury": {"2024": 3.74, "2025": 5.35, "_source": "VFISX, Portfolio Visualizer's proxy fund (bond-fund values uncertain by about 0.4 pp)"},
+    "Intermediate Term Treasury": {"2024": 1.39, "2025": 7.57, "_source": "VFITX, Portfolio Visualizer's proxy fund (bond-fund values uncertain by about 0.4 pp)"},
+    "Long Term Treasury": {"2024": -6.4, "2025": 5.55, "_source": "VUSTX, Portfolio Visualizer's proxy fund (bond-fund values uncertain by about 0.4 pp)"},
+    "Global Bonds Unhedged": {"2024": -2.46, "2025": 8.52, "_source": "LSGBX, Portfolio Visualizer's proxy fund"},
+    "Global Bonds USD Hedged": {"2024": 4.86, "2025": 9.32, "_source": "PGBIX, Portfolio Visualizer's proxy fund"},
+    "Long Term Corporate Bonds": {"2024": -2.75, "2025": 7.22, "_source": "VWESX, Portfolio Visualizer's proxy fund"},
+    "High Yield Corporate Bonds": {"2024": 6.35, "2025": 9.37, "_source": "VWEHX, Portfolio Visualizer's proxy fund"},
+    "Intermediate Term Tax Exempt": {"2024": 1.7, "2025": 5.05, "_source": "VWITX, Portfolio Visualizer's proxy fund"},
+    "Long Term Tax Exempt": {"2024": 1.84, "2025": 3.86, "_source": "VWLTX, Portfolio Visualizer's proxy fund"},
+    "10-Year US Treasury": {"2024": 4.21, "2025": 4.29, "_source": "This series is the average 10-year yield (FRED GS10 annual mean), not a return; 2024-2025 now follow the same definition"}
+  },
+  "inflation": {
+    "_source": "US CPI-U not seasonally adjusted (FRED CPIAUCNS), December to December, as in the Shiller-based history",
+    "all": {"2024": 2.8881, "2025": 2.6771},
+    "European Small Cap Value": {"2023": 3.35}
+  },
+  "global_ex_us_formula": {
+    "_note": "Pending decision: the original data defines Global ex US Stock Market as 0.6 * S&P 500 + 0.4 * MSCI World ex USA. Kept until decided; recomputed so it reflects corrected inputs.",
+    "S&P 500": 0.6,
+    "MSCI World ex USA index": 0.4
+  },
+  "sp500_monthly": {
+    "_source": "From 2011-02 the legacy monthly series follows the Irish CSPX ETF (15% dividend withholding, 0.07% fee). 2024-2025 official total returns are adjusted the same way: r - 0.15 * dividend_yield / 12 - 0.07 / 12. Dividend yields: multpl.com S&P 500 dividend yield by month (prior month end).",
+    "withholding": 0.15,
+    "fund_fee_percent": 0.07,
+    "dividend_yield_percent": {
+      "2024-01-01": 1.50, "2024-02-01": 1.47, "2024-03-01": 1.41, "2024-04-01": 1.37,
+      "2024-05-01": 1.40, "2024-06-01": 1.37, "2024-07-01": 1.33, "2024-08-01": 1.31,
+      "2024-09-01": 1.33, "2024-10-01": 1.30, "2024-11-01": 1.28, "2024-12-01": 1.25,
+      "2025-01-01": 1.24, "2025-02-01": 1.26, "2025-03-01": 1.25, "2025-04-01": 1.34,
+      "2025-05-01": 1.43, "2025-06-01": 1.32, "2025-07-01": 1.28, "2025-08-01": 1.23,
+      "2025-09-01": 1.22, "2025-10-01": 1.19, "2025-11-01": 1.17, "2025-12-01": 1.17
+    }
+  },
+  "us_cpi_monthly": {
+    "_source": "FRED CPIAUCNS (CPI-U, not seasonally adjusted), matching the legacy Shiller column. October 2025 was not published (federal shutdown); geometric mean of September and November.",
+    "values": {
+      "2023-03-01": 301.836, "2023-08-01": 307.026, "2023-09-01": 307.789, "2023-10-01": 307.671,
+      "2023-11-01": 307.051, "2023-12-01": 306.746, "2024-01-01": 308.417,
+      "2024-02-01": 310.326, "2024-03-01": 312.332, "2024-04-01": 313.548, "2024-05-01": 314.069,
+      "2024-06-01": 314.175, "2024-07-01": 314.540, "2024-08-01": 314.796, "2024-09-01": 315.301,
+      "2024-10-01": 315.664, "2024-11-01": 315.493, "2024-12-01": 315.605, "2025-01-01": 317.671,
+      "2025-02-01": 319.082, "2025-03-01": 319.799, "2025-04-01": 320.795, "2025-05-01": 321.465,
+      "2025-06-01": 322.561, "2025-07-01": 323.048, "2025-08-01": 323.976, "2025-09-01": 324.800,
+      "2025-10-01": 324.461, "2025-11-01": 324.122, "2025-12-01": 324.054, "2026-01-01": 325.252
+    }
+  }
+}

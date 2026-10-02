@@ -82,22 +82,38 @@ removes exactly `f`%. No fee is charged at the entry date.
 | `independent_commissions`, `tax_us_vs_il` | Self-managed costs: conversion spread, broker commission, custody fee | Share count fixed at purchase; dollar-method tax uses the sale exchange rate |
 | `trinity` | Fixed real withdrawal by start year | Balances stop at zero (they went negative); `depleted_year` added; the start year's own return is applied |
 
+## Data corrections
+
+`scripts/apply_data_corrections.py` applies `data/data_corrections.json` after
+the 2024–2025 refresh. Evidence and sources for every value are in
+`docs/data_audit_findings.md`. Applied:
+
+* S&P 500 2021 annual return: 28.71% (was 30.92%).
+* 2024–2025 annual returns taken from the same index or fund as each series'
+  history (for example MSCI World ex USA gross instead of VEA, GDX for precious
+  metals, GSG for commodities, the Vanguard funds for Treasuries).
+* US inflation and monthly US CPI: CPI-U not seasonally adjusted throughout,
+  including the missing January 2024 value.
+* Monthly S&P 500 2024–2025: adjusted like the 2011–2023 series (15% dividend
+  withholding and a 0.07% fund fee), about 0.3% a year below the index.
+* "10-Year US Treasury" is an average-yield series; 2024–2025 now follow that
+  definition.
+
 ## Known data limitations
 
-These are not fixed in version 2.0.0:
+These still need a decision or more data:
 
-1. **Mixed dividend treatment.** Monthly S&P 500 data from 2011 to 2023
-   behaves like a fund that reinvests 85% of dividends (15% withholding) net of
-   a small fee: it trails the official total return by about 0.5% a year. The
-   2024–2025 refresh uses the full total return.
-2. **ETF proxies are net of fees.** Some 2024–2025 annual returns come from ETF
-   prices, which are already net of the fund's expense ratio. With
-   `commission_adjusted=true` the fee is subtracted again for those two years.
-3. **Mixed index types.** The small-cap value refresh uses a net-of-withholding
-   index; the S&P 500 uses gross total return.
-4. **Suspicious annual values.** For example, the S&P 500 return for 2021 is
-   30.92% in the data; the published total return is 28.71%. The annual table
-   needs a value-by-value check against a single source.
+1. **"Global ex US Stock Market" is 60% US.** The original data defines it as
+   0.6 × S&P 500 + 0.4 × MSCI World ex USA, which affects Bogleheads,
+   Bernstein, Coffeehouse and the Growth/Moderate/Conservative/Income
+   portfolios. The real ex-US series is in the audit.
+2. **Fund fees may be charged twice.** Most asset classes are fund returns,
+   already net of the fund's fee; `commission_adjusted=true` subtracts an
+   assumed fee again.
+3. **Small-cap value 2024–2025** uses a net-of-withholding MSCI index; the
+   history is a gross research series.
+4. **European Small Cap Value 2023–2025** and **US Micro Cap 2025** come from
+   proxies that could not be verified.
 5. **Annual resolution.** Drawdowns and underwater periods use year-end values,
    so falls within a year (such as 2008 or March 2020) look smaller.
 6. **Overlapping windows.** Rolling-window percentages count heavily

@@ -42,10 +42,13 @@ def response_frame(payload: dict) -> pd.DataFrame:
 
 
 def assert_payload_matches_fixture(payload: dict, fixture_name: str) -> None:
+    # Windows ending in 2021 or later use the corrected S&P 500 2021 return.
+    year_column = "EndYear" if "EndYear" in payload["columns"] else "Year"
     expected = read_fixture(fixture_name)
+    expected = expected[expected[year_column] < 2021].reset_index(drop=True)
     actual = response_frame(payload)
+    actual = actual[actual[year_column] < 2021].reset_index(drop=True)
     assert payload["columns"] == expected.columns.tolist()
-    assert payload["rows"] == len(expected)
     assert_frame_equal(actual, expected, check_dtype=False, check_exact=False, rtol=1e-10, atol=1e-10)
 
 

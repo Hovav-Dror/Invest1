@@ -35,8 +35,14 @@ The migrated parquet data has an explicit post-export refresh for completed
 
 ```sh
 python scripts/apply_manual_data_refresh.py
+python scripts/apply_data_corrections.py
 python scripts/validate_data_refresh.py --through-year 2025
 ```
+
+`apply_data_corrections.py` must run after the refresh. It applies the sourced
+corrections in `data/data_corrections.json` (see `docs/data_audit_findings.md`)
+and recomputes every composite portfolio and derived index column, so it is
+safe to run more than once.
 
 The refresh values live in `data/manual_refresh_returns.json`. For the next
 annual update, add the completed year to `target_years`, add 12 monthly S&P 500
