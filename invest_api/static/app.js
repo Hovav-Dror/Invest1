@@ -3161,10 +3161,10 @@ import {
   function kupatSeries(chartConfig) {
     if (chartConfig.mode === "pension") {
       return [
-        { yKey: "IIb", label: "השקעה עצמאית: היתרה אחרי משיכת אותה קצבה", color: "#2457ff", width: 3.2 },
-        { yKey: "II", label: "השקעה עצמאית בלי משיכות", color: "#7a558f", width: 2.4, dash: "3 6" },
-        { yKey: "KHUntil60", label: "קופת גמל להשקעה עד ההמרה", color: "#ef3326", width: 3 },
-        { yKey: "KitzbaTotal", label: "קצבה מצטברת שהתקבלה (זהה בשתי החלופות)", color: "#f09a11", width: 3 }
+        { yKey: "IIb", label: "השקעה עצמאית: היתרה אחרי משיכת אותה קצבה", short: "עצמאית אחרי משיכות", color: "#2457ff", width: 3.2 },
+        { yKey: "II", label: "השקעה עצמאית בלי משיכות", short: "עצמאית בלי משיכות", color: "#7a558f", width: 2.4, dash: "3 6" },
+        { yKey: "KHUntil60", label: "קופת גמל להשקעה עד ההמרה", short: "קופת גמל", color: "#ef3326", width: 3 },
+        { yKey: "KitzbaTotal", label: "קצבה מצטברת שהתקבלה (זהה בשתי החלופות)", short: "קצבה מצטברת", color: "#f09a11", width: 3 }
       ];
     }
     return [
@@ -3465,10 +3465,10 @@ import {
     kupatSeries(chartConfig).forEach((def) => {
       if (def.yKey === "KHUntil60") {
         // After conversion the fund has no balance of its own: it pays the annuity for life.
-        series.push({ id: "KH", label: def.label, color: def.color, width: def.width, points: pointsFor("KH", (row) => numericValue(row.age) <= 60) });
+        series.push({ id: "KH", label: def.label, short: def.short, color: def.color, width: def.width, points: pointsFor("KH", (row) => numericValue(row.age) <= 60) });
         return;
       }
-      series.push({ id: def.yKey, label: def.label, color: def.color, width: def.width, dash: def.dash, points: pointsFor(def.yKey) });
+      series.push({ id: def.yKey, label: def.label, short: def.short, color: def.color, width: def.width, dash: def.dash, points: pointsFor(def.yKey) });
     });
     const visibleSeries = series.filter((item) => item.points.some((point) => Number.isFinite(point.y)));
     if (!visibleSeries.length) {
@@ -3478,7 +3478,8 @@ import {
     visibleSeries.forEach((item) => {
       const last = [...item.points].reverse().find((point) => Number.isFinite(point.y));
       const change = item.id === "KitzbaTotal" || !last ? "" : kupatReturnText(last.y, initial);
-      item.endLabel = change ? `${item.label} · ${change}` : item.label;
+      const name = item.short || item.label;
+      item.endLabel = change ? `${name} · ${change}` : name;
       item.legendValue = change || (last ? formatShekelShort(last.y) : "");
     });
     const age60 = rowNearestAge(rows, 60);
@@ -3486,12 +3487,12 @@ import {
     const at60 = age60 && Math.abs(numericValue(age60.age) - 60) < 0.1;
     const annotations = at60
       ? (visibleSeries
-          .filter((item) => ["KH", "II", "PH", "IIb"].includes(item.id) && numericValue(age60[item.id]) !== null)
+          .filter((item) => ["KH", "II", "PH"].includes(item.id) && numericValue(age60[item.id]) !== null)
           .map((item) => ({
             x: 60,
             y: numericValue(age60[item.id]),
             dx: -10,
-            text: `${item.label}: תשואה בגיל 60 ${kupatReturnText(numericValue(age60[item.id]), initial)}`,
+            text: `${item.short || item.label}: ${kupatReturnText(numericValue(age60[item.id]), initial)} בגיל 60`,
             color: item.color,
             anchor: "start"
           })))
