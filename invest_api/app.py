@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Iterable, Mapping
 from functools import lru_cache
+import gzip
 import math
 from pathlib import Path
 from typing import Any
@@ -453,12 +454,41 @@ PARSERS: dict[str, Callable[[Any], Params]] = {
 }
 
 
+COMPRESSIBLE_TYPES = ("application/json", "text/javascript", "application/javascript", "text/css", "text/html", "image/svg+xml")
+
+
+def _compress_response(response):
+    """Gzip text responses for clients that accept it (JSON tables and app.js shrink ~5-10x)."""
+
+    if (
+        response.status_code != 200
+        or "gzip" not in request.headers.get("Accept-Encoding", "").lower()
+        or response.headers.get("Content-Encoding")
+        or not response.mimetype
+        or not response.mimetype.startswith(COMPRESSIBLE_TYPES)
+    ):
+        return response
+    response.direct_passthrough = False
+    data = response.get_data()
+    if len(data) < 1024:
+        return response
+    response.set_data(gzip.compress(data, compresslevel=6))
+    response.headers["Content-Encoding"] = "gzip"
+    response.headers["Vary"] = "Accept-Encoding"
+    response.headers.pop("Accept-Ranges", None)
+    etag, weak = response.get_etag()
+    if etag:
+        response.set_etag(f"{etag}-gzip", weak=weak)
+    return response
+
+
 def create_app() -> Flask:
     app = Flask(__name__)
     app.json.sort_keys = False
     # Static files are small; always revalidate (cheap 304s) so a deploy never
     # mixes an old index.html with new JavaScript modules.
     app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0
+    app.after_request(_compress_response)
 
     @app.get("/")
     def index():

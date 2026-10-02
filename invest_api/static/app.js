@@ -1411,6 +1411,7 @@ import {
 
   const els = {
     nav: document.getElementById("viewNav"),
+    navToggle: document.getElementById("navToggle"),
     controls: document.getElementById("controls"),
     title: document.getElementById("viewTitle"),
     kicker: document.getElementById("viewKicker"),
@@ -1503,7 +1504,17 @@ import {
     return { kind: "portfolioPicker", name: "portfolios", label: "בחירת תיקים להשוואה", selected };
   }
 
+  function setNavOpen(open) {
+    document.body.classList.toggle("nav-open", open);
+    els.navToggle.setAttribute("aria-expanded", String(open));
+    if (open) {
+      const topbar = document.querySelector(".topbar");
+      document.documentElement.style.setProperty("--topbar-h", `${topbar.getBoundingClientRect().height}px`);
+    }
+  }
+
   function renderNav() {
+    els.navToggle.querySelector(".nav-toggle-label").textContent = activeView.nav;
     els.nav.innerHTML = "";
     views.forEach((view) => {
       const button = document.createElement("button");
@@ -1512,6 +1523,7 @@ import {
       if (view.navPriority) button.dataset.priority = view.navPriority;
       if (view.id === activeView.id) button.setAttribute("aria-current", "page");
       button.addEventListener("click", () => {
+        setNavOpen(false);
         if (view.id === activeView.id) return;
         rememberActiveViewScroll();
         activeView = view;
@@ -4225,6 +4237,7 @@ import {
     releaseChart(els.chart);
     renderNav();
     els.title.textContent = activeView.title;
+    document.title = `${activeView.title} · סייר תיקי ההשקעות`;
     els.kicker.textContent = activeView.kicker;
     els.takeaway.textContent = activeView.takeaway || "";
     els.takeaway.hidden = !activeView.takeaway;
@@ -4444,7 +4457,21 @@ import {
     closePanelPickers(event.target.closest(".panel-picker"));
   });
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") closePanelPickers();
+    if (event.key === "Escape") {
+      closePanelPickers();
+      if (document.body.classList.contains("nav-open")) {
+        setNavOpen(false);
+        els.navToggle.focus();
+      }
+    }
+  });
+  els.navToggle.addEventListener("click", () => {
+    setNavOpen(!document.body.classList.contains("nav-open"));
+  });
+  document.addEventListener("pointerdown", (event) => {
+    if (!document.body.classList.contains("nav-open")) return;
+    if (event.target.closest(".sidebar, #navToggle")) return;
+    setNavOpen(false);
   });
   window.addEventListener("hashchange", () => {
     if (skipNextHashChange) {

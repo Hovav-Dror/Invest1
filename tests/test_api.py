@@ -257,3 +257,14 @@ def test_unknown_parameter_is_rejected(client):
 
     assert response.status_code == 400
     assert "Unknown query parameter" in response.get_json()["error"]
+
+
+def test_responses_are_gzipped_when_accepted(client):
+    plain = client.get("/api/tax_events")
+    zipped = client.get("/api/tax_events", headers={"Accept-Encoding": "gzip"})
+    assert zipped.headers["Content-Encoding"] == "gzip"
+    assert len(zipped.get_data()) < len(plain.get_data()) / 3
+
+    script = client.get("/static/app.js", headers={"Accept-Encoding": "gzip"})
+    assert script.headers["Content-Encoding"] == "gzip"
+    assert script.headers["ETag"].endswith('-gzip"')
