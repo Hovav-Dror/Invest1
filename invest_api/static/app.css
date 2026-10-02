@@ -1228,7 +1228,7 @@ h3 {
 
 .multi-chart {
   display: grid;
-  justify-items: center;
+  justify-items: stretch;
   min-height: 360px;
 }
 
@@ -1932,6 +1932,8 @@ tbody tr:hover {
 
 .vchart {
   margin: 0;
+  width: 100%;
+  justify-self: stretch;
   display: grid;
   gap: 10px;
   min-width: 0;
@@ -1939,19 +1941,38 @@ tbody tr:hover {
 
 .vchart-head {
   display: grid;
-  gap: 3px;
+  gap: 4px;
+  justify-items: center;
+  text-align: center;
 }
 
 .vchart-title {
-  font-size: 16px;
+  color: #24467f;
+  font-size: 18px;
   font-weight: 700;
   line-height: 1.35;
 }
 
 .vchart-subtitle {
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.4;
+  color: #47514d;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.vchart-annotation {
+  font-size: 12px;
+  font-weight: 700;
+  direction: rtl;
+  unicode-bidi: plaintext;
+  paint-order: stroke;
+  stroke: #fff;
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+
+.vchart-point {
+  stroke: #fff;
+  stroke-width: 1;
 }
 
 .vchart-plot {
@@ -2233,7 +2254,7 @@ button.vchart-legend-item[aria-pressed="false"] {
   border-radius: 5px;
 }
 
-.vchart-facets {
+.vchart-facet-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 14px;

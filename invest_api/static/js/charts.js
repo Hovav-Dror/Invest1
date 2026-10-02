@@ -76,7 +76,7 @@ function draw(target, instance) {
 function frameHtml(spec, instance, result) {
   const head = spec.title || spec.subtitle
     ? `<figcaption class="vchart-head">
-        ${spec.title ? `<span class="vchart-title">${escapeHtml(spec.title)}</span>` : ""}
+        ${[].concat(spec.title || []).map((line) => `<span class="vchart-title">${escapeHtml(line)}</span>`).join("")}
         ${spec.subtitle ? `<span class="vchart-subtitle">${escapeHtml(spec.subtitle)}</span>` : ""}
       </figcaption>`
     : "";
@@ -109,7 +109,7 @@ function frameHtml(spec, instance, result) {
 }
 
 function svgOpen(width, height, spec) {
-  const label = [spec.title, spec.subtitle, spec.summary].filter(Boolean).join(". ");
+  const label = [[].concat(spec.title || []).join(" "), spec.subtitle, spec.summary].filter(Boolean).join(". ");
   return `<svg class="vchart-svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeHtml(label)}">`;
 }
 
@@ -260,14 +260,16 @@ function drawLine(spec, instance, width) {
   const yMax = yTicks[yTicks.length - 1];
   const yTick = (value) => (spec.y.tick || spec.y.format)(value, compact);
 
-  const height = Math.round(Math.min(Math.max(width * (spec.aspect || 0.56), compact ? 250 : 300), spec.maxHeight || 470));
+  const height = Math.round(Math.min(Math.max(width * (spec.aspect || 0.56), compact ? 260 : 320), spec.maxHeight || 520));
   const endLabels = spec.endLabels && !compact;
   const endTexts = endLabels ? visible.map((series) => series.endLabel || series.label) : [];
+  const tickWidth = Math.max(...yTicks.map((tick) => textWidth(yTick(tick), 11))) + 12;
+  const mirror = !compact && !endLabels && spec.y.mirror !== false;
   const pad = {
     top: spec.x.secondary ? 30 : 14,
-    right: endLabels ? Math.min(Math.max(...endTexts.map((text) => textWidth(text))) + 18, width * 0.34) : 14,
+    right: endLabels ? Math.min(Math.max(...endTexts.map((text) => textWidth(text))) + 18, width * 0.34) : mirror ? tickWidth : 14,
     bottom: 28 + (spec.x.label ? 18 : 0),
-    left: Math.max(...yTicks.map((tick) => textWidth(yTick(tick), 11))) + 12 + (spec.y.label && !compact ? 16 : 0)
+    left: tickWidth + (spec.y.label && !compact ? 16 : 0)
   };
   const plotRight = width - pad.right;
   const plotBottom = height - pad.bottom;
@@ -283,6 +285,7 @@ function drawLine(spec, instance, width) {
   const grid = yTicks.map((tick) => `
     <line class="vchart-grid" x1="${f(pad.left)}" x2="${f(plotRight)}" y1="${f(yScale(tick))}" y2="${f(yScale(tick))}"></line>
     <text class="vchart-tick" x="${f(pad.left - 6)}" y="${f(yScale(tick))}" text-anchor="end" dominant-baseline="middle">${escapeHtml(yTick(tick))}</text>
+    ${mirror ? `<text class="vchart-tick" x="${f(plotRight + 6)}" y="${f(yScale(tick))}" dominant-baseline="middle">${escapeHtml(yTick(tick))}</text>` : ""}
   `).join("") + xTicks.map((tick) => `
     <line class="vchart-grid" x1="${f(xScale(tick))}" x2="${f(xScale(tick))}" y1="${f(pad.top)}" y2="${f(plotBottom)}"></line>
     <text class="vchart-tick" x="${f(xScale(tick))}" y="${f(plotBottom + 17)}" text-anchor="middle">${escapeHtml(xTick(tick))}</text>
@@ -307,9 +310,23 @@ function drawLine(spec, instance, width) {
       const area = series.area
         ? `<path d="${path}L${f(xScale(segment[segment.length - 1].x))} ${f(yScale(Math.max(yMin, Math.min(0, yMax))))}L${f(xScale(segment[0].x))} ${f(yScale(Math.max(yMin, Math.min(0, yMax))))}Z" fill="${series.color}" opacity="0.14"></path>`
         : "";
-      return `${area}<path d="${path}" fill="none" stroke="${series.color}" stroke-width="${series.width || 2}" ${series.dash ? `stroke-dasharray="${series.dash}"` : ""} stroke-linejoin="round" stroke-linecap="round"></path>`;
+      const dots = series.dots
+        ? segment.filter(inView).map((point) => `<circle class="vchart-point" cx="${f(xScale(point.x))}" cy="${f(yScale(point.y))}" r="${compact ? 2.5 : 4}" fill="${series.color}"></circle>`).join("")
+        : "";
+      return `${area}<path d="${path}" fill="none" stroke="${series.color}" stroke-width="${series.width || 2}" ${series.dash ? `stroke-dasharray="${series.dash}"` : ""} stroke-linejoin="round" stroke-linecap="round"></path>${dots}`;
     }).join("");
   }).join("");
+
+  // Text placed at data coordinates; only where there is room for it.
+  // Notes sharing an x are spread vertically so they never overlap.
+  const placedNotes = compact ? [] : (spec.annotations || [])
+    .filter((note) => note.x >= xMin && note.x <= xMax && Number.isFinite(note.y) && note.y >= yMin && note.y <= yMax)
+    .map((note) => ({ ...note, y: yScale(note.y) + (note.dy || 0) }));
+  const byX = new Map();
+  placedNotes.forEach((note) => byX.set(note.x, [...(byX.get(note.x) || []), note]));
+  const annotations = [...byX.values()].flatMap((group) => spreadLabels(group, 16, pad.top + 10, plotBottom - 4))
+    .map((note) => `<text class="vchart-annotation" x="${f(xScale(note.x) + (note.dx || 0))}" y="${f(note.labelY)}" text-anchor="${note.anchor || "start"}" dominant-baseline="middle" fill="${note.color || "#17201d"}">${escapeHtml(note.text)}</text>`)
+    .join("");
 
   const refs = (spec.refLines || []).filter((line) => line.y >= yMin && line.y <= yMax).map((line) => `
     <line class="vchart-ref ${escapeHtml(line.className || "")}" x1="${f(pad.left)}" x2="${f(plotRight)}" y1="${f(yScale(line.y))}" y2="${f(yScale(line.y))}"></line>
@@ -341,6 +358,7 @@ function drawLine(spec, instance, width) {
     <line class="vchart-axis" x1="${f(pad.left)}" x2="${f(plotRight)}" y1="${f(plotBottom)}" y2="${f(plotBottom)}"></line>
     ${refs}
     <g clip-path="url(#${clipId})">${lines}</g>
+    ${annotations}
     ${ends}
     ${axisLabels}
     <g class="vchart-cursor" hidden>
@@ -593,13 +611,19 @@ function drawScatter(spec, instance, width) {
     const w = textWidth(point.label, 11);
     const r = radius(point) + 3;
     const options = [
+      { x: cx + r, y: cy + 4, anchor: "start" },
+      { x: cx - r, y: cy + 4, anchor: "end" },
       { x: cx + r, y: cy - r, anchor: "start" },
-      { x: cx + r, y: cy + r + 9, anchor: "start" },
       { x: cx - r, y: cy - r, anchor: "end" },
-      { x: cx - r, y: cy + r + 9, anchor: "end" }
+      { x: cx + r, y: cy + r + 9, anchor: "start" },
+      { x: cx - r, y: cy + r + 9, anchor: "end" },
+      { x: cx, y: cy - r - 4, anchor: "middle" },
+      { x: cx, y: cy + r + 13, anchor: "middle" },
+      { x: cx + r, y: cy - r - 12, anchor: "start" },
+      { x: cx - r, y: cy + r + 21, anchor: "end" }
     ];
     for (const option of options) {
-      const x1 = option.anchor === "start" ? option.x : option.x - w;
+      const x1 = option.anchor === "start" ? option.x : option.anchor === "middle" ? option.x - w / 2 : option.x - w;
       const box = { x1, x2: x1 + w, y1: option.y - 10, y2: option.y + 2 };
       if (box.x1 < pad.left || box.x2 > plotRight || box.y1 < pad.top || overlaps(box)) continue;
       placed.push(box);
@@ -734,7 +758,7 @@ spec = { kind: "facets", key, title, notes, caption, facets: [{ title, spec }], 
 function drawFacets(spec, instance) {
   const ys = spec.facets.flatMap((facet) => facet.spec.series.flatMap((series) => series.points.map((point) => point.y))).filter(Number.isFinite);
   const domain = [Math.min(0, ...ys), Math.max(...ys)];
-  const html = `<div class="vchart-facets">${spec.facets.map((facet, index) => `
+  const html = `<div class="vchart-facet-grid">${spec.facets.map((facet, index) => `
     <div class="vchart-facet"><div class="vchart-facet-title">${escapeHtml(facet.title)}</div><div data-vchart-facet="${index}"></div></div>
   `).join("")}</div>`;
   const legend = legendHtml({ series: spec.legendSeries, legend: "static" }, instance);

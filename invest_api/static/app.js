@@ -3186,9 +3186,14 @@ import {
   }
 
   function valueFormat(chartConfig) {
-    if (chartConfig.currency) return { format: (value) => formatShekel(value, 0), tick: (value) => formatShekelShort(value) };
+    if (chartConfig.currency) return { format: (value) => formatShekel(value, 0), tick: shekelTick };
     if (chartConfig.percent) return { format: (value) => formatPercent(value, 1), tick: (value) => formatPercent(value, 0) };
     return { format: (value) => formatNumber(value), tick: (value) => formatNumber(value) };
+  }
+
+  /** Full amounts when there is room, ₪1.2M style on phones. */
+  function shekelTick(value, compact) {
+    return compact ? formatShekelShort(value) : formatShekel(value, 0);
   }
 
   function xAxisFor(rows, xKey) {
@@ -3321,18 +3326,26 @@ import {
     drawChart(chartTarget(), {
       kind: "line",
       key: "trinity",
-      title: `${ltrText(portfolio)}: משיכה של ${formatPercent(yearlyDraw, 1)} בשנה לאורך ${years} שנים`,
-      subtitle: `${formatShekel(monthlyDraw, 0)} בחודש מתוך ${formatShekel(base, 0)}, צמוד למדד. כל נקודה היא תקופה היסטורית אחרת, לפי שנת הסיום שלה.`,
+      title: [
+        `ביצועי תיק ${ltrText(portfolio)} לאורך ${years} שנים`,
+        `עם משיכה שנתית של ${formatPercent(yearlyDraw, 1)} (${formatShekel(monthlyDraw, 0)} בחודש)`
+      ],
+      subtitle: `מסכום התחלתי של ${formatShekel(base, 0)}. המשיכה צמודה למדד. כל נקודה היא תקופה היסטורית אחרת, לפי שנת הסיום שלה.`,
+      aspect: 0.62,
       notes: [
         `הכסף נגמר ב-${depleted} מתוך ${count} התקופות (${formatPercent(depleted / count, 0)}).`,
         `ב-${aboveBase} מתוך ${count} התקופות (${formatPercent(aboveBase / count, 0)}) נשאר בסוף יותר מהסכום ההתחלתי, למרות המשיכות.`
       ],
       caption: "הסכומים מתואמים לאינפלציה בארה״ב. תיק שהכסף בו נגמר מוצג כאפס.",
       footerHtml: chartReadingHtml(payload, { type: "trinity" }),
-      x: { format: (value) => `שנת סיום ${Math.round(value)}`, tick: (value) => String(Math.round(value)) },
-      y: { format: (value) => formatShekel(value, 0), tick: formatShekelShort, zero: true },
+      x: {
+        format: (value) => `שנת סיום ${Math.round(value)}`,
+        tick: (value) => String(Math.round(value)),
+        label: `שנת הסיום של תקופת השקעה בת ${years} שנים, מסכום התחלתי של ${formatShekel(base, 0)}`
+      },
+      y: { format: (value) => formatShekel(value, 0), tick: shekelTick, zero: true, label: "יתרת תיק ההשקעות" },
       series: [
-        { id: "remained", label: "יתרה בסוף התקופה", color: "#17201d", width: 2.2, points: pointsFor("Investment_remained") },
+        { id: "remained", label: "יתרה בסוף התקופה", color: "#17201d", width: 2.2, dots: true, points: pointsFor("Investment_remained") },
         { id: "low", label: "היתרה הנמוכה בדרך", color: "#9aa39f", width: 2, points: pointsFor("Investment_low") }
       ],
       refLines: [{ y: base, label: "הסכום ההתחלתי" }],
@@ -3426,6 +3439,19 @@ import {
     });
     const age60 = rowNearestAge(rows, 60);
     const ageText = (age) => `גיל ${formatAge(age)} (${Math.floor(startYear + age - startAge)})`;
+    const at60 = age60 && Math.abs(numericValue(age60.age) - 60) < 0.1;
+    const annotations = at60
+      ? (visibleSeries
+          .filter((item) => ["KH", "II", "PH", "IIb"].includes(item.id) && numericValue(age60[item.id]) !== null)
+          .map((item) => ({
+            x: 60,
+            y: numericValue(age60[item.id]),
+            dx: -10,
+            text: `${item.label}: תשואה בגיל 60 ${kupatReturnText(numericValue(age60[item.id]), initial)}`,
+            color: item.color,
+            anchor: "start"
+          })))
+      : [];
     const notes = age60 && Math.abs(numericValue(age60.age) - 60) < 0.1
       ? [`בגיל 60: ${visibleSeries
           .filter((item) => ["KH", "II", "PH"].includes(item.id))
@@ -3444,12 +3470,14 @@ import {
         format: ageText,
         tick: (value) => String(Math.round(value)),
         secondary: (value) => String(Math.round(startYear + value - startAge)),
-        label: "גיל (ומעל הגרף: שנה)",
+        label: "גיל (מעל הגרף: השנה)",
         snap: 0.05
       },
-      y: { format: (value) => formatShekel(value, 0), tick: formatShekelShort, zero: true },
+      y: { format: (value) => formatShekel(value, 0), tick: shekelTick, zero: true },
       series,
-      vLines: [{ x: 60, label: "גיל 60" }],
+      annotations,
+      aspect: 0.5,
+      vLines: [{ x: 60, label: "המרה לקצבה פטורה ממס" }],
       refLines: [{ y: initial, label: "ההפקדה" }],
       endLabels: true
     });
@@ -3548,13 +3576,13 @@ import {
     drawChart(chartTarget(), {
       kind: "line",
       key: `${payload.endpoint}:${chartConfig.y}`,
-      title: titleLines[0],
+      title: chartConfig.titleLines ? titleLines[0] : [chartConfig.title, titleLines[0]].filter(Boolean),
       subtitle: titleLines.slice(1).join(" · "),
       notes,
       captionHtml: captionHtml(chartConfig, payload),
       footerHtml: chartReadingHtml(payload, chartConfig),
-      x: { format: (value) => `${Math.round(value)}`, tick: (value) => String(Math.round(value)) },
-      y: { format: (value) => formatPercent(value, 1), tick: (value) => formatPercent(value, 0), zero: true },
+      x: { format: (value) => `${Math.round(value)}`, tick: (value) => String(Math.round(value)), label: "השנה שבה הסתיימה ההשקעה" },
+      y: { format: (value) => formatPercent(value, 1), tick: (value) => formatPercent(value, 0), zero: true, label: "תשואה" },
       series,
       refLines: [{ y: 0, className: "strong", inDomain: false }],
       tooltip: (x, hits) => ({

@@ -676,15 +676,14 @@ def kupat_gemel(
     """Compare a one-time deposit in three wrappers, all tracking the S&P 500 in shekels.
 
     KH: investment provident fund. Before 60 the value is shown after a lump-sum
-    withdrawal (25% real-gain tax). From 60 it is shown untaxed, because it can
-    be converted to a tax-exempt annuity.
+    withdrawal (25% real-gain tax). At 60 the balance is converted to a
+    tax-exempt annuity (the fund's tax benefit), so from then on KH is the
+    untaxed age-60 balance, CPI-linked, and no longer follows the market.
     PH: savings policy, always shown after lump-sum tax.
     II: self-managed, shown after selling and paying tax.
 
-    With ``with_pension``, from age 60 the fund pays a CPI-linked monthly
-    annuity (``Kitzba``) of the age-60 balance / ``pension_months``. KH then
-    stays at the age-60 balance (CPI-linked), so the frontend can split it into
-    received and remaining. IIb withdraws the same net amount from the
+    With ``with_pension``, the fund pays a CPI-linked monthly annuity
+    (``Kitzba``) of the age-60 balance / ``pension_months``. IIb withdraws the same net amount from the
     self-managed portfolio, paying tax on the gain share of each sale, and stops
     when it runs out (``IIbShortfall`` accumulates the unpaid amount).
     """
@@ -706,21 +705,19 @@ def kupat_gemel(
         return cost * growth * _monthly_fee_factor(annual_fee) ** months * cost
 
     kh_gross = invested(kh_buy_sell, kh_annual_fee)
-    frame["KH"] = np.where(after_60, kh_gross, _real_after_tax(kh_gross, cpi_ratio))
+    frame["KH"] = _real_after_tax(kh_gross, cpi_ratio)
+    frame["Kitzba"] = 0.0
+    if after_60.any():
+        # Conversion happens at the first row at or after age 60 (immediately
+        # when the investor is already older).
+        anchor = int(np.argmax(after_60))
+        kh60, cpi60 = kh_gross[anchor], cpi_ratio[anchor]
+        frame["KH"] = np.where(after_60, kh60 * cpi_ratio / cpi60, frame["KH"])
+        frame["Kitzba"] = np.where(months > anchor, kh60 / pension_months * cpi_ratio / cpi60, 0.0)
     frame["PH"] = _real_after_tax(invested(ph_buy_sell, ph_annual_fee), cpi_ratio)
     frame["II"] = _real_after_tax(invested(ii_buy_sell, ii_annual_fee), cpi_ratio)
 
     if with_pension:
-        if after_60.any():
-            # Conversion happens at the first row at or after age 60 (immediately
-            # when the investor is already older).
-            anchor = int(np.argmax(after_60))
-            kh60, cpi60 = kh_gross[anchor], cpi_ratio[anchor]
-            paying = months > anchor
-            frame["Kitzba"] = np.where(paying, kh60 / pension_months * cpi_ratio / cpi60, 0.0)
-            frame["KH"] = np.where(after_60, kh60 * cpi_ratio / cpi60, frame["KH"])
-        else:
-            frame["Kitzba"] = 0.0
         frame["IIb"], frame["IIbShortfall"] = _self_managed_pension(
             growth, cpi_ratio, frame["Kitzba"].to_numpy(), ii_buy_sell, ii_annual_fee
         )

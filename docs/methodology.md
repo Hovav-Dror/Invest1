@@ -77,7 +77,7 @@ removes exactly `f`%. No fee is charged at the entry date.
 | `us_world_rolling`, `us_global_rolling` | S&P 500 minus ex-US (or 60/40) in rolling 5/10/15-year growth | Windows without enough history are empty instead of 0 |
 | `global_vs_sp500_heatmap`, `sp500_scv_heatmap` | Every start/end pair up to N years | `year_end` works for the global heatmap; pairs need both series |
 | `sp500_scv_after_tax` | Rolling real CAGR after tax at the end | S&P 500 tax is computed in nominal shekels (it subtracted a real amount from a nominal value) |
-| `kupat_gemel` | Provident fund vs savings policy vs self-managed | FX/CPI alignment; the provident fund keeps growing after 60 (it was frozen); no entry-date fee |
+| `kupat_gemel` | Provident fund vs savings policy vs self-managed | FX/CPI alignment; no entry-date fee. At 60 the fund converts to a tax-exempt annuity, so from then on it is the untaxed age-60 balance, CPI-linked |
 | `kupat_gemel_pension` | Annuity from 60 vs equal withdrawals from a self-managed portfolio | Proportional cost basis on each sale; stops at zero and reports `IIbShortfall`; the annuity can start immediately for ages over 60 |
 | `independent_commissions`, `tax_us_vs_il` | Self-managed costs: conversion spread, broker commission, custody fee | Share count fixed at purchase; dollar-method tax uses the sale exchange rate |
 | `trinity` | Fixed real withdrawal by start year | Balances stop at zero (they went negative); `depleted_year` added; the start year's own return is applied |

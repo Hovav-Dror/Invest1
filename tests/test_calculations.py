@@ -237,12 +237,14 @@ def test_heatmap_start_and_end_years():
 # --- Provident fund ---------------------------------------------------------
 
 
-def test_kupat_gemel_keeps_growing_after_60_in_accumulation_mode():
+def test_kupat_gemel_converts_to_annuity_at_60():
     prices = list(100 * 1.01 ** np.arange(36))
     data = monthly_data(prices)
     result = calc.kupat_gemel(data, age=59, start_year=2000, initial=1, kh_annual_fee=0, ph_annual_fee=0, ii_annual_fee=0, ii_buy_sell=0)
-    after = result[result["age"] >= 60]["KH"]
-    assert after.is_monotonic_increasing and after.iloc[-1] > after.iloc[0]
+    after = result[result["age"] >= 60]
+    # From 60 the balance is the untaxed age-60 amount (CPI flat here), not the market.
+    assert after["KH"].tolist() == pytest.approx([1.01 ** 12] * len(after))
+    assert after["II"].iloc[-1] > after["II"].iloc[0]
     # Before 60 the fund is shown after lump-sum tax, like the self-managed portfolio.
     before = result[result["age"] < 60]
     assert before["KH"].tolist() == pytest.approx(before["II"].tolist())
