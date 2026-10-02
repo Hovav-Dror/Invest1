@@ -74,13 +74,12 @@ def correct_annual() -> None:
 
     returns = lazy[~lazy["CommissionUse"]].pivot(index="Year", columns="Portfolio", values="YearReturn")
 
-    # "Global ex US Stock Market" is itself defined from two series (see the JSON note).
-    formula = _values(CORRECTIONS["global_ex_us_formula"])
-    global_ex_us = sum(weight * returns[asset] for asset, weight in formula.items())
-    mask = lazy["Portfolio"] == "Global ex US Stock Market"
-    mapped = lazy.loc[mask, "Year"].map(global_ex_us)
-    lazy.loc[mapped.dropna().index, "YearReturn"] = mapped.dropna()
-    returns["Global ex US Stock Market"] = global_ex_us
+    for target, rule in _values(CORRECTIONS.get("copy_series", {})).items():
+        for year in rule["years"]:
+            if year in returns.index and pd.notna(returns.at[year, rule["from"]]):
+                value = returns.at[year, rule["from"]]
+                lazy.loc[(lazy["Portfolio"] == target) & (lazy["Year"] == float(year)), "YearReturn"] = value
+                returns.at[year, target] = value
 
     structure = pd.read_parquet(DATA_DIR / "PortfoliosStructure.parquet")
     for portfolio, group in structure.groupby("Portfolio"):
@@ -97,8 +96,46 @@ def correct_annual() -> None:
         keep = new_values.notna()
         lazy.loc[rows & keep.reindex(lazy.index, fill_value=False), "YearReturn"] = new_values[keep]
 
+    apply_fee_basis(lazy, structure)
     lazy = recompute_lazy(lazy)
     lazy.to_parquet(path, index=False)
+
+
+def apply_fee_basis(lazy: pd.DataFrame, structure: pd.DataFrame) -> None:
+    """Set ``commission`` to the fee charged on top of the source return.
+
+    The assumed annual fee for each asset (PortfoliosStructure.commission_i)
+    is a total cost. Where the source return is already a fund return, the
+    fund's own expense ratio is inside it, so only the remainder is charged:
+    max(assumed - embedded, 0). Composites use the weighted sum per year.
+    """
+
+    path = DATA_DIR / "fee_basis.json"
+    if not path.exists():
+        return
+    basis = _values(json.loads(path.read_text(encoding="utf-8")))["assets"]
+
+    def embedded(asset: str, year: float) -> float:
+        for period in basis.get(asset, {}).get("periods", []):
+            if period["from"] <= year <= period["to"]:
+                return float(period["expense_ratio_percent"])
+        return 0.0
+
+    assumed = (
+        structure.assign(asset=structure["asset"].map(_display))
+        .groupby("asset")["commission_i"].first()
+    )
+    lazy["commission"] = lazy["commission"].astype(float)
+    for portfolio, group in structure.groupby("Portfolio"):
+        name = _display(portfolio)
+        rows = lazy["Portfolio"] == name
+        components = [(float(w), _display(a)) for w, a in zip(group["weight"], group["asset"])]
+        lazy.loc[rows, "commission"] = lazy.loc[rows, "Year"].map(
+            lambda year: sum(
+                weight * max(float(assumed.get(asset, 0.0)) - embedded(asset, year), 0.0)
+                for weight, asset in components
+            )
+        )
 
 
 def correct_monthly() -> None:

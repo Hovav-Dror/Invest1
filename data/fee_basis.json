@@ -1,0 +1,267 @@
+{
+  "_source": "Embedded fund expense ratios per asset and year range for c_eff = max(c - embedded_fee, 0) on CommissionUse=True rows. Built 2026-10-02 from the Portfolio Visualizer FAQ proxy-fund periods (https://www.portfoliovisualizer.com/faq) and the provenance in docs/data_audit_findings.md. Years not covered by a period have embedded fee 0 (gross index, price, or synthetic/research data). Each fund uses one current expense ratio (stockanalysis.com, fetched 2026-10-02) for all its years: this is an APPROXIMATION, because historical expense ratios were often higher, so the embedded fee in early years is understated. Values of the 2024-2025 ETF proxies that were not corrected in data/data_corrections.json have their own period.",
+  "assets": {
+    "Bitcoin": {
+      "periods": [],
+      "notes": "Gross: BTC price (upmyinterest.com/bitcoin; 2024-2025 Slickcharts). No fund fee inside the return."
+    },
+    "Commodities": {
+      "periods": [
+        {
+          "from": 2007,
+          "to": 2025,
+          "fund": "GSG",
+          "expense_ratio_percent": 0.75,
+          "source": "https://stockanalysis.com/etf/gsg/"
+        }
+      ],
+      "notes": "PV proxy GSG for all years (PV FAQ); 2024-2025 corrected to GSG. Single current ER applied to all years (approximation)."
+    },
+    "Emerging Markets": {
+      "periods": [
+        {
+          "from": 1995,
+          "to": 2025,
+          "fund": "VEIEX",
+          "expense_ratio_percent": 0.29,
+          "source": "https://stockanalysis.com/quote/mutf/VEIEX/"
+        }
+      ],
+      "notes": "PV proxy VEIEX from 1995; 2024-2025 corrected to VEIEX. Current ER; historical ERs were higher (approximation)."
+    },
+    "European Stocks": {
+      "periods": [
+        {
+          "from": 1991,
+          "to": 2025,
+          "fund": "VEURX",
+          "expense_ratio_percent": 0.23,
+          "source": "https://stockanalysis.com/quote/mutf/VEURX/"
+        }
+      ],
+      "notes": "1986-1990 AQR Europe MKT factor (gross); VEURX from 1991 (PV FAQ); 2024-2025 corrected to VEURX. Current ER 0.23 (Vanguard N-CSR FY2016 showed 0.26; earlier years were higher) - approximation."
+    },
+    "Global Bonds Unhedged": {
+      "periods": [
+        {
+          "from": 1992,
+          "to": 2025,
+          "fund": "LSGBX",
+          "expense_ratio_percent": 0.67,
+          "source": "https://stockanalysis.com/quote/mutf/LSGBX/"
+        }
+      ],
+      "notes": "PV proxy Loomis Sayles Global Bond Instl (LSGBX) for all years; 2024-2025 corrected to LSGBX. Active fund; current ER (approximation). Note embedded fee 0.67 exceeds the assumed commission 0.30, so c_eff = 0."
+    },
+    "Global ex US Stock Market": {
+      "periods": [
+        {
+          "from": 1997,
+          "to": 2025,
+          "fund": "VGTSX",
+          "expense_ratio_percent": 0.17,
+          "source": "https://stockanalysis.com/quote/mutf/VGTSX/"
+        }
+      ],
+      "notes": "After correction this is PV Global ex-US: 1970-1985 MSCI World ex USA gross, 1986-1996 AQR Global ex US MKT factor (gross), VGTSX from 1997 incl. 2024-2025. Current ER 0.17 (FY2016 N-CSR showed 0.19) - approximation."
+    },
+    "Gold": {
+      "periods": [],
+      "notes": "Gross: gold price from upmyinterest.com/gold in all years, including corrected 2024-2025 (27.2 / 64.6). The PV/GLD gold column is not used by LazyReturns1."
+    },
+    "Intermediate Term Treasury": {
+      "periods": [
+        {
+          "from": 1992,
+          "to": 2025,
+          "fund": "VFITX",
+          "expense_ratio_percent": 0.2,
+          "source": "https://stockanalysis.com/quote/mutf/VFITX/"
+        }
+      ],
+      "notes": "1972-1991 FRED 5-year constant-maturity synthetic (gross); VFITX from 1992 (PV FAQ); 2024-2025 corrected to VFITX. Current ER (approximation; historically ~0.20-0.28)."
+    },
+    "Intl Developed ex US Market": {
+      "periods": [
+        {
+          "from": 2000,
+          "to": 2023,
+          "fund": "VTMGX",
+          "expense_ratio_percent": 0.05,
+          "source": "https://stockanalysis.com/quote/mutf/VTMGX/"
+        },
+        {
+          "from": 2024,
+          "to": 2025,
+          "fund": "VEA",
+          "expense_ratio_percent": 0.03,
+          "source": "https://stockanalysis.com/quote/mutf/VTMGX/"
+        }
+      ],
+      "notes": "1986-1999 AQR Global ex US MKT factor (gross); VTMGX (Admiral) 2000+ per PV FAQ. 2024-2025 values are still the refresh proxy VEA (not corrected); VEA ER 0.03 as stated on the VTMGX page. Current ERs (approximation; VTMGX history was higher, ~0.07-0.22). [uncertain: PV may have used a different share class in early years]"
+    },
+    "Long Term Corporate Bonds": {
+      "periods": [
+        {
+          "from": 1974,
+          "to": 2025,
+          "fund": "VWESX",
+          "expense_ratio_percent": 0.21,
+          "source": "https://stockanalysis.com/quote/mutf/VWESX/"
+        }
+      ],
+      "notes": "PV proxy VWESX for all years; 2024-2025 corrected to VWESX. Current ER (approximation; historically ~0.21-0.32)."
+    },
+    "Long Term Treasury": {
+      "periods": [
+        {
+          "from": 1987,
+          "to": 2025,
+          "fund": "VUSTX",
+          "expense_ratio_percent": 0.2,
+          "source": "https://stockanalysis.com/quote/mutf/VUSTX/"
+        }
+      ],
+      "notes": "1978-1986 FRED 30-year synthetic (gross); VUSTX from 1987 (PV FAQ); 2024-2025 corrected to VUSTX. Current ER (approximation)."
+    },
+    "MSCI World ex USA index": {
+      "periods": [],
+      "notes": "Gross: MSCI World ex USA gross index in all years after correction (2024-2025 = 5.26 / 32.55 from the MSCI gross factsheet)."
+    },
+    "NASDAQ100": {
+      "periods": [],
+      "notes": "Gross: NASDAQ-100 total return from upmyinterest.com/nasdaq100 in all years, including corrected 2024-2025 (25.88 / 21.0)."
+    },
+    "REIT": {
+      "periods": [],
+      "notes": "Gross: Dow Jones Select Real Estate Securities index from upmyinterest.com/us-real-estate in all years, including corrected 2024-2025 (8.0 / 4.4). The PV REIT column (VGSIX) is not used."
+    },
+    "S&P 500": {
+      "periods": [],
+      "notes": "Gross: S&P 500 total return (Damodaran / official S&P) in all years."
+    },
+    "Short Term Treasury": {
+      "periods": [
+        {
+          "from": 1992,
+          "to": 2025,
+          "fund": "VFISX",
+          "expense_ratio_percent": 0.2,
+          "source": "https://stockanalysis.com/quote/mutf/VFISX/"
+        }
+      ],
+      "notes": "1977-1991 FRED 2-year synthetic (gross); VFISX from 1992 (PV FAQ); 2024-2025 corrected to VFISX. Current ER (approximation)."
+    },
+    "TIPS": {
+      "periods": [
+        {
+          "from": 2001,
+          "to": 2023,
+          "fund": "VIPSX",
+          "expense_ratio_percent": 0.2,
+          "source": "https://stockanalysis.com/quote/mutf/VIPSX/"
+        },
+        {
+          "from": 2024,
+          "to": 2025,
+          "fund": "TIP",
+          "expense_ratio_percent": 0.18,
+          "source": "https://stockanalysis.com/etf/tip/"
+        }
+      ],
+      "notes": "VIPSX from 2001 (PV FAQ). 2024-2025 values are still the refresh proxy TIP (not corrected). Current ERs (approximation)."
+    },
+    "Total US Bond Market": {
+      "periods": [
+        {
+          "from": 1987,
+          "to": 2023,
+          "fund": "VBMFX",
+          "expense_ratio_percent": 0.15,
+          "source": "https://stockanalysis.com/quote/mutf/VBMFX/"
+        },
+        {
+          "from": 2024,
+          "to": 2025,
+          "fund": "BND",
+          "expense_ratio_percent": 0.03,
+          "source": "https://stockanalysis.com/etf/bnd/"
+        }
+      ],
+      "notes": "VBMFX from 1987 (PV FAQ). 2024-2025 values are still the refresh proxy BND (not corrected). Current ERs (approximation; VBMFX was ~0.20 in the 1990s-2000s)."
+    },
+    "US Large Cap": {
+      "periods": [
+        {
+          "from": 1977,
+          "to": 2025,
+          "fund": "VFINX",
+          "expense_ratio_percent": 0.14,
+          "source": "https://stockanalysis.com/quote/mutf/VFINX/"
+        }
+      ],
+      "notes": "1972-1976 Kenneth French research data (gross); VFINX from 1977 (PV FAQ); 2024-2025 corrected to VFINX. Current ER 0.14 (approximation; VFINX was ~0.18-0.20 in the 1990s-2000s)."
+    },
+    "US Large Cap Value": {
+      "periods": [
+        {
+          "from": 1993,
+          "to": 2023,
+          "fund": "VIVAX",
+          "expense_ratio_percent": 0.17,
+          "source": "https://stockanalysis.com/quote/mutf/VIVAX/"
+        },
+        {
+          "from": 2024,
+          "to": 2025,
+          "fund": "VTV",
+          "expense_ratio_percent": 0.03,
+          "source": "https://stockanalysis.com/quote/mutf/VIVAX/"
+        }
+      ],
+      "notes": "1972-1992 Kenneth French research data (gross); VIVAX from 1993 (PV FAQ). 2024-2025 values are still the refresh proxy VTV (not corrected); VTV ER 0.03 as stated on the VIVAX page. Current ERs (approximation)."
+    },
+    "US Mid Cap Value": {
+      "periods": [
+        {
+          "from": 2007,
+          "to": 2023,
+          "fund": "VMVIX",
+          "expense_ratio_percent": 0.19,
+          "source": "https://stockanalysis.com/quote/mutf/VMVIX/"
+        },
+        {
+          "from": 2024,
+          "to": 2025,
+          "fund": "VOE",
+          "expense_ratio_percent": 0.05,
+          "source": "https://stockanalysis.com/etf/voe/"
+        }
+      ],
+      "notes": "1972-2006 Kenneth French research data (gross); VMVIX from 2007 (PV FAQ). 2024-2025 values are still the refresh proxy VOE (not corrected). Current ERs (approximation)."
+    },
+    "US Small Cap": {
+      "periods": [
+        {
+          "from": 1990,
+          "to": 2023,
+          "fund": "NAESX",
+          "expense_ratio_percent": 0.17,
+          "source": "https://stockanalysis.com/quote/mutf/NAESX/"
+        },
+        {
+          "from": 2024,
+          "to": 2025,
+          "fund": "VB",
+          "expense_ratio_percent": 0.03,
+          "source": "https://stockanalysis.com/quote/mutf/NAESX/"
+        }
+      ],
+      "notes": "1972-1989 Kenneth French research data (gross); NAESX from 1990 (PV FAQ). 2024-2025 values are still the refresh proxy VB (not corrected); VB ER 0.03 as stated on the NAESX page. Current ERs (approximation; NAESX was ~0.20-0.30 historically)."
+    },
+    "US Small Cap Value": {
+      "periods": [],
+      "notes": "Gross: Paul Merriman small-cap-value research series via upmyinterest.com/small-cap-value for 1928-2023 [exact underlying index uncertain, no fund costs]; 2024-2025 = upmyinterest's MSCI US Small Cap Value index values 8.8 / 10.7 (confirmed 2026-10-02 at https://www.upmyinterest.com/small-cap-value/, which states 'For the year 2024 and forward, we use the MSCI US Small Cap Value Index'). Index, so no fund fee [uncertain whether upmyinterest uses the gross, net or price variant]. The PV/VISVX series (US_Small_Cap_Value_Monthly) is NOT this series."
+    }
+  }
+}

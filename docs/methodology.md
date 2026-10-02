@@ -98,29 +98,33 @@ the 2024–2025 refresh. Evidence and sources for every value are in
   withholding and a 0.07% fund fee), about 0.3% a year below the index.
 * "10-Year US Treasury" is an average-yield series; 2024–2025 now follow that
   definition.
+* "Global ex US Stock Market" is the real ex-US series (Portfolio Visualizer:
+  AQR data 1986–1996, VGTSX from 1997). The original data defined it as
+  0.6 × S&P 500 + 0.4 × MSCI World ex USA, so Bogleheads, Bernstein,
+  Coffeehouse and the Growth/Moderate/Conservative/Income portfolios were
+  mostly US. 1970–1985 use MSCI World ex USA; no portfolio uses those years.
+* Small-cap value 2024–2025: upmyinterest (the provider of the 1928–2023
+  history), 8.8% and 10.7%.
+* Fund fees are no longer charged twice. `commission` in `LazyReturns1` is the
+  fee charged on top of the source return: the assumed total fee
+  (`PortfoliosStructure.commission_i`) minus the fund expense ratio already
+  inside the return in that year (`data/fee_basis.json`), never below zero;
+  composites use the weighted sum. Expense ratios are current values, so early
+  years slightly understate the embedded fee.
 
 ## Known data limitations
 
 These still need a decision or more data:
 
-1. **"Global ex US Stock Market" is 60% US.** The original data defines it as
-   0.6 × S&P 500 + 0.4 × MSCI World ex USA, which affects Bogleheads,
-   Bernstein, Coffeehouse and the Growth/Moderate/Conservative/Income
-   portfolios. The real ex-US series is in the audit.
-2. **Fund fees may be charged twice.** Most asset classes are fund returns,
-   already net of the fund's fee; `commission_adjusted=true` subtracts an
-   assumed fee again.
-3. **Small-cap value 2024–2025** uses a net-of-withholding MSCI index; the
-   history is a gross research series.
-4. **European Small Cap Value 2023–2025** and **US Micro Cap 2025** come from
+1. **European Small Cap Value 2023–2025** and **US Micro Cap 2025** come from
    proxies that could not be verified.
-5. **Annual resolution.** Drawdowns and underwater periods use year-end values,
+2. **Annual resolution.** Drawdowns and underwater periods use year-end values,
    so falls within a year (such as 2008 or March 2020) look smaller.
-6. **Overlapping windows.** Rolling-window percentages count heavily
+3. **Overlapping windows.** Rolling-window percentages count heavily
    overlapping monthly windows, so they are not independent observations.
-7. **Rebalancing.** Composite portfolios are weighted averages of annual
+4. **Rebalancing.** Composite portfolios are weighted averages of annual
    returns: annual rebalancing at no cost or tax.
-8. **Dividend tax.** The self-managed models reinvest dividends without Israeli
+5. **Dividend tax.** The self-managed models reinvest dividends without Israeli
    tax or US withholding beyond what is in the source series.
-9. **US inflation in Trinity.** Trinity uses US CPI, as in the original study,
+6. **US inflation in Trinity.** Trinity uses US CPI, as in the original study,
    not Israeli CPI or shekel returns.
