@@ -2278,3 +2278,10 @@ button.vchart-legend-item[aria-pressed="false"] {
 .app-shell {
   overflow-x: clip;
 }
+
+/* A chart that is recalculating stays visible, slightly faded. */
+.is-updating .vchart,
+.is-updating.vchart-host {
+  opacity: 0.5;
+  transition: opacity 0.15s ease;
+}

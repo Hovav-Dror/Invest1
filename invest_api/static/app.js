@@ -1,4 +1,5 @@
 import { renderChart as drawChart, chartMessage as drawMessage, releaseChart, PALETTE } from "./js/charts.js";
+import { parseHash, buildHash, scoped, prefixed, applyEntries } from "./js/route.js";
 import {
   escapeHtml,
   numericValue,
@@ -1424,11 +1425,16 @@ import {
     tableNote: document.getElementById("tableNote")
   };
 
-  let activeView = views.find((view) => view.id === location.hash.slice(1)) || views[0];
+  const initialRoute = parseHash(location.hash);
+  let activeView = views.find((view) => view.id === initialRoute.viewId) || views[0];
+  // Settings from the URL, applied once when the view's controls exist.
+  let pendingUrlState = initialRoute.params;
+  let urlDefaults = { main: [], panels: new Map(), lazy: [] };
+  const panelSeq = [];
+  const payloadCache = new Map();
   let lastPayload = null;
   let currentChartConfig = null;
   const viewScrollPositions = new Map();
-  const multiPayloads = new Map();
   let runTimer = null;
   let requestSeq = 0;
   let storyCollapseSeq = 0;
@@ -1509,7 +1515,8 @@ import {
         if (view.id === activeView.id) return;
         rememberActiveViewScroll();
         activeView = view;
-        if (location.hash.slice(1) !== view.id) {
+        pendingUrlState = null;
+        if (parseHash(location.hash).viewId !== view.id) {
           skipNextHashChange = true;
           location.hash = view.id;
         }
@@ -2106,7 +2113,14 @@ import {
   }
 
   async function runLazyPortfolioView(viewId, seq) {
-    if (els.chart.dataset.view !== activeView.id) renderLazyPortfolioShell();
+    const firstRun = els.chart.dataset.view !== activeView.id;
+    if (firstRun) {
+      renderLazyPortfolioShell();
+      urlDefaults.lazy = lazyStateEntries();
+      if (pendingUrlState) applyLazyState(scoped("l", pendingUrlState));
+      pendingUrlState = null;
+    }
+    syncUrl();
     els.message.hidden = false;
     els.message.className = "message";
     els.message.textContent = `${ui.loadingView} ${activeView.title}...`;
@@ -2119,7 +2133,8 @@ import {
     els.tableNote.textContent = "";
     els.afterStory.hidden = true;
     els.afterStory.innerHTML = "";
-    showLazyLoadingSkeletons();
+    if (firstRun) showLazyLoadingSkeletons();
+    else els.chart.classList.add("is-updating");
 
     const state = lazyState();
     if (state.year_start > state.year_end) state.year_start = state.year_end;
@@ -2138,23 +2153,14 @@ import {
     timeParams.set("rolling_window", state.rolling_window);
 
     try {
-      const [summaryResponse, timeResponse, structureResponse, commissionResponse] = await Promise.all([
-        fetch(`api/portfolio_summary?${summaryParams}`),
-        fetch(`api/portfolio_over_time?${timeParams}`),
-        fetch("api/portfolio_structure"),
-        fetch("api/portfolio_commissions")
-      ]);
       const [summaryPayload, timePayload, structurePayload, commissionPayload] = await Promise.all([
-        summaryResponse.json(),
-        timeResponse.json(),
-        structureResponse.json(),
-        commissionResponse.json()
+        fetchPayload(`api/portfolio_summary?${summaryParams}`),
+        fetchPayload(`api/portfolio_over_time?${timeParams}`),
+        fetchPayload("api/portfolio_structure"),
+        fetchPayload("api/portfolio_commissions")
       ]);
       if (seq !== requestSeq || activeView.id !== viewId) return;
-      [summaryResponse, timeResponse, structureResponse, commissionResponse].forEach((response, index) => {
-        const payload = [summaryPayload, timePayload, structurePayload, commissionPayload][index];
-        if (!response.ok) throw new Error(payload.error || `הבקשה נכשלה עם קוד ${response.status}`);
-      });
+      els.chart.classList.remove("is-updating");
       els.message.hidden = true;
       els.message.textContent = "";
       renderLazySummaryScatter(summaryPayload, state, "factor", els.chart.querySelector('[data-lazy-chart="factor"]'));
@@ -2164,6 +2170,7 @@ import {
       renderLazyDataTable(commissionPayload, els.chart.querySelector('[data-lazy-table="commissions"]'), "commissions");
     } catch (error) {
       if (seq !== requestSeq || activeView.id !== viewId) return;
+      els.chart.classList.remove("is-updating");
       els.message.hidden = false;
       els.message.className = "message error";
       els.message.textContent = error.message;
@@ -2318,19 +2325,18 @@ import {
     return params;
   }
 
-  async function runActiveView() {
+  async function runActiveView(run = { all: true }) {
     const viewId = activeView.id;
     const seq = ++requestSeq;
     if (activeView.lazyPortfolio) {
       return runLazyPortfolioView(viewId, seq);
     }
     if (activeView.multiChart) {
-      return runMultiChartView(viewId, seq);
+      return runMultiChartView(viewId, seq, run.all ? null : run.panels);
     }
     if (activeView.staticOnly) {
       lastPayload = null;
       currentChartConfig = null;
-      multiPayloads.clear();
       els.message.textContent = "";
       els.rows.textContent = "";
       els.metrics.innerHTML = "";
@@ -2354,19 +2360,21 @@ import {
     const endpoint = endpointFor(state);
     const params = paramsFor(endpoint, state);
     const url = `api/${endpoint}${params.toString() ? `?${params}` : ""}`;
+    pendingUrlState = null;
+    syncUrl();
 
     els.message.className = "message";
     els.message.textContent = `${ui.loadingView} ${displayEndpoint(endpoint)}...`;
     els.rows.textContent = "";
-    showLoadingSkeletons();
+    const hasChart = Boolean(els.chart.querySelector(".vchart"));
+    if (hasChart) els.chart.classList.add("is-updating");
+    else showLoadingSkeletons();
 
     try {
-      const response = await fetch(url);
-      const payload = await response.json();
+      const payload = await fetchPayload(url);
       if (seq !== requestSeq || activeView.id !== viewId) return;
-      if (!response.ok) throw new Error(payload.error || `הבקשה נכשלה עם קוד ${response.status}`);
+      els.chart.classList.remove("is-updating");
       lastPayload = payload;
-      multiPayloads.clear();
       currentChartConfig = chartFor(endpoint, state);
       els.message.hidden = true;
       els.message.textContent = "";
@@ -2376,6 +2384,7 @@ import {
       renderTable(payload);
     } catch (error) {
       if (seq !== requestSeq || activeView.id !== viewId) return;
+      els.chart.classList.remove("is-updating");
       lastPayload = null;
       els.message.className = "message error";
       els.message.textContent = error.message;
@@ -2386,10 +2395,9 @@ import {
     }
   }
 
-  async function runMultiChartView(viewId, seq) {
+  async function runMultiChartView(viewId, seq, onlyPanels = null) {
     lastPayload = null;
     currentChartConfig = null;
-    multiPayloads.clear();
     els.message.hidden = false;
     els.metrics.hidden = true;
     els.metrics.innerHTML = "";
@@ -2419,13 +2427,31 @@ import {
         </section>
       `).join("");
       updatePanelControlUi(els.chart);
+      panels.forEach((panel, index) => {
+        const section = els.chart.querySelector(`[data-panel-index="${index}"]`);
+        if (!panel.controls || !section) return;
+        urlDefaults.panels.set(index, panelControlState(section, panel));
+        if (pendingUrlState) {
+          const controls = section.querySelector("[data-role='panel-controls']");
+          applyEntries(controls, scoped(`p${index}`, pendingUrlState));
+          updatePanelControlUi(controls);
+        }
+      });
+      pendingUrlState = null;
     }
+    syncUrl();
     els.message.className = "message";
     els.message.textContent = `${ui.loadingView} ${activeView.title}...`;
     els.rows.textContent = "";
 
-    await Promise.all(panels.map(async (panel) => {
-      const section = els.chart.querySelector(`[data-panel-index="${panels.indexOf(panel)}"]`);
+    const targets = panels
+      .map((panel, index) => ({ panel, index }))
+      .filter(({ index }) => !onlyPanels || onlyPanels.has(index));
+    await Promise.all(targets.map(async ({ panel, index }) => {
+      const mySeq = (panelSeq[index] || 0) + 1;
+      panelSeq[index] = mySeq;
+      const isCurrent = () => panelSeq[index] === mySeq && activeView.id === viewId;
+      const section = els.chart.querySelector(`[data-panel-index="${index}"]`);
       const params = paramsFor(panel.endpoint, state);
       const panelEntries = panelControlState(section, panel);
       panelEntries
@@ -2445,18 +2471,13 @@ import {
         metrics.hidden = false;
         metrics.innerHTML = loadingSkeletonHtml("metrics");
       }
-      if (panelChart) panelChart.innerHTML = loadingSkeletonHtml("chart");
-      if (storySlot) {
-        storySlot.hidden = true;
-        storySlot.innerHTML = "";
-      }
+      if (panelChart && panelChart.querySelector(".vchart")) panelChart.classList.add("is-updating");
+      else if (panelChart) panelChart.innerHTML = loadingSkeletonHtml("chart");
       try {
-        const response = await fetch(url);
-        const payload = await response.json();
-        if (seq !== requestSeq || activeView.id !== viewId) return;
-        if (!response.ok) throw new Error(payload.error || `הבקשה נכשלה עם קוד ${response.status}`);
+        const payload = await fetchPayload(url);
+        if (!isCurrent()) return;
+        if (panelChart) panelChart.classList.remove("is-updating");
         const effectiveChart = effectivePanelChart(panel.chart, params, panelEntries);
-        multiPayloads.set(panel.endpoint, { payload, chart: effectiveChart, target: panelChart, metric: panel.metric });
         if (status) {
           status.hidden = true;
           status.textContent = "";
@@ -2466,9 +2487,13 @@ import {
           renderMetricsInto(metrics, panel.metric ? panel.metric(payload) : []);
         }
         if (panelChart) renderChartTo(payload, effectiveChart, panelChart);
-        if (storySlot) renderStoryParagraphs(storySlot, stories[activeView.id].afterChartByEndpoint[payload.endpoint] || []);
+        if (storySlot && !storySlot.dataset.filled) {
+          renderStoryParagraphs(storySlot, stories[activeView.id].afterChartByEndpoint[payload.endpoint] || []);
+          storySlot.dataset.filled = "true";
+        }
       } catch (error) {
-        if (seq !== requestSeq || activeView.id !== viewId) return;
+        if (!isCurrent()) return;
+        if (panelChart) panelChart.classList.remove("is-updating");
         if (status) {
           status.className = "error";
           status.textContent = error.message;
@@ -4205,6 +4230,12 @@ import {
     els.takeaway.hidden = !activeView.takeaway;
     renderStory();
     renderControls();
+    urlDefaults = { main: activeView.staticOnly ? [] : mainStateEntries(), panels: new Map(), lazy: [] };
+    if (pendingUrlState) applyMainState(scoped("", pendingUrlState));
+    if (activeView.staticOnly) {
+      pendingUrlState = null;
+      history.replaceState(null, "", buildHash(activeView.id, []));
+    }
     const viewId = activeView.id;
     const run = runActiveView();
     if (restoreScroll) {
@@ -4213,9 +4244,105 @@ import {
     }
   }
 
-  function scheduleRun() {
+  let pendingRun = null;
+
+  /** Debounced recalculation; ``panel`` limits it to one panel of a multi-chart view. */
+  function scheduleRun(panel = null) {
     clearTimeout(runTimer);
-    runTimer = setTimeout(runActiveView, 250);
+    if (panel === null || (pendingRun && pendingRun.all)) {
+      pendingRun = { all: true };
+    } else {
+      pendingRun = pendingRun || { panels: new Set() };
+      pendingRun.panels.add(panel);
+    }
+    runTimer = setTimeout(() => {
+      const run = pendingRun;
+      pendingRun = null;
+      runActiveView(run);
+    }, 300);
+  }
+
+  function panelIndexOf(element) {
+    const section = element && element.closest("[data-panel-index]");
+    return section ? Number(section.dataset.panelIndex) : null;
+  }
+
+  // --- Requests ---------------------------------------------------------
+
+  async function fetchPayload(url) {
+    if (payloadCache.has(url)) return payloadCache.get(url);
+    const promise = fetch(url).then(async (response) => {
+      let payload = {};
+      try {
+        payload = await response.json();
+      } catch (error) {
+        payload = {};
+      }
+      if (!response.ok) throw new Error(payload.error || `הבקשה נכשלה (קוד ${response.status})`);
+      return payload;
+    });
+    payloadCache.set(url, promise);
+    promise.catch(() => payloadCache.delete(url));
+    if (payloadCache.size > 80) payloadCache.delete(payloadCache.keys().next().value);
+    return promise;
+  }
+
+  // --- URL state ----------------------------------------------------------
+
+  function mainStateEntries() {
+    if (!els.controls.querySelector("[name]")) return [];
+    return Object.entries(stateFromForm());
+  }
+
+  function applyMainState(entries) {
+    if (!entries.length) return;
+    const dates = new Map(entries.filter(([key]) => key === "start" || key === "end"));
+    applyEntries(els.controls, entries.filter(([key]) => !dates.has(key)));
+    if (dates.has("start")) {
+      const input = els.controls.querySelector('input[name="start_month"]');
+      if (input) input.value = String(monthIndex(dates.get("start")));
+    }
+    if (dates.has("end")) {
+      const input = els.controls.querySelector('input[name="end_month"]');
+      if (input) input.value = String(monthIndex(dates.get("end")));
+    }
+    els.controls.querySelectorAll("input[data-format]").forEach(formatInputDisplay);
+    updateDateRangeReadout();
+    updateTrinityDrawSummary();
+  }
+
+  function lazyStateEntries() {
+    const state = lazyState();
+    return Object.entries(state).map(([key, value]) => [key, Array.isArray(value) ? value.join(",") : value]);
+  }
+
+  function applyLazyState(entries) {
+    if (!entries.length) return;
+    const shared = els.chart.querySelector('[data-lazy-controls="a"]');
+    const time = els.chart.querySelector("[data-lazy-time-controls]");
+    if (!shared || !time) return;
+    applyEntries(shared, entries.map(([key, value]) => [key === "value_mode" ? "value_mode_a" : key, value]));
+    applyEntries(time, entries);
+    syncLazyControls(shared);
+    updateLazyControlUi();
+  }
+
+  /** Mirror the current settings into the address bar without adding history entries. */
+  function syncUrl() {
+    const entries = [...mainStateEntries()];
+    const defaults = [...urlDefaults.main];
+    (activeView.panels || []).forEach((panel, index) => {
+      const section = els.chart.querySelector(`[data-panel-index="${index}"]`);
+      if (!section || !panel.controls) return;
+      entries.push(...prefixed(`p${index}`, panelControlState(section, panel)));
+      defaults.push(...prefixed(`p${index}`, urlDefaults.panels.get(index) || []));
+    });
+    if (activeView.lazyPortfolio && els.chart.querySelector("[data-lazy-controls]")) {
+      entries.push(...prefixed("l", lazyStateEntries()));
+      defaults.push(...prefixed("l", urlDefaults.lazy));
+    }
+    const hash = buildHash(activeView.id, entries, defaults);
+    if (hash !== location.hash) history.replaceState(null, "", hash);
   }
 
   els.controls.addEventListener("submit", (event) => {
@@ -4285,7 +4412,7 @@ import {
     const controls = event.target.closest("[data-role='panel-controls']");
     if (controls) {
       updatePanelControlUi(controls);
-      scheduleRun();
+      scheduleRun(panelIndexOf(controls));
     }
   });
   els.chart.addEventListener("click", (event) => {
@@ -4304,7 +4431,7 @@ import {
         scheduleRun();
       } else if (controls) {
         updatePanelControlUi(controls);
-        scheduleRun();
+        scheduleRun(panelIndexOf(controls));
       }
       return;
     }
@@ -4325,7 +4452,9 @@ import {
       return;
     }
     rememberActiveViewScroll();
-    activeView = views.find((view) => view.id === location.hash.slice(1)) || activeView;
+    const route = parseHash(location.hash);
+    activeView = views.find((view) => view.id === route.viewId) || activeView;
+    pendingUrlState = route.params;
     renderView({ restoreScroll: true });
   });
 
