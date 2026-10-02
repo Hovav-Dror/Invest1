@@ -1009,8 +1009,8 @@ import {
         type: "sp500Risk",
         x: "date",
         y: "TotalReturnP",
-        title: "Yearly average return (%) of S&P 500, over a {years} years period",
-        caption: "S&P data including 85% of dividends re-invested. Each point shows the average gain in the selected years ending in that date. Return is adjusted for inflation in the USA."
+        title: "תשואה שנתית ממוצעת של S&P 500 בתקופות של {years} שנים",
+        caption: "נתוני S&P 500 עם השקעה מחדש של כ-85% מהדיבידנדים, אחרי אינפלציה בארה״ב."
       },
       tableColumns: ["date", "TotalReturnP", "Median", "Above0", "AboveThreshold", "TotalReturn"],
       metric: metricSp500Risk
@@ -1122,15 +1122,15 @@ import {
               Diff15: "חלון 15 שנים"
             },
             colors: ["#145f59", "#a94d2a", "#385f9f"],
-            title: "S&P 500 vs Global ex US Stock Market",
+            title: "S&P 500 מול מניות בעולם ללא ארה״ב",
             captionLines: [
-              { text: "Presenting difference in CAGR between US Stock Market and MSCI World ex USA index," },
-              { text: "calculated over 5 / 10 / 15 years before each represented year" },
+              { text: "הפער בתשואה השנתית הממוצעת בין S&P 500 למדד MSCI World ex USA," },
+              { text: "בתקופות של 5, 10 ו-15 שנים שהסתיימו בכל שנה" },
               {
-                textBefore: "MSCI World ex USA index data from ",
+                textBefore: "נתוני MSCI World ex USA מתוך ",
                 linkText: "https://www.upmyinterest.com/msci-world-ex-us",
                 href: "https://www.upmyinterest.com/msci-world-ex-us",
-                textAfter: " over the years 1970-2025"
+                textAfter: " לשנים 1970–2025"
               }
             ]
           },
@@ -1153,15 +1153,15 @@ import {
               Diff15: "חלון 15 שנים"
             },
             colors: ["#145f59", "#a94d2a", "#385f9f"],
-            title: "S&P 500 vs Global (60% US, 40% MSCI World ex USA index)",
+            title: "S&P 500 מול תיק גלובלי (60% ארה״ב, 40% MSCI World ex USA)",
             captionLines: [
-              { text: "Presenting difference in CAGR between S&P 500 and a 60% US / 40% MSCI World ex USA portfolio," },
-              { text: "calculated over 5 / 10 / 15 years before each represented year" },
+              { text: "הפער בתשואה השנתית הממוצעת בין S&P 500 לתיק של 60% ארה״ב ו-40% MSCI World ex USA," },
+              { text: "בתקופות של 5, 10 ו-15 שנים שהסתיימו בכל שנה" },
               {
-                textBefore: "MSCI World ex USA index data from ",
+                textBefore: "נתוני MSCI World ex USA מתוך ",
                 linkText: "https://www.upmyinterest.com/msci-world-ex-us",
                 href: "https://www.upmyinterest.com/msci-world-ex-us",
-                textAfter: " over the years 1970-2025"
+                textAfter: " לשנים 1970–2025"
               }
             ]
           },
@@ -1205,8 +1205,8 @@ import {
             splitBy: "Portfolio",
             title: "התשואה השנתית הממוצעת (CAGR)",
             captionLines: [
-              { text: "CAGR adjusted to Israel Consumer Price Index and to $ value" },
-              { text: "Calculated over the selected rolling window before each represented year" }
+              { text: "תשואה ריאלית בשקלים (כולל המרה לשקלים ומתואמת למדד המחירים בישראל)" },
+              { text: "מחושבת לתקופת ההשקעה שנבחרה, שהסתיימה בכל שנה" }
             ]
           },
           tableColumns: ["Year", "Portfolio", "RollingCAGR", "CAGR10", "CAGR", "OneYear", "Drop"]
@@ -1219,19 +1219,19 @@ import {
             x: "EndYear",
             y: "InvYears",
             value: "delta_cagr",
-            title: "S&P 500 vs Global (60% US, 40% MSCI World ex USA index)",
+            title: "S&P 500 מול תיק גלובלי (60% ארה״ב, 40% MSCI World ex USA)",
             subtitle: "כחול: S&P 500 השיג תשואה שנתית גבוהה יותר. אדום: התיק הגלובלי המאוזן השיג תשואה גבוהה יותר.",
             colorLimit: 0.05,
             colorSign: -1,
-            comparisonTitle: "S&P 500 vs Global",
+            comparisonTitle: "S&P 500 מול תיק גלובלי",
             leftSeries: "S&P 500",
-            rightSeries: "Global",
+            rightSeries: "תיק גלובלי 60/40",
             xAxisLabel: "שנת סיום השקעה",
             yAxisLabel: "מספר שנות השקעה",
             legendTitle: "יתרון בתשואה\nהשנתית הממוצעת",
             positiveLabel: "S&P 500",
-            negativeLabel: "Global",
-            caption: "מפת החום מחזירה את מבט \"כל התקופות\" מהמקור: כל תא הוא תקופת השקעה אחרת לפי שנת סיום ומספר שנות השקעה. הצבעים מציגים את פער התשואה השנתית של S&P 500 מול התיק הגלובלי, כך שקל לראות האם המסקנה תלויה בתקופה מסוימת או חוזרת על פני חלונות רבים."
+            negativeLabel: "תיק גלובלי",
+            caption: "כל תא הוא תקופת השקעה אחרת לפי שנת סיום ומספר שנות השקעה. הצבעים מציגים את פער התשואה השנתית של S&P 500 מול התיק הגלובלי, כך שקל לראות האם המסקנה תלויה בתקופה מסוימת או חוזרת על פני חלונות רבים."
           },
           metric: metricHeatmapLead("תיק גלובלי מוביל"),
           tableColumns: ["StartYear", "EndYear", "InvYears", "Portfolio", "Portfolio2", "delta_cagr", "delta_value"]
@@ -1293,10 +1293,10 @@ import {
             x: "Year",
             y: "RollingCAGR",
             portfolioOrder: ["S&P 500", "US Small Cap Value"],
-            title: "S&P 500 vs US Small Cap Value",
+            title: "S&P 500 מול מניות ערך קטנות (US Small Cap Value)",
             captionLines: [
-              { text: "CAGR adjusted to Israel Consumer Price Index and to $ value" },
-              { text: "Calculated over the selected rolling window before each represented year" }
+              { text: "תשואה ריאלית בשקלים (כולל המרה לשקלים ומתואמת למדד המחירים בישראל)" },
+              { text: "מחושבת לתקופת ההשקעה שנבחרה, שהסתיימה בכל שנה" }
             ]
           },
           tableColumns: ["Year", "Portfolio", "RollingCAGR", "CAGR10", "CAGR", "OneYear", "Drop"]
@@ -1314,10 +1314,10 @@ import {
             x: "EndYear",
             y: "InvYears",
             value: "delta_cagr",
-            title: "S&P 500 vs US Small Cap Value",
+            title: "S&P 500 מול מניות ערך קטנות (US Small Cap Value)",
             subtitle: "כחול: US Small Cap Value השיג תשואה שנתית גבוהה יותר. אדום: S&P 500 השיג תשואה גבוהה יותר.",
             colorLimit: 0.1,
-            comparisonTitle: "S&P 500 vs US Small Cap Value",
+            comparisonTitle: "S&P 500 מול US Small Cap Value",
             leftSeries: "S&P 500",
             rightSeries: "US Small Cap Value",
             deltaDirection: "rightMinusLeft",
@@ -1326,7 +1326,7 @@ import {
             legendTitle: "יתרון בתשואה\nהשנתית הממוצעת",
             positiveLabel: "US Small Cap Value",
             negativeLabel: "S&P 500",
-            caption: "מפת החום מחזירה את מבט \"כל התקופות\" מהמקור: כל תא הוא תקופת השקעה אחרת לפי שנת סיום ומספר שנות השקעה. הצבעים מציגים את פער התשואה השנתית של US Small Cap Value מול S&P 500, כך שקל לראות האם היתרון ההיסטורי תלוי בתקופה מסוימת או חוזר על פני חלונות רבים."
+            caption: "כל תא הוא תקופת השקעה אחרת לפי שנת סיום ומספר שנות השקעה. הצבעים מציגים את פער התשואה השנתית של US Small Cap Value מול S&P 500, כך שקל לראות האם היתרון ההיסטורי תלוי בתקופה מסוימת או חוזר על פני חלונות רבים."
           },
           metric: metricScv,
           tableColumns: ["StartYear", "EndYear", "InvYears", "Portfolio", "Portfolio2", "delta_cagr", "delta_value"]
@@ -1356,13 +1356,13 @@ import {
             titleLines: [
               "התשואה הריאלית",
               "אחרי מס, אינפלציה ושינוי שער דולר/שקל",
-              "S&P 500 vs US Small Cap Value",
+              "S&P 500 מול US Small Cap Value",
               "מחושבת להשקעה של {years} שנים"
             ],
             leadAnnotation: {
               portfolio: "US Small Cap Value",
               benchmark: "S&P 500",
-              label: "US Small Cap Value was better"
+              label: "US Small Cap Value הוביל"
             },
             caption: "התשואה מוצגת אחרי מס, אחרי אינפלציה ישראלית ואחרי שינוי שער דולר/שקל. המס על S&P 500 מחושב כמס ריאלי, והמס על US Small Cap Value כמס דולרי/נומינלי."
           },
@@ -2054,16 +2054,22 @@ import {
       <div class="lazy-time-controls" data-lazy-time-controls>
         <fieldset class="panel-segmented lazy-time-mode">
           <div>
-            ${["Accumulate", "CAGR (acc)", "CAGR (n years)", "BoxPlot", "Hghlght"].map((value) => `
+            ${[
+              ["Accumulate", "צמיחה מצטברת"],
+              ["CAGR (acc)", "תשואה שנתית מההתחלה"],
+              ["CAGR (n years)", "תשואה שנתית ב-n שנים אחרונות"],
+              ["BoxPlot", "התפלגות"],
+              ["Hghlght", "כמה פעמים התיק המודגש ניצח"]
+            ].map(([value, label]) => `
               <label>
                 <input type="radio" name="time_type" value="${escapeHtml(value)}" ${value === "Accumulate" ? "checked" : ""}>
-                <span>${escapeHtml(value)}</span>
+                <span>${escapeHtml(label)}</span>
               </label>
             `).join("")}
           </div>
         </fieldset>
         <label class="panel-field lazy-number">
-          <span>n (years)</span>
+          <span>n (מספר שנים)</span>
           <input type="number" name="rolling_window" min="1" max="100" step="1" value="10">
         </label>
       </div>
@@ -2203,10 +2209,10 @@ import {
 
   function lazyCaption(valueMode) {
     return {
-      nominal: "CAGR calculated using index in $ value, NOT-adjusted for consumer price index",
-      cpi_us: "CAGR adjusted to US Consumer Price Index (מתוקנן למדד ארהב)",
-      cpi_il: "CAGR adjusted to Israel Consumer Price Index and to $ value (מתוקנן למדד ישראל, וכולל המרה לשקלים)"
-    }[valueMode] || "CAGR adjusted to Israel Consumer Price Index and to $ value (מתוקנן למדד ישראל, וכולל המרה לשקלים)";
+      nominal: "תשואה בדולרים, ללא התאמה לאינפלציה",
+      cpi_us: "תשואה ריאלית בדולרים (מתואמת למדד המחירים בארה״ב)",
+      cpi_il: "תשואה ריאלית בשקלים (כולל המרה לשקלים ומתואמת למדד המחירים בישראל)"
+    }[valueMode] || "תשואה ריאלית בשקלים (כולל המרה לשקלים ומתואמת למדד המחירים בישראל)";
   }
 
   function lazyCpiSubtitle(valueMode) {
@@ -2682,13 +2688,13 @@ import {
 
   function portfolioCagrCaptionLines(valueMode, returnMode, rollingWindow) {
     const adjustment = {
-      cpi_il: "Return is adjusted to Israel Consumer Price Index and converted to shekels",
-      cpi_us: "Return is adjusted to US Consumer Price Index and shown in dollar terms",
-      nominal: "Return is shown in dollar terms, not adjusted for inflation"
-    }[valueMode] || "Return is adjusted to Israel Consumer Price Index and converted to shekels";
+      cpi_il: "תשואה ריאלית בשקלים (כולל המרה לשקלים ומתואמת למדד המחירים בישראל)",
+      cpi_us: "תשואה ריאלית בדולרים (מתואמת למדד המחירים בארה״ב)",
+      nominal: "תשואה בדולרים, ללא התאמה לאינפלציה"
+    }[valueMode] || "תשואה ריאלית בשקלים (כולל המרה לשקלים ומתואמת למדד המחירים בישראל)";
     const measurement = returnMode === "cumulative"
-      ? `Bars show cumulative return over each ${rollingWindow}-year rolling investment window`
-      : `Bars show annualized CAGR over each ${rollingWindow}-year rolling investment window`;
+      ? `כל נקודה: התשואה המצטברת בהשקעה של ${rollingWindow} שנים שהסתיימה באותה שנה`
+      : `כל נקודה: התשואה השנתית הממוצעת בהשקעה של ${rollingWindow} שנים שהסתיימה באותה שנה`;
     return [{ text: adjustment }, { text: measurement }];
   }
 
