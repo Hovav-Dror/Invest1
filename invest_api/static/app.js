@@ -1,5 +1,6 @@
 import { renderChart as drawChartCore, chartMessage as drawMessage, releaseChart, PALETTE } from "./js/charts.js";
 import { parseHash, buildHash, scoped, prefixed, applyEntries } from "./js/route.js";
+import { createTaxTimingScreen } from "./js/screens/tax-timing.js";
 import {
   escapeHtml,
   numericValue,
@@ -860,6 +861,15 @@ import {
       metric: metricLast(["v", "End25", "EveryMonth", "Every12Months"])
     },
     {
+      id: "tax-timing",
+      group: "Tax and fee drag",
+      title: "כמה עולה למכור מוקדם?",
+      nav: "מס ותדירות מימוש (דוגמה)",
+      kicker: "דוגמה למבנה עמוד חדש: קודם התשובה, אחר כך הגרף, ובסוף ההעמקה",
+      custom: createTaxTimingScreen(),
+      controls: []
+    },
+    {
       id: "commission-drag",
       group: "Tax and fee drag",
       title: "השפעת עמלות ומסים",
@@ -1434,7 +1444,7 @@ import {
   let activeView = views.find((view) => view.id === initialRoute.viewId) || views[0];
   // Settings from the URL, applied once when the view's controls exist.
   let pendingUrlState = initialRoute.params;
-  let urlDefaults = { main: [], panels: new Map(), lazy: [] };
+  let urlDefaults = { main: [], panels: new Map(), lazy: [], custom: [] };
   const panelSeq = [];
   const payloadCache = new Map();
   let lastPayload = null;
@@ -2355,6 +2365,9 @@ import {
     if (activeView.lazyPortfolio) {
       return runLazyPortfolioView(viewId, seq);
     }
+    if (activeView.custom) {
+      return runCustomView(viewId);
+    }
     if (activeView.multiChart) {
       return runMultiChartView(viewId, seq, run.all ? null : run.panels);
     }
@@ -2417,6 +2430,29 @@ import {
       els.chart.innerHTML = `<div class="chart-empty">${escapeHtml(error.message)}</div>`;
       els.table.innerHTML = "";
     }
+  }
+
+  /** Screens that render their own layout (see js/screens/). */
+  async function runCustomView(viewId) {
+    const screen = activeView.custom;
+    lastPayload = null;
+    currentChartConfig = null;
+    els.message.hidden = true;
+    els.metrics.hidden = true;
+    els.metrics.innerHTML = "";
+    els.afterStory.hidden = true;
+    els.table.closest(".table-panel").hidden = true;
+    els.chart.closest(".chart-panel").hidden = false;
+    if (els.chart.dataset.view !== viewId) {
+      els.chart.dataset.view = viewId;
+      releaseChart(els.chart);
+      screen.mount(els.chart, { fetchPayload, onChange: () => scheduleRun() });
+      urlDefaults.custom = screen.defaults();
+      if (pendingUrlState) screen.apply(scoped("", pendingUrlState));
+      pendingUrlState = null;
+    }
+    syncUrl();
+    await screen.run();
   }
 
   async function runMultiChartView(viewId, seq, onlyPanels = null) {
@@ -4297,7 +4333,7 @@ import {
     els.takeaway.hidden = !activeView.takeaway;
     renderStory();
     renderControls();
-    urlDefaults = { main: activeView.staticOnly ? [] : mainStateEntries(), panels: new Map(), lazy: [] };
+    urlDefaults = { main: activeView.staticOnly ? [] : mainStateEntries(), panels: new Map(), lazy: [], custom: [] };
     if (pendingUrlState) applyMainState(scoped("", pendingUrlState));
     if (activeView.staticOnly) {
       pendingUrlState = null;
@@ -4404,6 +4440,10 @@ import {
       entries.push(...prefixed(`p${index}`, panelControlState(section, panel)));
       defaults.push(...prefixed(`p${index}`, urlDefaults.panels.get(index) || []));
     });
+    if (activeView.custom && els.chart.dataset.view === activeView.id) {
+      entries.push(...activeView.custom.state());
+      defaults.push(...urlDefaults.custom);
+    }
     if (activeView.lazyPortfolio && els.chart.querySelector("[data-lazy-controls]")) {
       entries.push(...prefixed("l", lazyStateEntries()));
       defaults.push(...prefixed("l", urlDefaults.lazy));

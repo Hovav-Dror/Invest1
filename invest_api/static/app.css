@@ -2374,3 +2374,181 @@ button.vchart-legend-item[aria-pressed="false"] {
   font-size: 13px;
   font-weight: 700;
 }
+
+/* ------------------------------------------------------------------
+   Layered screen template (js/screens/*): answer, chart, controls, deeper
+   ------------------------------------------------------------------ */
+
+.layered {
+  display: grid;
+  gap: 22px;
+}
+
+.answer {
+  display: grid;
+  gap: 14px;
+  padding: 18px 20px;
+  border-radius: 10px;
+  background: #f1f6f4;
+  border: 1px solid #cfe0da;
+}
+
+.answer-label {
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.answer-text {
+  font-size: 19px;
+  line-height: 1.65;
+}
+
+.answer-text b {
+  white-space: nowrap;
+}
+
+.answer-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.answer-tile {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--tile, var(--accent));
+}
+
+.answer-tile-label {
+  color: #47514d;
+  font-size: 13px;
+}
+
+.answer-tile-value {
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+  direction: ltr;
+  text-align: right;
+}
+
+.answer-tile-note {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.basic-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px 16px;
+  padding: 14px 16px;
+  border-radius: 8px;
+  background: var(--panel-soft);
+  border: 1px solid var(--line);
+}
+
+.basic-field {
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+  color: #47514d;
+}
+
+.basic-field input,
+.basic-field select {
+  min-height: 42px;
+  min-width: 120px;
+  padding: 6px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--ink);
+  font-size: 16px;
+}
+
+.basic-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  font-size: 14px;
+}
+
+.more-controls {
+  flex-basis: 100%;
+}
+
+.more-controls summary,
+.deep summary {
+  cursor: pointer;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.more-controls-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  padding-top: 8px;
+}
+
+.deep {
+  display: grid;
+  gap: 4px;
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+
+.deep-title {
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.deep details {
+  border-bottom: 1px solid var(--line);
+  padding: 2px 0 6px;
+}
+
+.deep-body {
+  display: grid;
+  gap: 10px;
+  padding: 4px 0 8px;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.deep-body ul {
+  margin: 0;
+  padding-inline-start: 22px;
+}
+
+@media (max-width: 560px) {
+  .answer {
+    padding: 14px;
+  }
+
+  .answer-text {
+    font-size: 17px;
+  }
+
+  .answer-tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .answer-tile-value {
+    font-size: 19px;
+  }
+
+  .basic-field {
+    flex: 1 1 140px;
+  }
+}
