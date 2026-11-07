@@ -429,21 +429,20 @@ import {
     },
     "kupat-gemel": {
       tab: "קופת גמל להשקעה",
-      heading: "קופת גמל, פוליסת חסכון והשקעה עצמאית",
       paragraphs: [
         "אז אמרנו שקופת גמל להשקעה מעניינת כי יש בה הטבת מס. לכן רציתי לראות את הכדאיות שלה מול החלופות, לא רק בסיסמה אלא במספרים.",
-        "השורה התחתונה, למי שאין כח לכל הגרפים: המסקנה שלי היתה שאוכל למשוך קצבה גדולה יותר וגם להשאיר יותר כסף בהשקעה עצמאית, למרות הטבת המס של קופת הגמל להשקעה.",
-        "נשווה כאן שלושה כלי השקעה: פוליסת חסכון עם דמי ניהול גבוהים וללא הטבת מס, קופת גמל להשקעה עם הטבת מס אחרי גיל 60, והשקעה עצמאית בקרן מחקה מדד עם דמי ניהול נמוכים.",
-        "ההשוואה משתמשת במחקה מושלם של S&P 500 ומבודדת את ההבדלים במסים ובדמי הניהול. חשוב לכלול גם הוצאות ניהול השקעה כחלק מדמי הניהול, כי במסלול מנייתי זו יכולה להיות תוספת לא קטנה."
+        "השורה התחתונה, למי שאין כח לכל הגרפים: המסקנה שלי היתה שאוכל למשוך קצבה גדולה יותר וגם להשאיר יותר כסף בהשקעה עצמאית, למרות הטבת המס של קופת הגמל להשקעה."
       ],
       afterChartByEndpoint: {
         kupat_gemel: [
+        "נשווה כאן שלושה כלי השקעה: פוליסת חסכון עם דמי ניהול גבוהים וללא הטבת מס, קופת גמל להשקעה עם הטבת מס אחרי גיל 60, והשקעה עצמאית בקרן מחקה מדד עם דמי ניהול נמוכים.",
+        "ההשוואה משתמשת במחקה מושלם של S&P 500 ומבודדת את ההבדלים במסים ובדמי הניהול. חשוב לכלול גם הוצאות ניהול השקעה כחלק מדמי הניהול, כי במסלול מנייתי זו יכולה להיות תוספת לא קטנה.",
           "מה ניתן לראות? ראשית, לפוליסת חסכון קשה למצוא הצדקה בנתונים: דמי ניהול גבוהים, בלי הטבת מס, ובסוף פחות כסף בכיס.",
           "בהגעה לגיל 60, הטבת המס בקופת גמל להשקעה משמעותית מאוד. אבל למתנה הזו יש תנאים: כדי לקבל את הפטור הכסף צריך להפוך לקצבה.",
           "אם קצבת הפנסיה לא מספיקה לקיום השוטף, יש בזה הגיון. אם היא כן מספיקה, כדאי לבדוק בזהירות האם המחיר בדמי ניהול, גמישות ותשואה באמת שווה את ההטבה."
         ],
         kupat_gemel_pension: [
-          "רגע, זה נהיה עוד יותר מעניין: מה קורה אם כן רוצים קצבה, אבל מושכים סכום דומה מתוך השקעה עצמאית במקום להמיר את קופת הגמל להשקעה לקצבה?",
+          "מה קורה אם כן רוצים קצבה, אבל מושכים סכום דומה מתוך השקעה עצמאית במקום להמיר את קופת הגמל להשקעה לקצבה?",
           "במסלול קופת הגמל רואים את היתרון בגיל 60, אבל אחריו הכסף כבר מיועד לקצבה. במסלול העצמאי מושכים קצבה נטו דומה, משלמים מס בעת המשיכה, והיתרה ממשיכה להיות מושקעת.",
           "בשורה התחתונה: במקרים רבים אפשר לקבל קצבה שקולה לזו שנקבל מקופת הגמל להשקעה, ועדיין להשאר עם כסף נוסף לשימוש מאוחר יותר או להורשה.",
           "ההשוואה כאן אפילו נוטה לטובת קופת הגמל להשקעה: היא מניחה חיקוי מושלם של המדד ומתעלמת מחלק מהפערים המעשיים כמו מזומן במסלול, מיסוי דיווידנדים וגמישות מסלולים מוגבלת."
@@ -954,72 +953,62 @@ import {
     {
       id: "kupat-gemel",
       group: "Retirement wrappers",
-      title: "קופת גמל, פוליסת חסכון והשקעה עצמאית",
+      title: "קופת גמל להשקעה מול החלופות",
       nav: "קופת גמל להשקעה",
-      kicker: "הטבת מס, דמי ניהול וגמישות מול מסחר עצמאי",
-      takeaway: "הטבת המס של קופת גמל להשקעה לא בהכרח מפצה על דמי הניהול, המגבלות והחלופה של השקעה עצמאית זולה.",
+      kicker: "הטבת מס מול דמי ניהול וגמישות",
+      takeaway: "בתרחיש הזה קופת הגמל מובילה לקצבה בגיל 60. מה קורה כשמשווים הכנסה חודשית זהה?",
       multiChart: true,
+      tabs: true,
+      advancedLabel: "הנחות הסימולציה",
+      advancedSummary: (state) => `מקדם ${state.pension_months} · קופה ${state.kh_annual_fee}% · פוליסה ${state.ph_annual_fee}% · עצמאי ${state.ii_annual_fee}%`,
       controls: [
-        field("age", "גיל היום", "number", "40", "1", "גיל"),
-        field("start_year", "שנת התחלה", "number", "1995", "1", "שנה"),
-        field("initial", "סכום התחלתי", "number", "70000", "1000", "שקלים"),
-        field("pension_months", "מקדם המרה לקצבה", "number", "250", "1", "חודשים"),
-        cpiCheckbox(),
-        feeMatrix()
+        field("age", "גיל בתחילת ההשקעה", "number", "40", "1"),
+        field("start_year", "שנת התחלה", "number", "1995", "1"),
+        field("initial", "השקעה התחלתית (₪)", "text", "70000"),
+        { ...field("pension_months", "מקדם המרה לקצבה (חודשים)", "number", "250", "1"), advanced: true },
+        { ...cpiCheckbox(), advanced: true },
+        { ...feeMatrix(), advanced: true }
       ],
       panels: [
         {
-          endpoint: "kupat_gemel",
-          title: "צבירה: קופת גמל, פוליסת חסכון והשקעה עצמאית",
-          chart: {
-            type: "kupat",
-            mode: "accumulation",
-            x: "age",
-            series: ["II", "KH", "PH"],
-            seriesLabels: {
-              II: "השקעה עצמאית",
-              KH: "קופת גמל להשקעה",
-              PH: "פוליסת חסכון"
-            },
-            colors: ["#2457ff", "#d53a2f", "#2b2f31"],
-            baselineKey: "initial",
-            currency: true,
-            endLabels: true,
-            forceZero: true,
-            title: "היתרון (?) של הטבת המס בקופת גמל להשקעה מול דמי ניהול נמוכים",
-            caption: "ההבדלים הם מס, דמי ניהול ועלויות קניה ומכירה; מדד S&P 500, מחקה מושלם"
-          },
-          metric: metricKupat,
-          tableColumns: ["date", "age", "KH", "PH", "II"]
-        },
-        {
           endpoint: "kupat_gemel_pension",
-          title: "קצבה: המרת קופת גמל מול משיכה מהשקעה עצמאית",
+          title: "קצבה מול משיכה עצמאית",
+          hideHeader: true,
           chart: {
             type: "kupat",
             mode: "pension",
             x: "age",
-            series: ["IIb", "II", "KH", "Kitzba"],
-            seriesLabels: {
-              IIb: "השקעה עצמאית עם קצבה",
-              II: "השקעה עצמאית ללא קצבה",
-              KH: "קופת גמל להשקעה עד ההמרה",
-              Kitzba: "קצבה חודשית"
-            },
-            colors: ["#2457ff", "#75518b", "#d53a2f", "#d48219"],
             baselineKey: "initial",
             currency: true,
             endLabels: true,
             forceZero: true,
-            title: "קופת גמל עם פטור ממס מול השקעה עצמאית עם משיכת קצבה זהה",
-            caption: "החל מגיל 60 מושכים קצבה לפי מקדם ההמרה בשתי החלופות"
+            title: "היתרה בהשקעה העצמאית אחרי המשיכות",
+            caption: "מגיל 60 מושכים מההשקעה העצמאית בכל חודש סכום זהה לקצבה. אפשר להוסיף קווים מהמקרא."
           },
           metric: metricKupat,
           tableColumns: ["date", "age", "KH", "II", "IIb", "Kitzba"]
+        },
+        {
+          endpoint: "kupat_gemel",
+          title: "צבירה עד גיל 60",
+          hideHeader: true,
+          chart: {
+            type: "kupat",
+            mode: "accumulation",
+            x: "age",
+            baselineKey: "initial",
+            currency: true,
+            endLabels: true,
+            forceZero: true,
+            title: "צבירה בשלוש החלופות",
+            caption: "ההבדלים הם מס, דמי ניהול ועלויות קנייה ומכירה; מדד S&P 500, מחקה מושלם"
+          },
+          metric: metricKupat,
+          tableColumns: ["date", "age", "KH", "PH", "II"]
         }
       ],
       tableColumns: ["date", "age", "KH", "PH", "II", "IIb", "Kitzba"],
-      metric: metricLast(["KH", "PH", "II", "IIb", "Kitzba"])
+      metric: metricKupat
     },
     {
       id: "sp500-risk",
@@ -3485,7 +3474,12 @@ import {
 
   function renderMetricsInto(target, metrics) {
     target.classList.toggle("metric-tiles", metrics.some((metric) => metric.color));
-    target.innerHTML = metrics.map((metric) => metric.heading ? `
+    target.classList.toggle("metric-has-hero", metrics.some((metric) => metric.hero));
+    target.innerHTML = metrics.map((metric) => metric.hero ? `
+      <div class="metric-hero"><strong>${escapeHtml(metric.title)}</strong><span>${escapeHtml(metric.note || "")}</span></div>
+    ` : metric.explain ? `
+      <p class="metric-explain">${escapeHtml(metric.text)}</p>
+    ` : metric.heading ? `
       <div class="metric-heading"><strong>${escapeHtml(metric.label)}</strong><span>${escapeHtml(metric.note || "")}</span></div>
     ` : metric.gap ? `
       <div class="metric-gap">
@@ -3495,7 +3489,7 @@ import {
     ` : `
       <div class="metric"${metric.color ? ` style="--tile:${escapeHtml(metric.color)}"` : ""}>
         <span>${metric.dash !== undefined ? `<svg class="metric-swatch" viewBox="0 0 28 6" aria-hidden="true"><line x1="1" y1="3" x2="27" y2="3" stroke="${escapeHtml(metric.color)}" stroke-width="2.6" stroke-linecap="round" ${metric.dash ? `stroke-dasharray="${escapeHtml(metric.dash)}"` : ""}/></svg>` : ""}${escapeHtml(displayLabel(metric.label))}</span>
-        <strong>${formatMetricValue(metric)}</strong>
+        <strong>${metric.valueText ? escapeHtml(metric.valueText) : formatMetricValue(metric)}${metric.suffix ? `<small class="metric-suffix">${escapeHtml(metric.suffix)}</small>` : ""}</strong>
         <small>${escapeHtml(metric.note || "")}</small>
       </div>
     `).join("");
@@ -3680,32 +3674,45 @@ import {
     const rows = payload.data || [];
     const row = lastRow(rows);
     if (!row) return [];
-    const initial = Number(payload.params && payload.params.initial) || 0;
-    const ret = (value) => (initial && value !== null ? `תשואה ${kupatReturnText(value, initial)}` : "");
-    const age = `בגיל ${Math.floor(numericValue(row.age))}`;
+    const params = payload.params || {};
+    const initial = Number(params.initial) || 0;
+    const real = params.adjust_cpi !== false;
+    const basis = real ? "בשקלים ריאליים" : "בשקלים נומינליים";
+    const lastAge = Math.floor(numericValue(row.age));
     if (payload.endpoint === "kupat_gemel_pension") {
-      const received = rows.reduce((sum, item) => sum + (numericValue(item.Kitzba) || 0), 0);
-      return [
-        { label: "קצבה חודשית", value: numericValue(row.Kitzba), note: "מגיל 60, צמודה למדד", format: "shekel", color: "#f09a11" },
-        { label: "קצבה שהתקבלה עד כה", value: received, note: age, format: "shekel", color: "#f09a11" },
-        { label: "נשאר בהשקעה העצמאית", value: numericValue(row.IIb), note: `${age}, אחרי אותן משיכות`, format: "shekel", color: "#2457ff" }
+      const pension = numericValue(row.Kitzba);
+      if (!pension) {
+        return [{ hero: true, title: "בתרחיש הזה לא מגיעים לגיל 60", note: "בתקופת הנתונים עדיין אין קצבה. נסו גיל התחלה מבוגר יותר או שנת התחלה מוקדמת יותר." }];
+      }
+      const left = numericValue(row.IIb) || 0;
+      const depleted = rows.find((item) => numericValue(item.age) >= 60 && (numericValue(item.IIb) || 0) <= 0);
+      const items = [
+        { hero: true, title: `${formatShekel(pension, 0)} לחודש בשתי החלופות`, note: `הכנסה נטו מגיל 60 עד גיל ${lastAge} · ${basis}` },
+        { label: "קופת גמל להשקעה", valueText: "קצבה לכל החיים", color: "#145f59", dash: "", note: "החיסכון הומר לקצבה פטורה ממס בגיל 60" },
+        depleted
+          ? { label: "השקעה עצמאית", valueText: `נגמרה בגיל ${Math.floor(numericValue(depleted.age))}`, color: "#385f9f", dash: "", note: "אותן משיכות חודשיות רוקנו אותה" }
+          : { label: "השקעה עצמאית", value: left, suffix: ` נותרו בגיל ${lastAge}`, format: "shekel", color: "#385f9f", dash: "", note: "אחרי אותן משיכות חודשיות" }
       ];
+      if (!depleted && left > 0) {
+        const years = left / (pension * 12);
+        items.push({
+          explain: true,
+          text: `בהשקעה העצמאית מושכים כל חודש סכום זהה לקצבה, ובכל זאת בגיל ${lastAge} נשארים עוד ${formatShekel(left, 0)} נזילים, שממשיכים לעבוד. גם אם מכאן והלאה לא תהיה שום תשואה, הסכום הזה לבדו יממן את אותה משיכה חודשית עוד כ-${Math.floor(years)} שנה, עד גיל ${Math.floor(lastAge + years)} בערך. עם תשואה, זה יחזיק עוד יותר.`
+        });
+      } else if (depleted) {
+        items.push({ explain: true, text: "בתרחיש הזה ההשקעה העצמאית לא הספיקה לממן את אותה משיכה חודשית, והקצבה מהקופה ממשיכה. נסו תקופה אחרת או בדקו את הנחות דמי הניהול." });
+      }
+      return items;
     }
+    const at = rows.find((item) => numericValue(item.age) >= 60) || row;
+    const atAge = Math.floor(numericValue(at.age));
+    const ret = (value) => (initial && value !== null ? `תשואה ${kupatReturnText(value, initial)}` : "");
     return [
-      { label: "השקעה עצמאית", value: numericValue(row.II), note: `${age} · ${ret(numericValue(row.II))}`, format: "shekel", color: "#1748ff" },
-      kupatAtConversion(rows, ret),
-      { label: "פוליסת חסכון", value: numericValue(row.PH), note: `${age} · ${ret(numericValue(row.PH))}`, format: "shekel", color: "#111111" }
+      { heading: true, label: `שווי בגיל ${atAge}`, note: `${basis}, אחרי מס במשיכה הונית` },
+      { label: "קופת גמל להשקעה", value: numericValue(at.KH), format: "shekel", color: "#145f59", dash: "", note: `${ret(numericValue(at.KH))} · פטור ממס אם ממירים לקצבה` },
+      { label: "השקעה עצמאית", value: numericValue(at.II), format: "shekel", color: "#385f9f", dash: "9 5", note: ret(numericValue(at.II)) },
+      { label: "פוליסת חסכון", value: numericValue(at.PH), format: "shekel", color: "#c0582b", dash: "3 4", note: ret(numericValue(at.PH)) }
     ];
-  }
-
-  /** The fund converts to an annuity at 60, so its tile shows the balance at conversion. */
-  function kupatAtConversion(rows, ret) {
-    const row = rows.find((item) => numericValue(item.age) >= 60);
-    if (!row) {
-      const last = lastRow(rows);
-      return { label: "קופת גמל להשקעה", value: numericValue(last.KH), note: ret(numericValue(last.KH)), format: "shekel", color: "#ef3326" };
-    }
-    return { label: "קופת גמל להשקעה", value: numericValue(row.KH), note: `בגיל 60, הומרה לקצבה פטורה ממס · ${ret(numericValue(row.KH))}`, format: "shekel", color: "#ef3326" };
   }
 
   /** Management-fee panel: what is left at each fee level, and how much less than with no fee. */
@@ -3837,16 +3844,16 @@ import {
   function kupatSeries(chartConfig) {
     if (chartConfig.mode === "pension") {
       return [
-        { yKey: "IIb", label: "השקעה עצמאית: היתרה אחרי משיכת אותה קצבה", short: "עצמאית אחרי משיכות", color: "#2457ff", width: 3.2 },
-        { yKey: "II", label: "השקעה עצמאית בלי משיכות", short: "עצמאית בלי משיכות", color: "#7a558f", width: 2.4, dash: "3 6" },
-        { yKey: "KHUntil60", label: "קופת גמל להשקעה עד ההמרה", short: "קופת גמל", color: "#ef3326", width: 3 },
-        { yKey: "KitzbaTotal", label: "קצבה מצטברת שהתקבלה (זהה בשתי החלופות)", short: "קצבה מצטברת", color: "#f09a11", width: 3 }
+        { yKey: "IIb", label: "השקעה עצמאית: היתרה אחרי משיכת אותה קצבה", short: "עצמאית אחרי משיכות", color: "#385f9f", width: 3 },
+        { yKey: "II", label: "השקעה עצמאית בלי משיכות", short: "עצמאית בלי משיכות", color: "#7a558f", width: 2, dash: "2 5" },
+        { yKey: "KHUntil60", label: "קופת גמל להשקעה עד ההמרה", short: "קופת גמל", color: "#145f59", width: 3 },
+        { yKey: "KitzbaTotal", label: "קצבה מצטברת שהתקבלה (זהה בשתי החלופות)", short: "קצבה מצטברת", color: "#d48219", width: 2.6 }
       ];
     }
     return [
-      { yKey: "II", label: "השקעה עצמאית", color: "#1748ff", width: 3.2 },
-      { yKey: "KH", label: "קופת גמל להשקעה", color: "#ef3326", width: 3 },
-      { yKey: "PH", label: "פוליסת חסכון", color: "#111111", width: 3 }
+      { yKey: "KH", label: "קופת גמל להשקעה", color: "#145f59", width: 3 },
+      { yKey: "II", label: "השקעה עצמאית", color: "#385f9f", width: 3, dash: "9 5" },
+      { yKey: "PH", label: "פוליסת חסכון", color: "#c0582b", width: 3, dash: "3 4" }
     ];
   }
 
@@ -4159,7 +4166,7 @@ import {
     kupatSeries(chartConfig).forEach((def) => {
       if (def.yKey === "KHUntil60") {
         // After conversion the fund has no balance of its own: it pays the annuity for life.
-        series.push({ id: "KH", label: def.label, short: def.short, color: def.color, width: def.width, points: pointsFor("KH", (row) => numericValue(row.age) <= 60) });
+        series.push({ id: "KH", label: def.label, short: def.short, color: def.color, width: def.width, dash: def.dash, points: pointsFor("KH", (row) => numericValue(row.age) <= 60) });
         return;
       }
       series.push({ id: def.yKey, label: def.label, short: def.short, color: def.color, width: def.width, dash: def.dash, points: pointsFor(def.yKey) });
@@ -4179,7 +4186,7 @@ import {
     const age60 = rowNearestAge(rows, 60);
     const ageText = (age) => `גיל ${formatAge(age)} (${Math.floor(startYear + age - startAge)})`;
     const at60 = age60 && Math.abs(numericValue(age60.age) - 60) < 0.1;
-    const annotations = at60
+    const annotations = at60 && chartConfig.mode !== "pension"
       ? (visibleSeries
           .filter((item) => ["KH", "II", "PH"].includes(item.id) && numericValue(age60[item.id]) !== null)
           .map((item) => ({
@@ -4191,7 +4198,7 @@ import {
             anchor: "start"
           })))
       : [];
-    const notes = age60 && Math.abs(numericValue(age60.age) - 60) < 0.1
+    const notes = age60 && Math.abs(numericValue(age60.age) - 60) < 0.1 && chartConfig.mode !== "pension"
       ? [`בגיל 60: ${visibleSeries
           .filter((item) => ["KH", "II", "PH"].includes(item.id))
           .map((item) => `${item.label} ${kupatReturnText(numericValue(age60[item.id]), initial)}`)
@@ -4214,6 +4221,7 @@ import {
       },
       y: { format: (value) => formatShekel(value, 0), tick: shekelTick, zero: true },
       series,
+      hidden: chartConfig.mode === "pension" ? ["II", "KH", "KitzbaTotal"] : [],
       annotations,
       aspect: 0.5,
       vLines: [{ x: 60, label: "המרה לקצבה פטורה ממס" }],
@@ -4896,9 +4904,8 @@ import {
         return {
           list: [
             "הציר האופקי הוא גיל, והציר האנכי הוא כסף בערכים שמתאימים לבחירת התקנון למדד.",
-            "בגיל 60 קופת הגמל הופכת לקצבה צמודה למדד, לכל החיים. מאותו רגע אין לה יתרה משלה, ולכן הקו האדום נעצר.",
-            "הקו הכתום הוא סך הקצבה שהתקבלה עד כל גיל. ההשקעה העצמאית משלמת לעצמה בדיוק את אותה קצבה, אחרי מס.",
-            "הקו הכחול הוא מה שנשאר בהשקעה העצמאית אחרי המשיכות: כסף שעדיין שלכם ושאפשר להוריש. אם הוא מגיע לאפס, הכסף נגמר, בעוד שהקצבה מהקופה ממשיכה."
+            "הקו הכחול הוא מה שנשאר בהשקעה העצמאית אחרי המשיכות: כסף שעדיין שלכם ושאפשר להוריש. אם הוא מגיע לאפס, הכסף נגמר, בעוד שהקצבה מהקופה ממשיכה.",
+            "מהמקרא אפשר להוסיף את קופת הגמל עד ההמרה (בגיל 60 היא הופכת לקצבה ואין לה יתרה משלה), את הקצבה המצטברת שהתקבלה, ואת ההשקעה העצמאית בלי משיכות."
           ]
         };
       case "sp500_risk":
