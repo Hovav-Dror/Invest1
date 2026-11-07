@@ -3717,3 +3717,7 @@ button.vchart-legend-item[aria-pressed="false"] {
   height: auto;
   width: 100%;
 }
+
+.view-tabs {
+  scroll-margin-top: 80px;
+}
