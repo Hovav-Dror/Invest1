@@ -328,3 +328,13 @@ def test_risk_ladder_shrinks_with_horizon(client):
 def test_risk_ladder_skips_horizons_longer_than_range(client):
     rows = client.get("/api/sp500_risk_ladder?start=2000-01-01&end=2026-01-01").get_json()["data"]
     assert max(row["Years"] for row in rows) == 20
+
+
+def test_global_rolling_switches_comparison(client):
+    mix = client.get("/api/us_global_rolling").get_json()["data"]
+    ex_us = client.get("/api/us_global_rolling?global_mix=false").get_json()["data"]
+    world = client.get("/api/us_world_rolling").get_json()["data"]
+    assert ex_us == world
+    assert mix != ex_us
+    leads = sum(1 for row in mix if row["Diff15"] is not None and row["Diff15"] > 0)
+    assert leads == 28

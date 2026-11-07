@@ -609,27 +609,30 @@ import {
       notes: ["מקור: PortfolioSelectedOverTime / p3i", "קלטים מקוריים: PortfolioTIMEtype, ProtfolioMovingWindows"]
     },
     "us-world": {
-      tab: "אמריקה",
+      tab: "ארה״ב מול העולם",
       heading: "ארה\"ב או השקעה מאוזנת בעולם כולו?",
       paragraphs: [
-        "כמעט בכל מקום מומלץ לפזר את ההשקעות בין השוק האמריקאי לשווקים גיאוגרפיים אחרים. נשמע נכון ואינטואיטיבי, ובדעת מיעוט (שיש להזהר ממנה, בדיוק בשל עובדה זו) אני מתרשם שההמלצה לכל הפחות אינה מובנת מאליה.",
-        {
-          textBefore: "דיון בנושא תוכלו למשל לקרוא בפוסט הפייסבוק הזה ",
-          linkText: "שכותרתו האם השקעה ב-S&P 500 מספיקה מבחינת פיזור? האם השוק האמריקאי תמיד מוביל?",
-          href: "https://www.facebook.com/groups/israel.passive.investors/posts/587951922224533/"
-        },
-        "לפוסט צורפה גם התמונה שכאן למטה, שאמורה להראות לנו שבהשוואה לשאר העולם ארה\"ב לפעמים מובילה, ולפעמים משיגה פחות, ושאין לדעת האם ניפול על תקופה כזו או כזו."
+        "כמעט בכל מקום מומלץ לפזר את ההשקעות בין השוק האמריקאי לשווקים גיאוגרפיים אחרים. נשמע נכון ואינטואיטיבי, ובדעת מיעוט (שיש להזהר ממנה, בדיוק בשל עובדה זו) אני מתרשם שההמלצה לכל הפחות אינה מובנת מאליה."
       ],
       afterChartByEndpoint: {
-        us_world_rolling: [
-          "בממוצע נע על 15 שנים התמונה נראית שונה: ב-31 מתוך 42 התקופות S&P 500 הוביל. יש עדיפות ברורה להשקעה במניות אמריקאיות על פני שאר העולם המפותח.",
-          "כלומר, ההמחשה לפיה נתוני העבר מראים שיש תנודתיות וסימטריה בין יתרון למניות אמריקאיות למניות שאר העולם - שגויה. נתוני העבר מראים ממש את ההפך."
-        ],
         us_global_rolling: [
+          {
+            textBefore: "דיון בנושא תוכלו למשל לקרוא בפוסט הפייסבוק הזה ",
+            linkText: "שכותרתו האם השקעה ב-S&P 500 מספיקה מבחינת פיזור? האם השוק האמריקאי תמיד מוביל?",
+            href: "https://www.facebook.com/groups/israel.passive.investors/posts/587951922224533/"
+          },
+          "לפוסט צורפה התמונה הזו, שאמורה להראות שבהשוואה לשאר העולם ארה\"ב לפעמים מובילה ולפעמים משיגה פחות, ושאין לדעת על איזו תקופה ניפול.",
+          { image: "static/us-vs-world-highlighted.png", alt: "השוואת מניות ארה\"ב מול מניות מחוץ לארה\"ב, מתוך הפוסט" },
+          "הדגשתי בה משהו שנראה שנסתר מהדיון: ההמחשה נעשתה על השקעה של 5 שנים, כלומר תשואה ממוצעת על פני 5 שנים לאחור.",
+          "זו נקודה חשובה. אם היינו לוקחים שנה בודדת, בוודאי שהיינו מצפים שפעם תוביל אפשרות אחת ופעם האחרת. וביום בודד, לא היינו מופתעים שגם אפשרות פחות טובה מנצחת לעיתים קרובות.",
+          "לכן השאלה החשובה היא על איזה אופק השקעה מסתכלים. השקעה במניות היא תנודתית, ומוכיחה את עצמה ככל שנותנים לכסף לעבוד יותר זמן בלי להתערב. בעיניי, 5 שנים הוא אופק קצר מדי.",
+          "על פני 15 שנה התמונה שונה: מול שאר העולם המפותח, S&P 500 הוביל ב-31 מתוך 42 התקופות. יש עדיפות ברורה למניות אמריקאיות. כלומר, ההמחשה לפיה יש בנתוני העבר סימטריה בין יתרון לארה\"ב ליתרון לשאר העולם שגויה. הנתונים מראים ממש את ההפך.",
+          "ומה מול ההמלצה המקובלת, תיק של 60% ארה\"ב ו-40% שאר העולם? כיוון ש-60% מהתיק זהים, הפערים קטנים יותר, אבל הכיוון נשאר: על פני 15 שנה S&P 500 הוביל ב-28 מתוך 42 התקופות. בחלון של 10 שנים התיק המפוזר הוביל מעט יותר פעמים, אבל בפערים קטנים: כש-S&P 500 הוביל, זה היה בממוצע בכ-2.6% לשנה; כשהתיק המפוזר הוביל, רק בכ-1.3%. ובממוצע על פני כל התקופות, בכל ההשוואות, S&P 500 מקדימה.",
+          "ועוד הערה: שוק המניות האמריקאי מהווה, בשווי שוק, כ-60%-65% משוק המניות העולמי, ובדרך כלל מומלץ לחקות את היחס הזה. גם זה בפני עצמו לא ברור לי: למה ההשקעה שלנו צריכה להיות חיקוי של שווי השוק העולמי?"
         ],
         portfolio_over_time: [
           "ומה לגבי התשואה? בפוסט בפייסבוק נטען שפיזור גלובלי משיג את אותה תשואה כמו בארה\"ב, רק עם תנודתיות נמוכה יותר.",
-          "גם בגרף כאן למעלה וגם בטאב העיקרי, שמשווה תיקים עצלים, תוכלו לראות עד כמה הטענה הזו נכונה. בערך.",
+          "גם בגרף כאן למעלה וגם בעמוד השוואת תיקים תוכלו לראות עד כמה הטענה הזו נכונה. בערך.",
           "כפי שכתוב גם בפוסט המקורי - להשקעה מחוץ למניות אמריקאיות יש תשואה נמוכה יותר. עם זאת, נכתב שם שהשילוב (ואני הנחתי 60% אמריקאיות ו 40% שאר העולם המפותח) אכן מציג גם תשואה ממוצעת דומה וגם סטיית תקן דומה (לא יותר טובה, אבל באמת דומה)",
           "לכן, יש הגיון מסוים בשילוב - אם השילוב עצמו, בניגוד למניות כלל העולם לבדם, לא פוגע אלא רק מהווה אלטרנטיבה.",
           "החסרונות? ראשית, דמי ניהול גבוהים יותר. במקום 0.07% להשקעה ב S&P 500 דמי ניהול של 0.2% לנייר שמחקה את המדד הגלובלי. שנית, הצורך לאזן את התיק מדי שנה, במקום לתת לו לרוץ על אוטומט.",
@@ -638,14 +641,13 @@ import {
           "בדיון בפוסט הוסבר כנגד מה שהוצג עד כה כי ארה\"ב הובילה על העולם המפותח ב-2% בממוצע לשנה ב 40 השנים האחרונות, אבל כשמנטרלים את ההתייקרות ב-valuations היא הובילה ב-0.4% בלבד. ול-valuations הנוכחיים יש השפעה גבוהה על התשואות העתידיות.",
           "שאלתי האם \"יש נתונים שמראים שההתייקרויות ב valuation בתהליך צמצום? (מבין מהסרטון את ההשערה שב 40 השנים האחרונות התייקרות זו נתנה את היתרון לארה\"ב, אבל מה זה אומר על מה שצפוי ב 20 השנים הבאות?)\" ומהתשובה אני מתרשם שאין עדיין, אבל זה נתון בהחלט מחשיד.",
           "אישית, אני מעדיף להסתמך על נתוני עבר שיש להם שנים רבות של הסטוריה, למעט כשיש שינוי שהוא כבר מוחשי שגורם לחשוד בהם. במקרה הזה, ובהסתכלות לאופק של השנים הקרובות, הרושם הלא מקצועי שלי הוא שהחשיבות של איזון בין שווקים גאוגרפיים מוצגת עם משקל גבוה ממה שמגיע לה.",
-          "והנה עוד תרשים באותו נושא:"
+          "ובלשונית \"כל התקופות\" יש עוד תרשים באותו נושא."
         ],
         global_vs_sp500_heatmap: [
           "אז בואו נעבור על מה שגילינו: האמירה שהשקעה גלובלית הייתה תמיד \"ארוחת חינם\" היא לא נכונה. במרבית השנים השקעה רק בארה\"ב הייתה הבחירה העדיפה.",
           "התובנה הזו נחשבת לדעת מיעוט, שכן רוב הכותבים בנושא טוענים אחרת - דעה שנשמעת יותר אינטואיטיבית. היא מעלה תהיות על הטענה המקובלת של \"ארוחת חינם יחידה\" בשני אופנים: ראשית, האיזון בהשקעה גלובלית לא הוביל בעבר ליותר שנים של תשואה חיובית. להפך. שנית, בנוגע לטענה שגיוון לשוק העולמי מסייע לנו, כשבפועל במקרה האופייני בעבר הוא לא סיפק יותר הגנה מנפילות שווקים, וכן פגע בתשואה."
         ]
-      },
-      image: "static/us-vs-world-highlighted.png"
+      }
     },
     scv: {
       tab: "מניות ערך קטנות",
@@ -1221,68 +1223,29 @@ import {
     {
       id: "us-world",
       group: "Rolling comparisons",
-      title: "אמריקה מול העולם",
-      nav: "אמריקה",
-      kicker: "מתי S&P 500 מוביל, ומתי פיזור עולמי נראה פתאום פחות משעמם",
-      takeaway: "פיזור עולמי נשמע הגיוני, אבל הנתונים ההיסטוריים מראים שזו המלצה שכדאי לבחון היטב.",
+      title: "כמה ארה״ב בתיק המניות?",
+      nav: "ארה״ב מול העולם",
+      kicker: "ארה״ב מול העולם",
+      takeaway: "משווים את S&P 500 לתיק מניות מפוזר בעולם. בנתוני העבר, S&P 500 הוביל ברוב התקופות, ובממוצע בכל ההשוואות.",
       multiChart: true,
-      controls: [],
+      tabs: true,
+      controls: [
+        { kind: "presetButtons", label: "מול מה משווים?", target: "global_mix", onlyTab: 0, options: [["true", "תיק מניות 60/40", "60% ארה״ב, 40% שאר העולם"], ["false", "עולם מפותח ללא ארה״ב", ""]] },
+        { kind: "hidden", name: "global_mix", value: "true" },
+        { kind: "presetButtons", label: "משך ההשקעה", target: "horizon", onlyTab: 0, options: [["5", "5 שנים", ""], ["10", "10", ""], ["15", "15", ""]] },
+        { kind: "hidden", name: "horizon", value: "15" }
+      ],
       panels: [
         {
-          endpoint: "us_world_rolling",
-          title: "S&P 500 מול עולם ללא ארה\"ב",
-          intro: [
-            "שוק המניות האמריקאי מהווה, בשווי שוק, כ-60%-65% משוק המניות העולמי, ובדרך כלל מומלץ לחקות את היחס הזה. גם זה בפני עצמו לא ברור לי. למה ההשקעה שלנו צריכה להיות חיקוי של אחוז שווי השוק העולמי, אגב.",
-            "בכל מקרה, הדגשתי בתרשים למעלה משהו שנראה שנסתר מהדיון. ההמחשה נעשתה בהנחה של השקעה של 5 שנים (כלומר, התשואה המוצגת היא תשואה ממוצעת על פני 5 שנים לאחור).",
-            "זו נקודה חשובה. אם היינו לוקחים מיצוע על שנה בודדת, בודאי שהיינו מצפים שיהיה פעם לטובת X ופעם לטובת Y. אם היינו לוקחים יום בודד, בודאי שלא היינו מופתעים מכך שגם אופציה פחות טובה תהיה הרבה פעמים טובה יותר על בסיס יומי.",
-            "לכן שאלה חשובה היא מה אופק ההשקעה עליו מסתכלים. השקעה במניות היא תנודתית, ומוכיחה את עצמה ככל שמוכנים לתת לכסף לעבוד יותר זמן בלי להתערב. לכן הבחירה באופציה של 5 שנים אינה מוצלחת בעיני.",
-            "בתרשים הבא אפשר לראות האם ואיך התמונה משתנה אם מסתכלים על השקעה של 10 שנים ושל 15 שנים. בממוצע נע על 15 שנים התמונה נראית שונה: ב-31 מתוך 42 התקופות S&P 500 הוביל. יש עדיפות ברורה להשקעה במניות אמריקאיות על פני שאר העולם המפותח."
-          ],
-          chart: {
-            type: "rollingBars",
-            x: "Year",
-            series: ["Diff5", "Diff10", "Diff15"],
-            seriesLabels: {
-              Diff5: "חלון 5 שנים",
-              Diff10: "חלון 10 שנים",
-              Diff15: "חלון 15 שנים"
-            },
-            colors: ["#145f59", "#a94d2a", "#385f9f"],
-            title: "S&P 500 מול מניות בעולם ללא ארה״ב",
-            captionLines: [
-              { text: "הפער בתשואה השנתית הממוצעת בין S&P 500 למדד MSCI World ex USA," },
-              { text: "בתקופות של 5, 10 ו-15 שנים שהסתיימו בכל שנה" },
-              {
-                textBefore: "נתוני MSCI World ex USA מתוך ",
-                linkText: "https://www.upmyinterest.com/msci-world-ex-us",
-                href: "https://www.upmyinterest.com/msci-world-ex-us",
-                textAfter: " לשנים 1970–2023, ו-2024–2025 מתוך דף המדד של MSCI"
-              }
-            ]
-          },
-          metric: metricLast(["Diff5", "Diff10", "Diff15"]),
-          tableColumns: ["Year", "Diff5", "Diff10", "Diff15"]
-        },
-        {
           endpoint: "us_global_rolling",
-          title: "S&P 500 מול תיק גלובלי 60/40",
-          intro: [
-            "נותר לנו לשפר את ההשוואה עוד קצת. ההמלצה המקובלת היא להשקיע בקרן ש 60% מושקע בארה\"ב ורק 40% בשאר העולם. האם זה משנה את התמונה?"
-          ],
+          title: "פער בתשואה",
+          hideHeader: true,
           chart: {
             type: "rollingBars",
             x: "Year",
-            series: ["Diff5", "Diff10", "Diff15"],
-            seriesLabels: {
-              Diff5: "חלון 5 שנים",
-              Diff10: "חלון 10 שנים",
-              Diff15: "חלון 15 שנים"
-            },
-            colors: ["#145f59", "#a94d2a", "#385f9f"],
-            title: "S&P 500 מול תיק גלובלי (60% ארה״ב, 40% MSCI World ex USA)",
+            horizonFromState: true,
             captionLines: [
-              { text: "הפער בתשואה השנתית הממוצעת בין S&P 500 לתיק של 60% ארה״ב ו-40% MSCI World ex USA," },
-              { text: "בתקופות של 5, 10 ו-15 שנים שהסתיימו בכל שנה" },
+              { text: "פער התשואה השנתית הממוצעת, בדולרים נומינליים. התיק המפוזר: 60% S&P 500 ו-40% MSCI World ex USA, או MSCI World ex USA לבדו." },
               {
                 textBefore: "נתוני MSCI World ex USA מתוך ",
                 linkText: "https://www.upmyinterest.com/msci-world-ex-us",
@@ -1291,12 +1254,13 @@ import {
               }
             ]
           },
-          metric: metricLast(["Diff5", "Diff10", "Diff15"]),
+          metric: metricUsLead,
           tableColumns: ["Year", "Diff5", "Diff10", "Diff15"]
         },
         {
           endpoint: "portfolio_over_time",
-          title: "תשואה אבסולוטית: S&P 500 מול Global",
+          title: "תשואה בשקלים",
+          hideHeader: true,
           controls: [
             {
               kind: "segmented",
@@ -1321,8 +1285,7 @@ import {
             { kind: "hidden", name: "commission_adjusted", value: "true" }
           ],
           intro: [
-            "לא ממש משנה את התמונה. כיוון שרוב ההשקעה (60%) זהה ובאמריקה - ההבדלים קטנים יותר. אך בנתוני העבר אין יתרון ברור להשקעה מאוזנת בין ארה\"ב לשאר העולם. בחלונות של 5 ושל 15 שנים יש יותר שנים בהם השקעה רק באמריקה הייתה מוצלחת יותר מהשקעה גלובלית; בחלון של 10 שנים התמונה כמעט מאוזנת.",
-            "חוץ מזה, מעניין לראות השוואה גם של התשואה האבסולוטית, ולא רק של התשואה היחסית בין שני אפיקי ההשקעה:"
+            "כאן רואים את התשואה עצמה, ולא רק את הפער: התשואה השנתית הממוצעת של כל תיק, בשקלים ובתיאום למדד המחירים בישראל, בתקופות שהסתיימו בכל שנה."
           ],
           chart: {
             type: "portfolioCagrBars",
@@ -1339,7 +1302,8 @@ import {
         },
         {
           endpoint: "global_vs_sp500_heatmap",
-          title: "כל תקופות ההתחלה והסיום",
+          title: "כל התקופות",
+          hideHeader: true,
           chart: {
             type: "heatmap",
             x: "EndYear",
@@ -1364,7 +1328,7 @@ import {
         }
       ],
       tableColumns: ["Year", "Diff5", "Diff10", "Diff15", "StartYear", "EndYear", "InvYears", "delta_cagr", "delta_value"],
-      metric: metricLast(["Diff5", "Diff10", "Diff15"])
+      metric: metricUsLead
     },
     {
       id: "scv",
@@ -1656,7 +1620,8 @@ import {
     { label: "עמלות ומסים", views: ["commission-drag", "independent"] },
     { label: "קופת גמל ו-IRA", views: ["kupat-gemel", "ira"] },
     { label: "סיכון", views: ["sp500-risk"] },
-    { label: "השוואת תיקים", views: ["portfolio-summary", "us-world", "scv"] },
+    { label: "מה לשים בתיק?", views: ["us-world", "scv"] },
+    { label: "השוואת תיקים", views: ["portfolio-summary"] },
     { label: "משיכה מהתיק", views: ["trinity"] }
   ];
 
@@ -1893,6 +1858,9 @@ import {
     activeView.controls.forEach((control) => {
       const before = els.controls.children.length;
       renderControl(control);
+      if (control.onlyTab !== undefined) {
+        [...els.controls.children].slice(before).forEach((node) => { node.dataset.onlyTab = String(control.onlyTab); });
+      }
       if (!control.advanced) return;
       if (!advanced) {
         advanced = document.createElement("details");
@@ -1924,6 +1892,14 @@ import {
       }
       if (control.kind === "presetButtons") {
         renderPresetButtons(control);
+        return;
+      }
+      if (control.kind === "hidden") {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = control.name;
+        input.value = control.value;
+        els.controls.appendChild(input);
         return;
       }
       if (control.kind === "portfolioPicker") {
@@ -2131,6 +2107,9 @@ import {
       return `<h4${idAttr}${classAttr}>${escapeHtml(block.subheading)}</h4>`;
     }
     if (block.bold) return `<p class="story-emphasis">${escapeHtml(block.bold)}</p>`;
+    if (block.image) {
+      return `<figure class="story-media story-media-inline"><img class="story-image" src="${escapeHtml(block.image)}" alt="${escapeHtml(block.alt || "")}" loading="lazy">${block.caption ? `<figcaption>${escapeHtml(block.caption)}</figcaption>` : ""}</figure>`;
+    }
     if (block.table) {
       const head = block.table.head.map((cell) => `<th scope="col">${escapeHtml(cell)}</th>`).join("");
       const body = block.table.rows.map((row) => `<tr>${row.map((cell, index) => index === 0 ? `<th scope="row">${escapeHtml(cell)}</th>` : `<td>${escapeHtml(cell)}</td>`).join("")}</tr>`).join("");
@@ -2333,6 +2312,9 @@ import {
       button.setAttribute("aria-selected", selected ? "true" : "false");
       button.tabIndex = selected ? 0 : -1;
     });
+    els.controls.querySelectorAll("[data-only-tab]").forEach((node) => {
+      node.hidden = Number(node.dataset.onlyTab) !== index;
+    });
     els.chart.querySelectorAll("[data-panel-index]").forEach((section) => {
       section.hidden = Number(section.dataset.panelIndex) !== index;
       section.setAttribute("role", "tabpanel");
@@ -2477,9 +2459,14 @@ import {
   function updateControlSummaries() {
     els.controls.querySelectorAll("[data-preset-value]").forEach((button) => {
       const input = els.controls.querySelector(`[name="${button.dataset.presetTarget}"]`);
-      const current = input ? Number(normalizeInputValue(input.name, input.value)) : NaN;
-      const preset = Number(displayInputValue(button.dataset.presetTarget, button.dataset.presetValue));
-      button.setAttribute("aria-pressed", Math.abs(current - preset) < 1e-9 ? "true" : "false");
+      const raw = input ? normalizeInputValue(input.name, input.value) : "";
+      const shown = displayInputValue(button.dataset.presetTarget, button.dataset.presetValue);
+      const current = Number(raw);
+      const preset = Number(shown);
+      const same = Number.isFinite(current) && Number.isFinite(preset) && String(raw).trim() !== ""
+        ? Math.abs(current - preset) < 1e-9
+        : String(raw) === String(shown);
+      button.setAttribute("aria-pressed", same ? "true" : "false");
     });
     const tags = els.story.querySelectorAll("[data-cost-tag]");
     if (tags.length) {
@@ -2954,7 +2941,8 @@ import {
       if (endpoint === "portfolio_summary" || endpoint === "portfolio_over_time") {
         if (!["portfolios", "year_start", "year_end", "commission_adjusted", "value_mode", "rolling_window", "full_history_rolling"].includes(key)) return;
       }
-      if (endpoint === "us_world_rolling" || endpoint === "us_global_rolling") return;
+      if (endpoint === "us_world_rolling") return;
+      if (endpoint === "us_global_rolling" && key !== "global_mix") return;
       if (endpoint === "global_vs_sp500_heatmap" && key !== "max_years") return;
       if (endpoint === "sp500_scv_heatmap" && key !== "max_years") return;
       if ((endpoint === "sp500_scv_rolling" || endpoint === "sp500_scv_after_tax") && key !== "window") return;
@@ -3145,7 +3133,7 @@ import {
         status.className = "";
         status.textContent = `${ui.loadingView}...`;
       }
-      if (metrics && panel.metric && !panel.hideMetrics && !panel.chart.facetBy && panel.chart.type !== "rollingBars" && panel.chart.type !== "heatmap") {
+      if (metrics && panel.metric && !panel.hideMetrics && !panel.chart.facetBy && (panel.chart.type !== "rollingBars" || panel.chart.horizonFromState) && panel.chart.type !== "heatmap") {
         metrics.hidden = false;
         metrics.innerHTML = loadingSkeletonHtml("metrics");
       }
@@ -3160,7 +3148,7 @@ import {
           status.hidden = true;
           status.textContent = "";
         }
-        if (metrics && panel.metric && !panel.hideMetrics && !panel.chart.facetBy && panel.chart.type !== "rollingBars" && panel.chart.type !== "heatmap") {
+        if (metrics && panel.metric && !panel.hideMetrics && !panel.chart.facetBy && (panel.chart.type !== "rollingBars" || panel.chart.horizonFromState) && panel.chart.type !== "heatmap") {
           metrics.hidden = false;
           renderMetricsInto(metrics, panel.metric ? panel.metric(payload) : []);
         }
@@ -3594,7 +3582,7 @@ import {
     ` : `
       <div class="metric"${metric.color ? ` style="--tile:${escapeHtml(metric.color)}"` : ""}>
         <span>${metric.dash !== undefined ? `<svg class="metric-swatch" viewBox="0 0 28 6" aria-hidden="true"><line x1="1" y1="3" x2="27" y2="3" stroke="${escapeHtml(metric.color)}" stroke-width="2.6" stroke-linecap="round" ${metric.dash ? `stroke-dasharray="${escapeHtml(metric.dash)}"` : ""}/></svg>` : ""}${escapeHtml(displayLabel(metric.label))}</span>
-        <strong>${metric.valueText ? escapeHtml(metric.valueText) : formatMetricValue(metric)}${metric.suffix ? `<small class="metric-suffix">${escapeHtml(metric.suffix)}</small>` : ""}</strong>
+        <strong>${metric.valueText ? `<span dir="rtl">${escapeHtml(metric.valueText)}</span>` : formatMetricValue(metric)}${metric.suffix ? `<small class="metric-suffix">${escapeHtml(metric.suffix)}</small>` : ""}</strong>
         <small>${escapeHtml(metric.note || "")}</small>
       </div>
     `).join("");
@@ -3657,6 +3645,26 @@ import {
         note: "מדד שחזר מהחישוב"
       }));
     };
+  }
+
+  /** Who led, how often and by how much, for the selected horizon and comparison. */
+  function metricUsLead(payload) {
+    if (payload.endpoint !== "us_global_rolling") return [];
+    const horizon = String(stateFromForm().horizon || "15");
+    const key = `Diff${horizon}`;
+    const values = (payload.data || []).map((row) => numericValue(row[key])).filter(Number.isFinite);
+    if (!values.length) return [];
+    const mixed = payload.params && payload.params.global_mix === false ? "עולם מפותח ללא ארה״ב" : "התיק המפוזר";
+    const usLead = values.filter((value) => value > 0);
+    const otherLead = values.filter((value) => value < 0);
+    const mean = (list) => list.reduce((sum, value) => sum + value, 0) / (list.length || 1);
+    const points = (value) => `\u2066${value >= 0 ? "+" : "−"}${Math.abs(value * 100).toFixed(2)}\u2069`;
+    return [
+      { heading: true, label: `תקופות של ${horizon} שנים`, note: "פער בתשואה השנתית הממוצעת · בדולרים נומינליים" },
+      { label: "S&P 500 הוביל", valueText: `${usLead.length} מתוך ${values.length}`, color: "#385f9f", note: usLead.length ? `בממוצע ב-${Math.abs(mean(usLead) * 100).toFixed(1)} נקודות אחוז לשנה` : "" },
+      { label: `${mixed} הוביל`, valueText: `${otherLead.length} מתוך ${values.length}`, color: "#c0582b", note: otherLead.length ? `בממוצע ב-${Math.abs(mean(otherLead) * 100).toFixed(1)} נקודות אחוז לשנה` : "" },
+      { label: "פער ממוצע", valueText: points(mean(values)), color: "#145f59", note: `נקודות אחוז לשנה, ${mean(values) >= 0 ? "לטובת S&P 500" : `לטובת ${mixed}`}, על פני כל התקופות` }
+    ];
   }
 
   /** Positive-first summary for the chosen holding period, with its weakest and strongest window. */
@@ -4396,11 +4404,13 @@ import {
   function renderRollingBarsChart(payload, chartConfig) {
     const rows = payload.data || [];
     const xKey = chartConfig.x;
+    const horizon = chartConfig.horizonFromState ? String(stateFromForm().horizon || "15") : null;
+    const mixed = payload.params && payload.params.global_mix === false ? "עולם מפותח ללא ארה״ב" : "תיק 60/40";
     const panels = [
       { key: "Diff5", label: "השקעה ל-5 שנים" },
       { key: "Diff10", label: "השקעה ל-10 שנים" },
       { key: "Diff15", label: "השקעה ל-15 שנים" }
-    ].map((item) => {
+    ].filter((item) => !horizon || item.key === `Diff${horizon}`).map((item) => {
       const points = rows
         .map((row) => ({ x: Number(row[xKey]), y: numericValue(row[item.key]), data: row }))
         .filter((point) => Number.isFinite(point.y));
@@ -4419,8 +4429,10 @@ import {
     drawChart(chartTarget(), {
       kind: "bars",
       key: payload.endpoint,
-      title: chartConfig.title,
-      subtitle: "פער התשואה השנתית הממוצעת בתקופה שהסתיימה בכל שנה. עמודה מעל 0: S&P 500 הוביל.",
+      title: horizon ? `S&P 500 מול ${mixed}: פער בתשואה בכל תקופה של ${horizon} שנים` : chartConfig.title,
+      subtitle: horizon
+        ? `כל עמודה היא תקופה שהסתיימה באותה שנה. כחול: S&P 500 הוביל. כתום: ${mixed} הוביל.`
+        : "פער התשואה השנתית הממוצעת בתקופה שהסתיימה בכל שנה. עמודה מעל 0: S&P 500 הוביל.",
       captionHtml: captionHtml(chartConfig, payload),
       footerHtml: chartReadingHtml(payload, chartConfig),
       x: { format: (value) => String(value) },

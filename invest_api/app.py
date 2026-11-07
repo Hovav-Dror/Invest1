@@ -408,6 +408,14 @@ def _parse_year_end_args(args) -> Params:
     return _freeze(params)
 
 
+def _parse_global_args(args) -> Params:
+    _reject_unknown(args, {"year_end", "global_mix"})
+    params: JsonDict = {"global_mix": _get_bool(args, "global_mix", True)}
+    if "year_end" in args:
+        params["year_end"] = _get_int(args, "year_end", 2025, minimum=1871, maximum=2025)
+    return _freeze(params)
+
+
 def _parse_no_args(args) -> Params:
     _reject_unknown(args, set())
     return _freeze({})
@@ -475,7 +483,7 @@ def _dispatch(name: str, params: Params) -> pd.DataFrame:
     if name == "us_world_rolling":
         return calc.us_world_rolling(data=data, **kwargs)
     if name == "us_global_rolling":
-        return calc.us_global_rolling(data=data, global_mix=True, **kwargs)
+        return calc.us_global_rolling(data=data, **kwargs)
     if name == "global_vs_sp500_heatmap":
         return calc.global_vs_sp500_heatmap(data=data, **kwargs)
     if name == "sp500_scv_rolling":
@@ -525,7 +533,7 @@ PARSERS: dict[str, Callable[[Any], Params]] = {
     "tax_us_vs_il": _parse_independent_args,
     "portfolio_over_time": _parse_portfolio_args,
     "us_world_rolling": _parse_year_end_args,
-    "us_global_rolling": _parse_year_end_args,
+    "us_global_rolling": _parse_global_args,
     "global_vs_sp500_heatmap": _parse_heatmap_args,
     "sp500_scv_rolling": _parse_scv_rolling_args,
     "sp500_scv_heatmap": _parse_heatmap_args,
