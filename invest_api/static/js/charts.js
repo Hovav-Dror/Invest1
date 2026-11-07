@@ -608,10 +608,10 @@ function drawScatter(spec, instance, width) {
   const ordered = [...points].sort((a, b) => Number(Boolean(b.highlight)) - Number(Boolean(a.highlight)));
   points.forEach((point) => placed.push({ x1: xScale(point.x) - radius(point), x2: xScale(point.x) + radius(point), y1: yScale(point.y) - radius(point), y2: yScale(point.y) + radius(point) }));
   const labels = ordered.map((point) => {
-    if (compact && !point.highlight) return "";
+    if (compact && !point.highlight && points.length > 8) return "";
     const cx = xScale(point.x);
     const cy = yScale(point.y);
-    const w = textWidth(point.label, 11);
+    const w = textWidth(point.label, 12.5);
     const r = radius(point) + 3;
     const options = [
       { x: cx + r, y: cy + 4, anchor: "start" },

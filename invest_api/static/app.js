@@ -4733,7 +4733,7 @@ import {
     const nValues = rows.map((row) => numericValue(row.N)).filter((value) => value !== null);
     const nMin = Math.min(...nValues);
     const nMax = Math.max(...nValues);
-    const radius = (n) => 4 + ((n - nMin) / (nMax - nMin || 1)) * 7;
+    const radius = (n) => (nMax > nMin ? 5 + ((n - nMin) / (nMax - nMin)) * 7 : 8);
     const formatY = (value) => (mode === "factor" ? `×${formatNumber(value, 1)}` : formatPercent(value, 0));
     const formatX = (value) => (mode === "factor" ? formatNumber(value, 0) : formatPercent(value, 0));
     drawChart(target, {
