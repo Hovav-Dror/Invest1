@@ -298,7 +298,7 @@ import {
               "מי שהשקיע לפני 30 שנה 100,000 ש\"ח בפוליסת חסכון במסלול מחקה S&P 500, בדמי ניהול והוצאות של כ-1% בשנה, ויפדה אותם כעת, יראה בחשבון אחרי מס כ-1,090,000 שקלים.",
               "לעומתו מי שהשקיע את אותו סכום באותו מסלול באופן עצמאי, בעלות של כ-0.2% בשנה, יראה בחשבונו כ-1,370,000 ש\"ח. ההפרש, כ-280,000 ש\"ח, הוא כמעט פי שלושה מהסכום שהושקע. זה למה כן.",
               [
-                "(איך מגיעים ל-0.2%? ראו ",
+                "(0.2% היא הערכה שמרנית. איך מגיעים אליה? ראו ",
                 { text: "עלות מסחר עצמאי", href: "#independent" },
                 ".)"
               ]
@@ -366,7 +366,7 @@ import {
           { subheading: "דוגמה לפי הגדרות ברירת המחדל" },
           { text: "המספרים בדוגמה מתייחסים ל-100,000 ש\"ח מ-1993 עד 2026, עם התאמה למדד. התוצאה שלמעלה מתעדכנת לפי מה שבחרתם." },
           [
-            "בפשטנות, דמי ניהול במסחר עצמאי יהיו כ-0.2% ודמי הניהול בפוליסת חסכון, ובפרט לאחר תוספת \"הוצאות ניהול השקעה\", יהיו כ-1%. (איך מגיעים ל-0.2%? ראו ",
+            "בפשטנות, דמי ניהול במסחר עצמאי יהיו כ-0.2% ודמי הניהול בפוליסת חסכון, ובפרט לאחר תוספת \"הוצאות ניהול השקעה\", יהיו כ-1%. (0.2% היא הערכה שמרנית. איך מגיעים אליה? ראו ",
             { text: "עלות מסחר עצמאי", href: "#independent" },
             ".)"
           ],
@@ -453,19 +453,22 @@ import {
     },
     independent: {
       tab: "עלות מסחר עצמאי",
-      heading: "כמה עולה מסחר עצמאי?",
       paragraphs: [
-        "השקעה פאסיבית במסחר עצמאי אינה חינם. היא רק מעבירה אותנו מעמלה אחת גדולה וקבועה לכמה עלויות קטנות יותר: המרת מטבע, קנייה, מכירה, מינימום פעולה ודמי ניהול של הקרן.",
-        "הגרף הראשון מבודד את העלויות האלה. הוא מתחיל מסכום השקעה נתון, קונה מחקה S&P 500 בדולרים, מוריד את עלויות הקנייה והניהול, ובסוף מראה כמה נשאר לאחר מכירה.",
-        "הגרף השני משווה בין שתי דרכי חישוב מס על ההשקעה: מס ישראלי עם הצמדה למדד המחירים בישראל מול חישוב דולרי/נומינלי. זו נקודה טכנית, אבל לאורך שנים היא יכולה להזיז את התוצאה."
+        { costFlow: [
+          { title: "קנייה", text: "המרת שקלים לדולרים ועמלת קנייה" },
+          { title: "החזקה", text: "דמי ניהול שנתיים של הקרן (ולפעמים דמי משמרת)" },
+          { title: "מכירה", text: "עמלת מכירה והמרה חזרה לשקלים" }
+        ], note: "לרוב הברוקרים יש עמלת מינימום לכל קנייה ומכירה. בסכומים גדולים היא זניחה." }
       ],
       afterChartByEndpoint: {
         independent_commissions: [
-          "כאן רואים את המחיר של מסחר עצמאי כשהוא נעשה בצורה פאסיבית: העלויות קיימות, אבל הן חדות וברורות. משלמים על המרה ועל פעולות, ובדרך כלל דמי הניהול השנתיים נמוכים בהרבה מאלטרנטיבות מנוהלות.",
+          "הגרף מתחיל מסכום השקעה נתון, קונה מחקה S&P 500 בדולרים, מוריד את עלויות הקנייה והניהול, ובסוף מראה כמה נשאר לאחר מכירה והמרה חזרה לשקלים.",
           "הנקודה החשובה היא סדר הגודל. אם דמי הניהול השנתיים נמוכים, העלות החד פעמית של קנייה ומכירה נבלעת יחסית לאורך זמן. לכן מסחר עצמאי יכול להיות זול מאוד למי שבאמת מתכוון לקנות, להחזיק ולא לגעת.",
-          "מצד שני, אם מתחילים לבצע פעולות לעיתים קרובות, היתרון נשחק. הטאב הזה לא נועד לעודד מסחר פעיל, אלא לבדוק האם מעבר חד פעמי ופאסיבי באמת זול יותר."
+          "דמי הניהול של הקרן משנים הרבה יותר מהעמלות. קרן זולה על S&P 500, כמו CSPX, עולה כ-0.07% בשנה. קרנות על מדדים אחרים, כמו USSC, יכולות לעלות 0.3% ויותר. אפשר לבחור ביניהן למעלה.",
+          "מצד שני, אם מתחילים לבצע פעולות לעיתים קרובות, היתרון נשחק. העמוד הזה לא נועד לעודד מסחר פעיל, אלא לבדוק האם מעבר חד פעמי ופאסיבי באמת זול יותר."
         ],
         tax_us_vs_il: [
+          "כאן משווים בין שתי דרכי חישוב מס על אותה השקעה: מס ישראלי עם הצמדה למדד המחירים בישראל, מול חישוב דולרי/נומינלי. זו נקודה טכנית, אבל לאורך שנים היא יכולה להזיז את התוצאה.",
           "כאן השאלה כבר אינה רק כמה עמלות משלמים, אלא איך מודדים את הרווח שעליו משלמים מס. במדידה ישראלית צמודת מדד, האינפלציה בישראל מפחיתה את הרווח הריאלי החייב במס. במדידה דולארית/נומינלית מתקבלת לעיתים תמונה אחרת.",
           "הפער בין הקווים אינו קבוע. הוא תלוי בתקופה, בשער הדולר ובאינפלציה. לכן חשוב לשחק עם תאריכי ההתחלה והסיום ולא להסיק מסקנה ממסלול היסטורי יחיד.",
           "בכל מקרה, המסקנה המעשית נשארת זהירה: העמלות במסחר עצמאי יכולות להיות נמוכות מאוד, אבל יש משמעות למס, למטבע ולשאלה האם באמת נשארים פאסיביים."
@@ -1044,46 +1047,54 @@ import {
     {
       id: "independent",
       group: "Independent investing",
-      title: "כמה באמת עולה מסחר עצמאי",
+      title: "כמה באמת עולה מסחר עצמאי?",
       nav: "עלות מסחר עצמאי",
-      kicker: "המרת מטבע, מינימום פעולה, דמי משמרת והשוואת מס ישראלי מול דולרי",
-      takeaway: "מסחר עצמאי יכול להיות זול מאוד, אבל כדאי לראות במפורש איך עמלות ומיסוי משפיעים על השורה הסופית.",
+      kicker: "מסחר עצמאי",
+      takeaway: "במסחר עצמאי אין עמלה אחת גדולה, אלא כמה עלויות קטנות: חלק משלמים בכניסה וביציאה, וחלק לאורך ההחזקה.",
       multiChart: true,
+      tabs: true,
+      advancedLabel: "הנחות עלות",
+      advancedSummary: (state) => `דמי ניהול ${trimInputNumber(Number(state.yearly_commission), 3)}% · עמלת המרה ${trimInputNumber(Number(state.dollar_commission), 3)}%`,
       controls: [
-        dateRangeSlider({ start: "2000-01-01", end: "2026-01-01" }),
-        field("initial", "סכום התחלתי", "number", "100000", "1000", "שקלים"),
-        field("share_price", "מחיר יחידה", "number", "50", "0.01", "דולר"),
-        field("dollar_commission", "עמלת המרה", "number", "0.005", "0.001", "אחוזים"),
-        field("commission_per_share", "עמלה ליחידה", "number", "0.01", "0.001", "דולר"),
-        field("min_dollar_commission", "מינימום פעולה", "number", "7.5", "0.1", "דולר"),
-        field("yearly_commission", "דמי ניהול שנתיים", "number", "0.003", "0.001", "אחוזים")
+        { kind: "monthFields", label: "תקופת השקעה" },
+        field("initial", "השקעה התחלתית (₪)", "text", "100000"),
+        { kind: "presetButtons", label: "קרן", target: "yearly_commission", options: [["0.0007", "קרן זולה, למשל CSPX", "0.07%"], ["0.003", "קרן יקרה יותר, למשל USSC", "0.3%"]] },
+        { ...dateRangeSlider({ start: "2000-01-01", end: "2026-01-01" }), advanced: true },
+        { ...field("yearly_commission", "דמי ניהול שנתיים (%)", "number", "0.0007", "0.0001"), advanced: true },
+        { ...field("dollar_commission", "עמלת המרה, בכל כיוון (%)", "number", "0.005", "0.001"), advanced: true },
+        { ...field("share_price", "מחיר יחידה ($)", "number", "50", "0.01"), advanced: true },
+        { ...field("commission_per_share", "עמלה ליחידה ($)", "number", "0.01", "0.001"), advanced: true },
+        { ...field("min_dollar_commission", "עמלת מינימום לפעולה ($)", "number", "7.5", "0.1"), advanced: true }
       ],
       panels: [
         {
           endpoint: "independent_commissions",
-          title: "עמלות מסחר עצמאי",
+          title: "עלויות מסחר",
+          hideHeader: true,
           chart: {
             type: "line",
             x: "date",
             series: ["v0", "v_final"],
             seriesLabels: {
-              v0: "ללא עלויות מסחר",
-              v_final: "אחרי המרה, קנייה, דמי ניהול ומכירה"
+              v0: "ללא עלויות",
+              v_final: "אחרי עלויות"
             },
-            colors: ["#145f59", "#a94d2a"],
+            colors: ["#145f59", "#c0582b"],
+            dashes: { v_final: "9 5" },
             baselineKey: "initial",
             currency: true,
             endLabels: true,
             forceZero: true,
-            title: "כמה נשאר אחרי עמלות מסחר עצמאי",
-            caption: "מדד S&P 500 כולל דיווידנדים; העלויות כוללות המרת מטבע, קנייה, דמי ניהול שנתיים ומכירה בסוף התקופה"
+            title: "שווי ההשקעה לאורך זמן",
+            caption: "מדד S&P 500 כולל דיווידנדים, בשקלים של תחילת התקופה; העלויות כוללות המרת מטבע, קנייה, דמי ניהול שנתיים ומכירה בסוף התקופה"
           },
           metric: metricIndependent,
           tableColumns: ["date", "v0", "v_final"]
         },
         {
           endpoint: "tax_us_vs_il",
-          title: "מס ישראלי מול מס דולרי",
+          title: "בסיס חישוב המס",
+          hideHeader: true,
           chart: {
             type: "line",
             x: "date",
@@ -1093,7 +1104,8 @@ import {
               v_final_il: "אחרי מס ישראלי צמוד מדד",
               v_final_dollar: "אחרי מס דולרי/נומינלי"
             },
-            colors: ["#145f59", "#a94d2a", "#385f9f"],
+            colors: ["#145f59", "#c0582b", "#385f9f"],
+            dashes: { v_final_il: "9 5", v_final_dollar: "3 4" },
             baselineKey: "initial",
             currency: true,
             endLabels: true,
@@ -1797,11 +1809,12 @@ import {
       if (!advanced) {
         advanced = document.createElement("details");
         advanced.className = "controls-advanced";
-        advanced.innerHTML = "<summary>שינוי הנחות</summary>";
+        advanced.innerHTML = `<summary>${escapeHtml(activeView.advancedLabel || "שינוי הנחות")}<small data-advanced-summary></small></summary>`;
       }
       [...els.controls.children].slice(before).forEach((node) => advanced.appendChild(node));
     });
     if (advanced) els.controls.appendChild(advanced);
+    updateControlSummaries();
     if (activeView.id === "trinity") {
       const summary = document.createElement("div");
       summary.className = "trinity-draw-summary";
@@ -1819,6 +1832,10 @@ import {
       }
       if (control.kind === "feeChips") {
         renderFeeChips(control);
+        return;
+      }
+      if (control.kind === "presetButtons") {
+        renderPresetButtons(control);
         return;
       }
       if (control.kind === "portfolioPicker") {
@@ -2026,6 +2043,12 @@ import {
       return `<h4${idAttr}${classAttr}>${escapeHtml(block.subheading)}</h4>`;
     }
     if (block.bold) return `<p class="story-emphasis">${escapeHtml(block.bold)}</p>`;
+    if (block.costFlow) {
+      return `<div class="cost-flow">
+        <ol>${block.costFlow.map((step) => `<li><strong>${escapeHtml(step.title)}</strong><span>${escapeHtml(step.text)}</span></li>`).join("")}</ol>
+        ${block.note ? `<p class="cost-flow-note">${escapeHtml(block.note)}</p>` : ""}
+      </div>`;
+    }
     if (block.callout) return `<aside class="story-callout">${block.callout.map((item) => `<p>${storyParagraphHtml(item)}</p>`).join("")}</aside>`;
     if (block.list) return `<ul class="story-list">${block.list.map((item) => `<li>${storyParagraphHtml(item)}</li>`).join("")}</ul>`;
     if (block.text) return `<p>${emphasisHtml(block.text)}</p>`;
@@ -2333,6 +2356,46 @@ import {
     row.innerHTML = `<button type="button" class="fee-add" data-fee-add aria-label="הוספת שיעור דמי ניהול">+</button>`;
     values.forEach((value) => row.insertBefore(feeChipNode(value), row.querySelector("[data-fee-add]")));
     updateFeeAddButton(row);
+  }
+
+  /** Buttons that fill another control with a preset value (e.g. a fund's annual fee). */
+  function renderPresetButtons(control) {
+    const wrap = document.createElement("fieldset");
+    wrap.className = "preset-buttons";
+    wrap.innerHTML = `
+      <legend>${escapeHtml(control.label)}</legend>
+      <div class="preset-buttons-row">${control.options.map(([value, label, tag]) => `
+        <button type="button" data-preset-target="${escapeHtml(control.target)}" data-preset-value="${escapeHtml(value)}" aria-pressed="false">
+          <span>${escapeHtml(label)}</span><b>${escapeHtml(tag)}</b>
+        </button>`).join("")}
+      </div>
+    `;
+    wrap.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-preset-value]");
+      if (!button) return;
+      const input = els.controls.querySelector(`[name="${button.dataset.presetTarget}"]`);
+      if (!input) return;
+      input.value = displayInputValue(input.name, button.dataset.presetValue);
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    els.controls.appendChild(wrap);
+  }
+
+  function updateControlSummaries() {
+    els.controls.querySelectorAll("[data-preset-value]").forEach((button) => {
+      const input = els.controls.querySelector(`[name="${button.dataset.presetTarget}"]`);
+      const current = input ? Number(normalizeInputValue(input.name, input.value)) : NaN;
+      const preset = Number(displayInputValue(button.dataset.presetTarget, button.dataset.presetValue));
+      button.setAttribute("aria-pressed", Math.abs(current - preset) < 1e-9 ? "true" : "false");
+    });
+    const summary = els.controls.querySelector("[data-advanced-summary]");
+    if (summary && activeView.advancedSummary) {
+      try {
+        summary.textContent = activeView.advancedSummary(stateFromForm());
+      } catch (error) {
+        summary.textContent = "";
+      }
+    }
   }
 
   function renderFeeMatrix(control) {
@@ -3499,29 +3562,45 @@ import {
     ];
   }
 
+  /** End values, the cost gap, its equivalent annual rate, and the same return at 1% a year for comparison. */
   function metricIndependent(payload) {
-    const row = lastRow(payload.data);
+    const rows = payload.data || [];
+    const row = lastRow(rows);
     if (!row) return [];
-    const start = Number(payload.params && payload.params.initial) || null;
+    const years = Math.max((rows.length - 1) / 12, 0);
     const base = numericValue(row.v0);
-    const afterCosts = numericValue(row.v_final);
-    const afterIl = numericValue(row.v_final_il);
-    const afterDollar = numericValue(row.v_final_dollar);
-
-    const change = (value) => (start && value !== null ? `תשואה ${formatPercent(value / start - 1, 0)}` : "");
+    const heading = { heading: true, label: "שווי בסוף התקופה", note: "בשקלים של תחילת התקופה" };
     if (payload.endpoint === "tax_us_vs_il") {
       return [
-        { label: "לפני מס ומכירה", value: base, note: change(base), format: "shekel", color: "#145f59" },
-        { label: "אחרי מס ישראלי", value: afterIl, note: change(afterIl), format: "shekel", color: "#a94d2a" },
-        { label: "אחרי מס דולרי", value: afterDollar, note: change(afterDollar), format: "shekel", color: "#385f9f" }
+        { ...heading, label: "שווי בסוף התקופה, אחרי מס" },
+        { label: "לפני מס ומכירה", value: base, format: "shekel", color: "#145f59", dash: "", note: "נקודת ההשוואה" },
+        { label: "אחרי מס ישראלי", value: numericValue(row.v_final_il), format: "shekel", color: "#c0582b", dash: "9 5", note: "רווח ריאלי, צמוד למדד בישראל" },
+        { label: "אחרי מס דולרי", value: numericValue(row.v_final_dollar), format: "shekel", color: "#385f9f", dash: "3 4", note: "רווח דולרי, בשער המכירה" }
       ];
     }
-
-    return [
-      { label: "בלי עלויות", value: base, note: change(base), format: "shekel", color: "#145f59" },
-      { label: "אחרי כל העלויות", value: afterCosts, note: change(afterCosts), format: "shekel", color: "#a94d2a" },
-      { label: "העלות המצטברת", value: base !== null && afterCosts !== null ? base - afterCosts : null, note: "הפער בין שני הקווים", format: "shekel", color: "#68736f" }
+    const after = numericValue(row.v_final);
+    const tiles = [
+      { ...heading, label: "שווי בסוף התקופה, לפני מס רווחי הון" },
+      { label: "ללא עלויות", value: base, format: "shekel", color: "#145f59", dash: "", note: "נקודת ההשוואה" },
+      { label: "אחרי עלויות", value: after, format: "shekel", color: "#c0582b", dash: "9 5", note: base ? `נמוך ב-${formatPercent(1 - after / base, 1)}` : "" }
     ];
+    if (base && after !== null && years > 0) {
+      const rate = 1 - (after / base) ** (1 / years);
+      const policy = base * 0.99 ** years;
+      tiles.push({
+        label: "להשוואה: פוליסה או קופת גמל ב-1%",
+        value: policy,
+        format: "shekel",
+        color: "#68736f",
+        note: `נמוך ב-${formatPercent(1 - policy / base, 0)}, לפני עלויות כניסה`
+      });
+      tiles.push({
+        gap: true,
+        value: base - after,
+        label: `סך העלויות במסחר עצמאי שקול לכ-${formatPercent(rate, 2)} בשנה, לעומת 1% בשנה בפוליסה או בקופת גמל.`
+      });
+    }
+    return tiles;
   }
 
   function metricLastBy(groupKey, valueKey) {
@@ -5062,6 +5141,7 @@ import {
     updateTrinityDrawSummary();
     syncFeeChips();
     applyViewTab();
+    updateControlSummaries();
   }
 
   function lazyStateEntries() {
@@ -5118,6 +5198,7 @@ import {
   els.controls.addEventListener("input", (event) => {
     if (event.target.matches(".date-range-control input")) updateDateRangeReadout();
     if (activeView.id === "trinity" && event.target.matches('input[name="yearly_draw"], input[name="base"]')) updateTrinityDrawSummary();
+    updateControlSummaries();
     scheduleRun();
   });
   document.addEventListener("click", (event) => {
@@ -5138,6 +5219,7 @@ import {
     if (event.target.matches("input[data-format]")) formatInputDisplay(event.target);
     if (event.target.matches(".date-range-control input")) updateDateRangeReadout();
     if (activeView.id === "trinity" && event.target.matches('input[name="yearly_draw"], input[name="base"]')) updateTrinityDrawSummary();
+    updateControlSummaries();
     scheduleRun();
   });
   els.chart.addEventListener("input", (event) => {
