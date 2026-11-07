@@ -3704,3 +3704,16 @@ button.vchart-legend-item[aria-pressed="false"] {
     gap: 8px;
   }
 }
+
+.story-media-inline {
+  margin: 4px 0;
+  max-width: 560px;
+}
+
+.story-media-inline img {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: block;
+  height: auto;
+  width: 100%;
+}
