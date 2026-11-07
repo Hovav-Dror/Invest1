@@ -3687,7 +3687,7 @@ import {
       const left = numericValue(row.IIb) || 0;
       const depleted = rows.find((item) => numericValue(item.age) >= 60 && (numericValue(item.IIb) || 0) <= 0);
       const items = [
-        { hero: true, title: `${formatShekel(pension, 0)} לחודש בשתי החלופות`, note: `קופת הגמל משלמת קצבה; מההשקעה העצמאית מושכים בעצמנו בדיוק אותו סכום · נטו, מגיל 60 עד ${lastAge} · ${basis}` },
+        { hero: true, title: `${formatShekel(pension, 0)} לחודש בשתי החלופות`, note: `קופת הגמל משלמת קצבה; מההשקעה העצמאית מושכים בעצמנו בדיוק אותו סכום · נטו, מגיל 60 עד ${lastAge} (${String(row.date || "").slice(0, 4)}, סוף הנתונים) · ${basis}` },
         { label: "קופת גמל להשקעה", valueText: "קצבה לכל החיים", color: "#145f59", dash: "", note: "בגיל 60 כל החיסכון הופך לקצבה: הכסף כבר לא שלכם למשיכה או להורשה, ובמקומו מובטחת קצבה חודשית צמודת מדד לכל החיים, פטורה ממס." },
         depleted
           ? { label: "השקעה עצמאית", valueText: `נגמרה בגיל ${Math.floor(numericValue(depleted.age))}`, color: "#385f9f", dash: "", note: "אותן משיכות חודשיות רוקנו אותה" }
@@ -3697,7 +3697,7 @@ import {
         const years = left / (pension * 12);
         items.push({
           explain: true,
-          text: `בהשקעה העצמאית מושכים כל חודש סכום זהה לקצבה, ובכל זאת בגיל ${lastAge} נשארים עוד ${formatShekel(left, 0)} נזילים, שממשיכים לעבוד. גם אם מכאן והלאה לא תהיה שום תשואה, הסכום הזה לבדו יממן את אותה משיכה חודשית עוד כ-${Math.floor(years)} שנה, עד גיל ${Math.floor(lastAge + years)} בערך. עם תשואה, זה יחזיק עוד יותר.`
+          text: `בהשקעה העצמאית מושכים כל חודש סכום זהה לקצבה, ובכל זאת בגיל ${lastAge} נשארים עוד ${formatShekel(left, 0)} נזילים, שממשיכים לעבוד. גם אם מכאן והלאה לא תהיה שום תשואה, הסכום הזה לבדו יממן את אותה משיכה חודשית ${lastAge + years >= 110 ? `עוד יותר מ-${Math.floor(years)} שנה, הרבה מעבר לכל תוחלת חיים` : `עוד כ-${Math.floor(years)} שנה, עד גיל ${Math.floor(lastAge + years)} בערך`}. עם תשואה, זה יחזיק עוד יותר.`
         });
       } else if (depleted) {
         items.push({ explain: true, text: "בתרחיש הזה ההשקעה העצמאית לא הספיקה לממן את אותה משיכה חודשית, והקצבה מהקופה ממשיכה. נסו תקופה אחרת או בדקו את הנחות דמי הניהול." });
