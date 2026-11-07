@@ -1548,7 +1548,8 @@ import {
 
   function renderNav() {
     const activeTopic = NAV_TOPICS.find((topic) => topic.views.includes(activeView.id));
-    els.navToggle.querySelector(".nav-toggle-label").textContent = activeTopic ? activeTopic.label : activeView.nav;
+    els.navToggle.querySelector(".nav-toggle-label").innerHTML =
+      `<span class="nav-toggle-full">${escapeHtml(activeTopic ? activeTopic.label : activeView.nav)}</span><span class="nav-toggle-short">תפריט</span>`;
     els.nav.innerHTML = `<h2 class="nav-heading">ניווט באתר</h2>`;
     const list = document.createElement("ul");
     list.className = "nav-topics";
@@ -1594,13 +1595,15 @@ import {
   }
 
   const HERO_PORTFOLIOS = [
-    { name: "S&P 500", label: "S&P 500", color: "#145f59" },
-    { name: "Moderate Portfolio", label: "תיק מתון", color: "#a94d2a" },
-    { name: "Conservative Portfolio", label: "תיק שמרני", color: "#7f9a76" }
+    { name: "S&P 500", label: "S&P 500", color: "#145f59", dash: "" },
+    { name: "Moderate Portfolio", label: "תיק מתון", color: "#a94d2a", dash: "9 6" },
+    { name: "Conservative Portfolio", label: "תיק שמרני", color: "#6f8f66", dash: "2 5" }
   ];
+  const HERO_START = 2000;
+  const HERO_END = 2025;
   let heroChartRows = null;
 
-  /** Landing block on the intro screen: title, illustrative chart and two starting points. */
+  /** Landing block on the intro screen: title, two starting points and an illustrative chart. */
   function renderIntroHero() {
     const isIntro = activeView.id === "intro";
     els.introHero.hidden = !isIntro;
@@ -1610,21 +1613,16 @@ import {
       return;
     }
     els.introHero.innerHTML = `
-      <div class="hero-main">
-        <div class="hero-copy">
-          <p class="hero-kicker">מסחר עצמאי · הקדמה</p>
-          <h2 class="hero-title">השקעות פסיביות בעיניים ישראליות</h2>
-          <p class="hero-lede">משווים תיקי השקעות לאורך תקופות שונות, ובודקים מה עמלות, מסים ושערי מטבע עושים לתוצאה.</p>
-        </div>
-        <figure class="hero-chart">
-          <figcaption class="hero-chart-title">איך התיקים התנהגו לאורך זמן?</figcaption>
-          <div class="hero-chart-plot" data-hero-chart aria-hidden="true"></div>
-          <p class="hero-chart-note">
-            ${HERO_PORTFOLIOS.map((item) => `<span class="hero-key"><i style="background:${item.color}"></i>${escapeHtml(item.label)}</span>`).join("")}
-            <span class="hero-chart-source">2000–2025, בשקלים ריאליים</span>
-          </p>
-        </figure>
+      <div class="hero-copy">
+        <p class="hero-kicker">מסחר עצמאי · הקדמה</p>
+        <h2 class="hero-title">השקעות פסיביות בעיניים ישראליות</h2>
+        <p class="hero-lede">משווים תיקי השקעות לאורך תקופות שונות, ובודקים מה עמלות, מסים ושערי מטבע עושים לתוצאה.</p>
       </div>
+      <figure class="hero-chart">
+        <figcaption class="hero-chart-title">מה היה קורה ל-100 ₪ שהושקעו בתחילת ${HERO_START}?</figcaption>
+        <div class="hero-chart-plot" data-hero-chart></div>
+        <p class="hero-chart-note">שווי ריאלי בשקלים, צמוד למדד בישראל, לפני דמי ניהול ומסים.</p>
+      </figure>
       <section class="hero-start" aria-labelledby="heroStartTitle">
         <h2 id="heroStartTitle" class="hero-section-title">מאיפה מתחילים?</h2>
         <div class="hero-cards">
@@ -1638,15 +1636,18 @@ import {
             <svg class="hero-card-icon" viewBox="0 0 52 40" aria-hidden="true"><path d="M26 8 C20 4 10 4 3 6 V35 C10 33 20 33 26 37 C32 33 42 33 49 35 V6 C42 4 32 4 26 8 Z"/><line x1="26" y1="8" x2="26" y2="37"/></svg>
             <h3>רוצים להבין את הדרך?</h3>
             <p>הסיפור שלי על דמי ניהול ומסחר עצמאי.</p>
-            <a class="hero-link" href="#intro-learning-path" data-hero-story>לקריאת הסיפור <span aria-hidden="true">←</span></a>
+            <a class="hero-link" href="#intro-story" data-hero-story>לקריאת הסיפור <span aria-hidden="true">←</span></a>
           </article>
         </div>
       </section>
     `;
     els.introHero.querySelector("[data-hero-story]").addEventListener("click", (event) => {
       event.preventDefault();
-      const target = document.getElementById("intro-learning-path");
-      if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+      const target = document.getElementById("intro-story");
+      if (!target) return;
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      target.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+      target.focus({ preventScroll: true });
     });
     drawHeroChart();
   }
@@ -1658,8 +1659,8 @@ import {
       if (!heroChartRows) {
         const params = new URLSearchParams();
         HERO_PORTFOLIOS.forEach((item) => params.append("portfolios", item.name));
-        params.set("year_start", "2000");
-        params.set("year_end", "2025");
+        params.set("year_start", String(HERO_START));
+        params.set("year_end", String(HERO_END));
         params.set("commission_adjusted", "false");
         heroChartRows = (await fetchPayload(`api/portfolio_over_time?${params}`)).data || [];
       }
@@ -1668,25 +1669,56 @@ import {
       return;
     }
     if (!target.isConnected) return;
-    const width = 560;
-    const height = 260;
-    const pad = { top: 12, right: 10, bottom: 18, left: 10 };
     const series = HERO_PORTFOLIOS.map((item) => ({
       ...item,
-      points: [{ Year: 1999, v: 1 }, ...heroChartRows.filter((row) => row.Portfolio === item.name)]
+      points: [
+        { year: HERO_START - 1, value: 100 },
+        ...heroChartRows.filter((row) => row.Portfolio === item.name).map((row) => ({ year: row.Year, value: row.v * 100 }))
+      ]
     })).filter((item) => item.points.length > 1);
-    const years = series.flatMap((item) => item.points.map((point) => point.Year));
-    const values = series.flatMap((item) => item.points.map((point) => point.v));
-    const [minYear, maxYear] = [Math.min(...years), Math.max(...years)];
-    const [minValue, maxValue] = [Math.min(...values), Math.max(...values)];
+    if (!series.length) {
+      target.closest(".hero-chart").hidden = true;
+      return;
+    }
+    const width = 600;
+    const height = 300;
+    const pad = { top: 16, right: 118, bottom: 36, left: 46 };
+    const minYear = HERO_START - 1;
+    const maxYear = Math.max(...series.flatMap((item) => item.points.map((point) => point.year)));
+    const maxValue = Math.max(...series.flatMap((item) => item.points.map((point) => point.value)));
+    const step = maxValue > 400 ? 100 : 50;
+    const top = Math.ceil(maxValue / step) * step;
+    const bottom = Math.max(0, Math.floor(Math.min(...series.flatMap((item) => item.points.map((point) => point.value))) / step) * step);
     const x = (year) => pad.left + ((year - minYear) / (maxYear - minYear)) * (width - pad.left - pad.right);
-    const y = (value) => height - pad.bottom - ((value - minValue) / (maxValue - minValue || 1)) * (height - pad.top - pad.bottom);
-    const grid = [0.25, 0.5, 0.75].map((share) => {
-      const gy = pad.top + share * (height - pad.top - pad.bottom);
-      return `<line class="hero-grid" x1="${pad.left}" x2="${width - pad.right}" y1="${gy}" y2="${gy}"/>`;
-    }).join("");
-    const lines = series.slice().reverse().map((item) => `<polyline fill="none" stroke="${item.color}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" points="${item.points.map((point) => `${x(point.Year).toFixed(1)},${y(point.v).toFixed(1)}`).join(" ")}"/>`).join("");
-    target.innerHTML = `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">${grid}<line class="hero-axis" x1="${pad.left}" x2="${width - pad.right}" y1="${height - pad.bottom}" y2="${height - pad.bottom}"/>${lines}</svg>`;
+    const y = (value) => height - pad.bottom - ((value - bottom) / (top - bottom)) * (height - pad.top - pad.bottom);
+    const yTicks = [];
+    for (let value = bottom; value <= top; value += step) yTicks.push(value);
+    const xTicks = [2000, 2005, 2010, 2015, 2020, 2025].filter((year) => year <= maxYear);
+    const grid = yTicks.map((value) => `
+      <line class="hero-grid${value === 100 ? " hero-grid-base" : ""}" x1="${pad.left}" x2="${width - pad.right}" y1="${y(value)}" y2="${y(value)}"/>
+      <text class="hero-tick" x="${pad.left - 8}" y="${y(value) + 5}" text-anchor="end">${value}</text>`).join("");
+    const axis = xTicks.map((year) => `
+      <line class="hero-axis" x1="${x(year)}" x2="${x(year)}" y1="${height - pad.bottom}" y2="${height - pad.bottom + 5}"/>
+      <text class="hero-tick" x="${x(year)}" y="${height - pad.bottom + 24}" text-anchor="middle">${year}</text>`).join("");
+    const lines = series.slice().reverse().map((item) => `<polyline fill="none" stroke="${item.color}" stroke-width="2.6" stroke-dasharray="${item.dash}" stroke-linejoin="round" stroke-linecap="round" points="${item.points.map((point) => `${x(point.year).toFixed(1)},${y(point.value).toFixed(1)}`).join(" ")}"/>`).join("");
+    // End labels, nudged apart so they never overlap.
+    const ends = series.map((item) => {
+      const last = item.points[item.points.length - 1];
+      return { item, value: last.value, y: y(last.value) };
+    }).sort((a, b) => a.y - b.y);
+    ends.forEach((end, index) => {
+      if (index > 0) end.y = Math.max(end.y, ends[index - 1].y + 42);
+    });
+    const labels = ends.map(({ item, value, y: labelY }) => `
+      <text class="hero-end-label" x="${width - pad.right + 10}" y="${labelY - 3}" fill="${item.color}">${escapeHtml(item.label)}</text>
+      <text class="hero-end-value" x="${width - pad.right + 10}" y="${labelY + 16}">${Math.round(value).toLocaleString(locale)} ₪</text>`).join("");
+    const summary = ends.map(({ item, value }) => `${item.label}: ${Math.round(value)} ₪`).join(", ");
+    target.innerHTML = `
+      <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="שווי 100 ₪ מתחילת ${HERO_START} בסוף ${maxYear}: ${escapeHtml(summary)}">
+        ${grid}
+        <line class="hero-axis" x1="${pad.left}" x2="${width - pad.right}" y1="${height - pad.bottom}" y2="${height - pad.bottom}"/>
+        ${axis}${lines}${labels}
+      </svg>`;
   }
 
   function rememberActiveViewScroll() {
@@ -1884,12 +1916,16 @@ import {
         <img class="story-image" src="${escapeHtml(story.image)}" alt="השוואת מניות ארה&quot;ב מול מניות מחוץ לארה&quot;ב">
       </figure>
     ` : "";
+    const headingId = activeView.id === "intro" ? ' id="intro-story" tabindex="-1"' : "";
+    const decoration = activeView.id === "intro"
+      ? `<img class="story-elephant" src="static/elephant.png" alt="" width="480" height="290">`
+      : "";
     els.story.innerHTML = `
       <div class="story-copy">
-        ${story.heading ? `<h3>${escapeHtml(story.heading)}</h3>` : ""}
+        ${story.heading ? `<h3${headingId}>${escapeHtml(story.heading)}</h3>` : ""}
         ${paragraphs}
       </div>
-      ${image}
+      ${image}${decoration}
     `;
   }
 
@@ -2296,8 +2332,23 @@ import {
   }
 
   function updateLazyControlUi(root = els.chart) {
+    limitHighlightToShown(root);
     updatePanelControlUi(root);
     updatePanelPickerUi(root);
+  }
+
+  /** Only portfolios that are shown can be highlighted; hide and clear the rest. */
+  function limitHighlightToShown(root) {
+    root.querySelectorAll("[data-lazy-controls]").forEach((block) => {
+      const shown = [...block.querySelectorAll('input[name="portfolios"]:checked')].map((input) => input.value);
+      const allowed = new Set(shown.length ? shown : originalLazyPortfolioSet);
+      block.querySelectorAll('input[name="highlight"]').forEach((input) => {
+        const available = allowed.has(input.value);
+        if (!available) input.checked = false;
+        const label = input.closest("label");
+        if (label) label.dataset.unavailable = available ? "false" : "true";
+      });
+    });
   }
 
   async function runLazyPortfolioView(viewId, seq) {
@@ -2999,7 +3050,7 @@ import {
     let visibleCount = 0;
     labels.forEach((label) => {
       const text = normalizePickerText(label.textContent || "");
-      const visible = !query || text.includes(query);
+      const visible = label.dataset.unavailable !== "true" && (!query || text.includes(query));
       label.hidden = !visible;
       if (visible) visibleCount += 1;
     });
