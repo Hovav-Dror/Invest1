@@ -2513,7 +2513,34 @@ button.vchart-legend-item[aria-pressed="false"] {
   font-size: clamp(17px, 1.6vw, 21px);
   line-height: 1.5;
   margin: 18px 0 0;
-  max-width: 34ch;
+  max-width: 40ch;
+}
+
+.hero-points {
+  display: grid;
+  gap: 6px;
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+}
+
+.hero-points li {
+  color: #2c3532;
+  font-size: 16px;
+  line-height: 1.45;
+  padding-inline-start: 22px;
+  position: relative;
+}
+
+.hero-points li::before {
+  background: var(--accent);
+  border-radius: 50%;
+  content: "";
+  height: 7px;
+  inset-inline-start: 4px;
+  position: absolute;
+  top: 0.6em;
+  width: 7px;
 }
 
 .hero-chart {
@@ -2739,6 +2766,9 @@ button.vchart-legend-item[aria-pressed="false"] {
   }
   .hero-lede {
     margin-top: 12px;
+  }
+  .hero-points {
+    display: none;
   }
 }
 
