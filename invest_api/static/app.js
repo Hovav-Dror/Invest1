@@ -1429,7 +1429,8 @@ import {
     metrics: document.getElementById("metrics"),
     chart: document.getElementById("chart"),
     table: document.getElementById("table"),
-    tableNote: document.getElementById("tableNote")
+    tableNote: document.getElementById("tableNote"),
+    resultNotes: document.getElementById("resultNotes")
   };
 
   const initialRoute = parseHash(location.hash);
@@ -2033,6 +2034,10 @@ import {
           <input type="checkbox" name="commission_adjusted" checked>
           <span>חישוב משקלל דמי ניהול</span>
         </label>
+        <label class="lazy-checkbox">
+          <input type="checkbox" name="common_period">
+          <span>אותה תקופה לכל התיקים</span>
+        </label>
       </div>
     `;
   }
@@ -2105,6 +2110,7 @@ import {
       year_start: Number(valueOf(shared, "year_start", "1955")) || 1955,
       year_end: Number(valueOf(shared, "year_end", "2025")) || 2025,
       commission_adjusted: Boolean(shared.querySelector('input[name="commission_adjusted"]:checked')),
+      common_period: Boolean(shared.querySelector('input[name="common_period"]:checked')),
       time_type: valueOf(timeControls, "time_type", "Accumulate"),
       rolling_window: Number(valueOf(timeControls, "rolling_window", "10")) || 10
     };
@@ -2136,9 +2142,11 @@ import {
         input.checked = values.has(input.value);
       });
     });
-    const sourceCommission = source.querySelector('input[name="commission_adjusted"]');
-    const targetCommission = target.querySelector('input[name="commission_adjusted"]');
-    if (sourceCommission && targetCommission) targetCommission.checked = sourceCommission.checked;
+    ["commission_adjusted", "common_period"].forEach((name) => {
+      const sourceBox = source.querySelector(`input[name="${name}"]`);
+      const targetBox = target.querySelector(`input[name="${name}"]`);
+      if (sourceBox && targetBox) targetBox.checked = sourceBox.checked;
+    });
   }
 
   function updateLazyControlUi(root = els.chart) {
@@ -2179,6 +2187,7 @@ import {
     commonParams.set("year_start", state.year_start);
     commonParams.set("year_end", state.year_end);
     commonParams.set("value_mode", state.value_mode);
+    if (state.common_period) commonParams.set("common_period", "true");
 
     const summaryParams = new URLSearchParams(commonParams);
     summaryParams.set("commission_adjusted", state.commission_adjusted ? "true" : "false");
@@ -2204,6 +2213,7 @@ import {
       renderLazyTimeChart(timePayload, state, els.chart.querySelector('[data-lazy-chart="time"]'));
       renderLazyDataTable(structurePayload, els.chart.querySelector('[data-lazy-table="structure"]'), "structure");
       renderLazyDataTable(commissionPayload, els.chart.querySelector('[data-lazy-table="commissions"]'), "commissions");
+      renderResultNotes([summaryPayload, timePayload]);
     } catch (error) {
       if (seq !== requestSeq || activeView.id !== viewId) return;
       els.chart.classList.remove("is-updating");
@@ -2364,6 +2374,7 @@ import {
   async function runActiveView(run = { all: true }) {
     const viewId = activeView.id;
     const seq = ++requestSeq;
+    if (run.all) renderResultNotes([]);
     if (activeView.lazyPortfolio) {
       return runLazyPortfolioView(viewId, seq);
     }
@@ -2421,6 +2432,7 @@ import {
       renderMetrics(payload);
       renderChart(payload, currentChartConfig);
       renderTable(payload);
+      renderResultNotes([payload]);
     } catch (error) {
       if (seq !== requestSeq || activeView.id !== viewId) return;
       els.chart.classList.remove("is-updating");
@@ -2509,6 +2521,7 @@ import {
     const targets = panels
       .map((panel, index) => ({ panel, index }))
       .filter(({ index }) => !onlyPanels || onlyPanels.has(index));
+    const notePayloads = [];
     await Promise.all(targets.map(async ({ panel, index }) => {
       const mySeq = (panelSeq[index] || 0) + 1;
       panelSeq[index] = mySeq;
@@ -2549,6 +2562,7 @@ import {
           renderMetricsInto(metrics, panel.metric ? panel.metric(payload) : []);
         }
         if (panelChart) renderChartTo(payload, effectiveChart, panelChart);
+        notePayloads.push(payload);
         if (storySlot && !storySlot.dataset.filled) {
           renderStoryParagraphs(storySlot, stories[activeView.id].afterChartByEndpoint[payload.endpoint] || []);
           storySlot.dataset.filled = "true";
@@ -2572,6 +2586,7 @@ import {
     els.message.hidden = true;
     els.message.textContent = "";
     els.rows.textContent = "";
+    if (notePayloads.length) renderResultNotes(notePayloads, onlyPanels !== null);
   }
 
   function renderPanelControls(panel, stateEntries = []) {
@@ -3964,6 +3979,43 @@ import {
 
   function chartMessage(message) {
     drawMessage(chartTarget(), message);
+  }
+
+  /** Assumptions, data warnings and the period actually computed, from the API metadata. */
+  function renderResultNotes(payloads, merge = false) {
+    const target = els.resultNotes;
+    if (!target) return;
+    const metas = payloads.map((payload) => payload && payload.metadata).filter(Boolean);
+    if (!metas.length) {
+      if (!merge) {
+        target.hidden = true;
+        target.innerHTML = "";
+        target.removeAttribute("data-notes");
+      }
+      return;
+    }
+    const previous = merge && target.dataset.notes ? JSON.parse(target.dataset.notes) : { assumptions: [], warnings: [], periods: [] };
+    const unique = (items) => [...new Set(items)];
+    const notes = {
+      assumptions: unique([...previous.assumptions, ...metas.flatMap((meta) => meta.assumptions || [])]),
+      warnings: unique([...previous.warnings, ...metas.flatMap((meta) => meta.warnings || [])]),
+      periods: unique([...previous.periods, ...metas
+        .map((meta) => meta.result_period || {})
+        .filter((period) => period.start !== null && period.start !== undefined)
+        .map((period) => `${period.start} – ${period.end}`)])
+    };
+    const list = (items) => `<ul>${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+    const version = metas[0].calculation_version;
+    target.dataset.notes = JSON.stringify(notes);
+    target.innerHTML = `
+      <details>
+        <summary>הנחות ומגבלות הנתונים</summary>
+        ${notes.periods.length ? `<p class="result-notes-period">תקופת החישוב בפועל: <span dir="ltr">${notes.periods.map(escapeHtml).join(", ")}</span></p>` : ""}
+        ${notes.assumptions.length ? `<h4>הנחות המודל</h4>${list(notes.assumptions)}` : ""}
+        ${notes.warnings.length ? `<h4>מגבלות הנתונים</h4>${list(notes.warnings)}` : ""}
+        <p class="result-notes-version">גרסת חישוב ${escapeHtml(version)} · <a href="api/sources" target="_blank" rel="noopener">מקורות הנתונים</a></p>
+      </details>`;
+    target.hidden = false;
   }
 
   function renderTable(payload) {

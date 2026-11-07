@@ -2412,3 +2412,37 @@ button.vchart-legend-item[aria-pressed="false"] {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* Assumptions and data limitations, from each result's metadata */
+.result-notes {
+  margin-top: 1.5rem;
+  font-size: 0.92rem;
+  color: var(--muted, #555);
+}
+.result-notes details {
+  border-top: 1px solid var(--line, #ddd);
+  padding-top: 0.75rem;
+}
+.result-notes summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--ink, inherit);
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+.result-notes h4 {
+  margin: 0.9rem 0 0.3rem;
+  font-size: 0.95rem;
+}
+.result-notes ul {
+  margin: 0;
+  padding-inline-start: 1.2rem;
+}
+.result-notes li + li {
+  margin-top: 0.25rem;
+}
+.result-notes-version {
+  margin-top: 0.9rem;
+  font-size: 0.85rem;
+}

@@ -128,3 +128,23 @@ These still need a decision or more data:
    tax or US withholding beyond what is in the source series.
 6. **US inflation in Trinity.** Trinity uses US CPI, as in the original study,
    not Israeli CPI or shekel returns.
+
+## Result metadata
+
+Every API result includes a `metadata` object (`invest_core/methodology.py`):
+calculation and data versions (the data version is a SHA-256 of the Parquet
+files), the requested and computed periods, currency and inflation basis,
+whether tax and fees are included, the model assumptions and the data warnings
+that apply to that result. The site shows the assumptions and warnings under
+each screen, in a collapsed "הנחות ומגבלות הנתונים" section.
+
+`portfolio_summary` and `portfolio_over_time` accept `common_period=true`:
+every selected portfolio then starts at the latest first year among them, so
+all cover the same years. The default (`false`) keeps each portfolio's own
+history. The portfolio screen exposes this as "אותה תקופה לכל התיקים".
+
+An independent calculation audit from 2026-09-30 reached largely the same
+corrections; its notes, tests and alternative monthly-alignment data repair
+are kept on the `wip/calc-audit-2026-09-30` branch. Where the two differed
+(monthly FX/CPI alignment, the provident fund at 60, the Trinity start year),
+the rules above were kept.

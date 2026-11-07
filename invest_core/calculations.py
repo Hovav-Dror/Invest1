@@ -361,8 +361,13 @@ def _portfolio_window(
     year_end: int,
     commission_adjusted: bool,
     value_mode: str,
+    common_period: bool = False,
 ) -> pd.DataFrame:
-    """Annual rows for each portfolio from its base year (year_start - 1, or first available)."""
+    """Annual rows for each portfolio from its base year (year_start - 1, or first available).
+
+    With ``common_period`` every portfolio starts at the latest of those base
+    years, so all of them cover the same years.
+    """
 
     if value_mode not in VALUE_COLUMNS:
         raise ValueError(f"Unknown value_mode: {value_mode}")
@@ -375,6 +380,8 @@ def _portfolio_window(
         & (source["Year"] <= year_end)
         & source[value_column].notna()
     ].sort_values(["Portfolio", "Year"])
+    if common_period and not frame.empty:
+        frame = frame[frame["Year"] >= frame.groupby("Portfolio")["Year"].min().max()]
 
     groups = []
     for _, group in frame.groupby("Portfolio", sort=True):
@@ -400,10 +407,11 @@ def portfolio_table(
     year_end: int = 2025,
     commission_adjusted: bool = True,
     value_mode: str = "cpi_il",
+    common_period: bool = False,
 ) -> pd.DataFrame:
     """Normalized annual rows (base row excluded) with drawdown columns."""
 
-    frame = _portfolio_window(data or load_data(), portfolios, year_start, year_end, commission_adjusted, value_mode)
+    frame = _portfolio_window(data or load_data(), portfolios, year_start, year_end, commission_adjusted, value_mode, common_period)
     return frame[~frame["is_base"]].drop(columns=["is_base"]).reset_index(drop=True)
 
 
@@ -414,10 +422,11 @@ def portfolio_summary(
     year_end: int = 2025,
     commission_adjusted: bool = True,
     value_mode: str = "cpi_il",
+    common_period: bool = False,
 ) -> pd.DataFrame:
     """Per-portfolio CAGR, volatility of annual returns, worst drop and longest underwater period."""
 
-    frame = _portfolio_window(data or load_data(), portfolios, year_start, year_end, commission_adjusted, value_mode)
+    frame = _portfolio_window(data or load_data(), portfolios, year_start, year_end, commission_adjusted, value_mode, common_period)
     rows: list[dict[str, float | str]] = []
     for portfolio, group in frame.groupby("Portfolio", sort=True):
         n = len(group) - 1
@@ -474,6 +483,7 @@ def portfolio_over_time(
     value_mode: str = "cpi_il",
     rolling_window: int | None = None,
     full_history_rolling: bool = False,
+    common_period: bool = False,
 ) -> pd.DataFrame:
     """Accumulated value, annual return, CAGR since start and rolling CAGR per portfolio.
 
@@ -484,10 +494,11 @@ def portfolio_over_time(
     data = data or load_data()
     history_start = 1871 if full_history_rolling else year_start
     frame = _portfolio_window(data, portfolios, history_start, year_end, commission_adjusted, value_mode)
+    common_base = frame.groupby("Portfolio")["Year"].min().max() if common_period else -np.inf
     frames = []
     for _, group in frame.groupby("Portfolio", sort=True):
         group = group.copy()
-        base_year = max(group["Year"].iloc[0], year_start - 1)
+        base_year = max(group["Year"].iloc[0], year_start - 1, common_base)
         base = group.loc[group["Year"] == base_year, "v"]
         if base.empty:
             continue

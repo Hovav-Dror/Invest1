@@ -279,3 +279,35 @@ def test_responses_are_gzipped_when_accepted(client):
     script = client.get("/static/app.js", headers={"Accept-Encoding": "gzip"})
     assert script.headers["Content-Encoding"] == "gzip"
     assert script.headers["ETag"].endswith('-gzip"')
+
+
+def test_every_result_carries_metadata(client):
+    payload = client.get("/api/tax_events").get_json()
+    meta = payload["metadata"]
+    assert meta["calculation_version"] == "2.0.0"
+    assert len(meta["data_version"]) == 16
+    assert meta["units"] == {"currency": "ILS", "value": "money", "inflation": "IL", "returns": "fraction"}
+    assert meta["tax_included"] is True
+    assert meta["result_period"]["end"] == payload["data"][-1]["date"]
+    assert any("אוקטובר 2025" in warning for warning in meta["warnings"])
+
+
+def test_metadata_describes_dollar_and_catalog_results(client):
+    trinity = client.get("/api/trinity").get_json()["metadata"]
+    assert trinity["units"]["currency"] == "USD"
+    assert trinity["units"]["inflation"] == "US"
+    catalog = client.get("/api/portfolio_structure").get_json()["metadata"]
+    assert catalog["units"]["currency"] is None
+    assert catalog["result_period"] == {"start": None, "end": None}
+
+
+def test_common_period_aligns_portfolio_start_years(client):
+    query = "/api/portfolio_summary?portfolios=Bogleheads Three Funds&portfolios=David Swensen Yale Endowment"
+    separate = client.get(query).get_json()
+    common = client.get(query + "&common_period=true").get_json()
+    assert len({row["FirstYear"] for row in separate["data"]}) == 2
+    assert len({row["FirstYear"] for row in common["data"]}) == 1
+    assert {row["FirstYear"] for row in common["data"]} == {max(row["FirstYear"] for row in separate["data"])}
+    assert len(common["metadata"]["series_coverage"]) == 2
+    over_time = client.get(query.replace("summary", "over_time") + "&common_period=true").get_json()
+    assert len({row["Year"] - row["N"] for row in over_time["data"]}) == 1

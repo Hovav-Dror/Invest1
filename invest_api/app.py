@@ -15,6 +15,7 @@ import pandas as pd
 
 from invest_core import calculations as calc
 from invest_core.data import load_data
+from invest_core.methodology import data_version, result_metadata
 
 JsonDict = dict[str, Any]
 Params = tuple[tuple[str, Any], ...]
@@ -270,7 +271,7 @@ def _parse_sp500_risk_args(args) -> Params:
 
 
 def _parse_portfolio_args(args) -> Params:
-    _reject_unknown(args, {"portfolios", "year_start", "year_end", "commission_adjusted", "value_mode", "rolling_window", "full_history_rolling"})
+    _reject_unknown(args, {"portfolios", "year_start", "year_end", "commission_adjusted", "value_mode", "rolling_window", "full_history_rolling", "common_period"})
     value_mode = args.get("value_mode", "cpi_il")
     if value_mode not in {"cpi_il", "cpi_us", "nominal"}:
         raise ApiValidationError("סוג התקנון למדד לא מוכר")
@@ -286,6 +287,7 @@ def _parse_portfolio_args(args) -> Params:
         "value_mode": value_mode,
         "rolling_window": _get_int(args, "rolling_window", 10, minimum=1, maximum=100) if "rolling_window" in args else None,
         "full_history_rolling": _get_bool(args, "full_history_rolling", False),
+        "common_period": _get_bool(args, "common_period", False),
     }
     if params["year_start"] > params["year_end"]:
         raise ApiValidationError("שנת ההתחלה צריכה להיות לפני שנת הסיום")
@@ -409,7 +411,7 @@ def _thaw(params: Params) -> JsonDict:
 
 
 def _json_value(value: Any) -> Any:
-    if pd.isna(value):
+    if pd.isna(value) or (isinstance(value, (float, np.floating)) and not math.isfinite(value)):
         return None
     if isinstance(value, pd.Timestamp):
         return value.strftime("%Y-%m-%d")
@@ -474,15 +476,25 @@ def _dispatch(name: str, params: Params) -> pd.DataFrame:
     raise KeyError(name)
 
 
+@lru_cache(maxsize=1)
+def _data_version() -> str:
+    return data_version()
+
+
+def _result(name: str, params: Params) -> JsonDict:
+    frame = _dispatch(name, params)
+    return {**_frame_payload(frame), "metadata": result_metadata(name, _thaw(params), frame, _data_version())}
+
+
 @lru_cache(maxsize=128)
 def _cached_payload(name: str, params: Params) -> JsonDict:
-    return _frame_payload(_dispatch(name, params))
+    return _result(name, params)
 
 
 def _payload(name: str, params: Params) -> JsonDict:
     if name in EXPENSIVE_ENDPOINTS:
         return _cached_payload(name, params)
-    return _frame_payload(_dispatch(name, params))
+    return _result(name, params)
 
 
 PARSERS: dict[str, Callable[[Any], Params]] = {
