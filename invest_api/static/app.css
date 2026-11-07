@@ -2869,3 +2869,139 @@ button.vchart-legend-item[aria-pressed="false"] {
     font-size: 17px;
   }
 }
+
+/* Side layout: text beside a simulation card ("למה לא?") */
+.workspace[data-layout="side"] {
+  column-gap: 40px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.workspace[data-layout="side"] > * {
+  grid-column: 1 / -1;
+}
+
+.workspace[data-layout="side"] > #story {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.workspace[data-layout="side"] > #afterStory {
+  grid-column: 1;
+  grid-row: 3;
+}
+
+.workspace[data-layout="side"] > .sim-card {
+  align-self: start;
+  grid-column: 2;
+  grid-row: 2 / span 2;
+  position: sticky;
+  top: 88px;
+}
+
+.workspace[data-layout="side"] > .view-heading {
+  border-bottom: 1px solid var(--line-strong);
+  padding-bottom: 20px;
+}
+
+.workspace[data-layout="side"] #viewTitle {
+  font-size: clamp(30px, 3.4vw, 46px);
+  font-weight: 850;
+}
+
+.workspace[data-layout="side"] .kicker {
+  color: var(--accent);
+  font-size: 16px;
+}
+
+.workspace[data-layout="side"] .takeaway {
+  color: #2c3532;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.workspace[data-layout="side"] #story .story-copy p,
+.workspace[data-layout="side"] #story .story-copy li,
+.workspace[data-layout="side"] #afterStory .story-copy p {
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+.workspace[data-layout="side"] #story .story-section h3 {
+  color: var(--accent-2);
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.sim-card {
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  padding: 20px;
+}
+
+.sim-card-kicker {
+  color: var(--accent-2);
+  font-size: 15px;
+  font-weight: 760;
+  margin: 0;
+}
+
+.sim-card .controls {
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
+.sim-card .chart-panel {
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
+.controls-advanced {
+  flex-basis: 100%;
+  width: 100%;
+}
+
+.controls-advanced > summary {
+  color: var(--accent);
+  cursor: pointer;
+  font-weight: 760;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.controls-advanced[open] {
+  display: grid;
+  gap: 12px;
+}
+
+.story-callout {
+  background: #fff4ea;
+  border-inline-start: 4px solid var(--accent-2);
+  border-radius: 8px;
+  display: grid;
+  gap: 6px;
+  padding: 14px 18px;
+}
+
+.story-callout p {
+  margin: 0;
+}
+
+@media (max-width: 1120px) {
+  .workspace[data-layout="side"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .workspace[data-layout="side"] > #story,
+  .workspace[data-layout="side"] > #afterStory,
+  .workspace[data-layout="side"] > .sim-card {
+    grid-column: 1;
+    grid-row: auto;
+    position: static;
+  }
+}

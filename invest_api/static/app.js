@@ -294,49 +294,49 @@ import {
         {
           title: "למה כן",
           paragraphs: [
-            "רגע לפני דיון באזהרה למה לא, נגע בקצרה למה כן.",
-            "מי שהשקיע לפני 30 שנה 100,000 ש\"ח בפוליסת חסכון במסלול מחקה S&P 500 ויפדה אותם כעת, יראה בחשבון אחרי מס כ-1,200,000 שקלים.",
-            "לעומתו מי שהשקיע את אותו סכום באותו מסלול באופן עצמאי יראה בחשבונו כ-1,400,000 ש\"ח. זה למה כן."
+            { callout: [
+              "מי שהשקיע לפני 30 שנה 100,000 ש\"ח בפוליסת חסכון במסלול מחקה S&P 500 ויפדה אותם כעת, יראה בחשבון אחרי מס כ-1,200,000 שקלים.",
+              "לעומתו מי שהשקיע את אותו סכום באותו מסלול באופן עצמאי יראה בחשבונו כ-1,400,000 ש\"ח. זה למה כן."
+            ] }
           ]
         },
         {
-          title: "למה לא להתעסק בזה?",
+          title: "מה זה דורש ממני?",
           paragraphs: [
-            "יש כמה סיבות להמנע מעיסוק במסחר עצמאי. מסחר? אני? ניהול השקעות? אני? רק השם \"מסחר עצמאי\" מרתיע.",
-            "רובנו צריכים משהו פשוט, ולא מתכוונים להפוך למומחי השקעות או לעקוב אחר הבורסה. אבל השם הזה כבר חסרון, גם אם לא בגלל שם צריך להמנע.",
-            "הסיבה השניה היא שרוב האנשים לא עושים את זה כיום. זה מוסיף אי-ודאות, ואנחנו לא אוהבים אי-ודאות. בלי ההגנה שמתקבלת ממה שרוב האנשים כבר עושים, מתעורר חשש שנעשה טעות של בורים שתעלה לנו בכספי הפנסיה שלנו.",
-            "אנחנו גם מעדיפים לסמוך על מישהו שמבין. חוץ מזה, כבר הזכרנו את החשש שזה יגזול מאיתנו הרבה זמן? ושאנחנו לא מבינים כלום במניות של \"טבע\" וגם לא רוצים להבין?",
+            "יש כמה סיבות להמנע ממסחר עצמאי. רק השם \"מסחר עצמאי\" מרתיע. רוב האנשים לא עושים את זה, וזה מוסיף אי-ודאות. ואנחנו גם מעדיפים לסמוך על מישהו שמבין.",
             "החדשות הטובות: לא צריך להבין ולעסוק במניות, ואחרי השקעה ראשונית שכן דורשת קצת זמן, לא צריך להתעסק בזה הרבה.",
-            "החדשות הרעות: החששות מוצדקים. אחרי ההתחלה אתם כנראה די לבד, בסיוע האינטרנט או חברים שעושים דברים דומים, ודברים יכולים להשתנות בלי שיהיה מי שיתריע או ייעץ.",
-            "תוספת הזמן והבירוקרטיה אינה נוראית, אבל אינה זניחה. תצטרכו להכנס לכמה מערכות שונות, לדעת עקרונות בסיסיים של קניית נייר ערך, ולהעביר כסף לחשבון ההשקעות. לפעמים גם להמיר לדולרים ולחכות עוד יום.",
-            "למה כן? כי מדובר בהרבה כסף. אחרי הרבה שנים שבהן הסברתי לעצמי שזה לא באמת משנה כל כך, נפל לי האסימון. בתרחיש סביר, מדובר בסכומים שאי אפשר להתעלם מהם.",
-            "מרבית המאמץ חד פעמי, והתמורה יכולה להיות גדולה. אבל יש סיבה עיקרית שכן צריך לשקול היטב לפני שבוחרים במסחר עצמאי: הפיתוי להתחיל להזיז את הכסף ממקום למקום.",
-            "חשוב להפנים: המעבר למסחר עצמאי ראוי שיהיה אירוע חד פעמי. לא רגע שממנו מתחילים לנהל את הכסף. אם תתעסקו איתו בקביעות, ולא רק חד פעמית, אתם עלולים להפסיד המון כסף.",
-            "החשש הוא שמי שעשה קצת מאמץ והתחיל לנהל את הכסף, ירצה להזיז אותו. לא כל יום ולא כל שבוע, אבל נניח פעם בשנה. אז לא. מעבר מהשקעה אחת לאחרת לא רק יגזול זמן, אלא ככל הנראה יוביל להפסד כסף בגלל המיסים.",
-            "את קופת הגמל אפשר להעביר למסלול אחר בלי אירוע מס. כסף שמושקע בנייר ערך, למשל תעודה שמחקה את S&P 500, אי אפשר להעביר למסלול אחר בלי לפדות אותו ולשלם מס על הרווחים.",
-            "בדיוק בגלל זה השיח כאן הוא על מסחר פאסיבי. המעבר בעיקרו חד פעמי, כי טעות לעשות שינויים גדולים גם פעם בשנה. מי שלא יצליח לעמוד בפיתוי וינסה להיות \"חכם\" ולהזיז כסף ממקום למקום, בסיכוי גבוה יפסיד הרבה מכספו."
+            "החדשות הרעות: החששות מוצדקים. אחרי ההתחלה אתם כנראה די לבד, ודברים יכולים להשתנות בלי שיהיה מי שיתריע או ייעץ. תוספת הזמן והבירוקרטיה אינה נוראית, אבל אינה זניחה: כמה מערכות שונות, עקרונות בסיסיים של קניית נייר ערך, והעברת כסף לחשבון ההשקעות.",
+            { subheading: "לפני שמתחילים, כדאי לשאול את עצמכם:" },
+            { list: [
+              "האם אני מוכן להקדיש כמה ערבים לפתיחת חשבון, העברת כסף וקנייה ראשונה?",
+              "האם אסתדר בלי מישהו שמתקשר להזכיר או לייעץ?",
+              "האם אוכל לא לגעת בתיק גם כשהוא יורד ב-30%?",
+              "האם אוכל לא לגעת בו גם כשמשהו אחר נראה טוב יותר?",
+              "האם הכסף הזה לא יידרש לי בשנים הקרובות?"
+            ] }
           ]
         },
         {
-          title: "אירוע מס",
+          title: "הפיתוי לשנות",
           paragraphs: [
-            "כאמור, מדי פעם אנחנו רוצים לעשות שינוי. בואו נבחן עד כמה הוצאת הכסף ממקומו, תשלום מס והחזרתו להשקעה מחדש עלולה לפגוע ברווחים שלנו.",
-            "אפשר לדלג על החלק הזה. הוא מיועד למי שמוכן להתעמק קצת ולהבין עד כמה הנסיון להיות חכמים ולהזיז את הכסף למקום \"טוב יותר\" הוא מסוכן.",
-            "אם אתם מדלגים יש דבר אחד שחייבים להבין - אם תנסו להעביר את ההשקעה הפאסיבית שלכם בין מסלולים לעיתים תכופות (כן, אחת לשנה זה לעיתים תכופות) אתם לא משקיעים פאסיביים, ועלולים לשלם על זה הרבה כסף.",
-            "נניח שהשקעתם בכלי שמחקה את S&P 500 כולל דיוידנדים ובשקלים. נניח שאין לכם כלל דמי ניהול, אך יש מס על הרווח בסך 25% ממנו בכל פעם שמושכים את הכסף. לאחר כל משיכה הכסף חוזר לאותה השקעה מחדש, בניקוי המס.",
-            "נשווה את התשואה שנקבל אם נמשוך את הכסף ונחזיר אותו מחדש כל חודש, פעם בשנה, פעם ב-5 שנים, פעם ב-10 שנים או רק בסוף התקופה."
+            "מרבית המאמץ חד פעמי, והתמורה יכולה להיות גדולה. אבל יש סיבה עיקרית שכן צריך לשקול היטב לפני שבוחרים במסחר עצמאי: הפיתוי להתחיל להזיז את הכסף ממקום למקום.",
+            { bold: "המעבר למסחר עצמאי ראוי שיהיה אירוע חד פעמי. לא רגע שממנו מתחילים לנהל את הכסף." },
+            "את קופת הגמל אפשר להעביר למסלול אחר בלי אירוע מס. כסף שמושקע בנייר ערך, למשל תעודה שמחקה את S&P 500, אי אפשר להעביר בלי לפדות אותו ולשלם מס על הרווחים. מי שמזיז את הכסף לעיתים תכופות (כן, אחת לשנה זה לעיתים תכופות) אינו משקיע פאסיבי, ועלול לשלם על זה הרבה כסף.",
+            "הסימולציה מראה כמה: אותה השקעה במחקה S&P 500, בלי דמי ניהול, עם 25% מס על הרווח בכל פעם שמוציאים את הכסף ומחזירים אותו מיד לאותו מקום."
           ]
         }
       ],
       afterChart: [
-        "אם ליאורה השקיעה 100,000 שקלים ב-1993 במחקה מושלם של S&P 500 צובר דיוידנדים, היא תמצא בחשבונה כ-900,000 ש\"ח אחרי 33 שנה, אחרי מס ותקנון למדד, אם לא הזיזה את הכסף ממקומו. הסכום הנומינלי שצברה גדול יותר, אבל כאן מציגים כוח קנייה מעבר למדד.",
-        "ניר, לעומתה, השקיע סכום זהה באותה שנה ובאותו נייר, אבל פעם בשנה הזיז את הכסף: הוציא, שילם מס רווחים, ומיד החזיר אותו לאותו מקום. ניר ימצא בחשבונו אחרי 33 שנה כ-650,000 ש\"ח בלבד. גם מי שהזיז את הכסף רק פעם ב-5 שנים יגיע לכ-700,000 ש\"ח, ופעם ב-10 שנים לכ-740,000 ש\"ח. כל אירוע מס עולה כסף.",
-        "מי שהשקיע מליון שקלים לפני 33 שנה בלי דמי ניהול יהיה בעלים של כ-6.5 מליון שקלים אם \"ניהל\" את הכסף אחת לשנה. מי שלא נגע בהשקעה יהיה הבעלים המאושר עוד יותר של מעל 9 מליון שקלים.",
+        "אם ליאורה השקיעה 100,000 שקלים ב-1993 במחקה מושלם של S&P 500 צובר דיוידנדים, היא תמצא בחשבונה כ-900,000 ש\"ח אחרי 33 שנה, אחרי מס ותקנון למדד, אם לא הזיזה את הכסף ממקומו.",
+        "ניר השקיע סכום זהה באותה שנה ובאותו נייר, אבל פעם בשנה הזיז את הכסף: הוציא, שילם מס רווחים, ומיד החזיר אותו לאותו מקום. ניר ימצא בחשבונו כ-650,000 ש\"ח בלבד. גם מי שהזיז את הכסף רק פעם ב-5 שנים יגיע לכ-700,000 ש\"ח. כל אירוע מס עולה כסף.",
         "אפשר וכדאי לאזן השקעות, כלומר לדאוג שאם משקיעים בכמה דברים ואחד עלה ואחר ירד, החלק של כל אחד ישאר כפי שהיה בהתחלה. אבל חשוב מאוד להמנע מלהזיז את הכסף.",
-        "בשורה התחתונה: הרבה אירועי מס תמימים, כלומר העברת הכסף מהשקעה א' להשקעה ב', יכולים לגרום להפסדים גדולים. פאסיביות היא שם המשחק. נותנים לזמן לעשות את שלו.",
-        "אחרי ההקדמה והאזהרה הזאת, אפשר לעבור לטאב על השפעת עמלות ומסים ולראות מה בעצם המשמעות של עוד קצת דמי ניהול, ולמה זה באמת המון כסף."
+        "בשורה התחתונה: פאסיביות היא שם המשחק. נותנים לזמן לעשות את שלו.",
+        [
+          "ומה המשמעות של עוד קצת דמי ניהול? ",
+          { text: "להשפעת עמלות ומסים ←", href: "#commission-drag" }
+        ]
       ],
-      notes: ["מקור: plotTaxEvents", "קלטים מקוריים: date_range_input_tax_event, TaxCPIadjust, InitialInvest2", "הגרף כאן מציג את אותן סדרות API ומאפשר מעבר על נקודות וקריאת הטבלה."]
+      notes: ["מקור: plotTaxEvents", "קלטים מקוריים: date_range_input_tax_event, TaxCPIadjust, InitialInvest2"]
     },
     "commission-drag": {
       tab: "השפעת עמלות ומסים",
@@ -827,13 +827,18 @@ import {
     },
     {
       id: "tax-events",
-      group: "Tax and fee drag",
+      group: "Why not",
       title: "למה לא להתעסק בזה?",
-      nav: "למה לא",
-      kicker: "כמה עולה להזיז כסף במקום לתת לו לעבוד",
-      takeaway: "שינויים משמעותיים בתיק, אפילו רק אחת לשנה, עלולים להקטין מאוד את התשואה בגלל אירועי מס מצטברים - גם אם כל שינוי נראה נכון בפני עצמו.",
+      nav: "למה לא?",
+      kicker: "מסחר עצמאי",
+      takeaway: "מרבית המאמץ חד פעמי, והתמורה יכולה להיות גדולה. הסכנה העיקרית היא הפיתוי להזיז את הכסף.",
+      layout: "side",
       endpoint: "tax_events",
-      controls: [dateRangeSlider(), cpiCheckbox(), field("initial", "השקעה ראשונית", "text", "100000", undefined, "שקלים")],
+      controls: [
+        field("initial", "סכום התחלתי", "text", "100000", undefined, "שקלים"),
+        { ...dateRangeSlider(), advanced: true },
+        { ...cpiCheckbox(), advanced: true }
+      ],
       chart: {
         type: "line",
         x: "date",
@@ -845,17 +850,18 @@ import {
           Every12Months: "מימוש כל שנה",
           EveryMonth: "מימוש כל חודש"
         },
-        colors: ["#2457ff", "#2f9e8f", "#ff941f", "#ff3b30", "#2b2f31"],
+        colors: ["#145f59", "#6f8f66", "#385f9f", "#c2551d", "#2b2f31"],
+        dashes: { Every120Months: "12 4 2 4", Every60Months: "3 4", Every12Months: "9 5", EveryMonth: "1 4" },
+        hidden: ["Every120Months", "EveryMonth"],
         baselineKey: "initial",
         currency: true,
         endLabels: true,
         forceZero: true,
-        title: "עד כמה תכיפות הוצאת והכנסת הכסף משמעותית בגלל אירוע המס",
-        caption: "נתוני S&P 500, כולל צבירת דיוידנדים וללא דמי ניהול"
+        title: "אותה השקעה, מועדי מימוש שונים",
+        caption: "נתוני S&P 500, כולל צבירת דיוידנדים וללא דמי ניהול. אפשר להוסיף קווים מהמקרא."
       },
       tableColumns: ["date", "v", "End25", "Every120Months", "Every60Months", "Every12Months", "EveryMonth"],
-      metric: metricTaxScenarios,
-      leadParagraphs: 2
+      metric: metricTaxScenarios
     },
     {
       id: "commission-drag",
@@ -1428,6 +1434,8 @@ import {
     table: document.getElementById("table"),
     tableNote: document.getElementById("tableNote"),
     introHero: document.getElementById("introHero"),
+    simCard: document.getElementById("simCard"),
+    workspace: document.querySelector(".workspace"),
     heading: document.querySelector(".view-heading"),
     resultNotes: document.getElementById("resultNotes")
   };
@@ -1522,7 +1530,8 @@ import {
   /** Menu topics; each opens its first screen. Screens outside the menu (about) are linked from the header. */
   const NAV_TOPICS = [
     { label: "הקדמה", views: ["intro"] },
-    { label: "עמלות ומסים", views: ["tax-events", "commission-drag", "independent", "ira"] },
+    { label: "למה לא?", views: ["tax-events"] },
+    { label: "עמלות ומסים", views: ["commission-drag", "independent", "ira"] },
     { label: "קופת גמל להשקעה", views: ["kupat-gemel"] },
     { label: "סיכון", views: ["sp500-risk"] },
     { label: "השוואת תיקים", views: ["portfolio-summary", "us-world", "scv"] },
@@ -1599,6 +1608,22 @@ import {
   const HERO_START = 2000;
   const HERO_END = 2025;
   let heroChartRows = null;
+
+  /** Side layout: controls, results and chart move into a card beside the text, and back for other screens. */
+  function placeSimulation() {
+    const side = activeView.layout === "side";
+    const chartPanel = els.chart.closest(".chart-panel");
+    els.workspace.dataset.layout = side ? "side" : "";
+    els.simCard.hidden = !side;
+    if (side) {
+      [els.controls, els.message, els.metrics, chartPanel].forEach((node) => els.simCard.appendChild(node));
+    } else if (els.controls.parentElement === els.simCard) {
+      els.workspace.insertBefore(els.controls, els.storyLead);
+      els.workspace.insertBefore(els.message, els.storyLead);
+      els.workspace.insertBefore(els.metrics, els.afterStory);
+      els.workspace.insertBefore(chartPanel, els.afterStory);
+    }
+  }
 
   /** Landing block on the intro screen: title, two starting points and an illustrative chart. */
   function renderIntroHero() {
@@ -1741,7 +1766,30 @@ import {
     els.controls.dataset.view = activeView.id;
     els.controls.hidden = activeView.staticOnly || !activeView.controls.length;
     if (els.controls.hidden) return;
+    let advanced = null;
     activeView.controls.forEach((control) => {
+      const before = els.controls.children.length;
+      renderControl(control);
+      if (!control.advanced) return;
+      if (!advanced) {
+        advanced = document.createElement("details");
+        advanced.className = "controls-advanced";
+        advanced.innerHTML = "<summary>שינוי הנחות</summary>";
+      }
+      [...els.controls.children].slice(before).forEach((node) => advanced.appendChild(node));
+    });
+    if (advanced) els.controls.appendChild(advanced);
+    if (activeView.id === "trinity") {
+      const summary = document.createElement("div");
+      summary.className = "trinity-draw-summary";
+      summary.setAttribute("aria-live", "polite");
+      els.controls.appendChild(summary);
+      updateTrinityDrawSummary();
+    }
+  }
+
+  function renderControl(control) {
+    {
       if (control.kind === "portfolioPicker") {
         renderPortfolioPicker(control);
         return;
@@ -1804,13 +1852,6 @@ import {
         }
       }
       els.controls.appendChild(wrap);
-    });
-    if (activeView.id === "trinity") {
-      const summary = document.createElement("div");
-      summary.className = "trinity-draw-summary";
-      summary.setAttribute("aria-live", "polite");
-      els.controls.appendChild(summary);
-      updateTrinityDrawSummary();
     }
   }
 
@@ -1954,6 +1995,7 @@ import {
       return `<h4${idAttr}${classAttr}>${escapeHtml(block.subheading)}</h4>`;
     }
     if (block.bold) return `<p class="story-emphasis">${escapeHtml(block.bold)}</p>`;
+    if (block.callout) return `<aside class="story-callout">${block.callout.map((item) => `<p>${storyParagraphHtml(item)}</p>`).join("")}</aside>`;
     if (block.list) return `<ul class="story-list">${block.list.map((item) => `<li>${storyParagraphHtml(item)}</li>`).join("")}</ul>`;
     if (block.text) return `<p>${emphasisHtml(block.text)}</p>`;
     return "";
@@ -1999,6 +2041,7 @@ import {
   }
 
   function afterStoryBlockHtml(block) {
+    if (Array.isArray(block)) return `<p>${storyParagraphHtml(block)}</p>`;
     if (typeof block === "string") {
       return `<p class="${block.startsWith("בשורה התחתונה") ? "story-bottom-line" : ""}">${emphasisHtml(block)}</p>`;
     }
@@ -3198,11 +3241,9 @@ import {
     const row = lastRow(payload.data);
     if (!row) return [];
     const scenarios = [
-      ["End25", "מימוש רק בסוף", "#2457ff"],
-      ["Every120Months", "מימוש כל 10 שנים", "#2f9e8f"],
-      ["Every60Months", "מימוש כל 5 שנים", "#ff941f"],
-      ["Every12Months", "מימוש כל שנה", "#ff3b30"],
-      ["EveryMonth", "מימוש כל חודש", "#2b2f31"]
+      ["End25", "מימוש רק בסוף", "#145f59"],
+      ["Every60Months", "מימוש כל 5 שנים", "#385f9f"],
+      ["Every12Months", "מימוש כל שנה", "#c2551d"]
     ];
     const atEnd = numericValue(row.End25);
     return scenarios.map(([key, label, color]) => {
@@ -3588,6 +3629,7 @@ import {
         id: String(def.label),
         label,
         color: colors[index % colors.length],
+        dash: chartConfig.dashes && def.yKey ? chartConfig.dashes[def.yKey] : undefined,
         width: 2.2,
         points,
         endLabel: change ? `${label} · ${change}` : label,
@@ -3603,6 +3645,7 @@ import {
       x: xAxisFor(rows, xKey),
       y: { format: values.format, tick: values.tick, zero: chartConfig.forceZero },
       series,
+      hidden: (chartConfig.hidden || []).map((key) => String((chartConfig.seriesLabels && chartConfig.seriesLabels[key]) || key)),
       refLines: Number.isFinite(baseline) && baseline > 0 ? [{ y: baseline, label: "ההשקעה הראשונית" }] : [],
       endLabels: chartConfig.endLabels
     });
@@ -4668,6 +4711,7 @@ import {
     els.takeaway.hidden = !activeView.takeaway;
     renderStory();
     renderControls();
+    placeSimulation();
     urlDefaults = { main: activeView.staticOnly ? [] : mainStateEntries(), panels: new Map(), lazy: [], custom: [] };
     if (pendingUrlState) applyMainState(scoped("", pendingUrlState));
     if (activeView.staticOnly) {
