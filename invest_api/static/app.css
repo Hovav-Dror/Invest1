@@ -357,7 +357,7 @@ h3 {
 
 .story-copy p,
 .story-copy li {
-  color: #1f52a0;
+  color: var(--ink);
   font-size: 18px;
   line-height: 1.75;
 }
@@ -457,7 +457,7 @@ h3 {
 }
 
 .trinity-draw-summary p {
-  color: #1f52a0;
+  color: var(--ink);
   font-size: 13px;
   font-weight: 760;
   line-height: 1.25;
