@@ -352,24 +352,24 @@ import {
       ],
       afterChartByEndpoint: {
         commission_effect: [
-          "בפשטנות, דמי ניהול במסחר עצמאי יהיו כ-0.2% ודמי הניהול בפוליסת חסכון, ובפרט לאחר תוספת \"הוצאות ניהול השקעה\", יהיו כ-0.7%.",
-          "מי שהשאיר 100,000 ש\"ח עם דמי ניהול של 0.7% לשנה ב-1993, כשהם צמודים למדד S&P 500 כולל השקעה מחודשת של מרבית הדיווידנדים, מצא עצמו ב-2026 עם יותר מ-700,000 ש\"ח לאחר מס רווחי הון ולאחר תקנון למדד.",
+          "בפשטנות, דמי ניהול במסחר עצמאי יהיו כ-0.2% ודמי הניהול בפוליסת חסכון, ובפרט לאחר תוספת \"הוצאות ניהול השקעה\", יהיו כ-1%.",
+          "מי שהשאיר 100,000 ש\"ח עם דמי ניהול של 1% לשנה ב-1993, כשהם צמודים למדד S&P 500 כולל השקעה מחודשת של מרבית הדיווידנדים, מצא עצמו ב-2026 עם כ-660,000 ש\"ח לאחר מס רווחי הון ולאחר תקנון למדד.",
           "לעומתו, מי שהשקיע באותו מחקה בדיוק עם דמי ניהול של 0.2% בלבד, יהיה עם כ-850,000 ש\"ח בכיס אחרי מס רווחי הון, ועם כ-2,350,000 ש\"ח אם לא מתקננים למדד.",
           "ההבדל עצום.",
           "כל שינוי של 0.1% בדמי הניהול יכול להיות הבדל של אלפי שקלים רבים עבורכם, בהשקעה ארוכת טווח.",
           "זה עוד מקום טוב להזכיר שיש לזכור את \"הוצאות ניהול ההשקעות\": מרכיב שמשפיע עלינו בדיוק כמו דמי הניהול, אך בדרך כלל נשכח בחישוב דמי הניהול.",
           "אתם יכולים לשחק בדמי הניהול למעלה, ולראות את ההשפעה. שחקו גם בתקופת ההשקעה: חשוב לשחק לא רק במשך ההשקעה, אלא גם במועד ההתחלה, כדי לראות מה קרה בשנים שונות.",
           "עכשיו נחבר את מה שראינו עד כה - דמי הניהול והשפעת אירועי המס כתלות בתדירות בה מזיזים את הכסף.",
-          "בחרו בתצוגת \"דמי ניהול + אירועי מס\" כדי לראות את הגרף המשולב."
+          "עברו ללשונית \"דמי ניהול + אירועי מס\" בראש הכלי כדי לראות את התמונה המשולבת."
         ],
         commission_tax: [
           "בואו ננסה לחבר עכשיו יחדיו את דמי הניהול ואת השפעת אירועי המס כתלות בתדירות בה מזיזים את הכסף.",
-          "תשומת לב שהקו המקווקו עוזר לראות עד כמה משמעותי שינוי בדמי הניהול, בתוספת הוצאות ניהול ההשקעות שנחבאים קצת, ואכן מדובר בסכומים משמעותיים.",
+          "הטבלה מראה את כל הצירופים: ככל שיורדים בה, דמי הניהול גבוהים יותר, וככל שזזים שמאלה, הכסף זז לעיתים קרובות יותר. בגרף, כל צבע הוא שיעור דמי ניהול, והקו המקווקו הוא מימוש כל שנה. גם דמי הניהול, בתוספת הוצאות ניהול ההשקעות שנחבאים קצת, וגם אירועי המס, הם סכומים משמעותיים.",
           "מוזמנים לשחק ולראות את ההשפעה של התאריכים, הן בשל אורך התקופה והן בשל מגמות שונות במדד S&P 500 בתקופות שונות, ושל ערכים שונים לדמי הניהול.",
           "כמו כן, תשומת לב להשפעה הדרמטית של אירועי מס. כאמור, ככל שסביר יותר שתרצו שינוי \"מסלול\" בעתיד, יתכן שהעמלה הגבוהה של בתי ההשקעות, שנותנת גמישות רבה יותר בשינוי מסלול ללא אירוע מס, מוצדקת יותר.",
           "עם זאת, מי שמשקיע במחקה מדד, למשל ב-S&P 500, ומתכוון להתמיד בכך לתקופה ארוכה, כנראה ירוויח הרבה מהעברת כל סכום שלא חייב לשבת בפוליסת חסכון לתעודת סל בחשבון בניהול אישי.",
           "בפוליסת חסכון השיקול פשוט: דמי ניהול גבוהים. התשואה, אגב, לא מחקה את המדדים טוב כמו האפשרויות בתיק אישי, אבל העיקר הוא העמלות שאנחנו משלמים כל שנה לבית ההשקעות.",
-          "אצלי, למשל, הייתה פוליסת חסכון עם דמי ניהול של 0.7% והוצאות ניהול השקעה של 0.25%. ביחד 0.95% קופון לאחרים שמכונה כאן דמי ניהול - יותר מברירת המחדל שהכנסתי בגרפים למעלה.",
+          "אצלי, למשל, הייתה פוליסת חסכון עם דמי ניהול של 0.7% והוצאות ניהול השקעה של 0.25%. ביחד 0.95% קופון לאחרים שמכונה כאן דמי ניהול - קרוב לברירת המחדל של 1% שהכנסתי בגרפים למעלה.",
           "בקופת גמל להשקעה המצב מורכב יותר.",
           "הסיפור, להבנתי, הוא שיש לנו אופציה להטבת מס: להגיע לגיל פרישה ולא לשלם את מס רווחי ההון. התרשים הבא מאפשר לראות שזה יכול להיות המון כסף.",
           "אז החלטתי לנסות להעריך כמה הטבת המס הזאת שווה, והאם הדבקות שלי עד היום להעביר כספים, ולייצר אירוע מס, רק כדי למלא את המכסה האפשרית של הטבת המס בקופת הגמל להשקעה הייתה מומלצת.",
@@ -872,30 +872,34 @@ import {
       group: "Tax and fee drag",
       title: "השפעת עמלות ומסים",
       nav: "השפעת עמלות ומסים",
-      kicker: "דמי ניהול, אירועי מס, ומה קורה כשהם נפגשים לאורך שנים",
+      kicker: "סימולציה היסטורית",
       takeaway: "פער קטן בדמי ניהול נראה שולי בשנה אחת, אבל לאורך עשרות שנים הוא יכול להפוך לסכום גדול מאוד.",
       multiChart: true,
+      tabs: true,
       controls: [
-        dateRangeSlider(),
-        commissionsField(),
-        field("initial", "השקעה ראשונית", "number", "100000", "10000", "שקלים"),
-        cpiCheckbox()
+        { kind: "monthFields", label: "תקופת השקעה" },
+        { kind: "feeChips", name: "commissions", label: "דמי ניהול שנתיים", value: "0,0.2,1" },
+        field("initial", "השקעה התחלתית (₪)", "text", "100000"),
+        { ...cpiCheckbox(), advanced: true },
+        { ...dateRangeSlider(), advanced: true }
       ],
       panels: [
         {
           endpoint: "commission_effect",
-          title: "השפעת גובה דמי הניהול",
+          title: "דמי ניהול",
+          hideHeader: true,
           chart: {
             type: "line",
             x: "date",
             y: "tax_at_end",
             splitBy: "commission",
             labelPrefix: "commission ",
+            dashCycle: ["", "9 5", "3 4", "12 4 2 4", "1 4"],
             baselineKey: "initial",
             currency: true,
             endLabels: true,
             forceZero: true,
-            title: "השפעת גובה דמי הניהול",
+            title: "שווי ההשקעה לאורך זמן",
             caption: "נתוני S&P 500, כולל צבירת דיוידנדים"
           },
           metric: metricFees,
@@ -904,26 +908,22 @@ import {
         {
           endpoint: "commission_tax",
           title: "דמי ניהול + אירועי מס",
+          hideHeader: true,
           chart: {
             type: "line",
             x: "date",
-            series: ["tax_at_end", "tax_every_120_months", "tax_every_60_months", "tax_every_12_months", "tax_every_month"],
-            seriesLabels: {
-              tax_at_end: "מימוש בסוף התקופה",
-              tax_every_120_months: "מימוש כל 10 שנים",
-              tax_every_60_months: "מימוש כל 5 שנים",
-              tax_every_12_months: "מימוש כל שנה",
-              tax_every_month: "מימוש כל חודש"
+            overlayBy: "commission",
+            overlayKeys: {
+              tax_at_end: { label: "מימוש בסוף התקופה", dash: "" },
+              tax_every_12_months: { label: "מימוש כל שנה", dash: "9 5" }
             },
-            facetBy: "commission",
-            colors: ["#2457ff", "#2f9e8f", "#ff941f", "#ff3b30", "#2b2f31"],
             baselineKey: "initial",
             currency: true,
             forceZero: true,
-            title: "השפעת גובה דמי הניהול בשילוב עם תדירות הזזת הכסף",
-            caption: "נתוני S&P 500, כולל צבירת דיוידנדים"
+            title: "דמי ניהול ותדירות מימוש",
+            caption: "כל צבע הוא שיעור דמי ניהול. קו רציף: מימוש רק בסוף התקופה. קו מקווקו: מימוש כל שנה."
           },
-          metric: metricLastBy("commission", "tax_every_12_months"),
+          metricHtml: feeFrequencyTableHtml,
           tableColumns: ["date", "commission", "SP500_in_NIS", "tax_at_end", "tax_every_month", "tax_every_12_months", "tax_every_60_months", "tax_every_120_months"]
         }
       ],
@@ -1770,6 +1770,7 @@ import {
     els.controls.dataset.view = activeView.id;
     els.controls.hidden = activeView.staticOnly || !activeView.controls.length;
     if (els.controls.hidden) return;
+    if (activeView.tabs) renderViewTabs();
     let advanced = null;
     activeView.controls.forEach((control) => {
       const before = els.controls.children.length;
@@ -1794,6 +1795,14 @@ import {
 
   function renderControl(control) {
     {
+      if (control.kind === "monthFields") {
+        renderMonthFields(control);
+        return;
+      }
+      if (control.kind === "feeChips") {
+        renderFeeChips(control);
+        return;
+      }
       if (control.kind === "portfolioPicker") {
         renderPortfolioPicker(control);
         return;
@@ -2145,6 +2154,167 @@ import {
     wrap.append(legend, tracks, summary);
     els.controls.appendChild(wrap);
     updateDateRangeReadout();
+  }
+
+  /** Tabs over the same controls; the choice is a form value so it lives in the URL. */
+  function renderViewTabs() {
+    const panels = activeView.panels || [];
+    const bar = document.createElement("div");
+    bar.className = "view-tabs";
+    bar.setAttribute("role", "tablist");
+    bar.innerHTML = panels.map((panel, index) => `
+      <button type="button" role="tab" id="view-tab-${index}" data-view-tab="${index}" aria-selected="${index === 0 ? "true" : "false"}">${escapeHtml(panel.title)}</button>
+    `).join("") + `<input type="hidden" name="tab" value="0">`;
+    bar.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-view-tab]");
+      if (!button) return;
+      bar.querySelector('input[name="tab"]').value = button.dataset.viewTab;
+      applyViewTab();
+      syncUrl();
+    });
+    bar.addEventListener("keydown", (event) => {
+      if (!["ArrowLeft", "ArrowRight"].includes(event.key)) return;
+      const buttons = [...bar.querySelectorAll("[data-view-tab]")];
+      const current = buttons.indexOf(document.activeElement);
+      if (current < 0) return;
+      const step = event.key === "ArrowLeft" ? 1 : -1;
+      const next = buttons[(current + step + buttons.length) % buttons.length];
+      next.focus();
+      next.click();
+    });
+    els.controls.appendChild(bar);
+  }
+
+  function activeTabIndex() {
+    const input = els.controls.querySelector('input[name="tab"]');
+    const value = input ? Number(input.value) : 0;
+    return Number.isInteger(value) && value >= 0 && value < (activeView.panels || []).length ? value : 0;
+  }
+
+  function applyViewTab() {
+    if (!activeView.tabs) return;
+    const index = activeTabIndex();
+    els.controls.querySelectorAll("[data-view-tab]").forEach((button) => {
+      const selected = Number(button.dataset.viewTab) === index;
+      button.setAttribute("aria-selected", selected ? "true" : "false");
+      button.tabIndex = selected ? 0 : -1;
+    });
+    els.chart.querySelectorAll("[data-panel-index]").forEach((section) => {
+      section.hidden = Number(section.dataset.panelIndex) !== index;
+      section.setAttribute("role", "tabpanel");
+      section.setAttribute("aria-labelledby", `view-tab-${section.dataset.panelIndex}`);
+    });
+  }
+
+  /** Exact month/year fields that drive the date-range slider (which may sit under "שינוי הנחות"). */
+  function renderMonthFields(control) {
+    const wrap = document.createElement("fieldset");
+    wrap.className = "month-fields";
+    wrap.innerHTML = `
+      <legend>${escapeHtml(control.label)}</legend>
+      <div class="month-fields-row">
+        <label><span>מ-</span><input type="month" data-month-field="start" aria-label="חודש התחלה" dir="ltr"></label>
+        <span aria-hidden="true">–</span>
+        <label><span>עד</span><input type="month" data-month-field="end" aria-label="חודש סיום" dir="ltr"></label>
+      </div>
+    `;
+    wrap.addEventListener("change", (event) => {
+      const field = event.target.closest("[data-month-field]");
+      if (!field) return;
+      const match = /^(\d{4})-(\d{2})/.exec(field.value);
+      const slider = els.controls.querySelector(`input[name="${field.dataset.monthField}_month"]`);
+      if (!match || !slider) {
+        updateDateRangeReadout();
+        return;
+      }
+      const index = Number(match[1]) * 12 + Number(match[2]) - 1;
+      slider.value = String(Math.min(Number(slider.max), Math.max(Number(slider.min), index)));
+      updateDateRangeReadout();
+    });
+    els.controls.appendChild(wrap);
+  }
+
+  function syncMonthFields() {
+    const start = els.controls.querySelector('input[name="start_month"]');
+    const end = els.controls.querySelector('input[name="end_month"]');
+    if (!start || !end) return;
+    const low = Math.min(Number(start.value), Number(end.value));
+    const high = Math.max(Number(start.value), Number(end.value));
+    const startField = els.controls.querySelector('[data-month-field="start"]');
+    const endField = els.controls.querySelector('[data-month-field="end"]');
+    if (startField && document.activeElement !== startField) startField.value = monthDate(low).slice(0, 7);
+    if (endField && document.activeElement !== endField) endField.value = monthDate(high).slice(0, 7);
+  }
+
+  /** Fee rates as separate editable values; a hidden input keeps the comma list the API and URL use. */
+  function renderFeeChips(control) {
+    const wrap = document.createElement("fieldset");
+    wrap.className = "fee-chips";
+    wrap.innerHTML = `
+      <legend>${escapeHtml(control.label)}</legend>
+      <div class="fee-chips-row" data-fee-chips></div>
+      <input type="hidden" name="${escapeHtml(control.name)}" value="${escapeHtml(control.value)}">
+    `;
+    const hidden = wrap.querySelector('input[type="hidden"]');
+    const row = wrap.querySelector("[data-fee-chips]");
+    const commit = () => {
+      const values = [...row.querySelectorAll("[data-fee-chip]")]
+        .map((input) => Number(String(input.value).replace(",", ".").trim()))
+        .filter((value) => Number.isFinite(value) && value >= 0 && value <= 100);
+      const unique = [...new Set(values)].sort((a, b) => a - b);
+      if (unique.length) hidden.value = unique.join(",");
+    };
+    wrap.addEventListener("change", (event) => {
+      if (event.target.matches("[data-fee-chip]")) commit();
+    });
+    wrap.addEventListener("input", (event) => {
+      if (event.target.matches("[data-fee-chip]")) commit();
+    });
+    wrap.addEventListener("click", (event) => {
+      const remove = event.target.closest("[data-fee-remove]");
+      const add = event.target.closest("[data-fee-add]");
+      if (!remove && !add) return;
+      if (remove) {
+        if (row.querySelectorAll("[data-fee-chip]").length <= 1) return;
+        remove.closest(".fee-chip").remove();
+      } else {
+        const chip = feeChipNode("");
+        row.insertBefore(chip, row.querySelector("[data-fee-add]"));
+        chip.querySelector("input").focus();
+        updateFeeAddButton(row);
+        return;
+      }
+      commit();
+      updateFeeAddButton(row);
+      hidden.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    els.controls.appendChild(wrap);
+    syncFeeChips();
+  }
+
+  function feeChipNode(value) {
+    const chip = document.createElement("span");
+    chip.className = "fee-chip";
+    chip.innerHTML = `
+      <input type="text" inputmode="decimal" data-fee-chip value="${escapeHtml(value)}" aria-label="דמי ניהול באחוזים" dir="ltr"><span aria-hidden="true">%</span>
+      <button type="button" data-fee-remove aria-label="הסרת ${escapeHtml(value || "ערך")}%">×</button>
+    `;
+    return chip;
+  }
+
+  function updateFeeAddButton(row) {
+    const add = row.querySelector("[data-fee-add]");
+    if (add) add.hidden = row.querySelectorAll("[data-fee-chip]").length >= 5;
+  }
+
+  function syncFeeChips() {
+    const wrap = els.controls.querySelector(".fee-chips");
+    if (!wrap) return;
+    const row = wrap.querySelector("[data-fee-chips]");
+    const values = wrap.querySelector('input[type="hidden"]').value.split(",").map((part) => part.trim()).filter(Boolean);
+    row.innerHTML = `<button type="button" class="fee-add" data-fee-add aria-label="הוספת שיעור דמי ניהול">+</button>`;
+    values.forEach((value) => row.insertBefore(feeChipNode(value), row.querySelector("[data-fee-add]")));
+    updateFeeAddButton(row);
   }
 
   function renderFeeMatrix(control) {
@@ -2759,6 +2929,7 @@ import {
       });
       pendingUrlState = null;
     }
+    applyViewTab();
     syncUrl();
     els.message.className = "message";
     els.message.textContent = `${ui.loadingView} ${activeView.title}...`;
@@ -2806,6 +2977,11 @@ import {
         if (metrics && panel.metric && !panel.hideMetrics && !panel.chart.facetBy && panel.chart.type !== "rollingBars" && panel.chart.type !== "heatmap") {
           metrics.hidden = false;
           renderMetricsInto(metrics, panel.metric ? panel.metric(payload) : []);
+        }
+        if (metrics && panel.metricHtml) {
+          metrics.hidden = false;
+          metrics.classList.remove("metric-tiles");
+          metrics.innerHTML = panel.metricHtml(payload);
         }
         if (panelChart) renderChartTo(payload, effectiveChart, panelChart);
         notePayloads.push(payload);
@@ -3217,7 +3393,12 @@ import {
 
   function renderMetricsInto(target, metrics) {
     target.classList.toggle("metric-tiles", metrics.some((metric) => metric.color));
-    target.innerHTML = metrics.map((metric) => `
+    target.innerHTML = metrics.map((metric) => metric.gap ? `
+      <div class="metric-gap">
+        <strong>פער של ${formatShekel(metric.value)}</strong>
+        <span>${escapeHtml(metric.label)}</span>
+      </div>
+    ` : `
       <div class="metric"${metric.color ? ` style="--tile:${escapeHtml(metric.color)}"` : ""}>
         <span>${escapeHtml(displayLabel(metric.label))}</span>
         <strong>${formatMetricValue(metric)}</strong>
@@ -3418,17 +3599,60 @@ import {
   }
 
   /** Management-fee panel: what is left at each fee level, and how much less than with no fee. */
+  /** Final value per fee rate, plus the shekel gap between the highest and lowest non-zero rates. */
   function metricFees(payload) {
     const groups = Object.entries(groupRows(payload.data || [], "commission")).sort((a, b) => Number(a[0]) - Number(b[0]));
     const values = groups.map(([fee, rows]) => [Number(fee), numericValue(lastRow(rows).tax_at_end)]);
     const reference = values.length ? values[0][1] : null;
-    return values.map(([fee, value], index) => ({
+    const real = !payload.params || payload.params.adjust_cpi !== false;
+    const basis = real ? "אחרי מס ובשקלים ריאליים" : "אחרי מס, בשקלים נומינליים";
+    const tiles = values.map(([fee, value], index) => ({
       label: `דמי ניהול ${fee}%`,
       value,
       format: "shekel",
       color: PALETTE[index % PALETTE.length],
-      note: index === 0 || !reference ? "אחרי מס, בסוף התקופה" : `${formatPercent(1 - value / reference, 0)} פחות מ-${values[0][0]}%`
+      note: index === 0 || !reference ? basis : `${formatPercent(1 - value / reference, 0)} פחות מ-${values[0][0]}%`
     }));
+    const paid = values.filter(([fee]) => fee > 0);
+    const pair = paid.length >= 2 ? [paid[0], paid[paid.length - 1]] : (paid.length === 1 && values[0][0] === 0 ? [values[0], paid[0]] : null);
+    if (pair && Number.isFinite(pair[0][1]) && Number.isFinite(pair[1][1])) {
+      tiles.push({
+        gap: true,
+        value: pair[0][1] - pair[1][1],
+        label: `בין דמי ניהול של ${pair[0][0]}% ל-${pair[1][0]}% בתרחיש הזה, ${basis}`
+      });
+    }
+    return tiles;
+  }
+
+  /** Final value for every fee rate and realization frequency, best and worst marked. */
+  function feeFrequencyTableHtml(payload) {
+    const frequencies = [
+      ["tax_at_end", "רק בסוף"],
+      ["tax_every_120_months", "כל 10 שנים"],
+      ["tax_every_60_months", "כל 5 שנים"],
+      ["tax_every_12_months", "כל שנה"],
+      ["tax_every_month", "כל חודש"]
+    ];
+    const groups = Object.entries(groupRows(payload.data || [], "commission")).sort((a, b) => Number(a[0]) - Number(b[0]));
+    if (!groups.length) return "";
+    const cells = groups.map(([fee, rows]) => [Number(fee), frequencies.map(([key]) => numericValue(lastRow(rows)[key]))]);
+    const all = cells.flatMap(([, row]) => row).filter(Number.isFinite);
+    const best = Math.max(...all);
+    const worst = Math.min(...all);
+    const real = !payload.params || payload.params.adjust_cpi !== false;
+    return `
+      <div class="fee-frequency">
+        <p class="fee-frequency-title">שווי בסוף התקופה לפי דמי ניהול ותדירות מימוש <small>${real ? "אחרי מס ובשקלים ריאליים" : "אחרי מס, בשקלים נומינליים"}</small></p>
+        <div class="fee-frequency-scroll">
+          <table>
+            <thead><tr><th scope="col">דמי ניהול</th>${frequencies.map(([, label]) => `<th scope="col">מימוש ${escapeHtml(label)}</th>`).join("")}</tr></thead>
+            <tbody>${cells.map(([fee, row]) => `
+              <tr><th scope="row">${fee}%</th>${row.map((value) => `<td class="${value === best ? "is-best" : value === worst ? "is-worst" : ""}">${Number.isFinite(value) ? formatShekel(value) : "—"}</td>`).join("")}</tr>`).join("")}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
   }
 
   function formatParams(params) {
@@ -3530,6 +3754,18 @@ import {
   }
 
   function lineSeries(rows, chartConfig) {
+    if (chartConfig.overlayBy && chartConfig.overlayKeys) {
+      const groups = Object.entries(groupRows(rows, chartConfig.overlayBy)).sort((a, b) => Number(a[0]) - Number(b[0]));
+      return groups.flatMap(([group, groupRowsForSeries], groupIndex) =>
+        Object.entries(chartConfig.overlayKeys).map(([key, spec]) => ({
+          label: `${group}% · ${spec.label}`,
+          yKey: key,
+          rows: groupRowsForSeries,
+          color: PALETTE[groupIndex % PALETTE.length],
+          dash: spec.dash
+        }))
+      );
+    }
     if (chartConfig.facetBy && chartConfig.series) {
       return Object.entries(groupRows(rows, chartConfig.facetBy)).flatMap(([group, groupRowsForSeries]) =>
         chartConfig.series
@@ -3632,8 +3868,10 @@ import {
       return {
         id: String(def.label),
         label,
-        color: colors[index % colors.length],
-        dash: chartConfig.dashes && def.yKey ? chartConfig.dashes[def.yKey] : undefined,
+        color: def.color || colors[index % colors.length],
+        dash: def.dash !== undefined
+          ? def.dash
+          : chartConfig.dashes && def.yKey ? chartConfig.dashes[def.yKey] : chartConfig.dashCycle ? chartConfig.dashCycle[index % chartConfig.dashCycle.length] : undefined,
         width: 2.2,
         points,
         endLabel: change ? `${label} · ${change}` : label,
@@ -4320,6 +4558,7 @@ import {
   }
 
   function updateDateRangeReadout() {
+    syncMonthFields();
     const start = els.controls.querySelector('input[name="start_month"]');
     const end = els.controls.querySelector('input[name="end_month"]');
     const tracks = els.controls.querySelector(".date-range-tracks");
@@ -4524,9 +4763,9 @@ import {
       case "commission_tax":
         return {
           list: [
-            "כל פאנל מייצג רמת דמי ניהול אחרת, ובתוכו הקווים מייצגים תדירויות שונות של אירועי מס.",
+            "כל צבע מייצג רמת דמי ניהול. קו רציף הוא מימוש רק בסוף התקופה, וקו מקווקו הוא מימוש כל שנה.",
             "כך אפשר להפריד בין שני כוחות: דמי ניהול שגורעים כסף בכל שנה, ומימושים שמקדימים תשלום מס.",
-            "השוואה בין פאנלים מראה את השפעת דמי הניהול; השוואה בין הקווים באותו פאנל מראה את השפעת תדירות המימוש."
+            "המרחק בין צבעים מראה את השפעת דמי הניהול; המרחק בין קו רציף למקווקו באותו צבע מראה את השפעת תדירות המימוש. הטבלה שמעל הגרף מראה גם מימוש כל 10 שנים, כל 5 שנים וכל חודש."
           ]
         };
       case "kupat_gemel":
@@ -4795,6 +5034,8 @@ import {
     els.controls.querySelectorAll("input[data-format]").forEach(formatInputDisplay);
     updateDateRangeReadout();
     updateTrinityDrawSummary();
+    syncFeeChips();
+    applyViewTab();
   }
 
   function lazyStateEntries() {

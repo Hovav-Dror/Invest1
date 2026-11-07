@@ -3005,3 +3005,268 @@ button.vchart-legend-item[aria-pressed="false"] {
     position: static;
   }
 }
+
+/* Tabs over shared controls */
+.view-tabs {
+  border-bottom: 1px solid var(--line-strong);
+  display: flex;
+  flex-basis: 100%;
+  gap: 4px;
+  width: 100%;
+}
+
+.view-tabs [role="tab"] {
+  background: transparent;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  border-radius: 0;
+  color: var(--muted);
+  flex: 1 1 0;
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: -1px;
+  min-height: 48px;
+  padding: 8px 12px;
+}
+
+.view-tabs [role="tab"]:hover {
+  background: var(--panel-soft);
+  color: var(--ink);
+}
+
+.view-tabs [role="tab"][aria-selected="true"] {
+  border-bottom-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Month/year fields */
+.month-fields,
+.fee-chips {
+  border: 0;
+  margin: 0;
+  min-width: 0;
+  padding: 0;
+}
+
+.month-fields legend,
+.fee-chips legend {
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  padding: 0;
+}
+
+.month-fields-row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.month-fields-row label {
+  align-items: center;
+  display: inline-flex;
+  gap: 6px;
+}
+
+.month-fields-row label span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.month-fields input[type="month"] {
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  font: inherit;
+  min-height: 40px;
+  padding: 4px 8px;
+}
+
+/* Fee chips */
+.fee-chips-row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fee-chip {
+  align-items: center;
+  background: var(--panel);
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  display: inline-flex;
+  min-height: 40px;
+  padding-inline: 8px 2px;
+}
+
+.fee-chip input {
+  background: transparent;
+  border: 0;
+  font: inherit;
+  padding: 4px 0;
+  text-align: center;
+  width: 3.4em;
+}
+
+.fee-chip input:focus {
+  outline: none;
+}
+
+.fee-chip:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(20, 95, 89, 0.18);
+}
+
+.fee-chip button {
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1;
+  min-height: 36px;
+  min-width: 32px;
+}
+
+.fee-chip button:hover {
+  color: var(--warn);
+}
+
+.controls .fee-add {
+  background: var(--panel);
+  border: 1px dashed var(--line-strong);
+  color: var(--accent);
+  font-size: 20px;
+  min-height: 40px;
+  min-width: 40px;
+  padding: 0;
+}
+
+.controls .fee-add:hover {
+  background: var(--soft);
+}
+
+/* Gap summary */
+.metric-gap {
+  align-items: baseline;
+  background: var(--soft);
+  border-radius: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  grid-column: 1 / -1;
+  padding: 14px 18px;
+}
+
+.metric-gap strong {
+  font-size: 24px;
+  font-weight: 850;
+}
+
+.metric-gap span {
+  color: #2c3532;
+  font-size: 15px;
+}
+
+/* Fee x frequency table */
+.fee-frequency {
+  display: grid;
+  gap: 8px;
+}
+
+.fee-frequency-title {
+  font-size: 16px;
+  font-weight: 760;
+  margin: 0;
+}
+
+.fee-frequency-title small {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+  margin-inline-start: 8px;
+}
+
+.fee-frequency-scroll {
+  overflow-x: auto;
+}
+
+.fee-frequency table {
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+  min-width: 560px;
+  width: 100%;
+}
+
+.fee-frequency th,
+.fee-frequency td {
+  border-bottom: 1px solid var(--line);
+  padding: 9px 10px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.fee-frequency thead th {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.fee-frequency tbody th {
+  font-weight: 760;
+}
+
+.fee-frequency td.is-best {
+  background: #dcebe2;
+  color: var(--good);
+  font-weight: 800;
+}
+
+.fee-frequency td.is-worst {
+  background: #f6e3d9;
+  color: var(--warn);
+  font-weight: 800;
+}
+
+.controls[data-view="commission-drag"] {
+  align-items: end;
+  gap: 12px 18px;
+}
+
+.controls[data-view="commission-drag"] .field:not(.checkbox) {
+  flex: 0 1 150px;
+}
+
+.controls[data-view="commission-drag"] .field.checkbox {
+  align-self: center;
+  flex: 0 0 auto;
+  min-height: 40px;
+}
+
+.controls[data-view="commission-drag"] .month-fields input[type="month"] {
+  width: 10.5em;
+}
+
+.controls[data-view="commission-drag"] .controls-advanced > summary {
+  min-height: 32px;
+}
+
+.controls-advanced:not([open]) {
+  flex-basis: auto;
+  width: auto;
+}
+
+.controls[data-view="commission-drag"] .controls-advanced:not([open]) {
+  align-self: end;
+}
+
+.panel-metrics .fee-frequency,
+.panel-metrics .metric-gap {
+  grid-column: 1 / -1;
+}
+.panel-metrics .fee-frequency,
+.panel-metrics .metric-gap {
+  flex-basis: 100%;
+  width: 100%;
+}
