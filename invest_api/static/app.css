@@ -3500,3 +3500,10 @@ button.vchart-legend-item[aria-pressed="false"] {
 .controls[data-view="independent"] .controls-advanced[open] > summary {
   flex-basis: 100%;
 }
+
+.cost-flow-tag {
+  color: var(--accent);
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 800;
+}

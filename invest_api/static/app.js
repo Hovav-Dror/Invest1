@@ -455,10 +455,10 @@ import {
       tab: "עלות מסחר עצמאי",
       paragraphs: [
         { costFlow: [
-          { title: "קנייה", text: "המרת שקלים לדולרים ועמלת קנייה" },
-          { title: "החזקה", text: "דמי ניהול שנתיים של הקרן (ולפעמים דמי משמרת)" },
-          { title: "מכירה", text: "עמלת מכירה והמרה חזרה לשקלים" }
-        ], note: "לרוב הברוקרים יש עמלת מינימום לכל קנייה ומכירה. בסכומים גדולים היא זניחה." }
+          { title: "קנייה", text: "המרת שקלים לדולרים ועמלת קנייה", tag: "buy" },
+          { title: "החזקה", text: "דמי ניהול שנתיים של הקרן (ולפעמים דמי משמרת)", tag: "hold" },
+          { title: "מכירה", text: "עמלת מכירה והמרה חזרה לשקלים", tag: "sell" }
+        ], note: "הערכים לפי הנחות העלות שבמחשבון, ומתעדכנים כשמשנים אותן. לרוב הברוקרים יש עמלת מינימום לכל קנייה ומכירה; בסכומים גדולים היא זניחה." }
       ],
       afterChartByEndpoint: {
         independent_commissions: [
@@ -2045,7 +2045,7 @@ import {
     if (block.bold) return `<p class="story-emphasis">${escapeHtml(block.bold)}</p>`;
     if (block.costFlow) {
       return `<div class="cost-flow">
-        <ol>${block.costFlow.map((step) => `<li><strong>${escapeHtml(step.title)}</strong><span>${escapeHtml(step.text)}</span></li>`).join("")}</ol>
+        <ol>${block.costFlow.map((step) => `<li><strong>${escapeHtml(step.title)}</strong>${step.tag ? `<em class="cost-flow-tag" data-cost-tag="${escapeHtml(step.tag)}"></em>` : ""}<span>${escapeHtml(step.text)}</span></li>`).join("")}</ol>
         ${block.note ? `<p class="cost-flow-note">${escapeHtml(block.note)}</p>` : ""}
       </div>`;
     }
@@ -2388,6 +2388,17 @@ import {
       const preset = Number(displayInputValue(button.dataset.presetTarget, button.dataset.presetValue));
       button.setAttribute("aria-pressed", Math.abs(current - preset) < 1e-9 ? "true" : "false");
     });
+    const tags = els.story.querySelectorAll("[data-cost-tag]");
+    if (tags.length) {
+      const state = stateFromForm();
+      const num = (key) => trimInputNumber(Number(state[key]), 3);
+      const text = {
+        buy: `המרה ${num("dollar_commission")}% · עמלה מינימלית ${num("min_dollar_commission")}$`,
+        hold: `${num("yearly_commission")}% בשנה`,
+        sell: `עמלה מינימלית ${num("min_dollar_commission")}$ · המרה ${num("dollar_commission")}%`
+      };
+      tags.forEach((tag) => { tag.textContent = text[tag.dataset.costTag] || ""; });
+    }
     const summary = els.controls.querySelector("[data-advanced-summary]");
     if (summary && activeView.advancedSummary) {
       try {
