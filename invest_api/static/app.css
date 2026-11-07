@@ -3721,3 +3721,108 @@ button.vchart-legend-item[aria-pressed="false"] {
 .view-tabs {
   scroll-margin-top: 80px;
 }
+
+/* Portfolio comparison: tabs, growth chart beside a readable table */
+.lazy-top {
+  display: grid;
+  gap: 12px;
+}
+
+.lazy-period {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.lazy-growth {
+  align-items: start;
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, 1fr);
+}
+
+.lazy-summary table {
+  border-collapse: collapse;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  width: 100%;
+}
+
+.lazy-summary caption {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  text-align: start;
+}
+
+.lazy-summary th,
+.lazy-summary td {
+  border-bottom: 1px solid var(--line);
+  padding: 7px 6px;
+  text-align: start;
+}
+
+.lazy-summary thead th {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.lazy-summary tbody th {
+  font-weight: 700;
+}
+
+.lazy-summary tr.is-highlight {
+  background: #fff4ea;
+}
+
+.lazy-callout {
+  margin-top: 16px;
+}
+
+@media (max-width: 1120px) {
+  .lazy-growth {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Menu: the central page stands out */
+.nav .nav-topic[data-priority="primary"] {
+  background: #fff4ea;
+  border: 1px solid #d98b58;
+  box-shadow: inset 3px 0 0 var(--accent-2);
+  color: #7f351e;
+  font-weight: 800;
+}
+
+.nav .nav-topic[data-priority="primary"][data-current="true"] {
+  background: var(--accent-2);
+  border-color: #843b20;
+  color: #ffffff;
+}
+
+/* One control block for the portfolio page: wrap instead of fixed columns */
+.lazy-top .lazy-controls {
+  align-items: end;
+  direction: rtl;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 22px;
+}
+
+.lazy-top .lazy-controls > * {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.lazy-top .lazy-controls .lazy-picker {
+  flex: 1 1 220px;
+  max-width: 320px;
+}
+
+.lazy-top .lazy-controls .lazy-years {
+  flex: 1 1 280px;
+  max-width: 420px;
+}

@@ -384,18 +384,34 @@ VALUE_COLUMNS = {
 
 
 def _underwater(values: np.ndarray, years: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-    """For an investor buying at each year end: worst later loss and years until last below cost."""
+    """Per year: worst later loss for a buyer at that year end, and the current underwater spell.
+
+    The spell is the number of years since the last peak, counted until the
+    year the portfolio is back at or above that peak (that year included). Its
+    maximum is the longest stretch below a previous peak; an unrecovered spell
+    runs to the last observation.
+    """
 
     drops = np.full(len(values), np.nan)
     shefel = np.full(len(values), np.nan)
+    peak = np.nan
+    peak_year = np.nan
+    below = False
     for pos, value in enumerate(values):
         if np.isnan(value):
             continue
         future = values[pos:]
-        valid = ~np.isnan(future)
         drops[pos] = np.nanmin(future) / value - 1
-        below = valid & (future <= value)
-        shefel[pos] = years[pos:][below].max() - years[pos]
+        if np.isnan(peak):
+            peak, peak_year = value, years[pos]
+            shefel[pos] = 0.0
+            continue
+        if value >= peak:
+            shefel[pos] = years[pos] - peak_year if below else 0.0
+            peak, peak_year, below = value, years[pos], False
+        else:
+            below = True
+            shefel[pos] = years[pos] - peak_year
     return drops, shefel
 
 

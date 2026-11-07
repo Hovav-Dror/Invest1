@@ -334,3 +334,18 @@ def test_after_tax_never_exceeds_before_tax_on_real_data():
     result = calc.tax_events(load_data())
     for column in ("End25", "EveryMonth", "Every12Months", "Every60Months", "Every120Months"):
         assert (result[column] <= result["v"] + 1e-9).all()
+
+
+def test_underwater_years_count_a_single_stretch_below_the_previous_peak():
+    # 100 -> 80 -> 90 -> 120 (new peak) -> 95 -> 130.
+    # Stretches: 2000-2003 (3 years) and 2003-2005 (2 years). A buyer at 2000 was
+    # below cost again in 2004, but that is after a new peak, so it is a new stretch.
+    data = annual_data({"A": [0, -20, 12.5, 33.333333333, -20.833333333, 36.842105263]})
+    summary = calc.portfolio_summary(data, portfolios=["A"], year_start=2001, year_end=2005)
+    assert summary["MaxShefelYears"].iloc[0] == 3
+
+
+def test_unrecovered_underwater_stretch_runs_to_the_last_year():
+    data = annual_data({"A": [0, -10, 5, 2]})
+    summary = calc.portfolio_summary(data, portfolios=["A"], year_start=2001, year_end=2003)
+    assert summary["MaxShefelYears"].iloc[0] == 3

@@ -592,27 +592,30 @@ import {
       paragraphs: [
         "אחרי כל ההקדמה הזו הגענו לנקודה בה מתלבטים לא האם להשקיע את הכסף, אלא באיזה תמהיל של תעודות סל.",
         "בפרט, לכאורה לפחות, כדי לאזן את הסיכון מחלופות שונות. לא להיות רק בשוק האמריקאי. לא להיות רק במניות ערך קטנות, וכו'",
-        "הרושם הנוכחי שלי, כפי שכתבתי בטאב הקודם, הוא שקשה למצוא נקודת איזון טובה, ודווקא החלופות הפשוטות מושמצות שלא בצדק.",
+        [
+          "הרושם הנוכחי שלי, כפי שכתבתי בעמודים ",
+          { text: "ארה״ב מול העולם", href: "#us-world" },
+          " ו",
+          { text: "מניות ערך קטנות", href: "#scv" },
+          ", הוא שקשה למצוא נקודת איזון טובה, ודווקא החלופות הפשוטות מושמצות שלא בצדק."
+        ],
         "בכל מקרה, העמוד הזה מאפשר להשוות חלופות השוואה שונות, שלא דורשות מהמשקיע להתעמק במניות שבתוכן או לדאוג לקנות ולמכור לעיתים תכופות. השקעת שגר ושכח (עד כדי מושג האיזון). לתיקים כאלה נהוג לקרוא תיקים עצלים.",
-        { html: "<strong class=\"story-inline-title\">תיקים עצלים</strong>" },
+      ],
+      afterTabs: [
+        { heading: "על התיקים ועל החישוב" },
         { html: "כדי שיהיה לנו תיק שיאזן בין גורמים שונים שכל אחד עצמו תנודתי - יש בספרות הרבה מאוד המלצות לתיקים עצלים. יותר מ 50 דוגמאות תוכלו <a href=\"https://www.optimizedportfolio.com/lazy-portfolios/\" target=\"_blank\" rel=\"noopener noreferrer\">למצוא, למשל, כאן</a> <a href=\"https://www.upmyinterest.com/list_portfolios/\" target=\"_blank\" rel=\"noopener noreferrer\">וגם כאן</a>. השתמשתי בחלק מהדוגמאות לטובת ההשוואה המצורפת של חלופות השקעה." },
         { html: "אגב, יש עוד מקומות רבים למצוא תיקים כאלה, למשל <a href=\"https://www.upmyinterest.com/\" target=\"_blank\" rel=\"noopener noreferrer\"> כאן</a>, ובהם כמובן גם במגרש הישראלי הביתי - <a href=\"https://www.hasolidit.com/25-%d7%aa%d7%99%d7%a7%d7%99-%d7%94%d7%a9%d7%a7%d7%a2%d7%95%d7%aa-%d7%9c%d7%94%d7%a8%d7%9b%d7%91%d7%94-%d7%a2%d7%a6%d7%9e%d7%99%d7%aa\" target=\"_blank\" rel=\"noopener noreferrer\">הסולידית</a>." },
-        "התרשים הבא מאפשר להשוות בין התשואה הריאלית של תיקים שונים, למידת התנודתיות שלהם.",
+        "התרשימים למעלה משווים בין התשואה הריאלית של תיקים שונים לבין מידת התנודתיות שלהם.",
         "לתשואה, נשתמש בשני מדדים - תשואה ריאלית (CAGR מתוקנן למדד) ופי כמה הכסף היה גדל, ריאלית, בהשקעה של 15 שנים עם תשואה כזו.",
         "את התנודתיות נציג הן כסטיית התקן של התשואה, והן כ\"שנות שפל\": מספר השנים הרצופות הארוך ביותר שבהן תיק היה מתחת לשיא הקודם שלו, עד שחזר לשיא חדש. זה הנתון שלפחות אותי מטריד ביותר, כי הוא מתאר כמה זמן המשקיע היה צריך לחכות כדי לצאת מהבור.",
-        { html: "את החישוב עשיתי בעצמי, מבלי שמישהו בדק את נכונותו. נתוני הבסיס ההיסטוריים של סוגי הנכסים בתיקים התבססו בעיקר על <a href=\"https://www.portfoliovisualizer.com/historical-asset-class-returns\" target=\"_blank\" rel=\"noopener noreferrer\">המקור הזה</a>, לצד מקורות נוספים שמפורטים בטאב אודות ובעדכוני 2024/2025. דאגתי לאזן כל תיק מדי שנה. נדמה לי שחלק מנתוני הגלם המקוריים לא כוללים חישוב של דיבידנדים." }
+        { html: "את החישוב עשיתי בעצמי, מבלי שמישהו בדק את נכונותו. נתוני הבסיס ההיסטוריים של סוגי הנכסים בתיקים התבססו בעיקר על <a href=\"https://www.portfoliovisualizer.com/historical-asset-class-returns\" target=\"_blank\" rel=\"noopener noreferrer\">המקור הזה</a>, לצד מקורות נוספים שמפורטים בטאב אודות ובעדכוני 2024/2025. דאגתי לאזן כל תיק מדי שנה. נדמה לי שחלק מנתוני הגלם המקוריים לא כוללים חישוב של דיבידנדים." },
+        { heading: "כמה הסתייגויות" },
+        "ההשוואות האלה מוגבלות. למשל, לא לכל התיקים יש נתונים לאותו מספר שנים. לכן ברירת המחדל משווה את כולם על אותה תקופה. אפשר לבטל אותה ולראות לכל תיק את ההיסטוריה שלו, ואז גודל הנקודה בתרשים מעיד על מספר השנים, ונקודות קטנות כדאי לקחת בעירבון מוגבל.",
+        "בעיניי, הלא מיומנות והסובייקטיביות, רוב התיקים העצלים לא מקנים יתרון משמעותי על תיקים פשוטים מאוד, שנצמדים למדד אחד בלבד.",
+        "ושוב: אינני מומחה בתחום, והחישובים שלי לא עברו בדיקה חיצונית.",
+        "נדמה לי שאני כותב רק לעצמי. אם מישהו קורא, ורוצה שאמשיך, תנו סימן: hovav@hotmail.com"
       ],
       notes: ["מקור: PortfolioPlot1a / p1i ו-PortfolioPlot2a / p2i", "קלטים מקוריים: PortfolioCPI, PortfolioSelect, PortfolioHighlight, Portfolio15years, PortfolioYears, PortfolioCommision"]
-    },
-    "portfolio-time": {
-      tab: "השוואת תיקי השקעות פאסיביים",
-      heading: "תיקים לאורך זמן",
-      paragraphs: [
-        "הגרפים האינטראקטיביים המקוריים לא הסתפקו בטבלת סיכום. הם אפשרו לראות את התיקים לאורך זמן ולהחליף בין צבירה, CAGR, חלונות נעים וירידות.",
-        "במיגרציה הנוכחית הנתונים מגיעים מה-API והדפדפן רק מחליף את דרך ההצגה.",
-        "הטבלה המלאה נשארת זמינה כדי לבדוק את כל סדרות ה-API בלי לחשוף את נתוני המקור."
-      ],
-      notes: ["מקור: PortfolioSelectedOverTime / p3i", "קלטים מקוריים: PortfolioTIMEtype, ProtfolioMovingWindows"]
     },
     "us-world": {
       tab: "ארה״ב מול העולם",
@@ -1607,7 +1610,7 @@ import {
     { label: "קופת גמל ו-IRA", views: ["kupat-gemel", "ira"] },
     { label: "סיכון", views: ["sp500-risk"] },
     { label: "מה לשים בתיק?", views: ["us-world", "scv"] },
-    { label: "השוואת תיקים", views: ["portfolio-summary"] },
+    { label: "השוואת תיקים", views: ["portfolio-summary"], priority: true },
     { label: "משיכה מהתיק", views: ["trinity"] }
   ];
 
@@ -1640,6 +1643,7 @@ import {
       topicButton.className = "nav-topic";
       topicButton.textContent = topic.label;
       if (current) topicButton.dataset.current = "true";
+      if (topic.priority) topicButton.dataset.priority = "primary";
       if (current && topic.views.length === 1) topicButton.setAttribute("aria-current", "page");
       topicButton.addEventListener("click", () => goToView(current ? activeView.id : topic.views[0]));
       item.appendChild(topicButton);
@@ -2507,45 +2511,140 @@ import {
     els.controls.appendChild(fieldset);
   }
 
+  const LAZY_DEFAULT_PORTFOLIOS = ["S&P 500", "US Small Cap Value", "השילוש הקדוש", "Bogleheads Three Funds", "Bill Bernstein No Brainer"];
+  const LAZY_TABS = ["צמיחה ושנות שפל", "תנודתיות", "לאורך זמן", "הרכב ועלויות"];
+
+  function lazyCalloutHtml(see, learn, more) {
+    return `<aside class="story-callout lazy-callout">
+      <p><strong class="callout-lead">מה רואים בגרף?</strong> ${see}</p>
+      <p><strong class="callout-lead">מה לומדים ממנו?</strong> ${learn}</p>
+      <p><strong class="callout-lead">ועוד בעמוד:</strong> ${more}</p>
+    </aside>`;
+  }
+
   function renderLazyPortfolioShell() {
     els.chart.dataset.view = activeView.id;
     releaseChart(els.chart);
     els.chart.innerHTML = `
-      <section class="lazy-section">
+      <section class="lazy-section lazy-top">
         ${lazySharedControlsHtml("a")}
-        <div class="chart lazy-chart" data-lazy-chart="factor"></div>
-      </section>
-      <section class="lazy-section">
-        <div class="chart lazy-chart" data-lazy-chart="risk-return"></div>
-      </section>
-      <section class="lazy-section">
-        ${lazySharedControlsHtml("b")}
-        <div class="story-copy lazy-copy">
-          ${collapsibleStoryBlocksHtml([
-            "יש הרבה הסתייגויות להשוואות האלה. אחת מהן היא שמספר השנים עליהן יש נתונים לחישוב תשואה של תיקים שונים - אינו זהה. בשל כך גודל הנקודה בתרשימים מעיד על מספר השנים בשימוש, ונקודות קטנות יש לקחת בערבות מוגבל.",
-            "זו גם הסיבה שאפשר לצמצם את התקופה ולבחור שנים שונות, באמצעות הכלי שמתחת לתרשימים.",
-            "בעיניים שלי, הלא מיומנות והסובייקטיביות - רוב התיקים העצלים לא מקנים יתרון משמעותי על תיקים מאוד פשוטים, בהם נצמדים לאינדקס אחד בלבד.",
-            "מזכיר שוב, שאינני מומחה בתחום, וגם שהחישובים שלי לא עברו בדיקה חיצונית (ובקושי בדיקה שעשיתי לעצמי)."
-          ])}
+        <p class="lazy-period" data-lazy-period></p>
+        <div class="view-tabs lazy-tabs" role="tablist">
+          ${LAZY_TABS.map((label, index) => `<button type="button" role="tab" data-lazy-tab="${index}" aria-selected="${index === 0 ? "true" : "false"}" tabindex="${index === 0 ? 0 : -1}">${escapeHtml(label)}</button>`).join("")}
         </div>
+      </section>
+      <section class="lazy-section" data-lazy-panel="0" role="tabpanel">
+        <div class="lazy-growth">
+          <div class="chart lazy-chart" data-lazy-chart="factor"></div>
+          <div class="lazy-summary" data-lazy-summary></div>
+        </div>
+        ${lazyCalloutHtml(
+          "כל נקודה היא תיק. הגובה: פי כמה היה גדל הכסף, ריאלית, במספר השנים שבחרתם, לפי התשואה השנתית של התיק בתקופה. ימינה: השפל הארוך יותר, כלומר יותר שנים רצופות מתחת לשיא הקודם. הכי טוב: גבוה ושמאלה.",
+          "בברירת המחדל (1995–2025), מניות הערך הקטנות צמחו הכי הרבה, וגם השפל הארוך שלהן היה מהקצרים (7 שנים). S&P 500 צמח יותר מהתיקים המפוזרים, אבל השפל שלו, מאז 2000, נמשך 14 שנה, כמעט פי שניים מהם. כלומר, בתקופה הזו הפיזור אכן קיצר את השפל של S&P 500, במחיר של צמיחה נמוכה יותר. נסו להוסיף תיקים או לבטל את \"אותה תקופה לכל התיקים\".",
+          `בלשונית <a href="#" data-lazy-go="1">תנודתיות</a> רואים את אותם תיקים לפי סטיית התקן, ב<a href="#" data-lazy-go="2">לאורך זמן</a> איך הם התנהגו בכל שנה, וב<a href="#" data-lazy-go="3">הרכב ועלויות</a> ממה כל תיק בנוי.`
+        )}
+      </section>
+      <section class="lazy-section" data-lazy-panel="1" role="tabpanel" hidden>
+        <div class="chart lazy-chart" data-lazy-chart="risk-return"></div>
+        ${lazyCalloutHtml(
+          "אותם תיקים, הפעם לפי סטיית התקן של התשואה השנתית (ימינה: תנודתי יותר) מול התשואה השנתית הממוצעת.",
+          "תנודתיות נמוכה יותר הגיעה בדרך כלל עם תשואה נמוכה יותר. השאלה היא אם התנודתיות שנחסכה שווה את התשואה שוויתרנו עליה.",
+          `בלשונית <a href="#" data-lazy-go="0">צמיחה ושנות שפל</a> רואים את אורך השפל, שלדעתי חשוב יותר מסטיית התקן, וב<a href="#" data-lazy-go="2">לאורך זמן</a> את התנהגות התיקים שנה אחר שנה.`
+        )}
+      </section>
+      <section class="lazy-section" data-lazy-panel="2" role="tabpanel" hidden>
         ${lazyTimeControlsHtml()}
         <div class="chart lazy-chart" data-lazy-chart="time"></div>
+        ${lazyCalloutHtml(
+          "התיקים לאורך זמן: צמיחה מצטברת, תשואה שנתית מההתחלה, תשואה בחלונות של n שנים, התפלגות, או כמה פעמים התיק המודגש ניצח.",
+          "ממוצע לתקופה אחת מסתיר הרבה. כאן רואים מתי כל תיק הוביל, ועד כמה הסדר מתחלף בין תקופות.",
+          `בלשונית <a href="#" data-lazy-go="0">צמיחה ושנות שפל</a> רואים את הסיכום של כל תיק בנקודה אחת, וב<a href="#" data-lazy-go="3">הרכב ועלויות</a> ממה כל תיק בנוי.`
+        )}
       </section>
-      <section class="lazy-section lazy-table-section">
-        <div class="story-copy lazy-copy"><p>מבנה תיקי ההשקעות מפורט כאן:</p></div>
+      <section class="lazy-section lazy-table-section" data-lazy-panel="3" role="tabpanel" hidden>
+        <div class="story-copy lazy-copy"><p>מבנה תיקי ההשקעות:</p></div>
         <div class="lazy-table-wrap" data-lazy-table="structure"></div>
-      </section>
-      <section class="lazy-section lazy-table-section">
-        <div class="story-copy lazy-copy"><p>ההנחות על דמי הניהול מפורטות כאן:</p></div>
+        <div class="story-copy lazy-copy"><p>ההנחות על דמי הניהול:</p></div>
         <div class="lazy-table-wrap lazy-table-narrow" data-lazy-table="commissions"></div>
-        <div class="story-copy lazy-copy"><p>נדמה לי שאני כותב רק לעצמי. אם מישהו קורא, והיה רוצה שאמשיך - תן סימן hovav@hotmail.com</p></div>
+      </section>
+      <section class="lazy-section lazy-notes">
+        <div class="story-copy lazy-copy">
+          ${collapsibleStoryBlocksHtml(stories["portfolio-summary"].afterTabs || [])}
+        </div>
       </section>
     `;
+    const tabs = els.chart.querySelector(".lazy-tabs");
+    tabs.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-lazy-tab]");
+      if (button) setLazyTab(Number(button.dataset.lazyTab));
+    });
+    tabs.addEventListener("keydown", (event) => {
+      if (!["ArrowLeft", "ArrowRight"].includes(event.key)) return;
+      const current = Number(document.activeElement.dataset.lazyTab);
+      if (!Number.isInteger(current)) return;
+      const next = (current + (event.key === "ArrowLeft" ? 1 : -1) + LAZY_TABS.length) % LAZY_TABS.length;
+      setLazyTab(next);
+      tabs.querySelector(`[data-lazy-tab="${next}"]`).focus();
+    });
+    if (!els.chart.dataset.lazyGoBound) els.chart.dataset.lazyGoBound = "true";
+    else return updateLazyControlUi();
+    els.chart.addEventListener("click", (event) => {
+      const go = event.target.closest("[data-lazy-go]");
+      if (!go) return;
+      event.preventDefault();
+      setLazyTab(Number(go.dataset.lazyGo));
+      tabs.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+    });
     updateLazyControlUi();
   }
 
+  function setLazyTab(index, sync = true) {
+    const input = els.chart.querySelector('[data-lazy-controls="a"] input[name="tab"]');
+    if (input) input.value = String(index);
+    els.chart.querySelectorAll("[data-lazy-tab]").forEach((button) => {
+      const selected = Number(button.dataset.lazyTab) === index;
+      button.setAttribute("aria-selected", selected ? "true" : "false");
+      button.tabIndex = selected ? 0 : -1;
+    });
+    els.chart.querySelectorAll("[data-lazy-panel]").forEach((panel) => {
+      panel.hidden = Number(panel.dataset.lazyPanel) !== index;
+    });
+    if (sync) syncUrl();
+  }
+
+  function renderLazySummaryTable(payload, state) {
+    const target = els.chart.querySelector("[data-lazy-summary]");
+    if (!target) return;
+    const years = state.factor_years || 15;
+    const highlight = new Set(state.highlight);
+    const rows = (payload.data || []).map((row) => ({
+      name: row.Portfolio,
+      factor: (1 + numericValue(row.CAGR)) ** years,
+      cagr: numericValue(row.CAGR),
+      shefel: numericValue(row.MaxShefelYears),
+      drop: numericValue(row.MaxDrop),
+      from: Number(row.FirstYear) - 1,
+      to: Number(row.FirstYear) + Number(row.N) - 1
+    })).sort((a, b) => b.factor - a.factor);
+    const sameSpan = rows.every((row) => row.from === rows[0].from && row.to === rows[0].to);
+    target.innerHTML = `
+      <table>
+        <caption>${sameSpan && rows.length ? `${rows[0].from}–${rows[0].to}, ` : ""}לפי מכפיל ל-${years} שנה</caption>
+        <thead><tr><th scope="col">תיק</th><th scope="col">מכפיל</th><th scope="col">תשואה שנתית</th><th scope="col">שנות שפל</th>${sameSpan ? "" : '<th scope="col">תקופה</th>'}</tr></thead>
+        <tbody>${rows.map((row) => `
+          <tr class="${highlight.has(row.name) ? "is-highlight" : ""}">
+            <th scope="row">${escapeHtml(row.name)}</th>
+            <td dir="ltr">×${row.factor.toFixed(2)}</td>
+            <td>${formatPercent(row.cagr, 1)}</td>
+            <td>${row.shefel}</td>
+            ${sameSpan ? "" : `<td dir="ltr">${row.from}–${row.to}</td>`}
+          </tr>`).join("")}
+        </tbody>
+      </table>`;
+  }
+
   function lazySharedControlsHtml(prefix) {
-    const selected = new Set(originalLazyPortfolioSet);
+    const selected = new Set(LAZY_DEFAULT_PORTFOLIOS);
     return `
       <div class="lazy-controls" data-lazy-controls="${prefix}">
         <fieldset class="panel-segmented lazy-cpi">
@@ -2598,9 +2697,10 @@ import {
           <span>חישוב משקלל דמי ניהול</span>
         </label>
         <label class="lazy-checkbox">
-          <input type="checkbox" name="common_period">
+          <input type="checkbox" name="common_period" checked>
           <span>אותה תקופה לכל התיקים</span>
         </label>
+        <input type="hidden" name="tab" value="0">
       </div>
     `;
   }
@@ -2674,6 +2774,7 @@ import {
       year_end: Number(valueOf(shared, "year_end", "2025")) || 2025,
       commission_adjusted: Boolean(shared.querySelector('input[name="commission_adjusted"]:checked')),
       common_period: Boolean(shared.querySelector('input[name="common_period"]:checked')),
+      tab: Number(valueOf(shared, "tab", "0")) || 0,
       time_type: valueOf(timeControls, "time_type", "Accumulate"),
       rolling_window: Number(valueOf(timeControls, "rolling_window", "10")) || 10
     };
@@ -2739,6 +2840,7 @@ import {
       urlDefaults.lazy = lazyStateEntries();
       if (pendingUrlState) applyLazyState(scoped("l", pendingUrlState));
       pendingUrlState = null;
+      setLazyTab(lazyState().tab, false);
     }
     syncUrl();
     els.message.hidden = false;
@@ -2758,7 +2860,7 @@ import {
 
     const state = lazyState();
     if (state.year_start > state.year_end) state.year_start = state.year_end;
-    const selectedPortfolios = state.portfolios.length ? state.portfolios : originalLazyPortfolioSet;
+    const selectedPortfolios = state.portfolios.length ? state.portfolios : LAZY_DEFAULT_PORTFOLIOS;
     state.portfolios = selectedPortfolios;
     const commonParams = new URLSearchParams();
     selectedPortfolios.forEach((portfolio) => commonParams.append("portfolios", portfolio));
@@ -2770,7 +2872,7 @@ import {
     const summaryParams = new URLSearchParams(commonParams);
     summaryParams.set("commission_adjusted", state.commission_adjusted ? "true" : "false");
     const timeParams = new URLSearchParams(commonParams);
-    timeParams.set("commission_adjusted", "false");
+    timeParams.set("commission_adjusted", state.commission_adjusted ? "true" : "false");
     timeParams.set("rolling_window", state.rolling_window);
 
     try {
@@ -2791,6 +2893,15 @@ import {
       renderLazyTimeChart(timePayload, state, els.chart.querySelector('[data-lazy-chart="time"]'));
       renderLazyDataTable(structurePayload, els.chart.querySelector('[data-lazy-table="structure"]'), "structure");
       renderLazyDataTable(commissionPayload, els.chart.querySelector('[data-lazy-table="commissions"]'), "commissions");
+      renderLazySummaryTable(summaryPayload, state);
+      const period = els.chart.querySelector("[data-lazy-period]");
+      if (period) {
+        const firsts = (summaryPayload.data || []).map((row) => Number(row.FirstYear) - 1);
+        const lasts = (summaryPayload.data || []).map((row) => Number(row.FirstYear) + Number(row.N) - 1);
+        period.textContent = firsts.length && state.common_period
+          ? `תקופה משותפת בפועל: ${Math.max(...firsts)}–${Math.max(...lasts)}`
+          : firsts.length ? `כל תיק נמדד על ההיסטוריה שלו: ${Math.min(...firsts)}–${Math.max(...lasts)}` : "";
+      }
       renderResultNotes([summaryPayload, timePayload]);
     } catch (error) {
       if (seq !== requestSeq || activeView.id !== viewId) return;

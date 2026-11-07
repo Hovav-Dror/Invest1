@@ -72,7 +72,7 @@ removes exactly `f`%. No fee is charged at the entry date.
 | `tax_events` | S&P 500 in shekels: tax once at the end vs. selling every 1, 6, 12 months | FX/CPI alignment; no refund on losses; loss carry-forward; sales exactly every N months; final tax included in every line |
 | `commission_tax`, `commission_effect` | Same, with an annual management fee | As above; fee no longer charged twice in sale months; `SP500_in_NIS` is now the index normalized to the initial amount |
 | `sp500_risk` | Annualized return of every N-year window | Now real (divided by US CPI). The source column `Real_Total_Return_Price` is nominal despite its name |
-| `portfolio_summary` | CAGR, volatility, worst drop, longest underwater period | Volatility and drawdown include the first year after the base |
+| `portfolio_summary` | CAGR, volatility, worst drop, longest underwater period | Volatility and drawdown include the first year after the base. Underwater period: the longest run of years below a previous peak, until the year it is regained (an unrecovered run ends at the last year); it used to count from each purchase date to the last year below cost, which overstated it after interim recoveries |
 | `portfolio_over_time` | Value, annual return, CAGR since start, rolling CAGR | CAGR uses each row's elapsed years (it used one constant); rolling windows include the first year |
 | `us_world_rolling`, `us_global_rolling` | S&P 500 minus ex-US (or 60/40) in rolling 5/10/15-year growth | Windows without enough history are empty instead of 0 |
 | `global_vs_sp500_heatmap`, `sp500_scv_heatmap` | Every start/end pair up to N years | `year_end` works for the global heatmap; pairs need both series |
