@@ -920,27 +920,38 @@ def trinity(
     years: int = DEFAULT_TRINITY_YEARS,
     base: float = DEFAULT_TRINITY_BASE,
     year_end: int | None = None,
+    value_mode: str = "cpi_us",
 ) -> pd.DataFrame:
     """Fixed real withdrawal of ``yearly_draw * base`` at the start of each year, for every start year.
 
-    Balances are in real (US CPI) money of the start year. A depleted portfolio
-    stays at zero; ``depleted_year`` is the year in which it ran out.
+    ``cpi_us`` (as in the original study): US returns in real dollars (US CPI).
+    ``cpi_il``: the same portfolio in real shekels, including the dollar/shekel
+    rate and Israeli CPI. A depleted portfolio stays at zero; ``depleted_year``
+    is the year in which it ran out.
     """
 
+    if value_mode not in {"cpi_us", "cpi_il"}:
+        raise ValueError("value_mode must be 'cpi_us' or 'cpi_il'")
     data = data or load_data()
     source = data.LazyReturns1.loc[
         (data.LazyReturns1["Portfolio"] == portfolio) & (~data.LazyReturns1["CommissionUse"]),
-        ["Year", "commission", "CPI_US", "YearReturn"],
+        ["Year", "commission", "CPI_US", "YearReturn", "Index_CPI_IL"],
     ].sort_values("Year")
     if year_end is not None:
         source = source[source["Year"] <= year_end]
     source = source.set_index(source["Year"].astype(int))
-    real_growth = (
-        (1 + source["YearReturn"] / 100)
-        * (1 - source["commission"] / 100)
-        * source["CPI_US"].shift(1)
-        / source["CPI_US"]
-    ).dropna()
+    if value_mode == "cpi_il":
+        index = source["Index_CPI_IL"].where(source["Index_CPI_IL"] > 0)
+        real_growth = (index / index.shift(1) * (1 - source["commission"] / 100)).dropna()
+    else:
+        real_growth = (
+            (1 + source["YearReturn"] / 100)
+            * (1 - source["commission"] / 100)
+            * source["CPI_US"].shift(1)
+            / source["CPI_US"]
+        ).dropna()
+    if real_growth.empty:
+        raise CalculationInputError("אין מספיק נתונים לתיק הזה.")
 
     draw = base * yearly_draw
     rows = []

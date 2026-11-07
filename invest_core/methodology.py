@@ -70,7 +70,7 @@ def _assumptions(name: str, params: dict) -> list[str]:
     if name == "kupat_gemel_pension":
         items.append("הקצבה מחושבת לפי מקדם קבוע, ללא תמחור ביטוחי. התיק העצמאי נעצר באפס, והחוסר מדווח.")
     if name == "trinity":
-        items.append("משיכה בסכום קבוע בכוח קנייה דולרי, מהשנה הראשונה כולל התשואה שלה. התיק נעצר באפס. ללא מס.")
+        items.append("משיכה בתחילת כל שנה, בסכום קבוע בכוח קנייה (לפי ההון ההתחלתי), מהשנה הראשונה כולל התשואה שלה. התיק נעצר באפס. לפני מס.")
     if name in {"portfolio_summary", "portfolio_over_time"}:
         if params.get("common_period"):
             items.append("כל התיקים נמדדים באותה תקופה: מהשנה הראשונה שיש בה נתונים לכולם.")
@@ -103,9 +103,9 @@ def result_metadata(name: str, params: dict, frame: pd.DataFrame, version: str) 
     if catalog:
         currency, inflation = None, None
     else:
-        usd = name in USD_ENDPOINTS or (name.startswith("portfolio_") and mode != "cpi_il")
+        usd = (name in USD_ENDPOINTS and not (name == "trinity" and mode == "cpi_il")) or (name.startswith("portfolio_") and mode != "cpi_il")
         currency = "USD" if usd else "ILS"
-        if name in {"sp500_risk", "sp500_risk_ladder", "trinity"} or (name.startswith("portfolio_") and mode == "cpi_us"):
+        if name in {"sp500_risk", "sp500_risk_ladder"} or (name == "trinity" and mode != "cpi_il") or (name.startswith("portfolio_") and mode == "cpi_us"):
             inflation = "US"
         elif name in {"us_world_rolling", "us_global_rolling", "global_vs_sp500_heatmap"} or mode == "nominal":
             inflation = None

@@ -779,53 +779,52 @@ import {
       notes: ["מקור: PortfolioSelectedOverTime4, SPvsSCP_allYearsComp, PortfolioSelectedOverTime5", "קלטים מקוריים: PortfolioCPI4, PortfolioSelect4, Acc_or_CAGR, ProtfolioMovingWindows4/5"]
     },
     trinity: {
-      tab: "Trinity",
+      tab: "כמה אפשר למשוך?",
       heading: "כמה אפשר למשוך?",
       paragraphs: [
-        "עד עכשיו הדיון היה בהשקעה של הכסף כדי שיהיה לנו מספיק יום אחד. איך נדע שהגיע היום? לכמה זמן הכסף שחסכנו יספיק לנו?",
-        "התשובה כמובן מורכבת, ואתם מוזמנים לחפש יעוץ פנסיוני. כאן אשתף רק במשהו קטן שהכנתי לעצמי, לשימוש מתעניינים נוספים.",
-        "כשנפסיק לעבוד נשאר עם נכסים (למשל דירה, ואולי גם כזו שיש ממנה שכר דירה) ובין הנכסים העיקריים לרובנו יהיו קצבה חודשית מקרן פנסיה, ומה שיוותר בתיק ההשקעות הפרטי.",
-        "מקווה שתזכו לפרוש עם תיק השקעות גדול, שיאפשר לכם למשוך קצבה גדולה.",
-        " ",
-        "כשיש מספיק כסף אפשר להגיע לקסם מדהים - גם למשוך קצבה חודשית ועדיין להשאר עם כסף שממשיך לעבוד.",
-        "מחקר טריניטי דיבר על היכולת למשוך 4% מתיק ההשקעות כל שנה, במשך 30 שנים ברציפות, מבלי שהסכום יגמר.",
-        "הלשונית הנוכחית מאפשרת לכם לעשות מחקר טריניטי משלכם. בחרו סכום השקעה ראשונית, סכום משיכה חודשית, מספר שנים ובמה הכסף הושקע",
-        "ותוכלו לראות האם התיק שרד את כל התקופה, כמה כסף היה בו בסיום וזאת לאורך כל השנים שיש לי עליהם מידע."
+        "עד עכשיו דיברנו על השקעת הכסף, כדי שיהיה לנו מספיק יום אחד. אבל איך נדע שהגיע היום? לכמה זמן יספיק הכסף שחסכנו?",
+        "התשובה כמובן מורכבת, ואתם מוזמנים לחפש ייעוץ פנסיוני. כאן אשתף רק כלי קטן שהכנתי לעצמי.",
+        "כשיש מספיק כסף, אפשר להגיע לקסם: למשוך קצבה חודשית, ועדיין להישאר עם כסף שממשיך לעבוד."
       ],
       afterChart: [
         {
-          title: "מה רואים בגרף?",
-          paragraphs: ["קודם כל צריך לבחור:"],
+          title: "מה רואים כאן?",
+          paragraphs: ["בוחרים:"],
           list: [
-            "במה הכסף מושקע? ברירת המחדל כאן היא S&P 500, אבל שווה לנסות גם מניות ערך קטנות.",
-            "כמה כסף מושקע? ברירת המחדל כאן היא 4,000,000 עימם הגענו לגיל פרישה.",
-            "כמה שנים אנחנו רוצים למשוך מהכסף בלי שהוא יסתיים? ברירת המחדל כאן היא 30 שנים.",
-            "איזה אחוז מהכסף ימשך בכל שנה? ברירת המחדל היא 4%. לצידה מופיע גם הסכום החודשי שימשך (וגם 75% מהסכום, בהנחה מחמירה שכל ההשקעה התחלתית היא בעצם רווח)",
-            "הקצבה קבועה. כלומר אם 4% הם 10,000 שקלים, אז ההנחה להמשך היא של משיכת סכום של 10,000 שקלים - צמוד למדד לאורך כל התקופה. ה 4% קובע רק את סכום ההתחלתי.",
-            "מצד אחד זו הנחה שונה מזו שבמחקר טריניטי המקורי בו נלקח אחוז קבוע בכל שנה, אך זה מה שמעניין אותי. לדעת אם אני יכול לסמוך על משיכת קצבה בגובה נתון לאורך שנים רבות בלי שהכסף יגמר."
-          ]
-        },
-        {
-          title: "ומה רואים בתוצאות שעל הגרף?",
-          list: [
-            "הציר האופקי מציין את שנת הסיום. כלומר את השנה שבה הסתיימו 30 שנים בהן משכנו קצבה חודשית (או מספר אחר של שנים, לפי בחירתכם).",
-            "הציר האנכי הוא כמה כסף נותר לנו, למרות שרק משכנו כסף לאורך 30 שנים.",
-            "למעלה משמאל יש טקסט שמציין בכמה מקרים של השקעה בת 30 שנה הכסף לא הספיק לכל התקופה."
+            "במה הכסף מושקע. ברירת המחדל היא S&P 500, אבל שווה לנסות גם מניות ערך קטנות.",
+            "כמה כסף יש בהתחלה. ברירת המחדל: 4,000,000 ש\"ח שאיתם הגענו לפרישה.",
+            "כמה שנים רוצים למשוך בלי שהכסף ייגמר. ברירת המחדל: 30 שנה.",
+            "איזה שיעור מושכים. ברירת המחדל: 4%, כלומר 160,000 ש\"ח בשנה, כ-13,333 ש\"ח לחודש. הסכום נמשך בתחילת כל שנה, לפני מס."
           ],
           paragraphsAfter: [
-            "כך למשל מי שמשך את כספו בשנת 2022 לאחר 30 שנים של השקעה במניות ערך קטנות (בחרו US Small Cap Value) ומשיכה של 4% מסכום ההשקעה הראשוני כל שנה, עדיין נותר עם סכום השקעה (או ירושה) של כמעט 50 מליון!",
-            "וזה למרות שלאורך התקופה רק משך כסף, בסכום מצטבר של כמעט 5 מליון",
-            "בנתוני ברירת המחדל (S&P 500), למשל, מדובר בחמישה מקרים מתוך 68 אפשרויות של השקעה בת 30 שנים: התחלה ב-1929, 1930, 1966, 1968 ו-1969. במניות ערך קטנות - רק שניים, 1929 ו-1930.",
-            "עוד רואים שב-81% מהמקרים (ובמניות ערך קטנות ב-96%) יוותר לנו, לירושה, יותר כסף משהיה לנו בהתחלה, למרות משיכה של כ-13,000 בחודש לאורך 30 שנה.",
-            "הכל צמוד למדד. גם גובה המשיכה החודשית וגם הסכום שיוותר לנו."
+            "הסכום קבוע בכוח קנייה. ה-4% קובעים רק את הסכום הראשון, לפי ההון ההתחלתי. משם והלאה מושכים כל שנה את אותו סכום, צמוד למדד, בלי קשר למה שקרה בתיק.",
+            "כל נקודה בגרף היא תקופה היסטורית אחרת, לפי שנת ההתחלה שלה: כמה נשאר בתיק בסוף 30 השנים, בכוח הקנייה של ההתחלה. נקודה כתומה על האפס היא תקופה שבה התיק התרוקן לפני הסוף."
           ]
         },
         {
-          title: "מה שיש כאן שונה ממה שבדרך מוצג בהקשר למחקר טריניטי.",
+          title: "ומה לומדים מהתוצאות?",
           paragraphs: [
-            "ראשית, הוא מאפשר לכם לשחק עם סוג ההשקעה, כולל 100% במניות ערך קטנות - שונה מאוד ממה שבדרך כלל מביאים לפנינו.",
-            "שנית, הוא מאפשר לראות כמה כסף היה נשאר לנו בפעולה דומה בעבר - ולא רק מה הסיכוי שהכסף היה מספיק לכל התקופה.",
-            "לבסוף, הוא מניח משיכה בסכום קבוע (שנקבע על פי האחוז מסכום ההשקעה לפני המשיכה הראשונה) כשהוא צמוד למדד, ולא אחוז קבוע."
+            "בברירת המחדל (S&P 500, בשקלים), התיק התרוקן רק בתקופה אחת מתוך 45: מי שהתחיל למשוך ב-1969 נשאר בלי כסף ב-1995. ב-38 מתוך 45 התקופות נשאר בסוף יותר מההון ההתחלתי, למרות משיכה של כ-13,000 ש\"ח בחודש לאורך 30 שנה.",
+            "במניות ערך קטנות התיק לא התרוקן באף תקופה, וב-44 מתוך 45 נשאר בסוף יותר מההון ההתחלתי. מי שהתחיל למשוך ב-1993 נשאר אחרי 30 שנה עם כ-50 מיליון ש\"ח, בכוח הקנייה של 1993, אחרי שמשך בסך הכול כ-4.8 מיליון.",
+            "בדולרים ובמדד ארה״ב, כמו במחקר המקורי, יש יותר תקופות, כבר מ-1929, והתמונה קצת פחות ורודה: ב-S&P 500 התיק התרוקן ב-5 מתוך 68 תקופות (התחלה ב-1929, 1930, 1966, 1968 ו-1969), ובמניות ערך קטנות ב-2 בלבד (1929 ו-1930).",
+            "זהירות עם תחילת הגרף בשקלים: נתוני השקל ומדד המחירים בישראל בשנות ה-50 וה-60 משוחזרים, ובאותן שנים היו פיחותים חדים. לכן התקופות שהתחילו אז יוצאות גבוהות במיוחד, וכדאי לא לייחס להן משקל רב.",
+            "הכול בכוח קנייה קבוע: גם המשיכה וגם מה שנשאר."
+          ]
+        },
+        {
+          title: "כמו במחקר המקורי, ושונה ממה שרואים לפעמים",
+          paragraphs: [
+            "מחקר טריניטי המקורי בדק, בין השאר, בדיוק את סוג המשיכה שכאן: סכום שנקבע לפי אחוז מההון ההתחלתי, ואחר כך נשמר בכוח קנייה קבוע. כך גם \"כלל ה-4%\" המוכר.",
+            "אבל בהרבה אתרים ומחשבונים מציגים את זה אחרת: מושכים כל שנה, או כל חודש, אחוז קבוע ממה שנשאר בתיק. בשיטה כזו התיק אף פעם לא מתרוקן, כי מושכים תמיד רק חלק ממנו, אבל הסכום שמקבלים קופץ עם השוק. בשנה רעה הוא קטן בדיוק כשהכי קשה.",
+            "מה שמעניין אותי הוא השאלה של הפורש: האם אפשר לסמוך על משיכה בגובה נתון לאורך שנים רבות, בלי שהכסף ייגמר."
+          ]
+        },
+        {
+          title: "ומה העמוד הזה מוסיף?",
+          list: [
+            "בחירה בכל אחד מהתיקים שבאתר, כולל 100% מניות ערך קטנות, שבדרך כלל לא מופיע בכלל.",
+            "לא רק אם הכסף הספיק, אלא גם כמה היה נשאר בסוף, ומה הייתה היתרה הנמוכה בדרך.",
+            "חישוב בשקלים, כולל שער הדולר ומדד המחירים בישראל: מה שמעניין פורש ישראלי, ולא רק משקיע אמריקאי."
           ]
         }
       ],
@@ -1465,19 +1464,21 @@ import {
     {
       id: "trinity",
       group: "Withdrawal",
-      title: "טריניטי: כמה אפשר למשוך?",
-      nav: "Trinity",
-      kicker: "סימולציית משיכה שנתית לפי שנת התחלה היסטורית",
-      takeaway: "אפשר להעריך כמה כסף תוכלו למשוך בכל חודש בלי לחשוש שהכסף ייגמר בדרך.",
+      title: "לכמה זמן יספיק הכסף בתיק?",
+      nav: "כמה אפשר למשוך?",
+      kicker: "טריניטי · סימולציה היסטורית",
+      takeaway: "בודקים איך משיכה קבועה, בכוח קנייה קבוע, הייתה משפיעה על התיק בתקופות שונות בעבר.",
       endpoint: "trinity",
       controls: [
-        select("portfolio", "תיק", portfolioChoices.map((name) => [name, name]), "S&P 500"),
-        field("yearly_draw", "אחוז משיכה שנתית", "number", "4", "0.1", "אחוז מההשקעה הראשונית, צמוד למדד"),
-        field("years", "מספר שנים", "number", "30", "1", "שנים"),
-        field("base", "סכום התחלתי", "number", "4000000", "10000", "שקלים")
+        select("portfolio", "תיק השקעות", portfolioChoices.map((name) => [name, name]), "S&P 500"),
+        field("base", "הון התחלתי", "number", "4000000", "10000"),
+        { kind: "presetButtons", label: "שיעור משיכה שנתי", target: "yearly_draw", options: [["3", "3%", ""], ["3.5", "3.5%", ""], ["4", "4%", ""], ["5", "5%", ""]] },
+        field("yearly_draw", "או שיעור אחר (%)", "number", "4", "0.1"),
+        field("years", "משך המשיכה (שנים)", "number", "30", "1"),
+        select("value_mode", "בסיס החישוב", [["cpi_il", "שקלים, מדד ישראל"], ["cpi_us", "דולרים, מדד ארה״ב"]], "cpi_il")
       ],
       chart: { type: "trinity" },
-      tableColumns: ["start_year", "end_year", "Investment_remained", "Investment_low"],
+      tableColumns: ["start_year", "end_year", "Investment_remained", "Investment_low", "depleted_year"],
       metric: metricTrinity
     },
     {
@@ -2002,17 +2003,25 @@ import {
     if (input.dataset.format === "percentFraction") input.value = trimInputNumber(input.value, 4);
   }
 
+  /** Trinity amounts: shekels in the Israeli mode, real dollars in the original-study mode. */
+  function trinityMoney(value, mode) {
+    if (mode === "cpi_us") return "$" + Math.round(value).toLocaleString("en-US");
+    return formatShekel(value, 0);
+  }
+
   function updateTrinityDrawSummary() {
     const summary = els.controls.querySelector(".trinity-draw-summary");
     if (!summary) return;
     const drawInput = els.controls.querySelector('input[name="yearly_draw"]');
     const baseInput = els.controls.querySelector('input[name="base"]');
+    const modeInput = els.controls.querySelector('[name="value_mode"]');
+    const mode = modeInput ? modeInput.value : "cpi_il";
     const drawPercent = Number(drawInput && drawInput.value) || 0;
     const base = Number(normalizeNumberText(baseInput && baseInput.value)) || 0;
-    const monthly = base * (drawPercent / 100) / 12;
+    const yearly = base * (drawPercent / 100);
     summary.innerHTML = `
-      <p>משיכה חודשית של ${escapeHtml(formatShekel(monthly, 1))} (צמודה למדד)</p>
-      <p>x75% = ${escapeHtml(formatShekel(monthly * 0.75, 1))}</p>
+      <p><strong>${escapeHtml(trinityMoney(yearly, mode))} לשנה · כ-${escapeHtml(trinityMoney(yearly / 12, mode))} לחודש</strong> (סכום חודשי שקול)</p>
+      <p>נמשך בתחילת כל שנה, בכוח קנייה קבוע${mode === "cpi_us" ? " לפי מדד ארה״ב" : " לפי מדד ישראל"}, לפני מס.</p>
     `;
   }
 
@@ -3929,15 +3938,18 @@ import {
     const rows = payload.data || [];
     const params = payload.params || {};
     const base = Number(params.base) || 0;
-    const count = Math.max(rows.length, 1);
+    const mode = params.value_mode || "cpi_us";
+    const years = params.years || "";
     const depleted = rows.filter((row) => row.depleted_year !== null && row.depleted_year !== undefined);
     const above = rows.filter((row) => numericValue(row.Investment_remained) >= base).length;
     const ends = rows.map((row) => numericValue(row.Investment_remained)).filter((value) => value !== null).sort((a, b) => a - b);
+    const first = rows.length ? rows[0].start_year : "";
+    const last = rows.length ? rows[rows.length - 1].start_year : "";
     return [
-      { label: "משיכה חודשית", value: (base * (Number(params.yearly_draw) || 0)) / 12, note: "צמודה למדד", format: "shekel", color: "#145f59" },
-      { label: "הכסף נגמר", value: `${depleted.length} מתוך ${rows.length}`, note: depleted.length ? `התחלה ב-${depleted.map((row) => row.start_year).join(", ")}` : "באף תקופה", color: "#e0532f" },
-      { label: "נשאר יותר מההתחלה", value: above / count, note: "מהתקופות", format: "percent", digits: 0, color: "#2f9e8f" },
-      { label: "יתרה חציונית בסוף", value: quantile(ends, 0.5), note: `אחרי ${params.years || ""} שנים`, format: "shekel", color: "#17201d" }
+      { heading: true, label: `${rows.length} תקופות של ${years} שנה`, note: `התחלה בכל שנה מ-${first} עד ${last} · ${mode === "cpi_us" ? "בדולרים ריאליים, מדד ארה״ב" : "בשקלים ריאליים, מדד ישראל"}` },
+      { label: "התיק התרוקן", valueText: `${depleted.length} מתוך ${rows.length}`, color: "#c0582b", note: depleted.length ? `בתקופות שהתחילו ב-${depleted.map((row) => row.start_year).join(", ")}` : "באף תקופה" },
+      { label: "נשאר יותר מההון ההתחלתי", valueText: `${above} מתוך ${rows.length}`, color: "#145f59", note: "למרות כל המשיכות" },
+      { label: "יתרה חציונית בסוף", valueText: trinityMoney(quantile(ends, 0.5) || 0, mode), color: "#385f9f", note: `אחרי ${years} שנה, בכוח הקנייה של ההתחלה` }
     ];
   }
 
@@ -4345,40 +4357,52 @@ import {
     const count = rows.length;
     const depleted = rows.filter((row) => row.depleted_year !== null && row.depleted_year !== undefined).length;
     const aboveBase = rows.filter((row) => numericValue(row.Investment_remained) >= base).length;
-    const pointsFor = (key) => rows.map((row) => ({ x: Number(row.end_year), y: numericValue(row[key]), data: row }));
+    const mode = params.value_mode || "cpi_us";
+    const money = (value) => trinityMoney(value, mode);
+    const pointsFor = (key) => rows.map((row) => ({ x: Number(row.start_year), y: numericValue(row[key]), data: row }));
     drawChart(chartTarget(), {
       kind: "line",
       key: "trinity",
       title: [
         `ביצועי תיק ${ltrText(portfolio)} לאורך ${years} שנים`,
-        `עם משיכה שנתית של ${formatPercent(yearlyDraw, 1)} (${formatShekel(monthlyDraw, 0)} בחודש)`
+        `עם משיכה שנתית של ${formatPercent(yearlyDraw, 1)} (כ-${money(monthlyDraw)} לחודש)`
       ],
-      subtitle: `מסכום התחלתי של ${formatShekel(base, 0)}. המשיכה צמודה למדד. כל נקודה היא תקופה היסטורית אחרת, לפי שנת הסיום שלה.`,
+      subtitle: `מהון התחלתי של ${money(base)}. כל נקודה היא תקופה היסטורית אחרת, לפי שנת ההתחלה שלה. נקודות כתומות על האפס: התיק התרוקן.`,
       aspect: 0.62,
       notes: [
-        `הכסף נגמר ב-${depleted} מתוך ${count} התקופות (${formatPercent(depleted / count, 0)}).`,
+        `התיק התרוקן ב-${depleted} מתוך ${count} התקופות.`,
         `ב-${aboveBase} מתוך ${count} התקופות (${formatPercent(aboveBase / count, 0)}) נשאר בסוף יותר מהסכום ההתחלתי, למרות המשיכות.`
       ],
-      caption: "הסכומים מתואמים לאינפלציה בארה״ב. תיק שהכסף בו נגמר מוצג כאפס.",
+      caption: mode === "cpi_us"
+        ? "בדולרים ריאליים, מתואמים לאינפלציה בארה״ב, כמו במחקר המקורי. תיק שהתרוקן מוצג כאפס."
+        : "בשקלים ריאליים, כולל שער הדולר ומדד המחירים בישראל. תיק שהתרוקן מוצג כאפס.",
       footerHtml: chartReadingHtml(payload, { type: "trinity" }),
       x: {
-        format: (value) => `שנת סיום ${Math.round(value)}`,
+        format: (value) => `התחלה ב-${Math.round(value)}`,
         tick: (value) => String(Math.round(value)),
-        label: `שנת הסיום של תקופת השקעה בת ${years} שנים, מסכום התחלתי של ${formatShekel(base, 0)}`
+        label: `שנת ההתחלה של תקופת משיכה בת ${years} שנים`
       },
-      y: { format: (value) => formatShekel(value, 0), tick: shekelTick, zero: true, label: "יתרת תיק ההשקעות" },
+      y: { format: money, tick: mode === "cpi_us" ? (value) => "$" + formatShekelShort(value).replace("₪", "") : shekelTick, zero: true, label: "יתרה בסוף התקופה" },
       series: [
-        { id: "remained", label: "יתרה בסוף התקופה", color: "#17201d", width: 2.2, dots: true, points: pointsFor("Investment_remained") },
-        { id: "low", label: "היתרה הנמוכה בדרך", color: "#9aa39f", width: 2, points: pointsFor("Investment_low") }
+        { id: "remained", label: "יתרה בסוף התקופה", color: "#145f59", width: 2.2, dots: true, points: pointsFor("Investment_remained") },
+        { id: "low", label: "היתרה הנמוכה בדרך", color: "#9aa39f", width: 1.6, dash: "4 4", points: pointsFor("Investment_low") },
+        {
+          id: "depleted",
+          label: "התיק התרוקן",
+          color: "#c0582b",
+          width: 0,
+          dots: true,
+          points: rows.map((row) => ({ x: Number(row.start_year), y: row.depleted_year ? 0 : null, data: row }))
+        }
       ],
-      refLines: [{ y: base, label: "הסכום ההתחלתי" }],
+      refLines: [{ y: base, label: "ההון ההתחלתי" }],
       tooltip: (x, hits) => {
         const row = hits[0].point.data;
         return {
           header: `${row.start_year}–${row.end_year}`,
           rows: [
-            ...hits.map((hit) => ({ color: hit.series.color, label: hit.series.label, value: formatShekel(hit.point.y, 0) })),
-            row.depleted_year ? { label: "הכסף נגמר בשנת", value: String(row.depleted_year) } : null
+            ...hits.filter((hit) => hit.series.id !== "depleted").map((hit) => ({ color: hit.series.color, label: hit.series.label, value: money(hit.point.y) })),
+            row.depleted_year ? { label: "התיק התרוקן בשנת", value: String(row.depleted_year) } : null
           ].filter(Boolean)
         };
       }
@@ -5262,9 +5286,9 @@ import {
       case "trinity":
         return {
           list: [
-            "כל נקודה מייצגת תקופת פרישה היסטורית אחרת: מתחילים בשנה מסוימת, מושכים לאורך מספר השנים שנבחר, ומסיימים בשנה שעל הציר האופקי.",
-            "הקו השחור מציג כמה כסף נשאר בסוף התקופה. הקו האפור מציג את השפל בדרך.",
-            "תקופה שבה הכסף נגמר מוצגת כאפס, ובמעבר על הנקודה מופיעה השנה שבה זה קרה."
+            "כל נקודה מייצגת תקופת פרישה היסטורית אחרת, לפי השנה שבה התחילו למשוך (הציר האופקי), לאורך מספר השנים שנבחר.",
+            "הקו הירוק מציג כמה כסף נשאר בסוף התקופה. הקו האפור המקווקו מציג את היתרה הנמוכה בדרך.",
+            "נקודה כתומה על האפס היא תקופה שבה התיק התרוקן. במעבר על הנקודה מופיעה השנה שבה זה קרה."
           ]
         };
       default:
@@ -5533,7 +5557,7 @@ import {
   });
   els.controls.addEventListener("input", (event) => {
     if (event.target.matches(".date-range-control input")) updateDateRangeReadout();
-    if (activeView.id === "trinity" && event.target.matches('input[name="yearly_draw"], input[name="base"]')) updateTrinityDrawSummary();
+    if (activeView.id === "trinity" && event.target.matches('input[name="yearly_draw"], input[name="base"], [name="value_mode"]')) updateTrinityDrawSummary();
     updateControlSummaries();
     scheduleRun();
   });
@@ -5565,7 +5589,7 @@ import {
   els.controls.addEventListener("change", (event) => {
     if (event.target.matches("input[data-format]")) formatInputDisplay(event.target);
     if (event.target.matches(".date-range-control input")) updateDateRangeReadout();
-    if (activeView.id === "trinity" && event.target.matches('input[name="yearly_draw"], input[name="base"]')) updateTrinityDrawSummary();
+    if (activeView.id === "trinity" && event.target.matches('input[name="yearly_draw"], input[name="base"], [name="value_mode"]')) updateTrinityDrawSummary();
     updateControlSummaries();
     scheduleRun();
   });

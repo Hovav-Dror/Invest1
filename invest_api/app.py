@@ -384,7 +384,7 @@ def _parse_heatmap_args(args) -> Params:
 
 
 def _parse_trinity_args(args) -> Params:
-    _reject_unknown(args, {"portfolio", "yearly_draw", "years", "base", "year_end"})
+    _reject_unknown(args, {"portfolio", "yearly_draw", "years", "base", "year_end", "value_mode"})
     portfolio = args.get("portfolio", calc.DEFAULT_TRINITY_PORTFOLIO).strip()
     portfolio = PORTFOLIO_ALIASES.get(portfolio, portfolio)
     if portfolio not in set(_data().lazy_return_portfolios):
@@ -394,7 +394,10 @@ def _parse_trinity_args(args) -> Params:
         "yearly_draw": _get_float(args, "yearly_draw", calc.DEFAULT_TRINITY_DRAW, minimum=0, maximum=1),
         "years": _get_int(args, "years", calc.DEFAULT_TRINITY_YEARS, minimum=1, maximum=100),
         "base": _get_float(args, "base", calc.DEFAULT_TRINITY_BASE, minimum=0),
+        "value_mode": args.get("value_mode", "cpi_us"),
     }
+    if params["value_mode"] not in {"cpi_us", "cpi_il"}:
+        raise ApiValidationError("בסיס החישוב לא מוכר")
     if "year_end" in args:
         params["year_end"] = _get_int(args, "year_end", 2025, minimum=1871, maximum=2025)
     return _freeze(params)

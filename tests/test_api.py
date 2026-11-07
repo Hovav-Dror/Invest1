@@ -338,3 +338,14 @@ def test_global_rolling_switches_comparison(client):
     assert mix != ex_us
     leads = sum(1 for row in mix if row["Diff15"] is not None and row["Diff15"] > 0)
     assert leads == 28
+
+
+def test_trinity_in_real_shekels(client):
+    usd = client.get("/api/trinity?yearly_draw=0.04&years=30").get_json()
+    ils = client.get("/api/trinity?yearly_draw=0.04&years=30&value_mode=cpi_il").get_json()
+    assert ils["metadata"]["units"]["currency"] == "ILS"
+    assert ils["metadata"]["units"]["inflation"] == "IL"
+    assert usd["data"][0]["start_year"] < ils["data"][0]["start_year"]
+    depleted = [row["start_year"] for row in ils["data"] if row["depleted_year"] is not None]
+    assert depleted == [1969]
+    assert client.get("/api/trinity?value_mode=nominal").status_code == 400
