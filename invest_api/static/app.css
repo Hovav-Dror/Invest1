@@ -3285,8 +3285,63 @@ button.vchart-legend-item[aria-pressed="false"] {
 
 .story-callout .callout-lead {
   color: var(--accent-2);
-  display: block;
-  font-size: 24px;
+  font-size: 1.25em;
   font-weight: 850;
-  line-height: 1.2;
+}
+
+/* Shared heading over result tiles, and line-style swatches */
+.metric-heading {
+  align-items: baseline;
+  display: flex;
+  flex-basis: 100%;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+.metric-heading strong {
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.metric-heading span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.metric-swatch {
+  display: inline-block;
+  height: 6px;
+  margin-inline-end: 6px;
+  vertical-align: middle;
+  width: 28px;
+}
+
+@media (max-width: 560px) {
+  .panel-metrics.metric-tiles {
+    display: grid;
+    gap: 6px;
+    grid-template-columns: 1fr;
+  }
+  .panel-metrics.metric-tiles .metric {
+    align-items: baseline;
+    column-gap: 10px;
+    grid-template-columns: 1fr auto;
+    max-width: none;
+    min-height: 0;
+    min-width: 0;
+    padding: 8px 12px;
+  }
+  .panel-metrics.metric-tiles .metric strong {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
+  }
+  .panel-metrics.metric-tiles .metric small {
+    grid-column: 1;
+  }
+  .metric-gap strong {
+    font-size: 20px;
+  }
 }

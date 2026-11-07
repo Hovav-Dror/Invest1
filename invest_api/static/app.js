@@ -344,22 +344,22 @@ import {
     },
     "commission-drag": {
       tab: "השפעת עמלות ומסים",
-      heading: "דמי הניהול",
       paragraphs: [
         "מכירים את \"יש לך תשואה כל כך גדולה, מה זה משנה 0.5% דמי ניהול?\". אז בואו ננסה להסתכל עד כמה זה באמת משנה.",
         { callout: [
-          { html: "<strong class=\"callout-lead\">משנה הרבה.</strong>" },
-          "על 100,000 ש\"ח לאורך 33 שנה, ההבדל בין דמי ניהול של 0.2% ל-1% הוא כמעט 200,000 ש\"ח. מי שאומר לכם שזה כלום לעומת התשואה - פשוט תתעלמו.",
+          { html: "<strong class=\"callout-lead\">משנה הרבה.</strong> על 100,000 ש\"ח לאורך 33 שנה, ההבדל בין דמי ניהול של 0.2% ל-1% הוא כמעט 200,000 ש\"ח. אם מישהו אומר לכם שזה זניח לעומת התשואה, אל תקשיבו לו." },
           [
             "מאמינים לי? אפשר לעבור הלאה ל",
             { text: "קופת גמל להשקעה", href: "#kupat-gemel" },
             ". לא מאמינים? הנה הפרטים."
           ]
-        ] },
-        "התרשים הבא מניח שהכסף נשאר בקופה לאורך כל התקופה, ומשווה תשואה בהתאם לדמי הניהול והוצאות ניהול ההשקעות."
+        ] }
       ],
       afterChartByEndpoint: {
         commission_effect: [
+          "התרשים מניח שהכסף נשאר בקופה לאורך כל התקופה, ומשווה תשואה בהתאם לדמי הניהול והוצאות ניהול ההשקעות.",
+          { subheading: "דוגמה לפי הגדרות ברירת המחדל" },
+          { text: "המספרים בדוגמה מתייחסים ל-100,000 ש\"ח מ-1993 עד 2026, עם התאמה למדד. התוצאה שלמעלה מתעדכנת לפי מה שבחרתם." },
           "בפשטנות, דמי ניהול במסחר עצמאי יהיו כ-0.2% ודמי הניהול בפוליסת חסכון, ובפרט לאחר תוספת \"הוצאות ניהול השקעה\", יהיו כ-1%.",
           "מי שהשאיר 100,000 ש\"ח עם דמי ניהול של 1% לשנה ב-1993, כשהם צמודים למדד S&P 500 כולל השקעה מחודשת של מרבית הדיווידנדים, מצא עצמו ב-2026 עם כ-660,000 ש\"ח לאחר מס רווחי הון ולאחר תקנון למדד.",
           "לעומתו, מי שהשקיע באותו מחקה בדיוק עם דמי ניהול של 0.2% בלבד, יהיה עם כ-850,000 ש\"ח בכיס אחרי מס רווחי הון, ועם כ-2,350,000 ש\"ח אם לא מתקננים למדד.",
@@ -371,6 +371,7 @@ import {
           "עברו ללשונית \"דמי ניהול + אירועי מס\" בראש הכלי כדי לראות את התמונה המשולבת."
         ],
         commission_tax: [
+          { text: "הטבלה והגרף מתעדכנים לפי מה שבחרתם. המספרים בטקסט מתייחסים להגדרות ברירת המחדל." },
           "בואו ננסה לחבר עכשיו יחדיו את דמי הניהול ואת השפעת אירועי המס כתלות בתדירות בה מזיזים את הכסף.",
           "הטבלה מראה את כל הצירופים: ככל שיורדים בה, דמי הניהול גבוהים יותר, וככל שזזים שמאלה, הכסף זז לעיתים קרובות יותר. בגרף, כל צבע הוא שיעור דמי ניהול, והקו המקווקו הוא מימוש כל שנה. גם דמי הניהול, בתוספת הוצאות ניהול ההשקעות שנחבאים קצת, וגם אירועי המס, הם סכומים משמעותיים.",
           "מוזמנים לשחק ולראות את ההשפעה של התאריכים, הן בשל אורך התקופה והן בשל מגמות שונות במדד S&P 500 בתקופות שונות, ושל ערכים שונים לדמי הניהול.",
@@ -1543,8 +1544,8 @@ import {
   const NAV_TOPICS = [
     { label: "הקדמה", views: ["intro"] },
     { label: "למה לא?", views: ["tax-events"] },
-    { label: "עמלות ומסים", views: ["commission-drag", "independent", "ira"] },
-    { label: "קופת גמל להשקעה", views: ["kupat-gemel"] },
+    { label: "עמלות ומסים", views: ["commission-drag", "independent"] },
+    { label: "קופת גמל ו-IRA", views: ["kupat-gemel", "ira"] },
     { label: "סיכון", views: ["sp500-risk"] },
     { label: "השוואת תיקים", views: ["portfolio-summary", "us-world", "scv"] },
     { label: "משיכה מהתיק", views: ["trinity"] }
@@ -3401,14 +3402,16 @@ import {
 
   function renderMetricsInto(target, metrics) {
     target.classList.toggle("metric-tiles", metrics.some((metric) => metric.color));
-    target.innerHTML = metrics.map((metric) => metric.gap ? `
+    target.innerHTML = metrics.map((metric) => metric.heading ? `
+      <div class="metric-heading"><strong>${escapeHtml(metric.label)}</strong><span>${escapeHtml(metric.note || "")}</span></div>
+    ` : metric.gap ? `
       <div class="metric-gap">
         <strong>פער של ${formatShekel(metric.value)}</strong>
         <span>${escapeHtml(metric.label)}</span>
       </div>
     ` : `
       <div class="metric"${metric.color ? ` style="--tile:${escapeHtml(metric.color)}"` : ""}>
-        <span>${escapeHtml(displayLabel(metric.label))}</span>
+        <span>${metric.dash !== undefined ? `<svg class="metric-swatch" viewBox="0 0 28 6" aria-hidden="true"><line x1="1" y1="3" x2="27" y2="3" stroke="${escapeHtml(metric.color)}" stroke-width="2.6" stroke-linecap="round" ${metric.dash ? `stroke-dasharray="${escapeHtml(metric.dash)}"` : ""}/></svg>` : ""}${escapeHtml(displayLabel(metric.label))}</span>
         <strong>${formatMetricValue(metric)}</strong>
         <small>${escapeHtml(metric.note || "")}</small>
       </div>
@@ -3611,15 +3614,19 @@ import {
   function metricFees(payload) {
     const groups = Object.entries(groupRows(payload.data || [], "commission")).sort((a, b) => Number(a[0]) - Number(b[0]));
     const values = groups.map(([fee, rows]) => [Number(fee), numericValue(lastRow(rows).tax_at_end)]);
-    const reference = values.length ? values[0][1] : null;
+    const reference = values.length ? values[0] : null;
     const real = !payload.params || payload.params.adjust_cpi !== false;
     const basis = real ? "אחרי מס ובשקלים ריאליים" : "אחרי מס, בשקלים נומינליים";
-    const tiles = values.map(([fee, value], index) => ({
+    const dashes = (activeView.panels || []).find((panel) => panel.endpoint === "commission_effect")?.chart.dashCycle || [];
+    const comparedTo = reference && reference[0] === 0 ? "מהתרחיש ללא דמי ניהול" : `מדמי ניהול של ${reference ? reference[0] : 0}%`;
+    const tiles = [{ heading: true, label: "שווי בסוף התקופה", note: basis }];
+    values.forEach(([fee, value], index) => tiles.push({
       label: `דמי ניהול ${fee}%`,
       value,
       format: "shekel",
       color: PALETTE[index % PALETTE.length],
-      note: index === 0 || !reference ? basis : `${formatPercent(1 - value / reference, 0)} פחות מ-${values[0][0]}%`
+      dash: dashes[index % (dashes.length || 1)] || "",
+      note: index === 0 || !reference || !reference[1] ? "נקודת ההשוואה" : `נמוך ב-${formatPercent(1 - value / reference[1], 0)} ${comparedTo}`
     }));
     const paid = values.filter(([fee]) => fee > 0);
     const pair = paid.length >= 2 ? [paid[0], paid[paid.length - 1]] : (paid.length === 1 && values[0][0] === 0 ? [values[0], paid[0]] : null);
@@ -3786,7 +3793,9 @@ import {
       );
     }
     if (chartConfig.splitBy && chartConfig.y) {
-      return Object.entries(groupRows(rows, chartConfig.splitBy)).map(([key, group]) => ({
+      const entries = Object.entries(groupRows(rows, chartConfig.splitBy));
+      if (entries.every(([key]) => Number.isFinite(Number(key)))) entries.sort((a, b) => Number(a[0]) - Number(b[0]));
+      return entries.map(([key, group]) => ({
         label: `${chartConfig.labelPrefix || ""}${key}`,
         yKey: chartConfig.y,
         rows: group
