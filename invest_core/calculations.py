@@ -327,6 +327,51 @@ def sp500_risk(
     return frame[["date", "TotalReturn", "TotalReturnP", "Median", "Above0", "AboveThreshold"]].reset_index(drop=True)
 
 
+RISK_LADDER_YEARS = (1, 3, 5, 10, 15, 20, 30)
+
+
+def sp500_risk_ladder(
+    data: InvestData | None = None,
+    start: str | None = None,
+    end: str | None = None,
+    horizons: Iterable[int] = RISK_LADDER_YEARS,
+) -> pd.DataFrame:
+    """For each holding period: share of windows that ended in a real loss, median, worst and best.
+
+    Same windows as ``sp500_risk`` (real, US-CPI adjusted, rolling monthly).
+    Horizons longer than the selected range are skipped.
+    """
+
+    data = data or load_data()
+    rows = []
+    for years in horizons:
+        try:
+            frame = sp500_risk(data=data, years=years, start=start, end=end)
+        except CalculationInputError:
+            continue
+        returns = frame["TotalReturnP"]
+        worst = frame.loc[returns.idxmin()]
+        best = frame.loc[returns.idxmax()]
+        rows.append(
+            {
+                "Years": years,
+                "Periods": len(frame),
+                "LossShare": float((returns < 0).mean()),
+                "Losses": int((returns < 0).sum()),
+                "Median": float(returns.median()),
+                "Worst": float(worst["TotalReturnP"]),
+                "WorstTotal": float(worst["TotalReturn"] - 1),
+                "WorstEnd": worst["date"],
+                "Best": float(best["TotalReturnP"]),
+                "BestTotal": float(best["TotalReturn"] - 1),
+                "BestEnd": best["date"],
+            }
+        )
+    if not rows:
+        raise CalculationInputError("הטווח שנבחר קצר מדי לכל משכי ההשקעה.")
+    return pd.DataFrame(rows)
+
+
 # ---------------------------------------------------------------------------
 # Lazy portfolios (annual)
 # ---------------------------------------------------------------------------

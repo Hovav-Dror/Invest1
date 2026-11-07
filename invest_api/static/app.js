@@ -404,27 +404,29 @@ import {
       tab: "הסיכון",
       heading: "מוכנים לשפל של עשר שנים ויותר?",
       paragraphs: [
-        "בהשקעה ארוכת טווח - שוק המניות מנצח. תמיד. אבל כמה ארוכה? שוק המניות גם נופל, והשפל שלו, שגורם לנו להפסיד כספים, יכול להמשך גם שנים ארוכות.",
+        "בהשקעה ארוכת טווח, שוק המניות ניצח כמעט תמיד: בתקופות של 30 שנה, אף פעם בנתונים האלה. אבל כמה ארוכה צריכה להיות ההשקעה? שוק המניות גם נופל, והשפל שלו, שגורם לנו להפסיד כספים, יכול להמשך גם שנים ארוכות.",
         "להמחשה - התרשים הבא מראה את התשואה שהיינו מקבלים מהשקעה צמודה ל SP500 במשך 15 שנים (או כל טווח אחר שתרצו, יכולים לשחק). בכל תאריך רואים את התשואה השנתית הממוצעת ב 15 השנים שקדמו לו."
       ],
-      afterChart: [
-        "מצד אחד - כמעט תמיד השקעה ארוכת טווח תניב את התשואה הטובה ביותר אם תהיה במניות. מצד שני - קיימת גם האפשרות שאפילו בסיום תקופה ארוכה כמו 15 שנים נגלה שבידנו פחות כסף מהסכום איתו התחלנו.",
-        "כל מי שמחליט להשקיע השקעה ארוכת טווח, וזה לא משנה אם במסחר עצמאי או דרך קופת גמל להשקעה, צריך להיות מוכן נפשית לאפשרות שיחכה הרבה שנים, נניח 10, ולא ירוויח אפילו שקל אחד.",
-        "זה לא שכיח, אבל בהחלט מתרחש. זה המסר בתרשים למעלה.",
-        "(לחילופין, אפשר לא להרוויח, וגם לא להפסיד)",
-        "אז מה עושים?",
-        "ראשית, בדיוק בגלל זה ממליצים לנו לעבור להשקעות סולידיות יותר ויותר עם הגיל. לא לאבד את הכסף רגע לפני שצריך אותו.",
-        "ככל שההשקעה היא ארוכת טווח יותר - הדילמה נהיית פשוטה. ניתן לזמן לעשות את שלו. כשיש סבלנות - ההצלחה כמעט מובטחת.",
-        "מה עוד? מגוונים את ההשקעות.",
-        "למרות שזה נשמע מאוד הגיוני, העצה הזו היא קצת עבודה על עצמנו בעיניים, לדעתי (המאוד לא מלומדת, זה הזמן להזכיר. רוצים מומחים בהשקעות - חפשו אותם, אני לא אחד כזה)",
-        "לכאורה - ההמלצה היא להשקיע בכמה דברים שונים, כולם עם תשואה גבוהה, אבל הפיזור יגרום לכך שכשאחד יהיה בשפל, האחר יפצה עליו.",
-        "במציאות, הקורלציה בין תקופות השפל של האלטרנטיבות המקובלות להשקעה מפוזרת - גבוהה מאוד. הן עולות ויורדות באותן שנים, פחות או יותר.",
-        "בעצם, חלק ניכר מהבחירה בתיק שמשלב השקעות שונות כשמראים לנו שסטיית התקן שלו היא קטנה יותר (ושמספר שנות השפל המרבי שלו היה קטן יותר) - היא בעצם בחירה בתיק עם תשואה צפויה קטנה יותר.",
-        "זה מה שהוביל אותנו למניות מלכתחילה, לא? עבור תנודתיות (אי-ודאות) גבוהה בטווח הקצר, מתוגמלים בתשואה גבוהה בטווח הארוך. אז הרבה מהמלצות הפיזור היא לקחת צעד או שניים לאחור.",
-        "כלומר, לוותר על תשואה כדי לשכך את עוצמת הנפילה כשהיא מתרחשת.",
-        "הטאב האחרון, כנראה העיקרי באתר הזה, נועד להשוות בין כל מני חלופות השוואה.",
-        "הוא גם זה שהוביל אותה למסקנה שהתיקים ברובם לא עושים את המובטח. אני בטח טועה, וזו ההזדמנות שלכם ליצור קשר ולהסביר לי hovav@hotmail.com."
-      ],
+      afterChartByEndpoint: {
+        sp500_risk_ladder: [
+          "מצד אחד - כמעט תמיד השקעה ארוכת טווח תניב את התשואה הטובה ביותר אם תהיה במניות. מצד שני - קיימת גם האפשרות שאפילו בסיום תקופה ארוכה כמו 15 שנים נגלה שבידנו פחות כסף מהסכום איתו התחלנו.",
+          "כל מי שמחליט להשקיע השקעה ארוכת טווח, וזה לא משנה אם במסחר עצמאי או דרך קופת גמל להשקעה, צריך להיות מוכן נפשית לאפשרות שיחכה הרבה שנים, נניח 10, ולא ירוויח אפילו שקל אחד.",
+          "זה לא שכיח, אבל בהחלט מתרחש. זה המסר בתרשים למעלה.",
+          "(לחילופין, אפשר לא להרוויח, וגם לא להפסיד)",
+          "אז מה עושים?",
+          "ראשית, בדיוק בגלל זה ממליצים לנו לעבור להשקעות סולידיות יותר ויותר עם הגיל. לא לאבד את הכסף רגע לפני שצריך אותו.",
+          "ככל שההשקעה היא ארוכת טווח יותר - הדילמה נהיית פשוטה. ניתן לזמן לעשות את שלו. כשיש סבלנות, הסיכוי להצליח היה גבוה מאוד.",
+          "מה עוד? מגוונים את ההשקעות.",
+          "למרות שזה נשמע מאוד הגיוני, העצה הזו היא קצת עבודה על עצמנו בעיניים, לדעתי (המאוד לא מלומדת, זה הזמן להזכיר. רוצים מומחים בהשקעות - חפשו אותם, אני לא אחד כזה)",
+          "לכאורה - ההמלצה היא להשקיע בכמה דברים שונים, כולם עם תשואה גבוהה, אבל הפיזור יגרום לכך שכשאחד יהיה בשפל, האחר יפצה עליו.",
+          "במציאות, הקורלציה בין תקופות השפל של האלטרנטיבות המקובלות להשקעה מפוזרת - גבוהה מאוד. הן עולות ויורדות באותן שנים, פחות או יותר.",
+          "בעצם, חלק ניכר מהבחירה בתיק שמשלב השקעות שונות כשמראים לנו שסטיית התקן שלו היא קטנה יותר (ושמספר שנות השפל המרבי שלו היה קטן יותר) - היא בעצם בחירה בתיק עם תשואה צפויה קטנה יותר.",
+          "זה מה שהוביל אותנו למניות מלכתחילה, לא? עבור תנודתיות (אי-ודאות) גבוהה בטווח הקצר, מתוגמלים בתשואה גבוהה בטווח הארוך. אז הרבה מהמלצות הפיזור היא לקחת צעד או שניים לאחור.",
+          "כלומר, לוותר על תשואה כדי לשכך את עוצמת הנפילה כשהיא מתרחשת.",
+          "הטאב האחרון, כנראה העיקרי באתר הזה, נועד להשוות בין כל מני חלופות השוואה.",
+          "הוא גם זה שהוביל אותה למסקנה שהתיקים ברובם לא עושים את המובטח. אני בטח טועה, וזו ההזדמנות שלכם ליצור קשר ולהסביר לי hovav@hotmail.com."
+        ]
+      },
       notes: []
     },
     "kupat-gemel": {
@@ -1092,23 +1094,40 @@ import {
     {
       id: "sp500-risk",
       group: "Risk",
-      title: "הסיכון ב-S&P 500",
+      title: "מה הסיכוי להפסיד, לפי משך ההשקעה?",
       nav: "הסיכון",
-      kicker: "חלונות היסטוריים, שנים רעות, ומה קורה גם אחרי עשור ויותר",
-      takeaway: "גם השקעה ארוכת טווח במניות יכולה לעבור שנים קשות, ולכן אופק ההשקעה חשוב כמו התשואה הממוצעת.",
-      endpoint: "sp500_risk",
+      kicker: "הסיכון ב-S&P 500",
+      takeaway: "בודקים איך הסתיימו תקופות השקעה היסטוריות, אחרי אינפלציה בארה״ב. ככל שהתקופה ארוכה יותר, הסיכוי להפסיד קטן מאוד.",
+      multiChart: true,
+      advancedLabel: "טווח הנתונים",
+      advancedSummary: (state) => `${String(state.start || "").slice(0, 4)}–${String(state.end || "").slice(0, 4)} · סף ${state.threshold}%`,
       controls: [
-        dateRangeSlider({ start: "1871-01-01", end: "2026-01-01" }),
-        field("years", "שנות השקעה", "number", "15", "1", "חלון בדיקה"),
-        field("threshold", "חשב גם % זמן מעל", "number", "4", "0.5", "אחוזים")
+        { kind: "presetButtons", label: "משך ההשקעה", target: "years", options: [["5", "5 שנים", ""], ["10", "10", ""], ["15", "15", ""], ["20", "20", ""], ["30", "30", ""]] },
+        field("years", "או מספר שנים אחר", "number", "15", "1"),
+        { ...dateRangeSlider({ start: "1871-01-01", end: "2026-01-01" }), advanced: true },
+        { ...field("threshold", "סף תשואה שנתי (%)", "number", "4", "0.5"), advanced: true }
       ],
-      chart: {
-        type: "sp500Risk",
-        x: "date",
-        y: "TotalReturnP",
-        title: "תשואה שנתית ממוצעת של S&P 500 בתקופות של {years} שנים",
-        caption: "נתוני S&P 500 כולל השקעה מחדש של הדיבידנדים (מ-2011 בניכוי מס מקור של 15%, כ-85% מהדיבידנדים), אחרי אינפלציה בארה״ב."
-      },
+      panels: [
+        {
+          endpoint: "sp500_risk",
+          title: "התקופה שבחרתם",
+          hideHeader: true,
+          chart: {
+            type: "sp500Risk",
+            x: "date",
+            y: "TotalReturnP",
+            caption: "נתוני S&P 500 כולל השקעה מחדש של הדיבידנדים (מ-2011 בניכוי מס מקור של 15%, כ-85% מהדיבידנדים), אחרי אינפלציה בארה״ב."
+          },
+          metric: metricSp500Risk,
+          tableColumns: ["date", "TotalReturnP", "Median", "Above0", "AboveThreshold", "TotalReturn"]
+        },
+        {
+          endpoint: "sp500_risk_ladder",
+          title: "ומה קורה במשכים אחרים?",
+          chart: { type: "riskLadder" },
+          tableColumns: ["Years", "Periods", "LossShare", "Median", "Worst", "Best"]
+        }
+      ],
       tableColumns: ["date", "TotalReturnP", "Median", "Above0", "AboveThreshold", "TotalReturn"],
       metric: metricSp500Risk
     },
@@ -2910,6 +2929,7 @@ import {
         if (!["start", "end", "adjust_cpi", "commissions", "initial"].includes(key)) return;
       }
       if (endpoint === "sp500_risk" && !["start", "end", "years", "threshold"].includes(key)) return;
+      if (endpoint === "sp500_risk_ladder" && !["start", "end"].includes(key)) return;
       if (endpoint === "kupat_gemel" || endpoint === "kupat_gemel_pension") {
         const allowed = [
           "age",
@@ -3638,17 +3658,34 @@ import {
     };
   }
 
+  /** Positive-first summary for the chosen holding period, with its weakest and strongest window. */
   function metricSp500Risk(payload) {
-    const row = lastRow(payload.data);
+    const rows = payload.data || [];
+    const row = lastRow(rows);
     if (!row) return [];
-    const threshold = payload.params && Number.isFinite(Number(payload.params.threshold))
-      ? Number(payload.params.threshold)
-      : 0.04;
+    const params = payload.params || {};
+    const years = Number(params.years) || 15;
+    const threshold = Number.isFinite(Number(params.threshold)) ? Number(params.threshold) : 0.04;
+    const total = rows.length;
+    const lossShare = 1 - numericValue(row.Above0);
+    const losses = Math.round(lossShare * total);
+    const pick = (better) => rows.reduce((best, item) => (best === null || better(numericValue(item.TotalReturnP), numericValue(best.TotalReturnP)) ? item : best), null);
+    const worst = pick((a, b) => a < b);
+    const best = pick((a, b) => a > b);
+    const span = (item) => {
+      const end = new Date(`${String(item.date).slice(0, 10)}T00:00:00Z`);
+      const start = new Date(Date.UTC(end.getUTCFullYear() - years, end.getUTCMonth(), 1));
+      const fmt = (date) => `${String(date.getUTCMonth() + 1).padStart(2, "0")}/${date.getUTCFullYear()}`;
+      return `\u2066${fmt(start)}–${fmt(end)}\u2069`;
+    };
     return [
-      { label: "הפסידו כסף", value: 1 - numericValue(row.Above0), note: "מהתקופות, אחרי אינפלציה", format: "percent", digits: 1, color: "#e0532f" },
-      { label: `הרוויחו מעל ${formatPercent(threshold, 0)} בשנה`, value: row.AboveThreshold, note: "מהתקופות", format: "percent", digits: 1, color: "#2f9e8f" },
-      { label: "תשואה שנתית חציונית", value: row.Median, note: "אחרי אינפלציה", format: "percent", digits: 1, color: "#145f59" }
-    ];
+      { heading: true, label: `תקופות של ${years} שנה`, note: "אחרי אינפלציה בארה״ב · התקופות חופפות ברובן" },
+      { label: "הסתיימו ברווח ריאלי", value: numericValue(row.Above0), format: "percent", digits: 1, color: "#145f59", note: `${losses.toLocaleString(locale)} מתוך ${total.toLocaleString(locale)} תקופות הסתיימו בהפסד (${formatPercent(lossShare, 1)})` },
+      { label: "תשואה שנתית חציונית", value: numericValue(row.Median), format: "percent", digits: 1, color: "#145f59", note: "חצי מהתקופות הרוויחו יותר" },
+      { label: `עברו ${formatPercent(threshold, 0)} בשנה`, value: numericValue(row.AboveThreshold), format: "percent", digits: 1, color: "#385f9f", note: "מהתקופות" },
+      worst && { label: "התקופה החלשה ביותר", value: numericValue(worst.TotalReturnP), format: "percent", digits: 1, color: "#c0582b", note: `${span(worst)} · מצטבר ${formatPercent(numericValue(worst.TotalReturn) - 1, 1)}` },
+      best && { label: "התקופה החזקה ביותר", value: numericValue(best.TotalReturnP), format: "percent", digits: 1, color: "#145f59", note: `${span(best)} · מצטבר ${formatPercent(numericValue(best.TotalReturn) - 1, 0)}` }
+    ].filter(Boolean);
   }
 
   /** End values, the cost gap, its equivalent annual rate, and the same return at 1% a year for comparison. */
@@ -3904,6 +3941,10 @@ import {
     }
     if (chartConfig.type === "kupat") {
       renderKupatChart(payload, chartConfig);
+      return;
+    }
+    if (chartConfig.type === "riskLadder") {
+      renderRiskLadder(payload, chartConfig);
       return;
     }
     if (chartConfig.type === "sp500Risk") {
@@ -4193,6 +4234,31 @@ import {
     });
   }
 
+  /** One row per holding period: share of windows that ended in a real loss, with the median beside it. */
+  function renderRiskLadder(payload) {
+    const target = chartTarget();
+    releaseChart(target);
+    const rows = payload.data || [];
+    const selected = Number(stateFromForm().years);
+    const max = Math.max(...rows.map((row) => numericValue(row.LossShare) || 0), 0.01);
+    target.innerHTML = `
+      <figure class="risk-ladder">
+        <figcaption>כמה מהתקופות הסתיימו בהפסד ריאלי, לפי משך ההשקעה</figcaption>
+        <div class="risk-ladder-head" aria-hidden="true"><span>משך</span><span>תקופות בהפסד</span><span>תשואה חציונית</span></div>
+        <ol>${rows.map((row) => {
+          const share = numericValue(row.LossShare) || 0;
+          const years = Number(row.Years);
+          const label = years === 1 ? "שנה" : `${years} שנים`;
+          return `<li class="${years === selected ? "is-selected" : ""}">
+            <span class="risk-ladder-years">${label}</span>
+            <span class="risk-ladder-bar"><i style="width:${(share / max) * 100}%"></i><b>${share === 0 ? "אף אחת" : formatPercent(share, share < 0.1 ? 1 : 0)}</b></span>
+            <span class="risk-ladder-median">${formatPercent(numericValue(row.Median), 1)} בשנה</span>
+          </li>`;
+        }).join("")}</ol>
+        <p class="risk-ladder-note">התשואה החציונית נשארת קרובה ל-7% בשנה בכל משך. מה שמשתנה הוא הפיזור: ככל שהתקופה ארוכה יותר, השנים הרעות מתקזזות עם הטובות.</p>
+      </figure>`;
+  }
+
   function renderSp500RiskChart(payload, chartConfig) {
     const rows = payload.data || [];
     const params = payload.params || {};
@@ -4213,7 +4279,7 @@ import {
       title: `תשואה ריאלית שנתית ממוצעת של S&P 500 בכל תקופה של ${years} שנים`,
       subtitle: "כל נקודה היא השקעה שהסתיימה בתאריך שעל הציר. כולל דיבידנדים, אחרי אינפלציה בארה״ב.",
       notes: [
-        `ב-${formatPercent(1 - above0, 0)} מהתקופות ההשקעה הפסידה כסף אחרי אינפלציה.`,
+        `ב-${formatPercent(above0, 1)} מהתקופות ההשקעה הסתיימה ברווח אחרי אינפלציה, וב-${formatPercent(1 - above0, 1)} בהפסד (מסומן בכתום).`,
         `ב-${formatPercent(aboveThreshold, 0)} מהתקופות התשואה השנתית הממוצעת עלתה על ${formatPercent(threshold, 1)}.`,
         `התשואה החציונית: ${formatPercent(median, 1)} בשנה.`
       ],
@@ -4221,7 +4287,19 @@ import {
       footerHtml: chartReadingHtml(payload, chartConfig),
       x: xAxisFor(rows, chartConfig.x),
       y: { format: (value) => formatPercent(value, 1), tick: (value) => formatPercent(value, 0) },
-      series: [{ id: "return", label: "תשואה שנתית ממוצעת", color: PALETTE[0], width: 1.8, points }],
+      series: [
+        { id: "return", label: "תשואה שנתית ממוצעת", color: PALETTE[0], width: 1.8, points },
+        {
+          id: "loss",
+          label: "תקופות שהסתיימו בהפסד",
+          color: "#c0582b",
+          width: 2.6,
+          points: points.map((point, index) => {
+            const near = [points[index - 1], point, points[index + 1]].some((item) => item && Number.isFinite(item.y) && item.y < 0);
+            return { ...point, y: near ? point.y : null };
+          })
+        }
+      ],
       refLines: [
         { y: 0, className: "strong" },
         median === null ? null : { y: median, label: `חציון ${formatPercent(median, 1)}` }

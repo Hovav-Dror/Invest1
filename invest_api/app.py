@@ -27,6 +27,7 @@ ENDPOINT_NAMES = (
     "commission_effect",
     "commission_tax",
     "sp500_risk",
+    "sp500_risk_ladder",
     "portfolio_summary",
     "portfolio_structure",
     "portfolio_commissions",
@@ -258,6 +259,16 @@ def _parse_commission_args(args) -> Params:
     return _freeze(params)
 
 
+def _parse_risk_ladder_args(args) -> Params:
+    _reject_unknown(args, {"start", "end"})
+    params = {
+        "start": _get_date(args, "start", "1871-01-01"),
+        "end": _get_date(args, "end", "2026-01-01"),
+    }
+    _normalize_common_dates(params)
+    return _freeze(params)
+
+
 def _parse_sp500_risk_args(args) -> Params:
     _reject_unknown(args, {"years", "threshold", "start", "end"})
     params = {
@@ -441,6 +452,8 @@ def _dispatch(name: str, params: Params) -> pd.DataFrame:
         return calc.commission_tax_scenarios(data=data, **kwargs)
     if name == "sp500_risk":
         return calc.sp500_risk(data=data, **kwargs)
+    if name == "sp500_risk_ladder":
+        return calc.sp500_risk_ladder(data=data, **kwargs)
     if name == "portfolio_summary":
         kwargs.pop("rolling_window", None)
         kwargs.pop("full_history_rolling", None)
@@ -502,6 +515,7 @@ PARSERS: dict[str, Callable[[Any], Params]] = {
     "commission_effect": _parse_commission_args,
     "commission_tax": _parse_commission_args,
     "sp500_risk": _parse_sp500_risk_args,
+    "sp500_risk_ladder": _parse_risk_ladder_args,
     "portfolio_summary": _parse_portfolio_args,
     "portfolio_structure": _parse_no_args,
     "portfolio_commissions": _parse_no_args,

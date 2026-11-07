@@ -311,3 +311,20 @@ def test_common_period_aligns_portfolio_start_years(client):
     assert len(common["metadata"]["series_coverage"]) == 2
     over_time = client.get(query.replace("summary", "over_time") + "&common_period=true").get_json()
     assert len({row["Year"] - row["N"] for row in over_time["data"]}) == 1
+
+
+def test_risk_ladder_shrinks_with_horizon(client):
+    payload = client.get("/api/sp500_risk_ladder").get_json()
+    rows = {row["Years"]: row for row in payload["data"]}
+    assert set(rows) == {1, 3, 5, 10, 15, 20, 30}
+    assert rows[1]["LossShare"] > rows[10]["LossShare"] > rows[20]["LossShare"]
+    assert rows[30]["Losses"] == 0
+    assert rows[15]["Losses"] == round(rows[15]["LossShare"] * rows[15]["Periods"])
+    single = client.get("/api/sp500_risk?years=15").get_json()["data"]
+    assert abs(rows[15]["Worst"] - min(row["TotalReturnP"] for row in single)) < 1e-12
+    assert payload["metadata"]["units"]["inflation"] == "US"
+
+
+def test_risk_ladder_skips_horizons_longer_than_range(client):
+    rows = client.get("/api/sp500_risk_ladder?start=2000-01-01&end=2026-01-01").get_json()["data"]
+    assert max(row["Years"] for row in rows) == 20

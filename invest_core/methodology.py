@@ -27,7 +27,7 @@ FEE_ENDPOINTS = {
     "commission_effect", "commission_tax", "kupat_gemel", "kupat_gemel_pension",
     "independent_commissions", "tax_us_vs_il",
 }
-USD_ENDPOINTS = {"sp500_risk", "us_world_rolling", "us_global_rolling", "global_vs_sp500_heatmap", "trinity"}
+USD_ENDPOINTS = {"sp500_risk", "sp500_risk_ladder", "us_world_rolling", "us_global_rolling", "global_vs_sp500_heatmap", "trinity"}
 CATALOG_ENDPOINTS = {"portfolio_structure", "portfolio_commissions"}
 
 
@@ -85,7 +85,7 @@ def _warnings(name: str, frame: pd.DataFrame, period: dict, params: dict) -> lis
         "היסטוריה היא תיאור של העבר, ולא תחזית או הסתברות להצלחה בעתיד.",
         "הנתונים ההיסטוריים משלבים כמה מקורות ושחזורים; נתוני ישראל בתקופות המוקדמות אינם מאומתים במלואם.",
     ]
-    monthly = "date" in frame
+    monthly = "date" in frame or name == "sp500_risk_ladder"
     if not monthly and name not in CATALOG_ENDPOINTS:
         items.append("נתוני 2024–2025 נלקחו מאותו מדד או קרן כמו ההיסטוריה של כל סדרה ככל האפשר; לחלק מהסדרות יש תחליף.")
     if monthly and period["start"] and period["end"] and period["start"] <= "2025-11-01" <= period["end"]:
@@ -105,7 +105,7 @@ def result_metadata(name: str, params: dict, frame: pd.DataFrame, version: str) 
     else:
         usd = name in USD_ENDPOINTS or (name.startswith("portfolio_") and mode != "cpi_il")
         currency = "USD" if usd else "ILS"
-        if name in {"sp500_risk", "trinity"} or (name.startswith("portfolio_") and mode == "cpi_us"):
+        if name in {"sp500_risk", "sp500_risk_ladder", "trinity"} or (name.startswith("portfolio_") and mode == "cpi_us"):
             inflation = "US"
         elif name in {"us_world_rolling", "us_global_rolling", "global_vs_sp500_heatmap"} or mode == "nominal":
             inflation = None
