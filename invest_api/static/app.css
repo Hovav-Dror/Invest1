@@ -3285,8 +3285,8 @@ button.vchart-legend-item[aria-pressed="false"] {
 
 .story-callout .callout-lead {
   color: var(--accent-2);
-  font-size: 1.25em;
-  font-weight: 850;
+  font-size: 1em;
+  font-weight: 800;
 }
 
 /* Shared heading over result tiles, and line-style swatches */
