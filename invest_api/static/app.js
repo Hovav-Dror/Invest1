@@ -237,7 +237,7 @@ import {
   const stories = {
     intro: {
       tab: "מסחר עצמאי - הקדמה",
-      heading: "מסחר עצמאי - פאסיבי",
+      heading: "איך הגעתי לכאן",
       paragraphs: [
         { bold: "יום אחד החלטתי לעשות קצת סדר בחסכונות ובהשקעות שלי, ומשיכה קטנה בקצה חבל הובילה לעדר פילים." },
         "אם הגעת לכאן, יכול להיות שאתה כבר מבין היטב בהשקעות פסיביות, אבל מחפש כלי להשוואה בין תיקי השקעות פאסיביים שלא מצאת בקלות במקום אחר.",
@@ -257,7 +257,7 @@ import {
           ". אם זה מה שחיפשתם - אפשר כנראה לקפוץ לשם ישר."
         ],
         "יש גם את Trinity, אבל גם שם הכוונה היא לא בדיוק למחשבון Trinity הקלאסי שרואים בהרבה מקומות. ניסיתי לבדוק תרחיש שנראה לי יותר קרוב לחיים של מי שחי בישראל: משיכה של סכום שנתי קבוע בשקלים, ולא משיכה של אחוז קבוע מתיק שמחושב בדולרים.",
-        { subheading: "הקדמה למי שרוצה ללמוד מהדרך שאני עברתי", className: "story-intro-subheading" },
+        { subheading: "הקדמה למי שרוצה ללמוד מהדרך שאני עברתי", className: "story-intro-subheading", id: "intro-learning-path" },
         "עכשיו קצת על עדר הפילים שצץ לו.",
         [
           "רציתי לבדוק נתונים בגמלנט, ולא מצאתי דרך זמינה לראות את מה שהרגשתי שצריך. אז יצרתי מערכת להשוואת קרנות השתלמות, קופות גמל, קופות גמל להשקעה, פוליסות חיסכון וקרנות פנסיה. תוכלו למצוא אותה ",
@@ -1430,6 +1430,8 @@ import {
     chart: document.getElementById("chart"),
     table: document.getElementById("table"),
     tableNote: document.getElementById("tableNote"),
+    introHero: document.getElementById("introHero"),
+    heading: document.querySelector(".view-heading"),
     resultNotes: document.getElementById("resultNotes")
   };
 
@@ -1520,29 +1522,171 @@ import {
     }
   }
 
+  /** Menu topics; each opens its first screen. Screens outside the menu (about) are linked from the header. */
+  const NAV_TOPICS = [
+    { label: "הקדמה", views: ["intro"] },
+    { label: "עמלות ומסים", views: ["tax-events", "commission-drag", "independent", "ira"] },
+    { label: "קופת גמל להשקעה", views: ["kupat-gemel"] },
+    { label: "סיכון", views: ["sp500-risk"] },
+    { label: "השוואת תיקים", views: ["portfolio-summary", "us-world", "scv"] },
+    { label: "משיכה מהתיק", views: ["trinity"] }
+  ];
+
+  function goToView(viewId) {
+    const view = views.find((item) => item.id === viewId);
+    setNavOpen(false);
+    if (!view || view.id === activeView.id) return;
+    rememberActiveViewScroll();
+    activeView = view;
+    pendingUrlState = null;
+    if (parseHash(location.hash).viewId !== view.id) {
+      skipNextHashChange = true;
+      location.hash = view.id;
+    }
+    renderView({ restoreScroll: true });
+  }
+
   function renderNav() {
-    els.navToggle.querySelector(".nav-toggle-label").textContent = activeView.nav;
-    els.nav.innerHTML = "";
-    views.forEach((view) => {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.innerHTML = `<strong>${escapeHtml(view.nav)}</strong><span>${escapeHtml(view.title)}</span>`;
-      if (view.navPriority) button.dataset.priority = view.navPriority;
-      if (view.id === activeView.id) button.setAttribute("aria-current", "page");
-      button.addEventListener("click", () => {
-        setNavOpen(false);
-        if (view.id === activeView.id) return;
-        rememberActiveViewScroll();
-        activeView = view;
-        pendingUrlState = null;
-        if (parseHash(location.hash).viewId !== view.id) {
-          skipNextHashChange = true;
-          location.hash = view.id;
-        }
-        renderView({ restoreScroll: true });
-      });
-      els.nav.appendChild(button);
+    const activeTopic = NAV_TOPICS.find((topic) => topic.views.includes(activeView.id));
+    els.navToggle.querySelector(".nav-toggle-label").textContent = activeTopic ? activeTopic.label : activeView.nav;
+    els.nav.innerHTML = `<h2 class="nav-heading">ניווט באתר</h2>`;
+    const list = document.createElement("ul");
+    list.className = "nav-topics";
+    NAV_TOPICS.forEach((topic) => {
+      const item = document.createElement("li");
+      const current = topic === activeTopic;
+      const topicButton = document.createElement("button");
+      topicButton.type = "button";
+      topicButton.className = "nav-topic";
+      topicButton.textContent = topic.label;
+      if (current) topicButton.dataset.current = "true";
+      if (current && topic.views.length === 1) topicButton.setAttribute("aria-current", "page");
+      topicButton.addEventListener("click", () => goToView(current ? activeView.id : topic.views[0]));
+      item.appendChild(topicButton);
+      if (current && topic.views.length > 1) {
+        const sub = document.createElement("ul");
+        sub.className = "nav-subviews";
+        topic.views.forEach((viewId) => {
+          const view = views.find((entry) => entry.id === viewId);
+          if (!view) return;
+          const subItem = document.createElement("li");
+          const button = document.createElement("button");
+          button.type = "button";
+          button.textContent = view.nav;
+          button.title = view.title;
+          if (view.id === activeView.id) button.setAttribute("aria-current", "page");
+          button.addEventListener("click", () => goToView(view.id));
+          subItem.appendChild(button);
+          sub.appendChild(subItem);
+        });
+        item.appendChild(sub);
+      }
+      list.appendChild(item);
     });
+    const about = document.createElement("button");
+    about.type = "button";
+    about.className = "nav-about";
+    about.textContent = "אודות האתר";
+    if (activeView.id === "about") about.setAttribute("aria-current", "page");
+    about.addEventListener("click", () => goToView("about"));
+    els.nav.appendChild(list);
+    els.nav.appendChild(about);
+  }
+
+  const HERO_PORTFOLIOS = [
+    { name: "S&P 500", label: "S&P 500", color: "#145f59" },
+    { name: "Moderate Portfolio", label: "תיק מתון", color: "#a94d2a" },
+    { name: "Conservative Portfolio", label: "תיק שמרני", color: "#7f9a76" }
+  ];
+  let heroChartRows = null;
+
+  /** Landing block on the intro screen: title, illustrative chart and two starting points. */
+  function renderIntroHero() {
+    const isIntro = activeView.id === "intro";
+    els.introHero.hidden = !isIntro;
+    els.heading.hidden = isIntro;
+    if (!isIntro) {
+      els.introHero.innerHTML = "";
+      return;
+    }
+    els.introHero.innerHTML = `
+      <div class="hero-main">
+        <div class="hero-copy">
+          <p class="hero-kicker">מסחר עצמאי · הקדמה</p>
+          <h2 class="hero-title">השקעות פסיביות בעיניים ישראליות</h2>
+          <p class="hero-lede">משווים תיקי השקעות לאורך תקופות שונות, ובודקים מה עמלות, מסים ושערי מטבע עושים לתוצאה.</p>
+        </div>
+        <figure class="hero-chart">
+          <figcaption class="hero-chart-title">איך התיקים התנהגו לאורך זמן?</figcaption>
+          <div class="hero-chart-plot" data-hero-chart aria-hidden="true"></div>
+          <p class="hero-chart-note">
+            ${HERO_PORTFOLIOS.map((item) => `<span class="hero-key"><i style="background:${item.color}"></i>${escapeHtml(item.label)}</span>`).join("")}
+            <span class="hero-chart-source">2000–2025, בשקלים ריאליים</span>
+          </p>
+        </figure>
+      </div>
+      <section class="hero-start" aria-labelledby="heroStartTitle">
+        <h2 id="heroStartTitle" class="hero-section-title">מאיפה מתחילים?</h2>
+        <div class="hero-cards">
+          <article class="hero-card hero-card-primary">
+            <svg class="hero-card-icon" viewBox="0 0 48 40" aria-hidden="true"><rect x="2" y="2" width="44" height="36" rx="5"/><polyline points="10,28 19,19 26,24 38,12"/><polyline points="31,12 38,12 38,19"/></svg>
+            <h3>כבר מכירים את הבסיס?</h3>
+            <p>בדקו איך תיקים שונים התנהגו בתקופות שונות.</p>
+            <a class="hero-button" href="#portfolio-summary">להשוואת תיקים <span aria-hidden="true">←</span></a>
+          </article>
+          <article class="hero-card hero-card-secondary">
+            <svg class="hero-card-icon" viewBox="0 0 52 40" aria-hidden="true"><path d="M26 8 C20 4 10 4 3 6 V35 C10 33 20 33 26 37 C32 33 42 33 49 35 V6 C42 4 32 4 26 8 Z"/><line x1="26" y1="8" x2="26" y2="37"/></svg>
+            <h3>רוצים להבין את הדרך?</h3>
+            <p>הסיפור שלי על דמי ניהול ומסחר עצמאי.</p>
+            <a class="hero-link" href="#intro-learning-path" data-hero-story>לקריאת הסיפור <span aria-hidden="true">←</span></a>
+          </article>
+        </div>
+      </section>
+    `;
+    els.introHero.querySelector("[data-hero-story]").addEventListener("click", (event) => {
+      event.preventDefault();
+      const target = document.getElementById("intro-learning-path");
+      if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    drawHeroChart();
+  }
+
+  async function drawHeroChart() {
+    const target = els.introHero.querySelector("[data-hero-chart]");
+    if (!target) return;
+    try {
+      if (!heroChartRows) {
+        const params = new URLSearchParams();
+        HERO_PORTFOLIOS.forEach((item) => params.append("portfolios", item.name));
+        params.set("year_start", "2000");
+        params.set("year_end", "2025");
+        params.set("commission_adjusted", "false");
+        heroChartRows = (await fetchPayload(`api/portfolio_over_time?${params}`)).data || [];
+      }
+    } catch (error) {
+      target.closest(".hero-chart").hidden = true;
+      return;
+    }
+    if (!target.isConnected) return;
+    const width = 560;
+    const height = 260;
+    const pad = { top: 12, right: 10, bottom: 18, left: 10 };
+    const series = HERO_PORTFOLIOS.map((item) => ({
+      ...item,
+      points: [{ Year: 1999, v: 1 }, ...heroChartRows.filter((row) => row.Portfolio === item.name)]
+    })).filter((item) => item.points.length > 1);
+    const years = series.flatMap((item) => item.points.map((point) => point.Year));
+    const values = series.flatMap((item) => item.points.map((point) => point.v));
+    const [minYear, maxYear] = [Math.min(...years), Math.max(...years)];
+    const [minValue, maxValue] = [Math.min(...values), Math.max(...values)];
+    const x = (year) => pad.left + ((year - minYear) / (maxYear - minYear)) * (width - pad.left - pad.right);
+    const y = (value) => height - pad.bottom - ((value - minValue) / (maxValue - minValue || 1)) * (height - pad.top - pad.bottom);
+    const grid = [0.25, 0.5, 0.75].map((share) => {
+      const gy = pad.top + share * (height - pad.top - pad.bottom);
+      return `<line class="hero-grid" x1="${pad.left}" x2="${width - pad.right}" y1="${gy}" y2="${gy}"/>`;
+    }).join("");
+    const lines = series.slice().reverse().map((item) => `<polyline fill="none" stroke="${item.color}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" points="${item.points.map((point) => `${x(point.Year).toFixed(1)},${y(point.v).toFixed(1)}`).join(" ")}"/>`).join("");
+    target.innerHTML = `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">${grid}<line class="hero-axis" x1="${pad.left}" x2="${width - pad.right}" y1="${height - pad.bottom}" y2="${height - pad.bottom}"/>${lines}</svg>`;
   }
 
   function rememberActiveViewScroll() {
@@ -1730,6 +1874,7 @@ import {
     }
 
     els.story.hidden = false;
+    els.story.dataset.view = activeView.id;
     const previewBlocks = storyPreviewBlocks();
     const paragraphs = story.sections
       ? story.sections.map(renderStorySection).join("")
@@ -1767,7 +1912,8 @@ import {
     if (block.heading) return `<h3>${escapeHtml(block.heading)}</h3>`;
     if (block.subheading) {
       const classAttr = block.className ? ` class="${escapeHtml(block.className)}"` : "";
-      return `<h4${classAttr}>${escapeHtml(block.subheading)}</h4>`;
+      const idAttr = block.id ? ` id="${escapeHtml(block.id)}"` : "";
+      return `<h4${idAttr}${classAttr}>${escapeHtml(block.subheading)}</h4>`;
     }
     if (block.bold) return `<p class="story-emphasis">${escapeHtml(block.bold)}</p>`;
     if (block.list) return `<ul class="story-list">${block.list.map((item) => `<li>${storyParagraphHtml(item)}</li>`).join("")}</ul>`;
@@ -4461,6 +4607,7 @@ import {
     els.chart.dataset.view = "";
     releaseChart(els.chart);
     renderNav();
+    renderIntroHero();
     els.title.textContent = activeView.title;
     document.title = `${activeView.title} · סייר תיקי ההשקעות`;
     els.kicker.textContent = activeView.kicker;

@@ -9,9 +9,11 @@
   <body>
     <div class="app-shell">
       <header class="topbar">
-        <div class="brand-block">
+        <a class="brand-block" href="#intro">
+          <svg class="brand-mark" viewBox="0 0 28 24" aria-hidden="true"><rect x="0" y="16" width="5" height="8" rx="1"/><rect x="7.5" y="11" width="5" height="13" rx="1"/><rect x="15" y="6" width="5" height="18" rx="1"/><rect x="22.5" y="0" width="5" height="24" rx="1"/></svg>
           <h1>סייר תיקי ההשקעות של חובב</h1>
-        </div>
+        </a>
+        <a class="topbar-link" href="#about">אודות האתר</a>
         <button id="navToggle" class="nav-toggle" type="button" aria-expanded="false" aria-controls="viewNav">
           <span class="nav-toggle-label"></span>
           <span class="nav-toggle-icon" aria-hidden="true"></span>
@@ -24,6 +26,8 @@
         </aside>
 
         <section class="workspace">
+          <section id="introHero" class="intro-hero" lang="he" hidden></section>
+
           <div class="view-heading">
             <div>
               <p id="viewKicker" class="kicker"></p>
