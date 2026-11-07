@@ -3687,11 +3687,11 @@ import {
       const left = numericValue(row.IIb) || 0;
       const depleted = rows.find((item) => numericValue(item.age) >= 60 && (numericValue(item.IIb) || 0) <= 0);
       const items = [
-        { hero: true, title: `${formatShekel(pension, 0)} לחודש בשתי החלופות`, note: `הכנסה נטו מגיל 60 עד גיל ${lastAge} · ${basis}` },
-        { label: "קופת גמל להשקעה", valueText: "קצבה לכל החיים", color: "#145f59", dash: "", note: "החיסכון הומר לקצבה פטורה ממס בגיל 60" },
+        { hero: true, title: `${formatShekel(pension, 0)} לחודש בשתי החלופות`, note: `קופת הגמל משלמת קצבה; מההשקעה העצמאית מושכים בעצמנו בדיוק אותו סכום · נטו, מגיל 60 עד ${lastAge} · ${basis}` },
+        { label: "קופת גמל להשקעה", valueText: "קצבה לכל החיים", color: "#145f59", dash: "", note: "בגיל 60 כל החיסכון הופך לקצבה: הכסף כבר לא שלכם למשיכה או להורשה, ובמקומו מובטחת קצבה חודשית צמודת מדד לכל החיים, פטורה ממס." },
         depleted
           ? { label: "השקעה עצמאית", valueText: `נגמרה בגיל ${Math.floor(numericValue(depleted.age))}`, color: "#385f9f", dash: "", note: "אותן משיכות חודשיות רוקנו אותה" }
-          : { label: "השקעה עצמאית", value: left, suffix: ` נותרו בגיל ${lastAge}`, format: "shekel", color: "#385f9f", dash: "", note: "אחרי אותן משיכות חודשיות" }
+          : { label: "השקעה עצמאית", value: left, suffix: ` נזילים בגיל ${lastAge}`, format: "shekel", color: "#385f9f", dash: "", note: `אחרי שמשכנו בעצמנו כל חודש את אותם ${formatShekel(pension, 0)}, אחרי מס. הכסף שנשאר שלכם: אפשר למשוך, להוריש או להשאיר להשקעה.` }
       ];
       if (!depleted && left > 0) {
         const years = left / (pension * 12);
