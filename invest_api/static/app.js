@@ -347,7 +347,15 @@ import {
       heading: "דמי הניהול",
       paragraphs: [
         "מכירים את \"יש לך תשואה כל כך גדולה, מה זה משנה 0.5% דמי ניהול?\". אז בואו ננסה להסתכל עד כמה זה באמת משנה.",
-        "משנה הרבה. מכאן זה הופך כמותי, ואין בעיה לדלג ולהמשיך הלאה לקופות גמל להשקעה.",
+        { callout: [
+          { html: "<strong class=\"callout-lead\">משנה הרבה.</strong>" },
+          "על 100,000 ש\"ח לאורך 33 שנה, ההבדל בין דמי ניהול של 0.2% ל-1% הוא כמעט 200,000 ש\"ח. מי שאומר לכם שזה כלום לעומת התשואה - פשוט תתעלמו.",
+          [
+            "מאמינים לי? אפשר לעבור הלאה ל",
+            { text: "קופת גמל להשקעה", href: "#kupat-gemel" },
+            ". לא מאמינים? הנה הפרטים."
+          ]
+        ] },
         "התרשים הבא מניח שהכסף נשאר בקופה לאורך כל התקופה, ומשווה תשואה בהתאם לדמי הניהול והוצאות ניהול ההשקעות."
       ],
       afterChartByEndpoint: {
@@ -3795,7 +3803,7 @@ import {
   let activeDownload = null;
 
   function drawChart(target, spec) {
-    drawChartCore(target, { ...spec, download: spec.download || activeDownload });
+    drawChartCore(target, { ...spec, download: spec.download || activeDownload, notesHref: spec.notesHref || "#resultNotes" });
   }
 
   function downloadFor(payload, name) {
@@ -5093,6 +5101,17 @@ import {
     if (event.target.matches(".date-range-control input")) updateDateRangeReadout();
     if (activeView.id === "trinity" && event.target.matches('input[name="yearly_draw"], input[name="base"]')) updateTrinityDrawSummary();
     scheduleRun();
+  });
+  document.addEventListener("click", (event) => {
+    const link = event.target.closest("[data-notes-link]");
+    if (!link) return;
+    event.preventDefault();
+    const details = els.resultNotes && els.resultNotes.querySelector("details");
+    if (!details || els.resultNotes.hidden) return;
+    details.open = true;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    els.resultNotes.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    details.querySelector("summary").focus({ preventScroll: true });
   });
   els.controls.addEventListener("focusout", (event) => {
     if (event.target.matches("input[data-format]")) formatInputDisplay(event.target);

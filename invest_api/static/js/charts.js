@@ -91,6 +91,9 @@ function frameHtml(spec, instance, result) {
   const download = spec.download && spec.download.rows && spec.download.rows.length
     ? `<button type="button" class="vchart-download" data-vchart-download>הורדת הנתונים (CSV)</button>`
     : "";
+  const notesLink = spec.notesHref
+    ? `<a class="vchart-notes-link" href="${escapeHtml(spec.notesHref)}" data-notes-link>הנחות ומגבלות</a>`
+    : "";
   return `
     <figure class="vchart vchart-${escapeHtml(spec.kind)}">
       ${head}
@@ -103,7 +106,7 @@ function frameHtml(spec, instance, result) {
       ${notesHtml}
       ${spec.captionHtml ? `<p class="vchart-caption">${spec.captionHtml}</p>` : spec.caption ? `<p class="vchart-caption">${escapeHtml(spec.caption)}</p>` : ""}
       ${spec.footerHtml || ""}
-      ${help || zoomButton || download ? `<div class="vchart-actions"><span class="vchart-help">${escapeHtml(help)}</span>${zoomButton}${download}</div>` : ""}
+      ${help || zoomButton || download || notesLink ? `<div class="vchart-actions"><span class="vchart-help">${escapeHtml(help)}</span>${zoomButton}${download}${notesLink}</div>` : ""}
     </figure>
   `;
 }

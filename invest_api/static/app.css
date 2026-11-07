@@ -3270,3 +3270,23 @@ button.vchart-legend-item[aria-pressed="false"] {
   flex-basis: 100%;
   width: 100%;
 }
+
+.vchart-notes-link {
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+#resultNotes {
+  scroll-margin-top: 90px;
+}
+
+.story-callout .callout-lead {
+  color: var(--accent-2);
+  display: block;
+  font-size: 24px;
+  font-weight: 850;
+  line-height: 1.2;
+}
