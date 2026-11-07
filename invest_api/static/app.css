@@ -3561,3 +3561,48 @@ button.vchart-legend-item[aria-pressed="false"] {
     grid-template-columns: 1fr;
   }
 }
+
+/* Tables inside story text */
+.story-table {
+  overflow-x: auto;
+}
+
+.story-table table {
+  border-collapse: collapse;
+  min-width: 560px;
+  width: 100%;
+}
+
+.story-table th,
+.story-table td {
+  border-bottom: 1px solid var(--line);
+  font-size: 15px;
+  line-height: 1.5;
+  padding: 10px 12px;
+  text-align: start;
+  vertical-align: top;
+}
+
+.story-table thead th {
+  background: var(--soft);
+  font-weight: 800;
+}
+
+.story-table tbody th {
+  font-weight: 760;
+  white-space: nowrap;
+}
+
+/* IRA reading width */
+#story[data-view="ira"] .story-copy p,
+#story[data-view="ira"] .story-copy li,
+#story[data-view="ira"] .story-copy h4,
+#story[data-view="ira"] .story-callout {
+  max-width: 720px;
+}
+
+#story[data-view="ira"] .story-section h3 {
+  color: var(--accent-2);
+  font-size: 24px;
+  font-weight: 800;
+}
