@@ -4065,3 +4065,9 @@ button.vchart-legend-item[aria-pressed="false"] {
     font-size: 26px;
   }
 }
+
+/* Trinity reading width: comfortable line length for the text around the tool. */
+#story[data-view="trinity"] .story-copy,
+#afterStory[data-view="trinity"] .story-copy {
+  max-width: 760px;
+}
