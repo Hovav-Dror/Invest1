@@ -314,9 +314,17 @@ function drawLine(spec, instance, width) {
         ? `<path d="${path}L${f(xScale(segment[segment.length - 1].x))} ${f(yScale(Math.max(yMin, Math.min(0, yMax))))}L${f(xScale(segment[0].x))} ${f(yScale(Math.max(yMin, Math.min(0, yMax))))}Z" fill="${series.color}" opacity="0.14"></path>`
         : "";
       const dots = series.dots
-        ? segment.filter(inView).map((point) => `<circle class="vchart-point" cx="${f(xScale(point.x))}" cy="${f(yScale(point.y))}" r="${compact ? 2.5 : 4}" fill="${series.color}"></circle>`).join("")
+        ? segment.filter(inView).map((point) => {
+          const cx = xScale(point.x);
+          const cy = yScale(point.y);
+          if (series.marker === "triangle") {
+            const r = compact ? 4 : 6;
+            return `<path class="vchart-point" d="M${f(cx)} ${f(cy - r)}L${f(cx + r)} ${f(cy + r * 0.8)}L${f(cx - r)} ${f(cy + r * 0.8)}Z" fill="${series.color}"></path>`;
+          }
+          return `<circle class="vchart-point" cx="${f(cx)}" cy="${f(cy)}" r="${compact ? 2.5 : 4}" fill="${series.color}"></circle>`;
+        }).join("")
         : "";
-      return `${area}<path d="${path}" fill="none" stroke="${series.color}" stroke-width="${series.width || 2}" ${series.dash ? `stroke-dasharray="${series.dash}"` : ""} stroke-linejoin="round" stroke-linecap="round"></path>${dots}`;
+      return `${area}<path d="${path}" fill="none" stroke="${series.color}" stroke-width="${series.width ?? 2}" ${series.dash ? `stroke-dasharray="${series.dash}"` : ""} stroke-linejoin="round" stroke-linecap="round"></path>${dots}`;
     }).join("");
   }).join("");
 
