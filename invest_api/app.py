@@ -46,6 +46,8 @@ ENDPOINT_NAMES = (
     "affordability",
     "down_payment",
     "down_payment_ladder",
+    "homes_vs_stocks",
+    "homes_vs_stocks_episodes",
 )
 
 EXPENSIVE_ENDPOINTS = {
@@ -66,6 +68,8 @@ EXPENSIVE_ENDPOINTS = {
     "trinity",
     "down_payment",
     "down_payment_ladder",
+    "homes_vs_stocks",
+    "homes_vs_stocks_episodes",
 }
 
 
@@ -434,6 +438,11 @@ def _parse_down_payment_args(args) -> Params:
     return _freeze(params)
 
 
+def _parse_homes_vs_stocks_args(args) -> Params:
+    _reject_unknown(args, {"real"})
+    return _freeze({"real": _get_bool(args, "real", True)})
+
+
 def _parse_year_end_args(args) -> Params:
     _reject_unknown(args, {"year_end"})
     params: JsonDict = {}
@@ -535,6 +544,10 @@ def _dispatch(name: str, params: Params) -> pd.DataFrame:
     if name == "down_payment_ladder":
         kwargs.pop("stock_share", None)
         return calc.down_payment_ladder(data=data, housing=_housing(), **kwargs)
+    if name == "homes_vs_stocks":
+        return calc.homes_vs_stocks(data=data, housing=_housing(), **kwargs)
+    if name == "homes_vs_stocks_episodes":
+        return calc.homes_vs_stocks_episodes(data=data, housing=_housing(), **kwargs)
     raise KeyError(name)
 
 
@@ -588,6 +601,8 @@ PARSERS: dict[str, Callable[[Any], Params]] = {
     "affordability": _parse_affordability_args,
     "down_payment": _parse_down_payment_args,
     "down_payment_ladder": _parse_down_payment_args,
+    "homes_vs_stocks": _parse_homes_vs_stocks_args,
+    "homes_vs_stocks_episodes": _parse_homes_vs_stocks_args,
 }
 
 

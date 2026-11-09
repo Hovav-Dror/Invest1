@@ -1,6 +1,6 @@
 # Raw inputs for the young-couples section
 
-Downloaded or copied as-is on 2026-11-09. `scripts/build_young_couples_data.py` turns the CBS dwelling index and the Bank of Israel rate into `data/young_couples_monthly.parquet`, which the API uses; the other files are not used yet.
+Downloaded or copied as-is on 2026-11-09. `scripts/build_young_couples_data.py` turns the CBS dwelling index, the Bank of Israel rate and the TASE general index into `data/young_couples_monthly.parquet`, which the API uses; the other files are not used yet. `scripts/tase_xlsx_to_csv.R` makes `tase_general_index_1993_2016.csv` (month, nominal index from 1993-12) from the TASE workbook.
 
 | File | What | Source | Coverage | Notes |
 | --- | --- | --- | --- | --- |

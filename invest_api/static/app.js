@@ -86,6 +86,13 @@ import {
     cash: "כמה דירה, הכל במזומן",
     stocks: "כמה דירה, הכל במניות",
     homes_change: "שינוי במחירי הדירות",
+    homes: "מחירי הדירות (1 = ההתחלה)",
+    sp500: "S&P 500 בשקלים (1 = ההתחלה)",
+    tase: "ת\"א כללי (1 = ההתחלה)",
+    homes_12m: "דירות, שינוי ב-12 חודשים",
+    sp500_12m: "S&P 500, שינוי ב-12 חודשים",
+    tase_12m: "ת\"א כללי, שינוי ב-12 חודשים",
+    rate: "ריבית בנק ישראל",
     equity: "הון עצמי",
     max_price: "מחיר דירה מקסימלי",
     mortgage: "משכנתא",
@@ -878,6 +885,10 @@ import {
               { text: "כסף לדירה בעוד כמה שנים: כמה מניות?", href: "#young-down" },
               " מה היה קורה לכסף שמיועד להון עצמי, בכל חודש התחלה מאז 1994, במונחי דירה ולא בשקלים."
             ],
+            [
+              { text: "האם מניות ודירות יורדות ביחד?", href: "#young-homes" },
+              " בודק את הטענה שקריסה בבורסה מוזילה גם את הדירות, מול הנתונים של ישראל מאז 1994."
+            ],
             "בהמשך: איפה להחזיק את הכסף בינתיים, ומה עוד חשוב לבדוק בתחילת הדרך."
           ]
         }
@@ -945,7 +956,11 @@ import {
             "המניות קנו יותר דירה מהמזומן בכ-70% מהתקופות, כמעט בלי קשר לכמה מניות היו בתיק. מה שמשתנה עם חלק המניות הוא הגודל: כמה מרוויחים כשזה עובד, וכמה מפסידים כשלא.",
             { subheading: "התקופה הגרועה ביותר: גם למניות וגם למזומן" },
             "התקופה הגרועה ביותר הייתה אותה תקופה לכל החלופות: מי שהתחיל באמצע 2007 וקנה ב-2011. המניות קרסו במשבר של 2008, ובאותן שנים מחירי הדירות בישראל עלו בכ-60%. גם במזומן הכסף קנה רק כשני שלישים מהדירה.",
-            "זה הפוך ממה שמקובל לחשוב, ש\"הזדמנויות בדיור מגיעות במשבר\". במשבר של 2008 הדירות בישראל לא הוזלו. הן התייקרו.",
+            [
+              "זה הפוך ממה שמקובל לחשוב, ש\"הזדמנויות בדיור מגיעות במשבר\". במשבר של 2008 הדירות בישראל לא הוזלו. הן התייקרו. על זה בהרחבה בעמוד ",
+              { text: "האם מניות ודירות יורדות ביחד?", href: "#young-homes" },
+              "."
+            ],
             { subheading: "התקופה משנה הכל" },
             "מי שהתחיל בין 1994 ל-2004 קנה במזומן יותר דירה ממה שהתחיל: הריבית הייתה גבוהה ומחירי הדירות כמעט לא עלו. מי שהתחיל מ-2005 ואילך הפסיד במזומן כמעט תמיד, כי הדירות התייקרו מהר והריבית הייתה נמוכה. כלומר, התשובה תלויה מאוד במה שיקרה למחירי הדירות ולריבית בשנים שלכם, ואת זה אף אחד לא יודע.",
             { subheading: "וכמה הערות" },
@@ -956,6 +971,48 @@ import {
               { text: "כמה דירה ההון העצמי קונה?", href: "#young-equity" },
               "."
             ]
+          ]
+        }
+      ]
+    },
+    "young-homes": {
+      tab: "מניות ודירות: יורדות ביחד?",
+      paragraphs: [
+        "טענה שחוזרת בעצות לחוסכים לדירה: אם המניות יקרסו, גם מחירי הדירות ירדו. ככה ההפסד בתיק יתקזז בדירה זולה יותר, ולכן מניות בכסף לדירה מסוכנות פחות ממה שנראה.",
+        "בדקנו את זה מול מדד מחירי הדירות של הלמ\"ס מאז 1994, לצד S&P 500 בשקלים ומדד המניות הכללי של הבורסה בתל אביב."
+      ],
+      afterChart: [
+        {
+          title: "מה רואים?",
+          paragraphs: [
+            "הגרף הראשון מראה כמה כל סדרה רחוקה מהשיא הקודם שלה. אם מניות ודירות היו יורדות ביחד, הקווים היו צוללים באותם זמנים. בפועל, בנפילה של 2008 הקו של הדירות כמעט לא זז. ב-2000–2003 הוא המשיך ירידה איטית שהתחילה עוד ב-1996, ונמשכה עד 2007.",
+            "בלשונית \"שינוי ב-12 חודשים\" כל נקודה היא כמה כל סדרה עלתה או ירדה בשנה שהסתיימה באותו חודש. \"מאז 1994\" מראה את הדרך כולה, כשכל הסדרות מתחילות ב-1.",
+            "הרקע הצבוע מסמן את הנפילות הגדולות ב-S&P 500 בשקלים: ירידה של 20% ויותר משיא."
+          ]
+        },
+        {
+          title: "ומה לומדים?",
+          paragraphs: [
+            { callout: [
+              { html: "<strong class=\"callout-lead\">בשורה התחתונה:</strong> בישראל, מאז 1994, מניות ודירות לא ירדו ביחד באופן קבוע. בנפילה הגדולה במניות, ב-2008, הדירות דווקא התייקרו. מה שהזיז את מחירי הדירות היה בעיקר הריבית, לא הבורסה." }
+            ] },
+            "מאז 1994 היו חמש נפילות גדולות במניות (שתיים מהן הן אותו משבר, פעם ב-S&P 500 ופעם בבורסה בתל אביב). רק באחת מהן, ב-2000–2003, גם הדירות ירדו, בכ-9% ריאלית. זה הרבה פחות מ-37% עד 45% שירדו המניות באותו זמן.",
+            "ב-1994–1996 הבורסה בתל אביב איבדה כמחצית מערכה, והדירות עלו בכ-10%. ב-2007–2009 המניות איבדו כמחצית, הדירות עלו בכ-7%, ובשנתיים שאחרי עוד כ-28%. בנק ישראל הוריד את הריבית מכ-4% לפחות מ-1%, המשכנתאות הוזלו, והביקוש לדירות עלה.",
+            "גם בלי לבחור משברים, השינוי השנתי במחירי הדירות כמעט לא קשור לשינוי במניות: המתאם ביניהם קרוב לאפס. מהפעמים שה-S&P 500 ירד ב-15% או יותר בשנה, הדירות ירדו באותה שנה רק בערך במחצית.",
+            { subheading: "ההזדמנות הגדולה בדירות לא הגיעה במשבר" },
+            "הירידה הגדולה במחירי הדירות הייתה כ-24% ריאלית, אבל היא לא באה בבת אחת. היא נמשכה מ-1996 עד 2007, לאט, בזמן שהריבית הייתה גבוהה והמניות עלו ברוב השנים. מי שחיכה לקריסה כדי לקנות, פספס אותה.",
+            "גם ב-2023–2024 זה קרה שוב בקטן: בנק ישראל העלה את הריבית לכמעט 5%, מחירי הדירות ירדו ריאלית בכ-5% בשנה, וה-S&P 500 עלה באותו זמן בכמעט 20%.",
+            { subheading: "ומה זה אומר לכסף לדירה" },
+            "אי אפשר לסמוך על כך שהפסד במניות יתקזז בדירה זולה יותר. לפעמים קורה ההפך: המניות קורסות, הריבית יורדת, והדירות מתייקרות בדיוק כשההון העצמי הצטמק.",
+            [
+              "דווקא המזומן מגודר קצת: כשהריבית גבוהה, הדירות בדרך כלל נחלשות, והמזומן מרוויח יותר. לכן בעמוד ",
+              { text: "כמה מניות בכסף לדירה?", href: "#young-down" },
+              " מי שהתחיל בין 1994 ל-2004, בשנים של ריבית גבוהה, קנה במזומן יותר דירה ממה שהתחיל. וכשהריבית נמוכה, המזומן כמעט לא מרוויח והדירות עולות."
+            ],
+            { subheading: "וכמה הערות" },
+            "חמש נפילות, מתוכן שתיים חופפות, הן מעט מאוד. זה מספיק כדי להפריך את הכלל \"מניות ודירות יורדות ביחד\", אבל לא כדי לקבוע כלל הפוך.",
+            "מדד מחירי הדירות מבוסס על עסקאות של חודשיים, ולכן מאחר בכחודש. מדד ת\"א הכללי כאן הוא מדד מחיר, בלי דיבידנדים, ונגמר באוגוסט 2016. מה-S&P 500 יש דיבידנדים, והוא נמדד בשקלים, ולכן הוא מושפע גם משער הדולר.",
+            "בלי תקנון למדד (הכפתור למעלה) התמונה דומה: בנפילה של 2000–2003 הדירות כמעט לא זזו בשקלים, ובנפילה של 2008 הן עלו בכ-12%."
           ]
         }
       ]
@@ -1660,6 +1717,21 @@ import {
       metric: metricDownPayment
     },
     {
+      id: "young-homes",
+      group: "Young couples",
+      title: "האם מניות ודירות יורדות ביחד?",
+      nav: "מניות ודירות: יורדות ביחד?",
+      kicker: "מדד מחירי הדירות מול המניות, מאז 1994",
+      takeaway: "אומרים שכשהמניות קורסות גם הדירות מוזלות, ולכן מי שהפסיד במניות יקנה דירה זולה יותר. בדקנו מה קרה בישראל.",
+      endpoint: "homes_vs_stocks",
+      controls: [
+        checkbox("real", "במונחים ריאליים (אחרי אינפלציה)", true)
+      ],
+      chart: { type: "homesStocks" },
+      tableColumns: ["date", "homes", "sp500", "tase", "homes_12m", "sp500_12m", "tase_12m", "rate"],
+      metric: metricHomesStocks
+    },
+    {
       id: "about",
       group: "Intro",
       title: "על האתר",
@@ -1790,7 +1862,7 @@ import {
     { label: "סיכון", views: ["sp500-risk"] },
     { label: "מה לשים בתיק?", views: ["us-world", "scv"] },
     { label: "השוואת תיקים", views: ["portfolio-summary"], priority: true },
-    { label: "זוגות צעירים", views: ["young-intro", "young-equity", "young-down"] },
+    { label: "זוגות צעירים", views: ["young-intro", "young-equity", "young-down", "young-homes"] },
     { label: "משיכה מהתיק (טריניטי)", views: ["trinity"] }
   ];
 
@@ -4142,6 +4214,52 @@ import {
     ];
   }
 
+  /** Pearson correlation of two arrays, over the pairs where both are finite. */
+  function correlation(xs, ys) {
+    const pairs = xs.map((x, i) => [x, ys[i]]).filter(([x, y]) => Number.isFinite(x) && Number.isFinite(y));
+    if (pairs.length < 3) return NaN;
+    const mean = (values) => values.reduce((sum, v) => sum + v, 0) / values.length;
+    const mx = mean(pairs.map((pair) => pair[0]));
+    const my = mean(pairs.map((pair) => pair[1]));
+    let sxy = 0;
+    let sxx = 0;
+    let syy = 0;
+    pairs.forEach(([x, y]) => {
+      sxy += (x - mx) * (y - my);
+      sxx += (x - mx) ** 2;
+      syy += (y - my) ** 2;
+    });
+    return sxy / Math.sqrt(sxx * syy);
+  }
+
+  const signedPercent = (value) => {
+    const rounded = Math.round(Math.abs(value) * 100);
+    return rounded === 0 ? "0%" : `${value > 0 ? "+" : "−"}${rounded}%`;
+  };
+
+  const yearOf = (date) => String(date).slice(0, 4);
+
+  function metricHomesStocks(payload) {
+    const rows = payload.data || [];
+    if (!rows.length) return [];
+    const falls = rows.filter((row) => numericValue(row.sp500_12m) <= -0.15 && Number.isFinite(numericValue(row.homes_12m)));
+    const homesDown = falls.filter((row) => numericValue(row.homes_12m) < 0).length;
+    let peak = 0;
+    let worst = { drop: 0, from: null, to: null };
+    rows.forEach((row, index) => {
+      const value = numericValue(row.homes);
+      if (value > numericValue(rows[peak].homes)) peak = index;
+      const drop = value / numericValue(rows[peak].homes) - 1;
+      if (drop < worst.drop) worst = { drop, from: rows[peak].date, to: row.date };
+    });
+    const r = correlation(rows.map((row) => numericValue(row.homes_12m)), rows.map((row) => numericValue(row.sp500_12m)));
+    return [
+      { label: "כשהמניות ירדו 15% או יותר בשנה", valueText: falls.length ? `${Math.round((homesDown / falls.length) * 100)}%` : "—", color: "#c0582b", note: "מהפעמים גם הדירות ירדו. בשאר הן עלו" },
+      { label: "הקשר בין השינויים השנתיים", valueText: Number.isFinite(r) ? r.toFixed(2) : "—", color: "#385f9f", note: "מתאם בין הדירות ל-S&P 500. אפס: אין קשר" },
+      { label: "הירידה הגדולה בדירות", valueText: signedPercent(worst.drop), color: "#145f59", note: worst.from ? `משיא ב-${yearOf(worst.from)} עד השפל ב-${yearOf(worst.to)}` : "" }
+    ];
+  }
+
   function metricAffordability(payload) {
     const { now, after_drop: after } = affordabilityPoints(payload.data || []);
     if (!now || !after) return [];
@@ -4402,6 +4520,10 @@ import {
     }
     if (chartConfig.type === "downPayment") {
       renderDownPaymentChart(payload);
+      return;
+    }
+    if (chartConfig.type === "homesStocks") {
+      renderHomesStocksChart(payload);
       return;
     }
     renderLineChart(payload, chartConfig);
@@ -4884,6 +5006,134 @@ import {
       }
     });
     renderDownPaymentLadder(payload, state);
+  }
+
+  let homesChartMode = "drawdown";
+
+  const HOMES_SERIES = [
+    { key: "homes", label: "דירות", color: "#c0582b", width: 2.6 },
+    { key: "sp500", label: "S&P 500 בשקלים", color: "#145f59", width: 1.8 },
+    { key: "tase", label: "ת\"א כללי (עד 2016)", color: "#385f9f", width: 1.6, dash: "5 4" }
+  ];
+
+  const HOMES_MODES = [
+    ["drawdown", "כמה מתחת לשיא"],
+    ["change", "שינוי ב-12 חודשים"],
+    ["level", "מאז 1994"]
+  ];
+
+  const MARKET_LABELS = { sp500: "S&P 500 בשקלים", tase: "ת\"א כללי" };
+
+  function homesSeriesValues(rows, key, mode) {
+    if (mode === "change") return rows.map((row) => numericValue(row[`${key}_12m`]));
+    const levels = rows.map((row) => numericValue(row[key]));
+    if (mode === "level") return levels;
+    let peak = -Infinity;
+    return levels.map((value) => {
+      if (!Number.isFinite(value)) return NaN;
+      peak = Math.max(peak, value);
+      return value / peak - 1;
+    });
+  }
+
+  /** The episodes table and the shaded bands both come from the episodes endpoint. */
+  async function renderHomesStocksChart(payload) {
+    const rows = payload.data || [];
+    const target = chartTarget();
+    releaseChart(target);
+    if (!rows.length) {
+      chartMessage(ui.noNumericSeries);
+      return;
+    }
+    const real = !(payload.params && payload.params.real === false);
+    let episodes = [];
+    try {
+      episodes = (await fetchPayload(`api/homes_vs_stocks_episodes?real=${real}`)).data || [];
+    } catch (error) {
+      episodes = [];
+    }
+    if (lastPayload !== payload) return;
+    const mode = homesChartMode;
+    const titles = {
+      change: "כמה עלו או ירדו ב-12 החודשים האחרונים",
+      drawdown: "כמה מתחת לשיא הקודם",
+      level: "מאז 1994 (1 = ההתחלה)"
+    };
+    const series = HOMES_SERIES.map((def) => {
+      const values = homesSeriesValues(rows, def.key, mode);
+      return {
+        id: def.key,
+        label: def.label,
+        color: def.color,
+        width: def.width,
+        dash: def.dash,
+        points: rows.map((row, i) => ({ x: yearFraction(row.date), y: values[i], data: row }))
+      };
+    });
+    const percentAxis = mode !== "level";
+    const format = percentAxis ? signedPercent : (value) => `×${value.toFixed(value < 10 ? 1 : 0)}`;
+    const body = episodes.map((row) => {
+      const after = numericValue(row.homes_after);
+      return `<tr>
+        <th scope="row">${escapeHtml(MARKET_LABELS[row.market] || row.market)}<br><small>${downMonthLabel(row.peak)} עד ${downMonthLabel(row.low)}</small></th>
+        <td>${signedPercent(numericValue(row.stocks_change))}</td>
+        <td>${signedPercent(numericValue(row.homes_change))}</td>
+        <td>${Number.isFinite(after) ? signedPercent(after) : "—"}</td>
+        <td>${numericValue(row.rate_peak).toFixed(1)}% ← ${numericValue(row.rate_low).toFixed(1)}%</td>
+      </tr>`;
+    }).join("");
+    target.innerHTML = `
+      <div class="trinity-chart">
+        <div class="trinity-chart-head">
+          <h4>${escapeHtml(titles[mode])}</h4>
+          <div class="trinity-chart-tools">
+            <div class="trinity-tabs" role="tablist" aria-label="תצוגה">
+              ${HOMES_MODES.map(([id, label]) => `<button type="button" role="tab" data-homes-mode="${id}" aria-selected="${id === mode}">${escapeHtml(label)}</button>`).join("")}
+            </div>
+          </div>
+        </div>
+        <div class="trinity-plot"></div>
+      </div>
+      ${episodes.length ? `<section class="down-ladder">
+        <h4>הנפילות הגדולות במניות, ומה עשו הדירות</h4>
+        <div class="story-table"><table>
+          <thead><tr><th>הנפילה</th><th>המניות</th><th>הדירות באותו זמן</th><th>הדירות בשנתיים שאחרי</th><th>ריבית בנק ישראל</th></tr></thead>
+          <tbody>${body}</tbody>
+        </table></div>
+        <p class="down-ladder-note">כל ירידה של 20% או יותר משיא, עד הנקודה הנמוכה. ${real ? "במונחים ריאליים." : "נומינלי."} הריבית: בשיא ובנקודה הנמוכה.</p>
+      </section>` : ""}`;
+    drawChart(target.querySelector(".trinity-plot"), {
+      kind: "line",
+      key: `homes-stocks-${mode}`,
+      summary: `מדד מחירי הדירות מול S&P 500 בשקלים ומול מדד ת"א הכללי, ${rows.length} חודשים`,
+      aspect: 0.52,
+      zoomable: true,
+      caption: `${real ? "במונחים ריאליים, אחרי מדד המחירים לצרכן" : "נומינלי, בלי תקנון למדד"}. הרקע הצבוע: נפילות של 20% ויותר ב-S&P 500 בשקלים.`,
+      x: {
+        integer: false,
+        format: (value) => String(Math.floor(value)),
+        tick: (value) => String(Math.round(value))
+      },
+      y: {
+        format,
+        tick: format,
+        zero: percentAxis,
+        label: percentAxis ? "" : "פי כמה"
+      },
+      series,
+      refLines: [{ y: percentAxis ? 0 : 1, label: "" }],
+      bands: episodes.filter((row) => row.market === "sp500").map((row) => ({ x0: yearFraction(row.peak), x1: yearFraction(row.low), label: `${yearOf(row.peak)}–${yearOf(row.low)}` })),
+      tooltip: (x, hits) => {
+        const row = hits[0].point.data;
+        return {
+          header: downMonthLabel(row.date),
+          rows: hits
+            .filter((hit) => Number.isFinite(hit.point.y))
+            .map((hit) => ({ color: hit.series.color, label: hit.series.label, value: format(hit.point.y) }))
+            .concat([{ color: "#68736f", label: "ריבית בנק ישראל", value: `${numericValue(row.rate).toFixed(1)}%` }])
+        };
+      }
+    });
   }
 
   async function renderDownPaymentLadder(payload, state) {
@@ -5633,7 +5883,9 @@ import {
       trinity: "טריניטי",
       affordability: "המחשבון",
       down_payment: "התקופות",
-      down_payment_ladder: "ההשוואה"
+      down_payment_ladder: "ההשוואה",
+      homes_vs_stocks: "הסדרות",
+      homes_vs_stocks_episodes: "הנפילות"
     };
     return explicit[endpoint] || endpoint;
   }
@@ -6148,6 +6400,13 @@ import {
       updatePanelControlUi(controls);
       scheduleRun(panelIndexOf(controls));
     }
+  });
+  els.chart.addEventListener("click", (event) => {
+    if (activeView.id !== "young-homes") return;
+    const button = event.target.closest("[data-homes-mode]");
+    if (!button || !lastPayload || button.dataset.homesMode === homesChartMode) return;
+    homesChartMode = button.dataset.homesMode;
+    renderHomesStocksChart(lastPayload);
   });
   els.chart.addEventListener("click", (event) => {
     if (activeView.id !== "trinity") return;

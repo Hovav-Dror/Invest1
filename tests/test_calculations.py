@@ -430,3 +430,34 @@ def test_affordability_kink_is_where_the_limits_meet():
     kink = result.set_index("point").loc["kink"]
     assert kink["price_ltv"] == pytest.approx(kink["price_income"])
     assert result["equity"].is_monotonic_increasing
+
+
+def test_homes_vs_stocks_real_and_aligned():
+    # CPI doubles over 12 months; stocks triple, dwelling prices double, TASE flat.
+    n = 13
+    data = monthly_data(list(np.geomspace(100, 300, n)), cpi=list(np.geomspace(100, 200, n)))
+    housing = housing_frame(list(np.geomspace(100, 200, n)) + [200.0], [1.0] * (n + 1))
+    housing["tase_index"] = 50.0
+    real = calc.homes_vs_stocks(data, housing)
+    assert real["homes"].iloc[-1] == pytest.approx(1.0)
+    assert real["sp500"].iloc[-1] == pytest.approx(1.5)
+    assert real["tase"].iloc[-1] == pytest.approx(0.5)
+    assert real["sp500_12m"].iloc[-1] == pytest.approx(0.5)
+    nominal = calc.homes_vs_stocks(data, housing, real=False)
+    assert nominal["homes"].iloc[-1] == pytest.approx(2.0)
+
+
+def test_homes_vs_stocks_episodes_find_falls_and_homes_meanwhile():
+    # Stocks fall 30% in 6 months, then recover; dwelling prices rise 10% meanwhile.
+    prices = list(np.linspace(100, 70, 7)) + [80.0, 90.0, 100.0, 110.0] + [110.0] * 26
+    n = len(prices)
+    homes = list(np.linspace(100, 110, 7)) + [110.0] * (n - 7)
+    housing = housing_frame(homes + [110.0], [2.0] * (n + 1))
+    episodes = calc.homes_vs_stocks_episodes(monthly_data(prices), housing, real=False)
+    assert len(episodes) == 1
+    row = episodes.iloc[0]
+    assert row["market"] == "sp500"
+    assert row["stocks_change"] == pytest.approx(-0.3)
+    assert row["homes_change"] == pytest.approx(0.1)
+    assert row["homes_after"] == pytest.approx(0.0)
+    assert (row["low"] - row["peak"]).days > 150

@@ -368,3 +368,14 @@ def test_affordability_endpoint(client):
     assert payload["metadata"]["units"]["inflation"] is None
     assert client.get("/api/affordability?equity=0").status_code == 400
     assert client.get("/api/affordability?bogus=1").status_code == 400
+
+
+def test_homes_vs_stocks_endpoints(client):
+    payload = client.get("/api/homes_vs_stocks").get_json()
+    rows = payload["data"]
+    assert rows[0]["homes"] == 1.0 and rows[0]["sp500"] == 1.0
+    assert payload["metadata"]["units"]["inflation"] == "IL"
+    assert client.get("/api/homes_vs_stocks?real=false").get_json()["metadata"]["units"]["inflation"] is None
+    episodes = client.get("/api/homes_vs_stocks_episodes").get_json()["data"]
+    assert {"sp500", "tase"} <= {row["market"] for row in episodes}
+    assert client.get("/api/homes_vs_stocks?bogus=1").status_code == 400

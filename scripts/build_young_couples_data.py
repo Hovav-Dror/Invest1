@@ -7,6 +7,9 @@ Columns (one row per calendar month, ``month`` is the first day of the month):
   before it, so it lags by about a month.
 * ``boi_rate``: Bank of Israel policy rate, average over the month's days, in
   percent per year.
+* ``tase_index``: TASE general share index, nominal, a price index without
+  dividends, 1993-12 to 2016-08 (empty after). From the 2016 workbook, via
+  ``scripts/tase_xlsx_to_csv.R``.
 
 Run from the repo root:
 
@@ -52,8 +55,15 @@ def boi_rate() -> pd.Series:
     return monthly.iloc[1:-1].rename("boi_rate")
 
 
+def tase_index() -> pd.Series:
+    frame = pd.read_csv(RAW / "tase_general_index_1993_2016.csv")
+    frame["month"] = pd.to_datetime(frame["month"] + "-01")
+    return frame.set_index("month")["tase_index"].astype(float)
+
+
 def main() -> None:
     frame = pd.concat([housing_index(), boi_rate()], axis=1).dropna()
+    frame = frame.join(tase_index(), how="left")
     frame.index.name = "month"
     frame = frame.reset_index()
     OUT.parent.mkdir(parents=True, exist_ok=True)

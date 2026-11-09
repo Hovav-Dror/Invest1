@@ -2057,6 +2057,16 @@ tbody tr:hover {
   stroke-dasharray: 4 4;
 }
 
+.vchart-band {
+  fill: #c0582b;
+  opacity: 0.08;
+}
+
+.vchart-band-label {
+  fill: #8a3f1f;
+  font-size: 11px;
+}
+
 .vchart-ref.strong {
   stroke: #17201d;
   stroke-dasharray: none;

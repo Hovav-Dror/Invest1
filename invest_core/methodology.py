@@ -60,6 +60,8 @@ def _period(frame: pd.DataFrame) -> dict:
         return {"start": int(frame["Year"].min()), "end": int(frame["Year"].max())}
     if {"start", "buy"} <= set(frame.columns):
         return {"start": pd.to_datetime(frame["start"]).min().strftime("%Y-%m-%d"), "end": pd.to_datetime(frame["buy"]).max().strftime("%Y-%m-%d")}
+    if {"peak", "low"} <= set(frame.columns):
+        return {"start": pd.to_datetime(frame["peak"]).min().strftime("%Y-%m-%d"), "end": pd.to_datetime(frame["low"]).max().strftime("%Y-%m-%d")}
     return {"start": None, "end": None}
 
 
@@ -78,6 +80,13 @@ def _assumptions(name: str, params: dict) -> list[str]:
             "מס של 25% על הרווח הריאלי, פעם אחת בקנייה, בלי מס על האיזון (כמו בקופת גמל להשקעה). הפסד לא מקבל החזר.",
             "\"כמה דירה\": השווי אחרי מס חלקי השינוי במדד מחירי הדירות של הלמ\"ס. 100% קונה את אותה דירה כמו בהתחלה.",
             "בהמתנה לא נספר שכר הדירה ששילמתם בינתיים.",
+        ]
+    if name in {"homes_vs_stocks", "homes_vs_stocks_episodes"}:
+        real = "חלקי מדד המחירים לצרכן, כלומר במונחים ריאליים" if params.get("real", True) else "נומינליים, בלי תקנון למדד"
+        return [
+            f"כל הסדרות {real}. 1 בחודש הראשון.",
+            "דירות: מדד מחירי הדירות של הלמ\"ס, שמבוסס על עסקאות של חודשיים ולכן מאחר בכחודש. מניות: S&P 500 בשקלים כולל דיבידנדים, ומדד המניות הכללי של הבורסה בתל אביב (מדד מחיר, בלי דיבידנדים) עד אוגוסט 2016.",
+            "נפילה: ירידה של 20% לפחות משיא, עד הנקודה הנמוכה לפני שהשיא חוזר. \"אחרי\": 24 החודשים שאחרי הנקודה הנמוכה.",
         ]
     items = ["מודל לימודי; ללא הפקדות נוספות או התאמה למצב אישי."]
     if name in TAX_ENDPOINTS:
@@ -110,6 +119,10 @@ def _warnings(name: str, frame: pd.DataFrame, period: dict, params: dict) -> lis
         items.append("הנתונים מתחילים ב-1994, ורוב התקופה הייתה של עליית מחירי דירות חזקה וריבית נמוכה. תקופות חופפות, ולכן יש בהן רק מעט תקופות שונות באמת.")
         items.append("מדד מחירי הדירות מתאר דירה ממוצעת. דירה מסוימת, באזור מסוים, יכולה להתנהג אחרת.")
         return items
+    if name in {"homes_vs_stocks", "homes_vs_stocks_episodes"}:
+        items.append("מאז 1994 היו רק חמש נפילות גדולות במניות, ושתיים מהן חופפות (S&P 500 ות\"א באותו משבר). זה מעט מדי כדי לקבוע כלל.")
+        items.append("מדד מחירי הדירות מתאר דירה ממוצעת. דירה מסוימת, באזור מסוים, יכולה להתנהג אחרת.")
+        return items
     monthly = "date" in frame or name == "sp500_risk_ladder"
     if not monthly and name not in CATALOG_ENDPOINTS:
         items.append("נתוני 2024–2025 נלקחו מאותו מדד או קרן כמו ההיסטוריה של כל סדרה ככל האפשר; לחלק מהסדרות יש תחליף.")
@@ -132,6 +145,8 @@ def result_metadata(name: str, params: dict, frame: pd.DataFrame, version: str) 
         currency = "USD" if usd else "ILS"
         if name in {"sp500_risk", "sp500_risk_ladder"} or (name == "trinity" and mode != "cpi_il") or (name.startswith("portfolio_") and mode == "cpi_us"):
             inflation = "US"
+        elif name.startswith("homes_vs_stocks"):
+            inflation = "IL" if params.get("real", True) else None
         elif name in {"us_world_rolling", "us_global_rolling", "global_vs_sp500_heatmap"} or name in CALCULATOR_ENDPOINTS or mode == "nominal":
             inflation = None
         else:

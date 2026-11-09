@@ -233,7 +233,7 @@ spec = {
   y: { format(v), tick(v, compact), label, zero: true, domain: [min, max] },
   series: [{ id, label, color, width, dash, area, legend, legendValue, endLabel,
              points: [{ x, y, data }] }],
-  refLines: [{ y, label, className }], vLines: [{ x, label }],
+  refLines: [{ y, label, className }], vLines: [{ x, label }], bands: [{ x0, x1, label }],
   endLabels: true, zoomable: true, aspect: 0.55,
   tooltip(x, hits) -> { header, rows: [{ color, label, value }] }
 }
@@ -358,6 +358,14 @@ function drawLine(spec, instance, width) {
     `).join("");
   }
 
+  // Shaded x ranges behind everything else, clipped to the visible range.
+  const bands = (spec.bands || []).filter((band) => band.x1 >= xMin && band.x0 <= xMax).map((band) => {
+    const x0 = xScale(Math.max(band.x0, xMin));
+    const x1 = xScale(Math.min(band.x1, xMax));
+    return `<rect class="vchart-band" x="${f(Math.min(x0, x1))}" y="${f(pad.top)}" width="${f(Math.abs(x1 - x0))}" height="${f(plotBottom - pad.top)}"></rect>
+      ${band.label && !compact ? `<text class="vchart-band-label" x="${f((x0 + x1) / 2)}" y="${f(plotBottom - 6)}" text-anchor="middle">${escapeHtml(band.label)}</text>` : ""}`;
+  }).join("");
+
   const axisLabels = `
     ${spec.x.label ? `<text class="vchart-axis-label" x="${f((pad.left + plotRight) / 2)}" y="${f(height - 4)}" text-anchor="middle">${escapeHtml(spec.x.label)}</text>` : ""}
     ${spec.y.label && !compact ? `<text class="vchart-axis-label" transform="translate(12 ${f((pad.top + plotBottom) / 2)}) rotate(-90)" text-anchor="middle">${escapeHtml(spec.y.label)}</text>` : ""}
@@ -365,6 +373,7 @@ function drawLine(spec, instance, width) {
 
   const svg = `${svgOpen(width, height, spec)}
     <defs><clipPath id="${clipId}"><rect x="${f(pad.left)}" y="${f(pad.top - 2)}" width="${f(plotRight - pad.left)}" height="${f(plotBottom - pad.top + 4)}"></rect></clipPath></defs>
+    ${bands}
     ${grid}
     <line class="vchart-axis" x1="${f(pad.left)}" x2="${f(plotRight)}" y1="${f(plotBottom)}" y2="${f(plotBottom)}"></line>
     ${refs}

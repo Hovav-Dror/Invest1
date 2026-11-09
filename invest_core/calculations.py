@@ -1217,3 +1217,109 @@ def down_payment_ladder(
             }
         )
     return pd.DataFrame(rows)
+
+
+STOCK_DROP_THRESHOLD = 0.2
+HOMES_AFTER_MONTHS = 24
+
+
+def homes_vs_stocks(
+    data: InvestData | None = None,
+    housing: pd.DataFrame | None = None,
+    real: bool = True,
+) -> pd.DataFrame:
+    """Dwelling prices next to stocks, monthly, from the first month with both.
+
+    Columns: ``date`` (monthly boundary, as in ``down_payment``), ``homes``
+    (CBS dwelling index), ``sp500`` (S&P 500 total return in shekels),
+    ``tase`` (TASE general share index, a price index, until 2016-08), each 1.0
+    at the first row and divided by Israeli CPI when ``real``; the 12-month
+    change of each (``homes_12m``, ``sp500_12m``, ``tase_12m``); and
+    ``rate``, the Bank of Israel rate in percent.
+
+    The TASE index for month ``d - 1`` sits at boundary ``d``, like the
+    dwelling index.
+    """
+
+    data = data or load_data()
+    if housing is None:
+        from invest_core.data import load_housing_monthly
+
+        housing = load_housing_monthly()
+    market = _down_payment_market(data, housing)
+    if "tase_index" in housing:
+        tase = housing.set_index("month")["tase_index"].rename(lambda month: month + pd.DateOffset(months=1))
+        market["tase"] = market["date"].map(tase)
+    else:
+        market["tase"] = np.nan
+    frame = pd.DataFrame(
+        {
+            "date": market["date"],
+            "homes": market["housing"],
+            "sp500": market["value_ils"],
+            "tase": market["tase"],
+        }
+    )
+    deflator = market["cpi_il"] if real else pd.Series(1.0, index=market.index)
+    for column in ("homes", "sp500", "tase"):
+        values = frame[column] / deflator
+        first = values.first_valid_index()
+        frame[column] = values / values[first] if first is not None else np.nan
+        frame[f"{column}_12m"] = frame[column] / frame[column].shift(12) - 1
+    frame["rate"] = market["cash_rate"]
+    return frame
+
+
+def homes_vs_stocks_episodes(
+    data: InvestData | None = None,
+    housing: pd.DataFrame | None = None,
+    real: bool = True,
+    threshold: float = STOCK_DROP_THRESHOLD,
+) -> pd.DataFrame:
+    """Every stock fall of at least ``threshold`` from a peak, and dwelling prices meanwhile.
+
+    For each stock series (S&P 500 in shekels, TASE general index) an episode
+    runs from a peak to the lowest point before the series regains that peak
+    (or the end of the data). ``homes_change`` is the dwelling index change
+    over the same months, ``homes_after`` over the ``HOMES_AFTER_MONTHS``
+    after the low (empty when the data ends sooner), ``rate_peak`` and
+    ``rate_low`` the Bank of Israel rate at both ends.
+    """
+
+    frame = homes_vs_stocks(data, housing, real=real)
+    rows = []
+    for column, market in (("sp500", "sp500"), ("tase", "tase")):
+        series = frame[column]
+        valid = series.notna()
+        if not valid.any():
+            continue
+        index = series[valid].index
+        peak = index[0]
+        low = peak
+        for position in index[1:]:
+            value = series[position]
+            if value >= series[peak]:
+                if series[low] / series[peak] - 1 <= -threshold:
+                    rows.append(_episode_row(frame, column, market, peak, low))
+                peak = low = position
+            elif value < series[low]:
+                low = position
+        if series[low] / series[peak] - 1 <= -threshold:
+            rows.append(_episode_row(frame, column, market, peak, low))
+    columns = ["market", "peak", "low", "stocks_change", "homes_change", "homes_after", "rate_peak", "rate_low"]
+    return pd.DataFrame(rows, columns=columns).sort_values("peak").reset_index(drop=True)
+
+
+def _episode_row(frame: pd.DataFrame, column: str, market: str, peak: int, low: int) -> dict:
+    after = low + HOMES_AFTER_MONTHS
+    homes = frame["homes"]
+    return {
+        "market": market,
+        "peak": frame["date"][peak],
+        "low": frame["date"][low],
+        "stocks_change": frame[column][low] / frame[column][peak] - 1,
+        "homes_change": homes[low] / homes[peak] - 1,
+        "homes_after": homes[after] / homes[low] - 1 if after < len(frame) else np.nan,
+        "rate_peak": frame["rate"][peak],
+        "rate_low": frame["rate"][low],
+    }
