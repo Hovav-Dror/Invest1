@@ -1285,7 +1285,8 @@ def down_payment(
         balance, path = paths(start, stock_share, glide)
         cash_path = paths(start, 0.0, False)[1]
         buy = horizon
-        if wait_months and stock_share > 0:
+        # With a glide path the money is all in cash by the planned date, so waiting cannot recover a fall.
+        if wait_months and stock_share > 0 and not glide:
             peak = balance[: horizon + 1].max()
             if balance[horizon] < peak * (1 - DOWN_WAIT_TRIGGER):
                 back = np.nonzero(balance[horizon + 1 :] >= peak - 1e-12)[0]
@@ -1590,7 +1591,7 @@ def pension_track_return(track: str, age: float, fixed_return: float = DEFAULT_P
 
 # Fixed comparisons: (id, fee on deposits, fee on balance).
 PENSION_SCENARIOS = (
-    ("default_fund", 0.01, 0.0022),  # default funds, 2021 tender
+    ("default_fund", 0.01, 0.0022),  # default funds, 2024 tender (2024-2028)
     ("cap", 0.06, 0.005),  # legal maximum
     ("none", 0.0, 0.0),
 )

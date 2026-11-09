@@ -83,7 +83,7 @@ import {
     buy: "קנייה",
     waited_months: "חודשי המתנה",
     apartment: "ערך הכסף מול מחירי הדירות (1 = שמר על ערכו)",
-    cash: "ערך הכסף מול מחירי הדירות, הכל במזומן",
+    cash: "ערך הכסף מול מחירי הדירות, הכל בהשקעה סולידית",
     stocks: "ערך הכסף מול מחירי הדירות, הכל במניות",
     homes_change: "שינוי במחירי הדירות",
     homes: "מחירי הדירות (1 = ההתחלה)",
@@ -286,8 +286,19 @@ import {
                 { text: "1990", href: "https://boi.org.il/media/jdtnfzrg/p7.pdf" },
                 ", ",
                 { text: "1993", href: "https://boi.org.il/media/elep2lrx/p7.pdf" },
-                "). ל-1986, ל-1987 ולאפריל–דצמבר 1991 מצאנו רק ממוצע שנתי."
+                "). ל-1986, ל-1987 ולאפריל–דצמבר 1991 מצאנו רק ממוצע שנתי. בדוחות זו תשואה שנתית אפקטיבית, ולכן היא מומרת לריבית שנתית שנותנת את אותה תשואה חודשית (20% הופכים ל-18.4%). מפברואר 1994: ריבית בנק ישראל, ממוצע של כל ימי החודש (סדרה MNT_RIB_BOI_D בשירות הנתונים של בנק ישראל)."
               ],
+    cpi:
+              { html: "<strong>אינפלציה:</strong> מדד המחירים לצרכן של הלמ\"ס. משמש למס על הרווח הריאלי, לאפשרות \"צמוד למדד\" ולשחזור מדד המניות הכללי לפני דצמבר 1993." },
+    afford: [
+                { html: "<strong>המגבלות על המשכנתא:</strong> הוראה 329 של המפקח על הבנקים (ניהול בנקאי תקין): משכנתא של עד 75% ממחיר הדירה בדירה ראשונה, 70% למשפרי דיור ו-50% בדירה נוספת, והחזר חודשי של עד 50% מההכנסה. הבנקים בדרך כלל זהירים יותר, ולכן ברירת המחדל כאן היא 35%." }
+              ],
+    purchaseTax:
+              { html: "<strong>מס רכישה:</strong> המדרגות של רשות המסים ל-2026 (מוקפאות עד ינואר 2028). דירה יחידה: פטור עד 1,978,745 ₪, 3.5% עד 2,347,040 ₪, 5% עד 6,055,070 ₪, 8% עד 20,183,565 ₪ ו-10% מעל. דירה נוספת: 8% עד 6,055,070 ₪ ו-10% מעל." },
+    mortgage:
+              { html: "<strong>החזר חודשי:</strong> החזר קבוע (לוח שפיצר) בריבית ובתקופה שבחרתם. שיפוץ, עורך דין, תיווך ושמאי ומס רכישה משולמים מההון העצמי." },
+    rate:
+              { html: "<strong>ריבית:</strong> ריבית בנק ישראל מפברואר 1994 (ממוצע של כל ימי החודש), ולפני כן תשואת מק\"מ לחודש מהדוחות השנתיים של בנק ישראל, מומרת מתשואה אפקטיבית לריבית שנתית." },
     linked:
               { html: "<strong>צמוד למדד:</strong> עולה בדיוק כמו מדד המחירים לצרכן, בלי ריבית." },
     homes: [
@@ -931,7 +942,7 @@ import {
             ],
             [
               { text: "כסף לדירה בשנים הקרובות: כמה ממנו במניות?", href: "#young-down" },
-              " מה היה קורה לכסף שמיועד להון עצמי, אילו התחלתם לחסוך בכל חודש מאז 1986, עם חלק במניות (S&P 500 או מניות ישראליות) וחלק בהשקעה סולידית. הכסף נמדד מול מחירי הדירות, לא בשקלים."
+              " מה היה קורה לכסף שמיועד להון עצמי, אילו שמתם אותו בצד בחודש כלשהו מאז 1986, כסכום אחד, עם חלק במניות (S&P 500 או מניות ישראליות) וחלק בהשקעה סולידית. הכסף נמדד מול מחירי הדירות, לא בשקלים."
             ],
             [
               { text: "האם מניות ודירות יורדות ביחד?", href: "#young-homes" },
@@ -1006,26 +1017,29 @@ import {
             ]
           ]
         }
+      ],
+      sources: [
+        { list: [YOUNG_SOURCES.afford, YOUNG_SOURCES.purchaseTax, YOUNG_SOURCES.mortgage] }
       ]
     },
     "young-safe": {
       tab: "הפסד לפני הקנייה מתעצם",
       paragraphs: [
-        "בעמוד הבא נבדוק אם, ובכמה, כדאי להחזיק במניות כסף שמיועד לדירה בשנים הקרובות, במקום במזומן. בטווח ארוך מניות מרוויחות בממוצע יותר. אבל במקרה מסוים הן יכולות להפסיד סכום גדול בדיוק כשצריך אותו.",
-        "העמוד הזה מראה שכשמדובר בכסף לדירה, ההפסד מתעצם. כבר ראינו שכשההון העצמי קטן, גם המשכנתא המקסימלית קטנה, ואיתה מחיר הדירה שאפשר לקנות. אז אם נפסיד, נניח, 100 אלף ₪ כשהבורסה תיפול, ייתכן שלא נוכל לקנות את הדירה שתכננו, וגם לא דירה זולה ממנה ב-100 אלף. כמה זולה יותר נצטרך? הזיזו את הסרגלים, ובחרו בכמה התיק יורד."
+        "בעמוד הבא נבדוק כמה מהכסף שמיועד לדירה בשנים הקרובות כדאי להחזיק במניות, ולא בהשקעה סולידית. בטווח ארוך מניות מרוויחות בממוצע יותר. אבל בתקופה מסוימת הן יכולות להפסיד סכום גדול בדיוק כשצריך אותו.",
+        "העמוד הזה מראה שכשמדובר בכסף לדירה, ההפסד מתעצם. כבר ראינו שכשההון העצמי קטן, גם המשכנתא המקסימלית קטנה, ואיתה מחיר הדירה שאפשר לקנות. אז אם תפסידו, נניח, 100 אלף ₪ אם הבורסה תיפול, ייתכן שלא תוכלו לקנות את הדירה שתכננתם, וגם לא דירה זולה ממנה ב-100 אלף. כמה זולה יותר תצטרכו? הזיזו את הסרגלים, ובחרו בכמה התיק יורד."
       ],
       afterChart: [
         {
           title: "למה ההפסד מתעצם?",
           paragraphs: [
             [
-              "בגלל המגבלה על המשכנתא. כשחסר הון עצמי (האזור הצבוע בגרף), המשכנתא מוגבלת ל-75% ממחיר הדירה. כלומר כל שקל של הון עצמי מאפשר כשלושה שקלים של משכנתא, וכשההון יורד, גם המשכנתא שאפשר לקבל יורדת, פי שלושה. על שתי המגבלות על המשכנתא בהרחבה בעמוד ",
+              "בגלל המגבלה על המשכנתא. כשחסר הון עצמי (האזור הצבוע בגרף), המשכנתא מוגבלת ל-75% ממחיר הדירה. כלומר כל שקל של הון עצמי מאפשר כשלושה שקלים של משכנתא, וכשההון יורד, המשכנתא שאפשר לקבל יורדת בסכום גדול פי שלושה מההפסד. על שתי המגבלות על המשכנתא בהרחבה בעמוד ",
               { text: "מה מחיר הדירה שנוכל לקנות?", href: "#young-equity" },
               "."
             ],
             { list: [
-              { html: "<strong>הכנסה של 20 אלף ₪ נטו והון עצמי של 400 אלף:</strong> היום אפשר לקנות דירה של עד כ-1.48 מיליון ₪. אחרי ירידה של 30% נשארים 280 אלף, ואיתם אפשר לקנות דירה של עד כ-1.04 מיליון. הפסד של 120 אלף בתיק הוריד כ-440 אלף ממחיר הדירה." },
-              { html: "<strong>אותו הון עצמי, והכנסה של 10 אלף ₪:</strong> כאן מה שמגביל את המשכנתא הוא ההחזר החודשי, והדירה היא עד כ-1.03 מיליון. אחרי אותה ירידה, עד כ-0.91 מיליון. אותו הפסד של 120 אלף הוריד כ-120 אלף ממחיר הדירה, ולא יותר." }
+              { html: "<strong>הכנסה של 20 אלף ₪ נטו והון עצמי של 400 אלף:</strong> אחרי 100 אלף לשיפוץ ולמעבר, היום אפשר לקנות דירה של עד כ-1.11 מיליון ₪. אחרי ירידה של 30% נשארים 280 אלף, ואיתם אפשר לקנות דירה של עד כ-670 אלף ₪. הפסד של 120 אלף בתיק הוריד כ-440 אלף ממחיר הדירה." },
+              { html: "<strong>אותו הון עצמי, והכנסה של 7,000 ₪:</strong> כאן מה שמגביל את המשכנתא הוא ההחזר החודשי, והדירה היא עד כ-740 אלף ₪. אחרי אותה ירידה, עד כ-620 אלף ₪. אותו הפסד של 120 אלף הוריד כ-120 אלף ממחיר הדירה, ולא יותר." }
             ] },
             "כלומר, הכי רגיש לירידה דווקא זוג עם משכורות טובות והון עצמי צנוע."
           ]
@@ -1050,9 +1064,9 @@ import {
           ]
         },
         {
-          title: "ומצד שני: גם מזומן לא בטוח",
+          title: "ומצד שני: גם השקעה סולידית לא בטוחה",
           paragraphs: [
-            "כסף במזומן לא יורד בשקלים, אבל מחירי הדירות יכולים לעלות מהר יותר מהריבית שהוא מרוויח. מאז 2005, ברוב התקופות של 4 שנים כך בדיוק קרה: מי שחיכה עם הכסף במזומן הצליח לקנות בסוף דירה זולה יותר מזו שיכול היה לקנות בהתחלה."
+            "כסף בקרן כספית לא יורד בשקלים, אבל מחירי הדירות יכולים לעלות מהר יותר מהריבית שהוא מרוויח. מאז 2005, ברוב התקופות של 4 שנים כך קרה: מי שהחזיק את הכסף בקרן כספית יכול היה לקנות בסוף רק דירה זולה יותר מזו שיכול היה לקנות בהתחלה."
           ]
         },
         {
@@ -1068,20 +1082,23 @@ import {
             ]
           ]
         }
+      ],
+      sources: [
+        { list: [YOUNG_SOURCES.afford, YOUNG_SOURCES.purchaseTax, YOUNG_SOURCES.mortgage] }
       ]
     },
     "young-down": {
       tab: "כמה מהכסף לדירה במניות?",
       paragraphs: [
         "יש לכם כסף להון עצמי, ותקנו דירה בעוד כמה שנים. איפה להחזיק אותו בינתיים? בטווח ארוך מניות מרוויחות בממוצע יותר מהשקעה סולידית. אבל בעמוד הקודם ראינו שהפסד ממש לפני הקנייה מתעצם, ומוריד ממחיר הדירה שאפשר לקנות יותר מגובה ההפסד. מצד שני, גם השקעה סולידית לא מבטיחה שתוכלו לקנות את הדירה: אם מחירי הדירות עולים מהר יותר מהריבית, ייתכן שבסוף הכסף כבר לא יספיק לדירה שתכננתם.",
-        "העמוד הזה בודק מה היה קורה בפועל, לזוג שהתחיל לחסוך בכל חודש מאז 1986. ומכיוון שהמטרה היא דירה, הכסף לא נמדד בשקלים, אלא מול מחירי הדירות. 100% פירושו שהכסף שמר על ערכו: הוא מספיק לאותה דירה כמו בהתחלה. 88% פירושו שהוא שווה 12% פחות במחירי דירות, כאילו 12% מההון העצמי נעלמו."
+        "העמוד הזה בודק מה היה קורה בפועל, לזוג ששם בצד סכום להון עצמי, בכל אחד מהחודשים מאז 1986. סכום אחד בהתחלה, בלי הפקדות נוספות. ומכיוון שהמטרה היא דירה, הכסף לא נמדד בשקלים, אלא מול מחירי הדירות. 100% פירושו שהכסף שמר על ערכו: הוא מספיק לאותה דירה כמו בהתחלה. 88% פירושו שהוא שווה 12% פחות במחירי דירות, כאילו 12% מההון העצמי נעלמו."
       ],
       afterChart: [
         {
           title: "איך קוראים את הגרף",
           paragraphs: [
-            "כל נקודה בגרף היא זוג שהתחיל לחסוך בחודש מסוים, והציר האופקי הוא חודש ההתחלה. הקו הירוק הוא החלוקה שבחרתם בין מניות להשקעה סולידית.",
-            "הקו האפור המקווקו הוא אותו זוג, כשכל הכסף בהשקעה סולידית: בקרן כספית, או צמוד למדד, לפי מה שבחרתם. הכסף הזה לא מסתכן בבורסה, ובכל זאת הקו יורד הרבה פעמים מתחת ל-100%. כשמחירי הדירות עולים מהר יותר מהריבית, גם כסף שנשמר בזהירות כבר לא מספיק לדירה שתכננתם. למשל, מי שהתחיל באוקטובר 1987 וקנה ב-1991, בזמן גל העלייה מברית המועצות, ראה את מחירי הדירות מוכפלים. בסוף הכסף שלו הספיק רק ל-60% מהדירה שתכנן.",
+            "כל נקודה בגרף היא זוג שהתחיל עם הכסף בחודש מסוים, והציר האופקי הוא חודש ההתחלה. הקו הירוק הוא החלוקה שבחרתם בין מניות להשקעה סולידית.",
+            "הקו האפור המקווקו הוא אותו זוג, כשכל הכסף בהשקעה סולידית: בקרן כספית, או צמוד למדד, לפי מה שבחרתם. הכסף הזה לא מסתכן בבורסה, ובכל זאת הקו יורד הרבה פעמים מתחת ל-100%. כשמחירי הדירות עולים מהר יותר מהריבית, גם כסף שנשמר בזהירות כבר לא מספיק לדירה שתכננתם. למשל, מי שהתחיל באוקטובר 1987 וקנה ב-1991, בזמן גל העלייה מברית המועצות, ובאותן שנים מחירי הדירות הוכפלו. בסוף הכסף שלו הספיק רק ל-58% מהדירה שתכנן.",
             "השקעה סולידית כאן היא לא שטרות מתחת לבלטה, אלא מה שאנשים עושים כדי לשמור על ערך הכסף בלי לקחת סיכון: קרן כספית, שמרוויחה בערך את ריבית בנק ישראל, או הצמדה למדד המחירים לצרכן. שתיהן שומרות בערך על כוח הקנייה במוצרים, אבל לא מול מחירי הדירות. התוצאות של שתיהן דומות מאוד.",
             [
               "ואיפה בדיוק להחזיק את החלק הסולידי? ההבדלים בין קרן כספית, פיקדון, מק\"מ וקופת גמל קטנים, ומפורטים בעמוד ",
@@ -1107,8 +1124,8 @@ import {
             { callout: [
               { html: "<strong class=\"callout-lead\">בשורה התחתונה:</strong> מאז 1986, ברוב התקופות גם השקעה סולידית לא עמדה בקצב של מחירי הדירות, ובסוף הכסף הספיק רק לדירה זולה מזו שתוכננה. מי שהחזיק חלק במניות יצא בדרך כלל טוב יותר, אבל בתקופות הרעות הרבה יותר גרוע. אין כאן בחירה בטוחה, רק בחירה בין הפסד מתון שקורה ברוב הזמן, לבין סיכוי להרוויח עם סיכון להפסד גדול." }
             ] },
-            "בברירת המחדל, קנייה אחרי 4 שנים: בקרן כספית, בתקופה טיפוסית הכסף שמר על כ-85% מערכו מול מחירי הדירות, ורק בכשליש מהתקופות הוא הספיק לאותה דירה או ליותר. עם 40% ב-S&P 500, בתקופה טיפוסית כ-96%. עם 100%, בתקופה טיפוסית כ-111%, אבל בעשירית הגרועה של התקופות 71% או פחות, ובגרועה מכולן 48%.",
-            "המניות יצאו טובות יותר מההשקעה הסולידית בכ-78% מהתקופות ב-S&P 500, ובכ-90% במניות הישראליות, כמעט בלי קשר לחלק שלהן בתיק. חלק המניות קובע את הגודל: כמה מרוויחים כשזה עובד, וכמה מפסידים כשלא.",
+            "בברירת המחדל, קנייה אחרי 4 שנים: בקרן כספית, בתקופה טיפוסית הכסף שמר על כ-84% מערכו מול מחירי הדירות, ורק בכשליש מהתקופות הוא הספיק לאותה דירה או ליותר. עם 40% ב-S&P 500, בתקופה טיפוסית כ-96%. עם 100%, בתקופה טיפוסית כ-111%, אבל בעשירית הגרועה של התקופות 71% או פחות, ובגרועה מכולן 48%.",
+            "המניות יצאו טובות יותר מההשקעה הסולידית בכ-78% מהתקופות ב-S&P 500, ובכ-85%–90% במניות הישראליות, כמעט בלי קשר לחלק שלהן בתיק. חלק המניות קובע את הגודל: כמה מרוויחים כשזה עובד, וכמה מפסידים כשלא.",
             [
               "ואיך זה מתורגם לדירה? אם חסר לכם הון עצמי, מחיר הדירה שתוכלו לקנות יורד בערך באותו אחוז כמו ההון: ירידה של 20% בערך ההון היא דירה זולה בכ-20%, ובשקלים זה פי כמה מההפסד. אם ההחזר החודשי מגביל את המשכנתא, מחיר הדירה יורד פחות. על זה בעמוד ",
               { text: "הפסד בבורסה לפני קניית דירה", href: "#young-safe" },
@@ -1135,7 +1152,8 @@ import {
       ],
       sources: [
         "כל המספרים בעמוד מחושבים מהנתונים האלה. את התוצאה לכל חודש התחלה אפשר להוריד בכפתור \"הורדת הנתונים (CSV)\" שמתחת לגרף.",
-        { list: [YOUNG_SOURCES.sp500, YOUNG_SOURCES.israel, YOUNG_SOURCES.fund, YOUNG_SOURCES.linked, YOUNG_SOURCES.homes] }
+        { list: [YOUNG_SOURCES.sp500, YOUNG_SOURCES.israel, YOUNG_SOURCES.fund, YOUNG_SOURCES.linked, YOUNG_SOURCES.cpi, YOUNG_SOURCES.homes] },
+        "הנתונים מסתיימים בינואר 2026, החודש האחרון שבו יש את כל הסדרות. מדד המניות הכללי לשנים 1979–2016 התקבל ממחלקת המחקר של הבורסה ואינו מפורסם באתר שלה."
       ]
     },
     "young-homes": {
@@ -1180,7 +1198,8 @@ import {
         }
       ],
       sources: [
-        { list: [YOUNG_SOURCES.homes, YOUNG_SOURCES.sp500, YOUNG_SOURCES.israel] }
+        { list: [YOUNG_SOURCES.homes, YOUNG_SOURCES.sp500, YOUNG_SOURCES.israel, YOUNG_SOURCES.rate, YOUNG_SOURCES.cpi] },
+        "הנתונים מסתיימים בינואר 2026, החודש האחרון שבו יש את כל הסדרות."
       ]
     },
     "young-cash": {
@@ -1260,7 +1279,7 @@ import {
             "כל חודש נכנסת לקרן הפקדה של 18.5% מהשכר ברוטו (6% מכם, 6.5% מהמעסיק, ועוד 6% לפיצויים), פחות דמי הניהול מההפקדה. הכסף בקרן מרוויח תשואה, ומדי חודש יורדים ממנו דמי הניהול מהצבירה.",
             "הכל מחושב בשקלים של היום: השכר עולה מעט מעל האינפלציה, והתשואה היא מעל האינפלציה. בפרישה, הצבירה הופכת לקצבה חודשית בעזרת מקדם המרה: צבירה של 2 מיליון במקדם 200 היא קצבה של 10,000 ש\"ח בחודש.",
             "התשואה תלויה במסלול ההשקעה. ברירת המחדל היא מסלול תלוי גיל, שבו נמצאים רוב החוסכים: עד גיל 50 כמחצית מהכסף במניות, ועם הגיל החלק הזה יורד, עד כחמישית מגיל 60. המחשבון מניח 5% בשנה מעל האינפלציה על המניות ו-2% על השאר. אלה הערכות לטווח ארוך, לא תחזית. אפשר לבחור גם מסלול S&P 500, מסלול אג\"ח, או תשואה קבועה משלכם.",
-            "הקווים להשוואה: קרן ברירת מחדל (הקרנות שנבחרו במכרז של רשות שוק ההון ב-2021: 1% מההפקדה ו-0.22% מהצבירה), התקרה בחוק (6% ו-0.5%), ובלי דמי ניהול בכלל. ברירת המחדל במחשבון היא הממוצע בשוק ב-2024: כ-1.57% מההפקדה ו-0.15% מהצבירה."
+            "הקווים להשוואה: קרן ברירת מחדל (הקרנות שנבחרו במכרז של רשות שוק ההון ב-2024, לשנים 2024–2028: 1% מההפקדה ו-0.22% מהצבירה לכל היותר), התקרה בחוק (6% ו-0.5%), ובלי דמי ניהול בכלל. ברירת המחדל במחשבון היא הממוצע בשוק ב-2024: כ-1.57% מההפקדה ו-0.15% מהצבירה."
           ]
         },
         {
@@ -1284,7 +1303,7 @@ import {
             { subheading: "וכמה הערות" },
             "התשואה תעלה ותרד משנה לשנה, והשכר לא יעלה בקו ישר. יהיו הפסקות: חופשת לידה, לימודים, מעבר עבודה. כל אלה משנים את הסכום, אבל לא את המסקנה: בכל תרחיש, דמי ניהול נמוכים יותר משאירים יותר כסף, וההפרש גדל עם הזמן.",
             "המחשבון מתעלם מרכיב הביטוח בקרן (ביטוח נכות ושארים), שעולה כסף אבל שווה הרבה לזוג צעיר, במיוחד עם ילדים ומשכנתא. אל תוותרו עליו כדי לחסוך.",
-            "דמי הניהול בקרנות ברירת המחדל נקבעים במכרז, ומובטחים לתקופה מוגבלת (במכרז של 2021, לעשר שנים מההצטרפות). במכרזים הבאים התנאים יכולים להשתנות. כדאי לבדוק מה מובטח לכם, ולמשך כמה זמן."
+            "דמי הניהול בקרנות ברירת המחדל נקבעים במכרז, ומובטחים לתקופה מוגבלת. במכרזים הבאים התנאים יכולים להשתנות. כדאי לבדוק מה מובטח לכם, ולמשך כמה זמן."
           ]
         }
       ],
@@ -1296,8 +1315,8 @@ import {
             "."
           ],
           [
-            { html: "<strong>קרנות ברירת מחדל:</strong> במכרז של 2021, 1% מההפקדה ו-0.22% מהצבירה, מובטחים לעשר שנים. ראו " },
-            { text: "ביזפורטל", href: "https://www.bizportal.co.il/longtermsavings/news/article/830739" },
+            { html: "<strong>קרנות ברירת מחדל:</strong> במכרז של 2024 (מנובמבר 2024 עד אוקטובר 2028) נבחרו אינפיניטי, אלטשולר שחם, מור ומיטב, עם דמי ניהול של עד 1% מההפקדה ו-0.22% מהצבירה לעמיתים חדשים. ראו " },
+            { text: "ביזפורטל", href: "https://www.bizportal.co.il/longtermsavings/news/article/834173" },
             "."
           ],
           { html: "<strong>שיעורי ההפקדה:</strong> 6% מהעובד, 6.5% מהמעסיק ו-6% לפיצויים, לפי צו ההרחבה לפנסיה חובה. מי שמעסיקו מפריש 8.33% לפיצויים מפקיד 20.83%." },
@@ -1433,6 +1452,13 @@ import {
       notes: ["מקור: tabPanel(\"About\") באפליקציה המקורית."]
     }
   };
+
+  // Assumptions shared by "young-equity" and "young-safe", so the same inputs give the same apartment price on both pages.
+  const HOME_RENOVATION_CONTROL = { ...select("renovation", "שיפוץ, ריהוט ומעבר", [["0", "בלי"], ["50000", "50 אלף ₪"], ["100000", "100 אלף ₪"], ["150000", "150 אלף ₪"], ["200000", "200 אלף ₪"], ["300000", "300 אלף ₪"]], "100000"), shared: "home-renovation" };
+  const HOME_BUYER_CONTROL = { ...select("buyer", "מה קונים", [["first", "דירה ראשונה (יחידה)"], ["upgrade", "דירה במקום הדירה הנוכחית (משפרי דיור)"], ["investor", "דירה נוספת"]], "first"), shared: "home-buyer" };
+  const HOME_RATE_CONTROL = { ...select("rate", "ריבית משכנתא", ["3", "4", "4.5", "5", "5.5", "6", "7"].map((n) => [n, `${n}%`]), "5"), advanced: true, shared: "home-rate" };
+  const HOME_PTI_CONTROL = { ...select("pti", "החזר מקסימלי מההכנסה", ["25", "30", "35", "40", "50"].map((n) => [n, `${n}%`]), "35"), advanced: true, shared: "home-pti" };
+  const HOME_COSTS_CONTROL = { ...select("costs", "עורך דין, תיווך ושמאי", ["0", "1", "2", "3", "4"].map((n) => [n, `${n}% מהמחיר`]), "2"), advanced: true, shared: "home-costs" };
 
   const views = [
     {
@@ -1982,12 +2008,12 @@ import {
       controls: [
         { kind: "slider", shared: "home-equity", name: "equity", label: "ההון העצמי שלכם", value: "400000", min: "50000", max: "3000000", step: "10000", format: (value) => value >= 1e6 ? `${(value / 1e6).toLocaleString("en-US", { maximumFractionDigits: 2 })} מיליון ₪` : `${Math.round(value / 1000).toLocaleString("en-US")} אלף ₪` },
         { kind: "slider", shared: "home-income", name: "income", label: "הכנסה חודשית נטו של שניכם", value: "20000", min: "6000", max: "60000", step: "500", format: (value) => `${Math.round(value).toLocaleString("en-US")} ₪` },
-        select("renovation", "שיפוץ, ריהוט ומעבר", [["0", "בלי"], ["50000", "50 אלף ₪"], ["100000", "100 אלף ₪"], ["150000", "150 אלף ₪"], ["200000", "200 אלף ₪"], ["300000", "300 אלף ₪"]], "100000"),
-        select("buyer", "מה קונים", [["first", "דירה ראשונה (יחידה)"], ["upgrade", "משפרי דיור"], ["investor", "דירה נוספת"]], "first"),
-        { ...select("rate", "ריבית משכנתא", ["3", "4", "4.5", "5", "5.5", "6", "7"].map((n) => [n, `${n}%`]), "5"), advanced: true },
-        { ...select("years", "תקופת המשכנתא", [20, 25, 30].map((n) => [String(n), `${n} שנה`]), "30"), advanced: true },
-        { ...select("pti", "החזר מקסימלי מההכנסה", ["25", "30", "35", "40", "50"].map((n) => [n, `${n}%`]), "35"), advanced: true },
-        { ...select("costs", "עורך דין, תיווך ושמאי", ["0", "1", "2", "3", "4"].map((n) => [n, `${n}% מהמחיר`]), "2"), advanced: true }
+        HOME_RENOVATION_CONTROL,
+        HOME_BUYER_CONTROL,
+        HOME_RATE_CONTROL,
+        { ...select("years", "תקופת המשכנתא", [20, 25, 30].map((n) => [String(n), `${n} שנה`]), "30"), advanced: true, shared: "home-years" },
+        HOME_PTI_CONTROL,
+        HOME_COSTS_CONTROL
       ],
       chart: { type: "affordability" },
       tableColumns: ["equity", "max_price", "mortgage", "payment", "purchase_tax", "binding"],
@@ -2005,8 +2031,12 @@ import {
         { kind: "slider", shared: "home-equity", name: "equity", label: "ההון העצמי שלכם", value: "400000", min: "50000", max: "3000000", step: "10000", format: (value) => value >= 1e6 ? `${(value / 1e6).toLocaleString("en-US", { maximumFractionDigits: 2 })} מיליון ₪` : `${Math.round(value / 1000).toLocaleString("en-US")} אלף ₪` },
         { kind: "slider", shared: "home-income", name: "income", label: "הכנסה חודשית נטו של שניכם", value: "20000", min: "6000", max: "60000", step: "500", format: (value) => `${Math.round(value).toLocaleString("en-US")} ₪` },
         select("drop", "בכמה התיק יורד ממש לפני הקנייה", ["10", "20", "30", "40", "50"].map((n) => [n, `${n}%`]), "30"),
-        { ...select("rate", "ריבית משכנתא", ["3", "4", "4.5", "5", "5.5", "6", "7"].map((n) => [n, `${n}%`]), "5"), advanced: true },
-        { ...select("pti", "החזר מקסימלי מההכנסה", ["25", "30", "35", "40", "50"].map((n) => [n, `${n}%`]), "35"), advanced: true }
+        HOME_RENOVATION_CONTROL,
+        { ...HOME_BUYER_CONTROL, advanced: true },
+        HOME_RATE_CONTROL,
+        { ...select("years", "תקופת המשכנתא", [20, 25, 30].map((n) => [String(n), `${n} שנה`]), "30"), advanced: true, shared: "home-years" },
+        HOME_PTI_CONTROL,
+        HOME_COSTS_CONTROL
       ],
       chart: { type: "affordability", mode: "drop" },
       tableColumns: ["equity", "max_price", "mortgage", "payment", "binding"],
@@ -2017,8 +2047,8 @@ import {
       group: "Young couples",
       title: "כסף לדירה בשנים הקרובות: כמה ממנו במניות?",
       nav: "כמה מהכסף לדירה במניות?",
-      kicker: "מניות מול מזומן, מול מחירי הדירות",
-      takeaway: "מה היה קורה לכסף שמיועד להון עצמי, לזוג שהתחיל לחסוך בכל חודש מאז 1986. לא בשקלים, אלא מול מחירי הדירות: האם בסוף הוא הספיק לאותה דירה כמו בהתחלה.",
+      kicker: "מניות מול השקעה סולידית, מול מחירי הדירות",
+      takeaway: "מה היה קורה לסכום שנשמר להון עצמי, אילו התחלתם איתו בכל אחד מהחודשים מאז 1986. לא בשקלים, אלא מול מחירי הדירות: האם בסוף הוא הספיק לאותה דירה כמו בהתחלה.",
       endpoint: "down_payment",
       controls: [
         select("years", "עוד כמה שנים קונים", [2, 3, 4, 5, 6, 7].map((n) => [String(n), `${n} שנים`]), "4"),
@@ -2592,18 +2622,19 @@ import {
     els.controls.appendChild(wrap);
   }
 
-  /** Slider values shared between views (``control.shared``), so moving one carries over to the other page. */
+  /** Slider and select values shared between views (``control.shared``), so a change carries over to the other page. */
   const sharedSliderValues = new Map();
+  const SHARED_CONTROL_SELECTOR = '.slider-field input[type="range"], select';
 
   function rememberSharedSlider(input) {
-    const control = activeView.controls.find((item) => item.kind === "slider" && item.shared && item.name === input.name);
+    const control = activeView.controls.find((item) => item.shared && item.name === input.name);
     if (control) sharedSliderValues.set(control.shared, input.value);
   }
 
   function applySharedSliders() {
     activeView.controls.forEach((control) => {
-      if (control.kind !== "slider" || !control.shared || !sharedSliderValues.has(control.shared)) return;
-      const input = els.controls.querySelector(`input[name="${control.name}"]`);
+      if (!control.shared || !sharedSliderValues.has(control.shared)) return;
+      const input = els.controls.querySelector(`[name="${control.name}"]`);
       if (input) input.value = sharedSliderValues.get(control.shared);
     });
     updateSliderOutputs();
@@ -4691,7 +4722,8 @@ import {
 
   const signedPercent = (value) => {
     const rounded = Math.round(Math.abs(value) * 100);
-    return rounded === 0 ? "0%" : `${value > 0 ? "+" : "−"}${rounded}%`;
+    // LRI…PDI keeps the sign before the number inside right-to-left text, in HTML and in plain text.
+    return rounded === 0 ? "0%" : `\u2066${value > 0 ? "+" : "−"}${rounded}%\u2069`;
   };
 
   const yearOf = (date) => String(date).slice(0, 4);
@@ -5447,9 +5479,9 @@ import {
       ].join("")
       : [
         tableRow("ההון העצמי שלכם", (row) => money(numericValue(row.equity))),
-        tableRow("פחות שיפוץ, ריהוט ומעבר", (row) => `−${money(numericValue(row.renovation))}`),
-        tableRow("פחות עורך דין, תיווך ושמאי", (row) => `−${money(numericValue(row.fees))}`),
-        tableRow("פחות מס רכישה", (row) => numericValue(row.purchase_tax) > 0 ? `−${money(numericValue(row.purchase_tax))}` : "0 (פטור)"),
+        tableRow("פחות שיפוץ, ריהוט ומעבר", (row) => money(numericValue(row.renovation))),
+        tableRow("פחות עורך דין, תיווך ושמאי", (row) => money(numericValue(row.fees))),
+        tableRow("פחות מס רכישה", (row) => numericValue(row.purchase_tax) > 0 ? money(numericValue(row.purchase_tax)) : "0 (פטור)"),
         tableRow("= החלק שלכם במחיר הדירה", (row) => money(ownPart(row)), "", true),
         tableRow("ועוד משכנתא", (row) => money(numericValue(row.mortgage))),
         tableRow("= מחיר הדירה", (row) => `<b>${money(numericValue(row.max_price))}</b>`, "", true),
@@ -6565,8 +6597,14 @@ import {
 
   const yearColumns = new Set(["Year", "start_year", "end_year", "depleted_year", "StartYear", "EndYear", "FirstYear"]);
 
+  const AFFORD_BINDING_LABELS = { ltv: "חסר הון עצמי", income: "ההחזר החודשי" };
+
   function formatTableCell(value, column) {
     if (value === null || value === undefined) return "";
+    if (activeView.endpoint === "affordability") {
+      if (column === "binding") return escapeHtml(AFFORD_BINDING_LABELS[value] || String(value));
+      if (typeof value === "number") return escapeHtml(formatNumber(value, 0));
+    }
     if (typeof value === "number" && yearColumns.has(column)) return escapeHtml(String(value));
     if (typeof value === "number" && percentColumns.has(column)) {
       return escapeHtml(formatPercent(value, column === "Median" || column === "TotalReturnP" ? 1 : 2));
@@ -6923,7 +6961,7 @@ import {
     if (!activeView.staticOnly) applySharedSliders();
     if (pendingUrlState) {
       applyMainState(scoped("", pendingUrlState));
-      els.controls.querySelectorAll('.slider-field input[type="range"]').forEach(rememberSharedSlider);
+      els.controls.querySelectorAll(SHARED_CONTROL_SELECTOR).forEach(rememberSharedSlider);
     }
     if (activeView.staticOnly) {
       pendingUrlState = null;
@@ -7060,7 +7098,7 @@ import {
   });
   els.controls.addEventListener("input", (event) => {
     if (event.target.matches(".date-range-control input")) updateDateRangeReadout();
-    if (event.target.matches('.slider-field input[type="range"]')) rememberSharedSlider(event.target);
+    if (event.target.matches(SHARED_CONTROL_SELECTOR)) rememberSharedSlider(event.target);
     if (activeView.id === "trinity" && event.target.matches('[name="yearly_draw"], input[name="base"]')) updateTrinityDrawSummary();
     updateControlSummaries();
     scheduleRun();
@@ -7093,7 +7131,7 @@ import {
   els.controls.addEventListener("change", (event) => {
     if (event.target.matches("input[data-format]")) formatInputDisplay(event.target);
     if (event.target.matches(".date-range-control input")) updateDateRangeReadout();
-    if (event.target.matches('.slider-field input[type="range"]')) rememberSharedSlider(event.target);
+    if (event.target.matches(SHARED_CONTROL_SELECTOR)) rememberSharedSlider(event.target);
     if (activeView.id === "trinity" && event.target.matches('[name="yearly_draw"], input[name="base"]')) updateTrinityDrawSummary();
     updateControlSummaries();
     scheduleRun();

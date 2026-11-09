@@ -2151,6 +2151,8 @@ tbody tr:hover {
 .vchart-axis-label {
   fill: #47514d;
   font-size: 12px;
+  /* Hebrew labels such as "מחיר דירה, במיליוני ₪": keep ₪ at the end inside the left-to-right SVG. */
+  direction: rtl;
 }
 
 .vchart-ref {

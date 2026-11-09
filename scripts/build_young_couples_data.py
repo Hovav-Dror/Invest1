@@ -16,7 +16,10 @@ from 1986-01):
   1994-02 the Bank of Israel policy rate, averaged over the month's days.
   Before that, the average yield to maturity on one-month makam (Bank of Israel
   annual reports, see ``boi_makam_yield_1986_1994.csv``; 1986, 1987 and
-  April-December 1991 are annual averages).
+  April-December 1991 are annual averages). The reports give an effective
+  annual yield, so it is converted to the nominal annual rate with the same
+  monthly return, ``12 * ((1 + y) ** (1 / 12) - 1)``, to match the policy rate,
+  which the calculations divide by 12.
 * ``rate_source``: ``boi_rate`` or ``makam``.
 * ``tase_index``: Israeli shares, nominal, a price index without dividends.
   TASE general share index to 2016-08 (from 1993-12 the workbook's nominal
@@ -96,6 +99,8 @@ def cash_rate() -> pd.DataFrame:
     boi = policy_rate()
     makam = pd.read_csv(RAW / "boi_makam_yield_1986_1994.csv")
     makam = pd.Series(makam["makam_yield"].to_numpy(float), index=pd.to_datetime(makam["month"] + "-01"))
+    # Effective annual yield -> nominal annual rate compounded monthly (percent).
+    makam = 1200 * ((1 + makam / 100) ** (1 / 12) - 1)
     _require_complete(makam, "makam yields")
     makam = makam[makam.index < boi.index.min()]
     if makam.index.max() + pd.DateOffset(months=1) != boi.index.min():

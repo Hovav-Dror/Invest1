@@ -459,6 +459,19 @@ def test_down_payment_glide_ends_in_cash():
     assert 0.5 < glide["apartment"].iloc[0] < 1.0
 
 
+def test_down_payment_glide_does_not_wait():
+    # With the glide path the money is all cash by the planned date, so a fall cannot be waited out.
+    prices = list(np.linspace(100, 80, 13)) + list(np.linspace(80 + 10 / 3, 100, 6)) + [100.0] * 6
+    n = len(prices)
+    data = monthly_data(prices)
+    housing = housing_frame([100.0] * (n + 1), [0.0] * (n + 1))
+    result = calc.down_payment(
+        data, housing, years=1, stock_share=1.0, glide=True, wait_years=1, stock_fee=0.0, cash_spread=0.0
+    )
+    assert (result["waited_months"] == 0).all()
+    assert (result["apartment"] == result["apartment_on_time"]).all()
+
+
 def test_purchase_tax_brackets():
     assert calc.purchase_tax(1_900_000) == 0
     assert calc.purchase_tax(2_500_000) == pytest.approx((2_347_040 - 1_978_745) * 0.035 + (2_500_000 - 2_347_040) * 0.05)
