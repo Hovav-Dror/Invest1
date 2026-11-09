@@ -48,6 +48,10 @@ ENDPOINT_NAMES = (
     "down_payment_ladder",
     "homes_vs_stocks",
     "homes_vs_stocks_episodes",
+    "cash_vehicles",
+    "cash_vehicles_inflation",
+    "pension_fees",
+    "pension_fees_steps",
 )
 
 EXPENSIVE_ENDPOINTS = {
@@ -438,6 +442,43 @@ def _parse_down_payment_args(args) -> Params:
     return _freeze(params)
 
 
+CASH_ARGS = ("amount", "years", "rate", "inflation", "fund_fee", "deposit_spread", "makam_cost", "gemel_fee")
+
+
+def _parse_cash_args(args) -> Params:
+    _reject_unknown(args, set(CASH_ARGS))
+    params: JsonDict = {
+        "amount": _get_float(args, "amount", calc.DEFAULT_CASH_AMOUNT, minimum=1000, maximum=1e8),
+        "years": _get_int(args, "years", calc.DEFAULT_CASH_YEARS, minimum=1, maximum=15),
+        "rate": _get_float(args, "rate", calc.DEFAULT_CASH_RATE, minimum=0, maximum=0.2),
+        "inflation": _get_float(args, "inflation", calc.DEFAULT_CASH_INFLATION, minimum=-0.05, maximum=0.2),
+        "fund_fee": _get_float(args, "fund_fee", calc.DEFAULT_FUND_FEE, minimum=0, maximum=0.03),
+        "deposit_spread": _get_float(args, "deposit_spread", calc.DEFAULT_DEPOSIT_SPREAD, minimum=0, maximum=0.05),
+        "makam_cost": _get_float(args, "makam_cost", calc.DEFAULT_MAKAM_COST, minimum=0, maximum=0.03),
+        "gemel_fee": _get_float(args, "gemel_fee", calc.DEFAULT_GEMEL_FEE, minimum=0, maximum=0.03),
+    }
+    return _freeze(params)
+
+
+PENSION_ARGS = ("age", "retire_age", "salary", "contribution", "salary_growth", "real_return", "fee_deposit", "fee_balance", "coefficient")
+
+
+def _parse_pension_args(args) -> Params:
+    _reject_unknown(args, set(PENSION_ARGS))
+    params: JsonDict = {
+        "age": _get_int(args, "age", calc.DEFAULT_PENSION_AGE, minimum=18, maximum=70),
+        "retire_age": _get_int(args, "retire_age", calc.DEFAULT_PENSION_RETIRE, minimum=50, maximum=75),
+        "salary": _get_float(args, "salary", calc.DEFAULT_PENSION_SALARY, minimum=1000, maximum=1e6),
+        "contribution": _get_float(args, "contribution", calc.DEFAULT_PENSION_CONTRIBUTION, minimum=0.01, maximum=0.4),
+        "salary_growth": _get_float(args, "salary_growth", calc.DEFAULT_PENSION_SALARY_GROWTH, minimum=-0.05, maximum=0.1),
+        "real_return": _get_float(args, "real_return", calc.DEFAULT_PENSION_RETURN, minimum=-0.05, maximum=0.15),
+        "fee_deposit": _get_float(args, "fee_deposit", calc.DEFAULT_PENSION_FEE_DEPOSIT, minimum=0, maximum=0.06),
+        "fee_balance": _get_float(args, "fee_balance", calc.DEFAULT_PENSION_FEE_BALANCE, minimum=0, maximum=0.02),
+        "coefficient": _get_float(args, "coefficient", calc.DEFAULT_PENSION_COEFFICIENT, minimum=100, maximum=400),
+    }
+    return _freeze(params)
+
+
 def _parse_homes_vs_stocks_args(args) -> Params:
     _reject_unknown(args, {"real"})
     return _freeze({"real": _get_bool(args, "real", True)})
@@ -548,6 +589,15 @@ def _dispatch(name: str, params: Params) -> pd.DataFrame:
         return calc.homes_vs_stocks(data=data, housing=_housing(), **kwargs)
     if name == "homes_vs_stocks_episodes":
         return calc.homes_vs_stocks_episodes(data=data, housing=_housing(), **kwargs)
+    if name == "cash_vehicles":
+        return calc.cash_vehicles(**kwargs)
+    if name == "cash_vehicles_inflation":
+        kwargs.pop("inflation", None)
+        return calc.cash_vehicles_inflation(**kwargs)
+    if name == "pension_fees":
+        return calc.pension_fees(**kwargs)
+    if name == "pension_fees_steps":
+        return calc.pension_fees_steps(**kwargs)
     raise KeyError(name)
 
 
@@ -603,6 +653,10 @@ PARSERS: dict[str, Callable[[Any], Params]] = {
     "down_payment_ladder": _parse_down_payment_args,
     "homes_vs_stocks": _parse_homes_vs_stocks_args,
     "homes_vs_stocks_episodes": _parse_homes_vs_stocks_args,
+    "cash_vehicles": _parse_cash_args,
+    "cash_vehicles_inflation": _parse_cash_args,
+    "pension_fees": _parse_pension_args,
+    "pension_fees_steps": _parse_pension_args,
 }
 
 

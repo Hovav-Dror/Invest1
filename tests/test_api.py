@@ -379,3 +379,25 @@ def test_homes_vs_stocks_endpoints(client):
     episodes = client.get("/api/homes_vs_stocks_episodes").get_json()["data"]
     assert {"sp500", "tase"} <= {row["market"] for row in episodes}
     assert client.get("/api/homes_vs_stocks?bogus=1").status_code == 400
+
+
+def test_pension_fees_endpoints(client):
+    payload = client.get("/api/pension_fees?age=28&retire_age=67&fee_deposit=0.0157&fee_balance=0.0015").get_json()
+    final = {row["scenario"]: row for row in payload["data"] if row["age"] == 67}
+    assert set(final) == {"yours", "default_fund", "cap", "none"}
+    assert final["none"]["balance"] > final["yours"]["balance"] > final["cap"]["balance"]
+    steps = client.get("/api/pension_fees_steps").get_json()["data"]
+    assert {row["step"] for row in steps} == {"balance_01", "deposit_1"}
+    assert client.get("/api/pension_fees?age=70&retire_age=60").status_code == 400
+
+
+def test_cash_vehicles_endpoints(client):
+    payload = client.get("/api/cash_vehicles?amount=300000&years=4&rate=0.0325&inflation=0.02").get_json()
+    last = {row["vehicle"]: row for row in payload["data"] if row["year"] == 4}
+    assert set(last) == {"fund", "deposit", "makam", "gemel"}
+    assert max(row["gap"] for row in last.values()) == 0
+    assert payload["metadata"]["units"]["inflation"] is None
+    table = client.get("/api/cash_vehicles_inflation?years=4").get_json()["data"]
+    assert len(table) == 11
+    assert client.get("/api/cash_vehicles?years=0").status_code == 400
+    assert client.get("/api/cash_vehicles?bogus=1").status_code == 400

@@ -18,9 +18,10 @@ PENSION_SOURCE = "https://haotzarsheli.mof.gov.il/Subject/Pages/Provident-Fund.a
 MONEY_ENDPOINTS = {
     "tax_events", "commission_effect", "commission_tax", "kupat_gemel", "kupat_gemel_pension",
     "independent_commissions", "tax_us_vs_il", "trinity", "affordability",
+    "cash_vehicles", "cash_vehicles_inflation", "pension_fees", "pension_fees_steps",
 }
 # Pure calculators: no historical data, so no data period or history warnings.
-CALCULATOR_ENDPOINTS = {"affordability"}
+CALCULATOR_ENDPOINTS = {"affordability", "cash_vehicles", "cash_vehicles_inflation", "pension_fees", "pension_fees_steps"}
 TAX_ENDPOINTS = {
     "tax_events", "commission_effect", "commission_tax", "kupat_gemel", "kupat_gemel_pension",
     "tax_us_vs_il", "sp500_scv_after_tax",
@@ -81,6 +82,22 @@ def _assumptions(name: str, params: dict) -> list[str]:
             "\"כמה דירה\": השווי אחרי מס חלקי השינוי במדד מחירי הדירות של הלמ\"ס. 100% קונה את אותה דירה כמו בהתחלה.",
             "בהמתנה לא נספר שכר הדירה ששילמתם בינתיים.",
         ]
+    if name in {"pension_fees", "pension_fees_steps"}:
+        return [
+            "מחשבון לימודי. הכל בשקלים של היום: השכר עולה מעל האינפלציה בקצב שבחרתם, והתשואה היא מעל האינפלציה, לפני דמי ניהול, וקבועה בכל השנים.",
+            f"הפקדה חודשית של {params.get('contribution', 0.185):.1%} מהשכר ברוטו, בלי הפסקות (חופשת לידה, אבטלה, מעבר עבודה), ובלי תקרה על השכר המבוטח.",
+            "דמי ניהול מההפקדה נלקחים מכל הפקדה; דמי ניהול מהצבירה נגבים מדי חודש, כך ששנה מורידה בדיוק את השיעור השנתי.",
+            f"קצבה: הצבירה חלקי מקדם המרה של {params.get('coefficient', 200):.0f}. המקדם בפועל תלוי בגיל, במין, במסלול ובקרן. לא נכלל רכיב הביטוח (נכות ושארים), שעולה כסף ומקטין את החיסכון.",
+            "ההשוואות: קרן ברירת מחדל לפי המכרז של 2021 (1% מההפקדה, 0.22% מהצבירה), והתקרה בחוק (6% ו-0.5%).",
+        ]
+    if name in {"cash_vehicles", "cash_vehicles_inflation"}:
+        return [
+            "מחשבון לימודי עם ריבית ואינפלציה קבועות לכל התקופה. בפועל שתיהן משתנות.",
+            "קרן כספית וקופת גמל להשקעה במסלול כספי: הריבית פחות דמי הניהול, ומס של 25% על הרווח הריאלי (מעל האינפלציה) פעם אחת במשיכה. הפסד ריאלי לא מקבל החזר.",
+            "פיקדון בנקאי ומק\"מ: הריבית פחות הפער או העמלה, ומס של 15% על הריבית הנומינלית, שמשולם בכל שנה כשהפיקדון או המק\"מ נפדים ומתחדשים.",
+            "המיסוי של מק\"מ שנקנה ישירות (15% נומינלי, כמו אג\"ח שקלית לא צמודה) לא אומת מול מקור רשמי.",
+            "בלי מס רווח הון על קופת הגמל אם הכסף נשאר בה עד גיל 60 ונמשך כקצבה. כאן מניחים שהוא נמשך לדירה.",
+        ]
     if name in {"homes_vs_stocks", "homes_vs_stocks_episodes"}:
         real = "חלקי מדד המחירים לצרכן, כלומר במונחים ריאליים" if params.get("real", True) else "נומינליים, בלי תקנון למדד"
         return [
@@ -109,6 +126,10 @@ def _assumptions(name: str, params: dict) -> list[str]:
 
 
 def _warnings(name: str, frame: pd.DataFrame, period: dict, params: dict) -> list[str]:
+    if name in {"pension_fees", "pension_fees_steps"}:
+        return ["דמי הניהול בקרנות ברירת המחדל נקבעים במכרז ומובטחים לתקופה מוגבלת. כדאי לבדוק את דמי הניהול שלכם בדוח השנתי או באתר הר הכסף."]
+    if name in {"cash_vehicles", "cash_vehicles_inflation"}:
+        return ["דמי הניהול, הפער בפיקדון וכללי המס משתנים בין גופים ולאורך זמן. כדאי לבדוק את ההצעה הספציפית שלכם, ואת דמי הניהול בפועל בקופה."]
     if name in CALCULATOR_ENDPOINTS:
         return ["הכללים והריביות משתנים מבנק לבנק ומשנה לשנה. כדאי לבדוק את המספרים שלכם מול הבנק או יועץ משכנתאות."]
     items = [

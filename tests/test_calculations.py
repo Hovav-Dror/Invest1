@@ -461,3 +461,55 @@ def test_homes_vs_stocks_episodes_find_falls_and_homes_meanwhile():
     assert row["homes_change"] == pytest.approx(0.1)
     assert row["homes_after"] == pytest.approx(0.0)
     assert (row["low"] - row["peak"]).days > 150
+
+
+def test_cash_vehicles_tax_rules():
+    # 5% rate, 3% inflation, no costs, 2 years.
+    result = calc.cash_vehicles(
+        amount=100.0, years=2, rate=0.05, inflation=0.03, fund_fee=0, deposit_spread=0, makam_cost=0, gemel_fee=0
+    ).set_index(["vehicle", "year"])
+    real_tax = 1.05**2 - 0.25 * (1.05**2 - 1.03**2)
+    assert result.loc[("fund", 2), "value"] == pytest.approx(100 * real_tax)
+    assert result.loc[("gemel", 2), "value"] == pytest.approx(100 * real_tax)
+    # 15% of the interest, paid every year.
+    assert result.loc[("deposit", 2), "value"] == pytest.approx(100 * (1 + 0.05 * 0.85) ** 2)
+    assert result.loc[("fund", 2), "real_value"] == pytest.approx(100 * real_tax / 1.03**2)
+    assert result.loc[("fund", 2), "gap"] == pytest.approx(0.0)
+    assert result.loc[("fund", 0), "value"] == pytest.approx(100.0)
+
+
+def test_cash_vehicles_real_tax_never_refunds():
+    # Inflation above the rate: a real loss, so no tax at all.
+    result = calc.cash_vehicles(amount=100.0, years=1, rate=0.02, inflation=0.05, fund_fee=0).set_index(["vehicle", "year"])
+    assert result.loc[("fund", 1), "value"] == pytest.approx(102.0)
+
+
+def test_pension_fees_one_year_by_hand():
+    # One year, flat salary, no return: 12 deposits of 1,000 less 2%, then 1% of the balance a year.
+    result = calc.pension_fees(
+        age=30, retire_age=31, salary=10_000, contribution=0.1, salary_growth=0, real_return=0,
+        fee_deposit=0.02, fee_balance=0.0, coefficient=200,
+    )
+    yours = result[result["scenario"] == "yours"].set_index("age")
+    assert yours.loc[30, "balance"] == 0
+    assert yours.loc[31, "balance"] == pytest.approx(12 * 980)
+    assert yours.loc[31, "pension"] == pytest.approx(12 * 980 / 200)
+    none = result[result["scenario"] == "none"].set_index("age")
+    assert none.loc[31, "balance"] == pytest.approx(12_000)
+
+
+def test_pension_fees_balance_fee_compounds():
+    # A single deposit kept for many years loses about the balance fee every year.
+    flat = dict(age=30, retire_age=50, salary=1000, contribution=0.1, salary_growth=0, real_return=0, fee_deposit=0)
+    cheap = calc.pension_fees(fee_balance=0.0, **flat)
+    dear = calc.pension_fees(fee_balance=0.01, **flat)
+    assert dear["balance"].iloc[20] < cheap["balance"].iloc[20]
+    steps = calc.pension_fees_steps(**flat, fee_balance=0.0).set_index("step")
+    assert steps.loc["deposit_1", "share"] == pytest.approx(0.01)
+    assert steps.loc["balance_01", "balance_loss"] > 0
+
+
+def test_cash_vehicles_inflation_changes_the_ranking():
+    table = calc.cash_vehicles_inflation(years=4, rate=0.04, fund_fee=0.002, makam_cost=0.001)
+    assert table["best"].iloc[0] == "makam"
+    assert table["best"].iloc[-1] == "fund"

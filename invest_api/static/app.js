@@ -93,6 +93,15 @@ import {
     sp500_12m: "S&P 500, שינוי ב-12 חודשים",
     tase_12m: "ת\"א כללי, שינוי ב-12 חודשים",
     rate: "ריבית בנק ישראל",
+    vehicle: "איפה",
+    year: "שנה",
+    value: "אחרי מס (₪)",
+    real_value: "אחרי מס, בשקלים של היום",
+    gap: "פער מהטוב ביותר (₪)",
+    scenario: "דמי ניהול",
+    age: "גיל",
+    balance: "צבירה (₪ של היום)",
+    pension: "קצבה חודשית (₪ של היום)",
     equity: "הון עצמי",
     max_price: "מחיר דירה מקסימלי",
     mortgage: "משכנתא",
@@ -889,7 +898,15 @@ import {
               { text: "האם מניות ודירות יורדות ביחד?", href: "#young-homes" },
               " בודק את הטענה שקריסה בבורסה מוזילה גם את הדירות, מול הנתונים של ישראל מאז 1994."
             ],
-            "בהמשך: איפה להחזיק את הכסף בינתיים, ומה עוד חשוב לבדוק בתחילת הדרך."
+            [
+              { text: "איפה להחזיק את הכסף עד הדירה?", href: "#young-cash" },
+              " קרן כספית, פיקדון, מק\"מ או קופת גמל להשקעה: כמה נשאר אחרי דמי ניהול ומס."
+            ],
+            [
+              { text: "דמי ניהול בפנסיה: כמה זה עולה?", href: "#young-pension" },
+              " עשירית אחוז בגיל 28 נשמעת כמו כלום. המחשבון מראה כמה היא שווה בפרישה."
+            ],
+            "בהמשך: לקנות או לשכור, פירעון מוקדם של משכנתא, ומה עוד חשוב לבדוק בתחילת הדרך."
           ]
         }
       ]
@@ -1013,6 +1030,94 @@ import {
             "חמש נפילות, מתוכן שתיים חופפות, הן מעט מאוד. זה מספיק כדי להפריך את הכלל \"מניות ודירות יורדות ביחד\", אבל לא כדי לקבוע כלל הפוך.",
             "מדד מחירי הדירות מבוסס על עסקאות של חודשיים, ולכן מאחר בכחודש. מדד ת\"א הכללי כאן הוא מדד מחיר, בלי דיבידנדים, ונגמר באוגוסט 2016. מה-S&P 500 יש דיבידנדים, והוא נמדד בשקלים, ולכן הוא מושפע גם משער הדולר.",
             "בלי תקנון למדד (הכפתור למעלה) התמונה דומה: בנפילה של 2000–2003 הדירות כמעט לא זזו בשקלים, ובנפילה של 2008 הן עלו בכ-12%."
+          ]
+        }
+      ]
+    },
+    "young-cash": {
+      tab: "איפה להחזיק את הכסף?",
+      paragraphs: [
+        "את החלק הסולידי של הכסף לדירה אפשר להחזיק בכמה מקומות: קרן כספית, פיקדון בבנק, מק\"מ (מלווה קצר מועד של בנק ישראל) או קופת גמל להשקעה במסלול כספי. כולם מרוויחים בערך את ריבית בנק ישראל. ההבדל ביניהם הוא כמה נלקח בדרך: דמי ניהול, הפער שהבנק משאיר לעצמו, ומס.",
+        "המחשבון מניח ריבית ואינפלציה קבועות, ומראה כמה נשאר בכל אחד מהם אחרי דמי ניהול ומס. את ההנחות על דמי הניהול אפשר לשנות בהגדרות המתקדמות."
+      ],
+      afterChart: [
+        {
+          title: "איך זה עובד?",
+          paragraphs: [
+            { list: [
+              { html: "<strong>קרן כספית:</strong> קרן נאמנות שמחזיקה מק\"מ ופיקדונות קצרים. דמי ניהול של בערך 0.1%–0.3%, ומס של 25%, אבל רק על הרווח שמעל האינפלציה, ורק כשמוכרים." },
+              { html: "<strong>פיקדון בנקאי:</strong> הבנק נותן פחות מריבית בנק ישראל, בדרך כלל בחצי אחוז עד אחוז ויותר. מס של 15% על כל הריבית, גם על החלק שרק מכסה את האינפלציה, והוא נגבה כשהפיקדון נפדה." },
+              { html: "<strong>מק\"מ ישיר:</strong> קונים בבורסה, דרך חשבון מסחר. התשואה קרובה לריבית בנק ישראל, ועולה רק עמלת קנייה ודמי משמרת. מס של 15% על הריבית הנומינלית, כמו באג\"ח שקלית לא צמודה." },
+              { html: "<strong>קופת גמל להשקעה, מסלול כספי:</strong> מחזיקה בערך את אותו דבר כמו קרן כספית, באותו מס (25% מהרווח הריאלי במשיכה), אבל בדמי ניהול גבוהים יותר, בדרך כלל כחצי אחוז או יותר. התקרה בחוק היא 1.05% מהצבירה." }
+            ] }
+          ]
+        },
+        {
+          title: "ומה לומדים?",
+          paragraphs: [
+            { callout: [
+              { html: "<strong class=\"callout-lead\">בשורה התחתונה:</strong> בטווח של כמה שנים, מה שקובע הוא בעיקר דמי הניהול והפער בפיקדון, לא שיטת המס. בהנחות של היום, קרן כספית זולה או מק\"מ משאירים הכי הרבה. פיקדון בבנק משאיר הכי מעט, אלא אם הבנק נותן ריבית קרובה מאוד לריבית בנק ישראל." }
+            ] },
+            "בברירת המחדל, 300 אלף ש\"ח ל-4 שנים, בריבית 3.25% ואינפלציה 2%: בקרן כספית נשארים כ-35 אלף ש\"ח רווח אחרי מס, במק\"מ כ-33 אלף, בקופת גמל במסלול כספי כ-31 אלף, ובפיקדון כ-26 אלף. הפער בין הטוב לגרוע הוא כ-8,600 ש\"ח, בערך 3% מהסכום.",
+            "קופת הגמל מפסידה לקרן הכספית רק בגלל דמי הניהול: המס בשתיהן זהה. הפרש של 0.4% בשנה, ב-4 שנים, הוא כ-4,000 ש\"ח על 300 אלף.",
+            { subheading: "מס על הרווח הריאלי או על הרווח הנומינלי" },
+            "בקרן כספית ובקופת גמל המס הוא 25%, אבל רק על מה שמעל האינפלציה. בפיקדון ובמק\"מ המס נמוך יותר, 15%, אבל על כל הריבית. לכן כשהאינפלציה נמוכה, מק\"מ עדיף על קרן כספית, וכשהיא גבוהה, הקרן עדיפה. בטבלה שמתחת לגרף רואים באיזו אינפלציה הסדר מתהפך. ההפרשים כאן קטנים, אלפים בודדים של שקלים.",
+            { subheading: "ומה עם קופת גמל להשקעה?" },
+            "לקופת גמל להשקעה יש יתרון אמיתי אחד בטווח קצר: אפשר לעבור בין מסלולים בלי לשלם מס. למשל, להחזיק חלק במסלול מניות ולהעביר אותו בהדרגה למסלול כספי ככל שהקנייה מתקרבת, כמו ב\"להוריד מניות בהדרגה\" בעמוד הקודם. מי שעושה את זה בקרן נאמנות או בתעודת סל משלם מס על הרווח בכל מכירה, כלומר מוקדם יותר.",
+            "ויש יתרון נוסף: אם בסוף לא קונים, או קונים בלי להזדקק לכל הכסף, אפשר להשאיר אותו בקופה עד גיל 60 ולמשוך כקצבה פטורה ממס. אבל אם כל הכסף יוצא לדירה בעוד כמה שנים, היתרונות האלה קטנים, ודמי הניהול נשארים. לכן כדאי לבדוק את דמי הניהול בפועל. בקופות רבות אפשר להתמקח עליהם.",
+            [
+              "עוד על קופות גמל להשקעה, בטווח ארוך, בעמוד ",
+              { text: "קופת גמל ו-IRA", href: "#kupat-gemel" },
+              "."
+            ],
+            { subheading: "וכמה הערות" },
+            "הריבית לא תישאר קבועה. אם בנק ישראל יוריד אותה, כל החלופות ירוויחו פחות, אבל הפערים ביניהם יישארו בערך כמו שהם, כי הם נובעים מדמי הניהול ומהמס.",
+            "המיסוי של מק\"מ שנקנה ישירות (15% על הריבית הנומינלית) מבוסס על הכלל לאג\"ח שקלית לא צמודה, ולא בדקתי אותו מול מקור רשמי. המחשבון גם לא סופר קיזוז הפסדים, נקודות זיכוי או תקרת פטור.",
+            [
+              "כל זה על החלק הסולידי. השאלה כמה מהכסף לשים במניות נמצאת בעמוד ",
+              { text: "כמה מניות בכסף לדירה?", href: "#young-down" },
+              "."
+            ]
+          ]
+        }
+      ]
+    },
+    "young-pension": {
+      tab: "דמי ניהול בפנסיה",
+      paragraphs: [
+        "רוב העמודים כאן עוסקים בכסף שיש לכם עכשיו. אבל בגיל 28, הנכס הכספי הגדול שלכם הוא כנראה בכלל קרן הפנסיה, שאליה נכנס כל חודש כמעט חמישית מהשכר. ויש בה החלטה אחת שלוקחת חמש דקות ושווה יותר מכמעט כל החלטת השקעה אחרת: כמה דמי ניהול משלמים.",
+        "בקרן פנסיה יש שני סוגים של דמי ניהול: אחוז מכל הפקדה, ואחוז מהצבירה, כלומר מכל הכסף שכבר נמצא בקרן, בכל שנה. המחשבון מראה כמה כל אחד מהם עולה עד הפרישה."
+      ],
+      afterChart: [
+        {
+          title: "איך זה עובד?",
+          paragraphs: [
+            "כל חודש נכנסת לקרן הפקדה של 18.5% מהשכר ברוטו (6% מכם, 6.5% מהמעסיק, ועוד 6% לפיצויים), פחות דמי הניהול מההפקדה. הכסף בקרן מרוויח תשואה, ומדי חודש יורדים ממנו דמי הניהול מהצבירה.",
+            "הכל מחושב בשקלים של היום: השכר עולה מעט מעל האינפלציה, והתשואה היא מעל האינפלציה. בפרישה, הצבירה הופכת לקצבה חודשית בעזרת מקדם המרה: צבירה של 2 מיליון במקדם 200 היא קצבה של 10,000 ש\"ח בחודש.",
+            "הקווים להשוואה: קרן ברירת מחדל (הקרנות שנבחרו במכרז של רשות שוק ההון, 1% מההפקדה ו-0.22% מהצבירה), התקרה בחוק (6% ו-0.5%), ובלי דמי ניהול בכלל. ברירת המחדל במחשבון היא הממוצע בשוק ב-2024, כ-1.57% מההפקדה ו-0.15% מהצבירה."
+          ]
+        },
+        {
+          title: "ומה לומדים?",
+          paragraphs: [
+            { callout: [
+              { html: "<strong class=\"callout-lead\">בשורה התחתונה:</strong> מי שמשלם את התקרה בחוק במקום את הממוצע, יפרוש עם כ-350 אלף ש\"ח פחות, כ-1,750 ש\"ח פחות קצבה בכל חודש. זה יותר ממה שרוב ההחלטות על הכסף לדירה ישנו. ואת זה אפשר לסדר בשיחת טלפון." }
+            ] },
+            "בברירת המחדל: מגיל 28 עד 67, שכר של 15 אלף ש\"ח ברוטו ותשואה של 3.5% מעל האינפלציה. בדמי הניהול הממוצעים הצבירה בפרישה היא כ-3 מיליון ש\"ח, בשקלים של היום, כלומר קצבה של כ-15 אלף בחודש. בלי דמי ניהול בכלל היא הייתה כ-3.18 מיליון. בתקרה בחוק, כ-2.68 מיליון.",
+            { subheading: "עשירית אחוז מהצבירה שווה יותר מאחוז שלם מההפקדה" },
+            "בגיל 28, עוד 0.1% מהצבירה עולה עד הפרישה כ-67 אלף ש\"ח, כ-2% מהצבירה. עוד 1% מההפקדה עולה כ-31 אלף, כ-1%. כלומר עשירית אחוז מהצבירה עולה בערך כמו שני אחוזים מההפקדה.",
+            "הסיבה: דמי ניהול מההפקדה נלקחים פעם אחת מכל שקל. דמי ניהול מהצבירה נלקחים מאותו שקל שוב ושוב, כל שנה, במשך עשרות שנים. ככל שאתם צעירים יותר, דמי הניהול מהצבירה חשובים יותר. קרוב לפרישה, כשרוב הכסף כבר בקרן ונשארו מעט שנים, ההבדל קטן.",
+            { subheading: "מה עושים עם זה" },
+            { list: [
+              "בודקים את דמי הניהול בדוח השנתי של הקרן, או באתר הר הכסף של משרד האוצר.",
+              "משווים לקרן ברירת המחדל שהמעסיק בחר, ולקרנות ברירת המחדל שנבחרו במכרז. כל אחד יכול להצטרף אליהן.",
+              "מתקשרים לקרן ומבקשים הנחה. דמי ניהול נמוכים לכל החיים שווים יותר מכמעט כל החלטת השקעה אחרת בתחילת הדרך.",
+              "שימו לב לתקופת ההנחה: הנחה לכמה שנים ואחריה דמי ניהול גבוהים היא לא אותו דבר כמו הנחה לכל החיים."
+            ] },
+            { subheading: "וכמה הערות" },
+            "התשואה לא תהיה קבועה, והשכר לא יעלה בקו ישר. יהיו הפסקות: חופשת לידה, לימודים, מעבר עבודה. כל אלה משנים את הסכום, אבל לא את המסקנה: בכל תרחיש, דמי ניהול נמוכים יותר משאירים יותר כסף, וההפרש גדל עם הזמן.",
+            "המחשבון מתעלם מרכיב הביטוח בקרן (ביטוח נכות ושארים), שעולה כסף אבל שווה הרבה לזוג צעיר, במיוחד עם ילדים ומשכנתא. אל תוותרו עליו כדי לחסוך.",
+            "דמי הניהול בקרנות ברירת המחדל נקבעים במכרז, ומובטחים לתקופה מוגבלת. כדאי לבדוק מה מובטח לכם, ולמשך כמה זמן."
           ]
         }
       ]
@@ -1732,6 +1837,51 @@ import {
       metric: metricHomesStocks
     },
     {
+      id: "young-cash",
+      group: "Young couples",
+      title: "איפה להחזיק את הכסף עד הדירה?",
+      nav: "איפה להחזיק את הכסף?",
+      kicker: "קרן כספית, פיקדון, מק\"מ או קופת גמל להשקעה",
+      takeaway: "לחלק הסולידי של הכסף לדירה יש כמה בתים אפשריים. ההבדלים ביניהם קטנים יותר ממה שנדמה, אבל לא אפס, והם תלויים בדמי הניהול, באינפלציה ובשיטת המס.",
+      endpoint: "cash_vehicles",
+      controls: [
+        field("amount", "סכום (₪)", "text", "300000"),
+        select("years", "עוד כמה שנים צריך אותו", [1, 2, 3, 4, 5, 6, 7].map((n) => [String(n), n === 1 ? "שנה" : `${n} שנים`]), "4"),
+        select("rate", "ריבית בנק ישראל", ["1", "2", "3", "3.25", "4", "4.5", "5", "6"].map((n) => [n, `${n}%`]), "3.25"),
+        select("inflation", "אינפלציה בשנה", ["0", "1", "1.5", "2", "2.5", "3", "4", "5"].map((n) => [n, `${n}%`]), "2"),
+        { ...select("fund_fee", "דמי ניהול בקרן כספית", ["0.05", "0.1", "0.2", "0.3", "0.5"].map((n) => [n, `${n}%`]), "0.2"), advanced: true },
+        { ...select("deposit_spread", "הפיקדון נותן פחות מהריבית ב-", ["0.25", "0.5", "0.75", "1", "1.5", "2"].map((n) => [n, `${n}%`]), "0.75"), advanced: true },
+        { ...select("makam_cost", "עלות קנייה והחזקה של מק\"מ", ["0", "0.05", "0.1", "0.2", "0.3"].map((n) => [n, `${n}% בשנה`]), "0.1"), advanced: true },
+        { ...select("gemel_fee", "דמי ניהול בקופת גמל להשקעה", ["0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "1.05"].map((n) => [n, `${n}%`]), "0.6"), advanced: true }
+      ],
+      chart: { type: "cashVehicles" },
+      tableColumns: ["vehicle", "year", "value", "real_value", "gap"],
+      metric: metricCashVehicles
+    },
+    {
+      id: "young-pension",
+      group: "Young couples",
+      title: "דמי ניהול בפנסיה: כמה זה עולה?",
+      nav: "דמי ניהול בפנסיה",
+      kicker: "ההחלטה הכספית הכי משתלמת בתחילת הדרך",
+      takeaway: "דמי הניהול בקרן הפנסיה נראים זניחים: עשירית אחוז פה, אחוז שם. אבל בגיל 28 יש עוד כמעט 40 שנה של הפקדות וריבית דריבית, ושם הם מצטברים לסכום גדול.",
+      endpoint: "pension_fees",
+      controls: [
+        select("age", "גיל היום", [22, 25, 28, 30, 32, 35, 40].map((n) => [String(n), String(n)]), "28"),
+        field("salary", "שכר חודשי ברוטו (₪)", "text", "15000"),
+        select("fee_deposit", "דמי ניהול מההפקדה", ["0", "0.5", "1", "1.57", "2", "3", "4", "6"].map((n) => [n, `${n}%`]), "1.57"),
+        select("fee_balance", "דמי ניהול מהצבירה", ["0.05", "0.1", "0.15", "0.22", "0.3", "0.4", "0.5"].map((n) => [n, `${n}% בשנה`]), "0.15"),
+        { ...select("retire_age", "גיל פרישה", [62, 64, 65, 67, 70].map((n) => [String(n), String(n)]), "67"), advanced: true },
+        { ...select("contribution", "הפקדה מהשכר", ["12.5", "15", "18.5", "20.83"].map((n) => [n, `${n}%`]), "18.5"), advanced: true },
+        { ...select("real_return", "תשואה מעל האינפלציה", ["2", "3", "3.5", "4", "5"].map((n) => [n, `${n}% בשנה`]), "3.5"), advanced: true },
+        { ...select("salary_growth", "עליית שכר מעל האינפלציה", ["0", "1", "2", "3"].map((n) => [n, `${n}% בשנה`]), "1"), advanced: true },
+        { ...select("coefficient", "מקדם המרה לקצבה", ["180", "200", "220", "240"].map((n) => [n, n]), "200"), advanced: true }
+      ],
+      chart: { type: "pensionFees" },
+      tableColumns: ["scenario", "age", "balance", "pension"],
+      metric: metricPensionFees
+    },
+    {
       id: "about",
       group: "Intro",
       title: "על האתר",
@@ -1781,7 +1931,7 @@ import {
   let storyCollapseSeq = 0;
   let chartHost = null;
   let skipNextHashChange = false;
-  const moneyInputNames = new Set(["initial", "base", "equity", "income"]);
+  const moneyInputNames = new Set(["initial", "base", "equity", "income", "amount", "salary"]);
   const percentFractionInputNames = new Set(["dollar_commission", "yearly_commission"]);
 
   function field(name, label, type, value, step, hint) {
@@ -1862,7 +2012,7 @@ import {
     { label: "סיכון", views: ["sp500-risk"] },
     { label: "מה לשים בתיק?", views: ["us-world", "scv"] },
     { label: "השוואת תיקים", views: ["portfolio-summary"], priority: true },
-    { label: "זוגות צעירים", views: ["young-intro", "young-equity", "young-down", "young-homes"] },
+    { label: "זוגות צעירים", views: ["young-intro", "young-equity", "young-down", "young-homes", "young-cash", "young-pension"] },
     { label: "משיכה מהתיק (טריניטי)", views: ["trinity"] }
   ];
 
@@ -3315,6 +3465,15 @@ import {
         if (endpoint === "down_payment") params.set(key, String(Number(value) / 100));
         return;
       }
+      if ((endpoint === "pension_fees" || endpoint === "pension_fees_steps") && ["contribution", "salary_growth", "real_return", "fee_deposit", "fee_balance"].includes(key)) {
+        params.set(key, String(Number(value) / 100));
+        return;
+      }
+      if ((endpoint === "cash_vehicles" || endpoint === "cash_vehicles_inflation") && ["rate", "inflation", "fund_fee", "deposit_spread", "makam_cost", "gemel_fee"].includes(key)) {
+        if (endpoint === "cash_vehicles_inflation" && key === "inflation") return;
+        params.set(key, String(Number(value) / 100));
+        return;
+      }
       if (endpoint === "affordability" && ["rate", "pti", "drop", "costs"].includes(key)) {
         params.set(key, String(Number(value) / 100));
         return;
@@ -4260,6 +4419,65 @@ import {
     ];
   }
 
+  const CASH_VEHICLES = [
+    { id: "fund", label: "קרן כספית", color: "#145f59", tax: "25% מהרווח הריאלי, במשיכה" },
+    { id: "makam", label: "מק\"מ ישיר", color: "#385f9f", tax: "15% מהריבית, כל שנה" },
+    { id: "gemel", label: "קופת גמל להשקעה, מסלול כספי", color: "#7a5a9e", tax: "25% מהרווח הריאלי, במשיכה" },
+    { id: "deposit", label: "פיקדון בנקאי", color: "#c0582b", tax: "15% מהריבית, כל שנה" }
+  ];
+
+  const cashLabel = (id) => (CASH_VEHICLES.find((item) => item.id === id) || { label: id }).label;
+
+  function cashFinalRows(payload) {
+    const rows = payload.data || [];
+    const last = Math.max(...rows.map((row) => Number(row.year)));
+    return rows.filter((row) => Number(row.year) === last);
+  }
+
+  function metricCashVehicles(payload) {
+    const rows = cashFinalRows(payload);
+    if (!rows.length) return [];
+    const params = payload.params || {};
+    const amount = Number(params.amount) || 0;
+    const sorted = [...rows].sort((a, b) => numericValue(b.value) - numericValue(a.value));
+    const best = sorted[0];
+    const worst = sorted[sorted.length - 1];
+    const real = numericValue(best.real_value) - amount;
+    return [
+      { label: "הכי משתלם בהנחות האלה", valueText: cashLabel(best.vehicle), color: "#145f59", note: `${formatShekel(numericValue(best.value))} אחרי מס` },
+      { label: "הפער בין הטוב לגרוע", value: Math.round(numericValue(best.value) - numericValue(worst.value)), format: "shekel", color: "#c0582b", note: `${cashLabel(worst.vehicle)}. ${formatPercent((numericValue(best.value) - numericValue(worst.value)) / amount, 1)} מהסכום` },
+      { label: "רווח אחרי אינפלציה, בטוב ביותר", value: Math.round(real), format: "shekel", color: "#68736f", note: `בשקלים של היום, ${formatPercent(real / amount, 1)} על פני ${Number(params.years)} ${Number(params.years) === 1 ? "שנה" : "שנים"}` }
+    ];
+  }
+
+  const PENSION_SCENARIOS = [
+    { id: "yours", label: "דמי הניהול שבחרתם", color: "#145f59", width: 2.8 },
+    { id: "default_fund", label: "קרן ברירת מחדל", color: "#385f9f", width: 1.8 },
+    { id: "cap", label: "התקרה בחוק", color: "#c0582b", width: 1.8 },
+    { id: "none", label: "בלי דמי ניהול", color: "#9aa39f", width: 1.4, dash: "5 4" }
+  ];
+
+  function pensionFinal(payload) {
+    const rows = payload.data || [];
+    const last = Math.max(...rows.map((row) => Number(row.age)));
+    return Object.fromEntries(rows.filter((row) => Number(row.age) === last).map((row) => [row.scenario, row]));
+  }
+
+  const monthlyShekel = (value) => `${formatShekel(value)} בחודש`;
+
+  function metricPensionFees(payload) {
+    const final = pensionFinal(payload);
+    if (!final.yours || !final.none) return [];
+    const yours = numericValue(final.yours.balance);
+    const lost = numericValue(final.none.balance) - yours;
+    const capGap = yours - numericValue(final.cap.balance);
+    return [
+      { label: "צבירה בפרישה", value: Math.round(yours), format: "shekel", color: "#145f59", note: `קצבה של כ-${monthlyShekel(numericValue(final.yours.pension))}, בשקלים של היום` },
+      { label: "כמה דמי הניהול לוקחים", value: Math.round(lost), format: "shekel", color: "#c0582b", note: `${formatPercent(lost / numericValue(final.none.balance), 0)} מהצבירה. ${monthlyShekel(numericValue(final.none.pension) - numericValue(final.yours.pension))} פחות קצבה` },
+      { label: "לעומת התקרה בחוק", value: Math.round(capGap), format: "shekel", color: "#68736f", note: capGap >= 0 ? `יותר צבירה מאשר בדמי הניהול המקסימליים` : "פחות מאשר בתקרה?" }
+    ];
+  }
+
   function metricAffordability(payload) {
     const { now, after_drop: after } = affordabilityPoints(payload.data || []);
     if (!now || !after) return [];
@@ -4524,6 +4742,14 @@ import {
     }
     if (chartConfig.type === "homesStocks") {
       renderHomesStocksChart(payload);
+      return;
+    }
+    if (chartConfig.type === "cashVehicles") {
+      renderCashVehicles(payload);
+      return;
+    }
+    if (chartConfig.type === "pensionFees") {
+      renderPensionFees(payload);
       return;
     }
     renderLineChart(payload, chartConfig);
@@ -5134,6 +5360,132 @@ import {
         };
       }
     });
+  }
+
+  async function renderCashVehicles(payload) {
+    const target = chartTarget();
+    releaseChart(target);
+    const rows = cashFinalRows(payload);
+    if (!rows.length) {
+      chartMessage(ui.noNumericSeries);
+      return;
+    }
+    const params = payload.params || {};
+    const amount = Number(params.amount) || 0;
+    const years = Number(params.years);
+    const byId = Object.fromEntries(rows.map((row) => [row.vehicle, row]));
+    const ordered = CASH_VEHICLES.filter((item) => byId[item.id]).sort((a, b) => numericValue(byId[b.id].value) - numericValue(byId[a.id].value));
+    const maxGain = Math.max(...ordered.map((item) => numericValue(byId[item.id].value) - amount), 1);
+    const bars = ordered.map((item) => {
+      const row = byId[item.id];
+      const gain = numericValue(row.value) - amount;
+      const gap = numericValue(row.gap);
+      return `<li>
+        <span class="cash-bars-name">${escapeHtml(item.label)}<small>${escapeHtml(item.tax)}</small></span>
+        <span class="cash-bars-bar"><i style="width:${Math.max(0, gain / maxGain) * 100}%;background:${item.color}"></i></span>
+        <span class="cash-bars-value"><b>+${formatShekel(gain)}</b><small>${gap < -0.5 ? `${formatShekel(-gap)} פחות מהטוב ביותר` : "הטוב ביותר"}</small></span>
+      </li>`;
+    }).join("");
+    target.innerHTML = `
+      <figure class="cash-bars">
+        <figcaption>כמה מרוויחים על ${escapeHtml(formatShekel(amount))} ב-${years === 1 ? "שנה" : `${years} שנים`}, אחרי דמי ניהול ומס</figcaption>
+        <ol>${bars}</ol>
+        <p class="down-ladder-note">ריבית של ${formatPercent(Number(params.rate), 2)} ואינפלציה של ${formatPercent(Number(params.inflation), 1)} בכל שנה. רווח בשקלים של אז, לפני תקנון לאינפלציה.</p>
+      </figure>
+      <section class="down-ladder" aria-live="polite">
+        <h4>ואם האינפלציה תהיה אחרת?</h4>
+        <p class="down-ladder-note">מחשב...</p>
+      </section>`;
+    let table;
+    try {
+      table = await fetchPayload(`api/cash_vehicles_inflation?${paramsFor("cash_vehicles_inflation", stateFromForm())}`);
+    } catch (error) {
+      return;
+    }
+    const slot = chartTarget().querySelector(".down-ladder");
+    if (lastPayload !== payload || !slot) return;
+    const selected = Number(params.inflation);
+    const body = (table.data || []).map((row) => {
+      const inflation = numericValue(row.inflation);
+      const cells = CASH_VEHICLES.map((item) => {
+        const value = numericValue(row[item.id]) - amount;
+        const best = row.best === item.id;
+        return `<td${best ? ` class="is-best"` : ""}>${best ? "<b>" : ""}+${formatShekel(value)}${best ? "</b>" : ""}</td>`;
+      }).join("");
+      return `<tr${Math.abs(inflation - selected) < 1e-9 ? ` class="is-selected"` : ""}><th scope="row">${formatPercent(inflation, 1)}</th>${cells}</tr>`;
+    }).join("");
+    slot.innerHTML = `
+      <h4>ואם האינפלציה תהיה אחרת?</h4>
+      <div class="story-table"><table>
+        <thead><tr><th>אינפלציה</th>${CASH_VEHICLES.map((item) => `<th>${escapeHtml(item.label)}</th>`).join("")}</tr></thead>
+        <tbody>${body}</tbody>
+      </table></div>
+      <p class="down-ladder-note">הרווח אחרי מס על פני ${years === 1 ? "שנה" : `${years} שנים`}, באותה ריבית ובאותם דמי ניהול. מודגש: הטוב ביותר בכל שורה.</p>`;
+  }
+
+  async function renderPensionFees(payload) {
+    const target = chartTarget();
+    releaseChart(target);
+    const rows = payload.data || [];
+    if (!rows.length) {
+      chartMessage(ui.noNumericSeries);
+      return;
+    }
+    const params = payload.params || {};
+    const series = PENSION_SCENARIOS.map((def) => ({
+      id: def.id,
+      label: def.label,
+      color: def.color,
+      width: def.width,
+      dash: def.dash,
+      points: rows.filter((row) => row.scenario === def.id).map((row) => ({ x: Number(row.age), y: numericValue(row.balance), data: row }))
+    }));
+    target.innerHTML = `
+      <div class="trinity-chart">
+        <div class="trinity-chart-head"><h4>הצבירה בקרן הפנסיה לפי גיל, בשקלים של היום</h4></div>
+        <div class="trinity-plot"></div>
+      </div>
+      <section class="down-ladder" aria-live="polite">
+        <h4>כמה עולה כל שינוי קטן</h4>
+        <p class="down-ladder-note">מחשב...</p>
+      </section>`;
+    drawChart(target.querySelector(".trinity-plot"), {
+      kind: "line",
+      key: "pension-fees",
+      summary: `צבירה בפנסיה מגיל ${params.age} עד ${params.retire_age}, בארבע רמות של דמי ניהול`,
+      aspect: 0.52,
+      zoomable: true,
+      caption: `שכר של ${formatShekel(Number(params.salary))} ברוטו, הפקדה של ${formatPercent(Number(params.contribution), 1)}, תשואה של ${formatPercent(Number(params.real_return), 1)} מעל האינפלציה. ברירת מחדל: 1% מההפקדה ו-0.22% מהצבירה. התקרה: 6% ו-0.5%.`,
+      x: { format: (value) => `גיל ${Math.round(value)}`, tick: (value) => String(Math.round(value)), label: "גיל" },
+      y: { format: (value) => formatShekel(value), tick: shekelTick, zero: true, label: "צבירה" },
+      series,
+      tooltip: (x, hits) => ({
+        header: `גיל ${Math.round(x)}`,
+        rows: hits.map((hit) => ({ color: hit.series.color, label: hit.series.label, value: `${formatShekel(hit.point.y)} (${monthlyShekel(numericValue(hit.point.data.pension))})` }))
+      })
+    });
+    let steps;
+    try {
+      steps = await fetchPayload(`api/pension_fees_steps?${paramsFor("pension_fees_steps", stateFromForm())}`);
+    } catch (error) {
+      return;
+    }
+    const slot = chartTarget().querySelector(".down-ladder");
+    if (lastPayload !== payload || !slot) return;
+    const labels = { balance_01: "עוד 0.1% מהצבירה", deposit_1: "עוד 1% מההפקדה" };
+    const body = (steps.data || []).map((row) => `<tr>
+      <th scope="row">${escapeHtml(labels[row.step] || row.step)}</th>
+      <td>${formatShekel(numericValue(row.balance_loss))}</td>
+      <td>${monthlyShekel(numericValue(row.pension_loss))}</td>
+      <td>${formatPercent(numericValue(row.share), 1)}</td>
+    </tr>`).join("");
+    slot.innerHTML = `
+      <h4>כמה עולה כל שינוי קטן</h4>
+      <div class="story-table"><table>
+        <thead><tr><th>מעל דמי הניהול שבחרתם</th><th>פחות צבירה בפרישה</th><th>פחות קצבה</th><th>מהצבירה</th></tr></thead>
+        <tbody>${body}</tbody>
+      </table></div>
+      <p class="down-ladder-note">באותן הנחות, מגיל ${params.age} עד ${params.retire_age}. בשקלים של היום.</p>`;
   }
 
   async function renderDownPaymentLadder(payload, state) {
@@ -5885,7 +6237,11 @@ import {
       down_payment: "התקופות",
       down_payment_ladder: "ההשוואה",
       homes_vs_stocks: "הסדרות",
-      homes_vs_stocks_episodes: "הנפילות"
+      homes_vs_stocks_episodes: "הנפילות",
+      cash_vehicles: "המחשבון",
+      cash_vehicles_inflation: "לפי אינפלציה",
+      pension_fees: "המחשבון",
+      pension_fees_steps: "כמה עולה כל שינוי"
     };
     return explicit[endpoint] || endpoint;
   }

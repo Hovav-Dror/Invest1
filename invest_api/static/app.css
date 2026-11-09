@@ -3647,6 +3647,76 @@ button.vchart-legend-item[aria-pressed="false"] {
   margin: 8px 0 0;
 }
 
+.down-ladder td.is-best {
+  color: #145f59;
+}
+
+/* Where to hold the cash */
+.cash-bars {
+  margin: 0;
+}
+
+.cash-bars figcaption {
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.cash-bars ol {
+  display: grid;
+  gap: 14px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cash-bars li {
+  align-items: center;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(150px, 1.2fr) 2fr minmax(110px, auto);
+}
+
+.cash-bars-name,
+.cash-bars-value {
+  display: grid;
+  gap: 2px;
+}
+
+.cash-bars-name small,
+.cash-bars-value small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.cash-bars-value b {
+  font-variant-numeric: tabular-nums;
+}
+
+.cash-bars-bar {
+  background: color-mix(in srgb, #17201d 6%, transparent);
+  border-radius: 4px;
+  height: 18px;
+  overflow: hidden;
+}
+
+.cash-bars-bar i {
+  border-radius: 4px;
+  display: block;
+  height: 100%;
+}
+
+@media (max-width: 640px) {
+  .cash-bars li {
+    grid-template-columns: 1fr auto;
+  }
+
+  .cash-bars-bar {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
 /* IRA reading width */
 #story[data-view="ira"] .story-copy p,
 #story[data-view="ira"] .story-copy li,

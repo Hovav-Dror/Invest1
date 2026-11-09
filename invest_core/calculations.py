@@ -1323,3 +1323,216 @@ def _episode_row(frame: pd.DataFrame, column: str, market: str, peak: int, low: 
         "rate_peak": frame["rate"][peak],
         "rate_low": frame["rate"][low],
     }
+
+
+DEFAULT_CASH_AMOUNT = 300_000.0
+DEFAULT_CASH_YEARS = 4
+DEFAULT_CASH_RATE = 0.0325  # Bank of Israel rate, November 2026
+DEFAULT_CASH_INFLATION = 0.02  # middle of the Bank of Israel target range
+DEFAULT_FUND_FEE = 0.002
+DEFAULT_DEPOSIT_SPREAD = 0.0075
+DEFAULT_MAKAM_COST = 0.001
+DEFAULT_GEMEL_FEE = 0.006
+NOMINAL_INTEREST_TAX = 0.15
+
+# (id, cost parameter, tax rule, rolled over and taxed every year)
+CASH_VEHICLES = (
+    ("fund", "fund_fee", "real", False),
+    ("deposit", "deposit_spread", "nominal", True),
+    ("makam", "makam_cost", "nominal", True),
+    ("gemel", "gemel_fee", "real", False),
+)
+
+
+def _cash_value(years: int, rate: float, inflation: float, cost: float, tax: str, yearly: bool) -> float:
+    """After-tax nominal value of 1 after ``years``.
+
+    ``real`` tax: 25% of the gain above inflation, once at the end, never a
+    refund. ``nominal`` tax: 15% of the interest; with ``yearly`` it is paid
+    every year when the deposit or makam matures and is rolled over.
+    """
+
+    net = rate - cost
+    if tax == "nominal":
+        if yearly:
+            return (1 + net * (1 - NOMINAL_INTEREST_TAX)) ** years
+        gross = (1 + net) ** years
+        return gross - NOMINAL_INTEREST_TAX * max(gross - 1, 0.0)
+    gross = (1 + net) ** years
+    return gross - TAX_RATE * max(gross - (1 + inflation) ** years, 0.0)
+
+
+def cash_vehicles(
+    amount: float = DEFAULT_CASH_AMOUNT,
+    years: int = DEFAULT_CASH_YEARS,
+    rate: float = DEFAULT_CASH_RATE,
+    inflation: float = DEFAULT_CASH_INFLATION,
+    fund_fee: float = DEFAULT_FUND_FEE,
+    deposit_spread: float = DEFAULT_DEPOSIT_SPREAD,
+    makam_cost: float = DEFAULT_MAKAM_COST,
+    gemel_fee: float = DEFAULT_GEMEL_FEE,
+) -> pd.DataFrame:
+    """What ``amount`` held as cash grows to, after fees and tax, by vehicle and year.
+
+    A fixed rate and inflation; no historical data. Vehicles: a money-market
+    fund (``rate - fund_fee``, 25% of the real gain at the end), a bank
+    deposit (``rate - deposit_spread``, 15% of the interest every year), a
+    makam bought directly (``rate - makam_cost``, 15% every year) and a
+    provident fund for investment in its shekel money-market track
+    (``rate - gemel_fee``, 25% of the real gain at the end).
+
+    Columns: vehicle, year, value (shekels after tax if withdrawn that year),
+    real_value (in today's shekels), gap (value minus the best vehicle that
+    year).
+    """
+
+    if amount <= 0:
+        raise CalculationInputError("הסכום צריך להיות חיובי.")
+    if not 1 <= years <= 15:
+        raise CalculationInputError("מספר השנים צריך להיות בין 1 ל-15.")
+    costs = {"fund_fee": fund_fee, "deposit_spread": deposit_spread, "makam_cost": makam_cost, "gemel_fee": gemel_fee}
+    rows = []
+    for year in range(years + 1):
+        for vehicle, cost, tax, yearly in CASH_VEHICLES:
+            value = amount * _cash_value(year, rate, inflation, costs[cost], tax, yearly)
+            rows.append({"vehicle": vehicle, "year": year, "value": value, "real_value": value / (1 + inflation) ** year})
+    frame = pd.DataFrame(rows)
+    frame["gap"] = frame["value"] - frame.groupby("year")["value"].transform("max")
+    return frame
+
+
+CASH_INFLATION_GRID = tuple(round(step * 0.005, 3) for step in range(0, 11))
+
+
+def cash_vehicles_inflation(
+    amount: float = DEFAULT_CASH_AMOUNT,
+    years: int = DEFAULT_CASH_YEARS,
+    rate: float = DEFAULT_CASH_RATE,
+    fund_fee: float = DEFAULT_FUND_FEE,
+    deposit_spread: float = DEFAULT_DEPOSIT_SPREAD,
+    makam_cost: float = DEFAULT_MAKAM_COST,
+    gemel_fee: float = DEFAULT_GEMEL_FEE,
+) -> pd.DataFrame:
+    """``cash_vehicles`` at the last year, for inflation from 0% to 5%.
+
+    Real tax is lighter when inflation is high, so the ranking can change.
+    Columns: inflation, then the after-tax value of each vehicle, and best.
+    """
+
+    rows = []
+    for inflation in CASH_INFLATION_GRID:
+        frame = cash_vehicles(amount, years, rate, inflation, fund_fee, deposit_spread, makam_cost, gemel_fee)
+        last = frame[frame["year"] == years].set_index("vehicle")["value"]
+        rows.append({"inflation": inflation, **last.to_dict(), "best": last.idxmax()})
+    return pd.DataFrame(rows)
+
+
+DEFAULT_PENSION_AGE = 28
+DEFAULT_PENSION_RETIRE = 67
+DEFAULT_PENSION_SALARY = 15_000.0
+DEFAULT_PENSION_CONTRIBUTION = 0.185  # 6% employee + 6.5% employer + 6% severance
+DEFAULT_PENSION_SALARY_GROWTH = 0.01  # real, per year
+DEFAULT_PENSION_RETURN = 0.035  # real, per year, before fees
+DEFAULT_PENSION_FEE_DEPOSIT = 0.0157  # market average, 2024
+DEFAULT_PENSION_FEE_BALANCE = 0.0015
+DEFAULT_PENSION_COEFFICIENT = 200.0
+
+# Fixed comparisons: (id, fee on deposits, fee on balance).
+PENSION_SCENARIOS = (
+    ("default_fund", 0.01, 0.0022),  # default funds, 2021 tender
+    ("cap", 0.06, 0.005),  # legal maximum
+    ("none", 0.0, 0.0),
+)
+
+
+def _pension_path(
+    months: int,
+    salary: float,
+    contribution: float,
+    salary_growth: float,
+    real_return: float,
+    fee_deposit: float,
+    fee_balance: float,
+) -> np.ndarray:
+    """Real balance at the end of each year, monthly deposits and fees."""
+
+    monthly_return = (1 + real_return) ** (1 / 12)
+    monthly_fee = (1 - fee_balance) ** (1 / 12)
+    balance = 0.0
+    yearly = [0.0]
+    for month in range(months):
+        wage = salary * (1 + salary_growth) ** (month // 12)
+        balance = balance * monthly_return * monthly_fee + wage * contribution * (1 - fee_deposit)
+        if (month + 1) % 12 == 0:
+            yearly.append(balance)
+    return np.array(yearly)
+
+
+def pension_fees(
+    age: int = DEFAULT_PENSION_AGE,
+    retire_age: int = DEFAULT_PENSION_RETIRE,
+    salary: float = DEFAULT_PENSION_SALARY,
+    contribution: float = DEFAULT_PENSION_CONTRIBUTION,
+    salary_growth: float = DEFAULT_PENSION_SALARY_GROWTH,
+    real_return: float = DEFAULT_PENSION_RETURN,
+    fee_deposit: float = DEFAULT_PENSION_FEE_DEPOSIT,
+    fee_balance: float = DEFAULT_PENSION_FEE_BALANCE,
+    coefficient: float = DEFAULT_PENSION_COEFFICIENT,
+) -> pd.DataFrame:
+    """Pension balance by age under your fees and three fixed comparisons.
+
+    Everything is in today's shekels: ``salary`` is the gross monthly salary
+    now, growing ``salary_growth`` a year above inflation; ``real_return`` is
+    the fund's return above inflation before fees. Each month ``contribution``
+    of the salary is deposited, less ``fee_deposit``; the balance fee is
+    charged monthly so that a year removes exactly ``fee_balance``.
+
+    Columns: scenario (yours, default_fund, cap, none), age, balance,
+    pension (balance / ``coefficient``, the monthly annuity at retirement).
+    """
+
+    if not 18 <= age < retire_age <= 75:
+        raise CalculationInputError("גיל ההתחלה צריך להיות לפני גיל הפרישה.")
+    if salary <= 0 or coefficient <= 0:
+        raise CalculationInputError("השכר והמקדם צריכים להיות חיוביים.")
+    months = (retire_age - age) * 12
+    rows = []
+    for scenario, deposit_fee, balance_fee in (("yours", fee_deposit, fee_balance),) + PENSION_SCENARIOS:
+        path = _pension_path(months, salary, contribution, salary_growth, real_return, deposit_fee, balance_fee)
+        for offset, balance in enumerate(path):
+            rows.append({"scenario": scenario, "age": age + offset, "balance": balance, "pension": balance / coefficient})
+    return pd.DataFrame(rows)
+
+
+PENSION_STEPS = (
+    ("balance_01", 0.0, 0.001),
+    ("deposit_1", 0.01, 0.0),
+)
+
+
+def pension_fees_steps(**kwargs) -> pd.DataFrame:
+    """What 0.1% more of the balance, or 1% more of deposits, costs by retirement.
+
+    Takes the same arguments as ``pension_fees``. Columns: step, balance_loss,
+    pension_loss, share (of the balance under your fees).
+    """
+
+    base = pension_fees(**kwargs)
+    final = base[base["scenario"] == "yours"].iloc[-1]
+    rows = []
+    for step, extra_deposit, extra_balance in PENSION_STEPS:
+        changed = dict(kwargs)
+        changed["fee_deposit"] = kwargs.get("fee_deposit", DEFAULT_PENSION_FEE_DEPOSIT) + extra_deposit
+        changed["fee_balance"] = kwargs.get("fee_balance", DEFAULT_PENSION_FEE_BALANCE) + extra_balance
+        other = pension_fees(**changed)
+        last = other[other["scenario"] == "yours"].iloc[-1]
+        loss = final["balance"] - last["balance"]
+        rows.append(
+            {
+                "step": step,
+                "balance_loss": loss,
+                "pension_loss": final["pension"] - last["pension"],
+                "share": loss / final["balance"],
+            }
+        )
+    return pd.DataFrame(rows)
