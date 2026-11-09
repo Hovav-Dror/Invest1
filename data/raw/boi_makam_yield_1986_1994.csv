@@ -11,18 +11,18 @@ month,makam_yield,source,note
 1986-10,20.0,BOI-1990-T7-6,annual average 1986 (no monthly data found)
 1986-11,20.0,BOI-1990-T7-6,annual average 1986 (no monthly data found)
 1986-12,20.0,BOI-1990-T7-6,annual average 1986 (no monthly data found)
-1987-01,20.0,BOI-1990-T7-6,annual average 1987 (no monthly data found)
-1987-02,20.0,BOI-1990-T7-6,annual average 1987 (no monthly data found)
-1987-03,20.0,BOI-1990-T7-6,annual average 1987 (no monthly data found)
-1987-04,20.0,BOI-1990-T7-6,annual average 1987 (no monthly data found)
-1987-05,20.0,BOI-1990-T7-6,annual average 1987 (no monthly data found)
-1987-06,20.0,BOI-1990-T7-6,annual average 1987 (no monthly data found)
-1987-07,20.0,BOI-1990-T7-6,annual average 1987 (no monthly data found)
-1987-08,20.0,BOI-1990-T7-6,annual average 1987 (no monthly data found)
-1987-09,20.0,BOI-1990-T7-6,annual average 1987 (no monthly data found)
-1987-10,20.0,BOI-1990-T7-6,annual average 1987 (no monthly data found)
-1987-11,20.0,BOI-1990-T7-6,annual average 1987 (no monthly data found)
-1987-12,20.0,BOI-1990-T7-6,annual average 1987 (no monthly data found)
+1987-01,21.6,BOI-1988-T8-A7,
+1987-02,28.2,BOI-1988-T8-A7,
+1987-03,29.1,BOI-1988-T8-A7,
+1987-04,31.8,BOI-1988-T8-A7,
+1987-05,22.9,BOI-1988-T8-A7,
+1987-06,17.3,BOI-1988-T8-A7,
+1987-07,14.4,BOI-1988-T8-A7,
+1987-08,13.0,BOI-1988-T8-A7,
+1987-09,14.6,BOI-1988-T8-A7,
+1987-10,15.7,BOI-1988-T8-A7,
+1987-11,15.7,BOI-1988-T8-A7,
+1987-12,15.3,BOI-1988-T8-A7,
 1988-01,15.9,BOI-1989-T7-7,
 1988-02,16.8,BOI-1989-T7-7,
 1988-03,16.2,BOI-1989-T7-7,
@@ -59,18 +59,18 @@ month,makam_yield,source,note
 1990-10,15.7,BOI-1990-T7-6,
 1990-11,14.4,BOI-1990-T7-6,
 1990-12,13.4,BOI-1990-T7-6,
-1991-01,14.4,BOI-1990-T7-6,
-1991-02,14.4,BOI-1990-T7-6,
-1991-03,14.2,BOI-1990-T7-6,
-1991-04,14.9,BOI-1993-T7-4,annual average 1991 (monthly April-December not found)
-1991-05,14.9,BOI-1993-T7-4,annual average 1991 (monthly April-December not found)
-1991-06,14.9,BOI-1993-T7-4,annual average 1991 (monthly April-December not found)
-1991-07,14.9,BOI-1993-T7-4,annual average 1991 (monthly April-December not found)
-1991-08,14.9,BOI-1993-T7-4,annual average 1991 (monthly April-December not found)
-1991-09,14.9,BOI-1993-T7-4,annual average 1991 (monthly April-December not found)
-1991-10,14.9,BOI-1993-T7-4,annual average 1991 (monthly April-December not found)
-1991-11,14.9,BOI-1993-T7-4,annual average 1991 (monthly April-December not found)
-1991-12,14.9,BOI-1993-T7-4,annual average 1991 (monthly April-December not found)
+1991-01,14.2,BOI-1991-T7-A6,revised in the 1991 report
+1991-02,14.3,BOI-1991-T7-A6,revised in the 1991 report
+1991-03,14.1,BOI-1991-T7-A6,revised in the 1991 report
+1991-04,12.9,BOI-1991-T7-A6,
+1991-05,13.9,BOI-1991-T7-A6,
+1991-06,13.8,BOI-1991-T7-A6,
+1991-07,13.0,BOI-1991-T7-A6,
+1991-08,13.6,BOI-1991-T7-A6,
+1991-09,13.4,BOI-1991-T7-A6,
+1991-10,18.7,BOI-1991-T7-A6,
+1991-11,19.2,BOI-1991-T7-A6,
+1991-12,18.5,BOI-1991-T7-A6,
 1992-01,15.7,BOI-1993-T7-4,
 1992-02,13.9,BOI-1993-T7-4,
 1992-03,12.1,BOI-1993-T7-4,

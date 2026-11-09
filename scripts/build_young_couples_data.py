@@ -15,8 +15,8 @@ from 1986-01):
 * ``boi_rate``: the return on cash before costs, percent per year. From
   1994-02 the Bank of Israel policy rate, averaged over the month's days.
   Before that, the average yield to maturity on one-month makam (Bank of Israel
-  annual reports, see ``boi_makam_yield_1986_1994.csv``; 1986, 1987 and
-  April-December 1991 are annual averages). The reports give an effective
+  annual reports, see ``boi_makam_yield_1986_1994.csv``; 1986 is an annual
+  average). The reports give an effective
   annual yield, so it is converted to the nominal annual rate with the same
   monthly return, ``12 * ((1 + y) ** (1 / 12) - 1)``, to match the policy rate,
   which the calculations divide by 12.
