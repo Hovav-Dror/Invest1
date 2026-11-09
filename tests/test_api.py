@@ -354,10 +354,15 @@ def test_trinity_in_real_shekels(client):
 def test_down_payment_endpoint(client):
     payload = client.get("/api/down_payment?years=4&stock_share=0.3&glide=false&wait_years=0").get_json()
     rows = payload["data"]
-    assert rows[0]["start"].startswith("1994-03")
+    assert rows[0]["start"].startswith("1986-02")
     assert all(row["waited_months"] == 0 for row in rows)
-    assert payload["metadata"]["result_period"]["start"] == "1994-03-01"
+    assert payload["metadata"]["result_period"]["start"] == "1986-02-01"
     assert client.get("/api/down_payment?wait_years=9").status_code == 400
+    israel = client.get("/api/down_payment?years=4&stock_share=1&market_index=israel").get_json()["data"]
+    assert len(israel) == len(rows)
+    assert israel[0]["stocks"] != rows[0]["stocks"]
+    assert israel[0]["cash"] == rows[0]["cash"]
+    assert client.get("/api/down_payment?market_index=nasdaq").status_code == 400
 
 
 def test_affordability_endpoint(client):
@@ -368,6 +373,10 @@ def test_affordability_endpoint(client):
     assert payload["metadata"]["units"]["inflation"] is None
     assert client.get("/api/affordability?equity=0").status_code == 400
     assert client.get("/api/affordability?bogus=1").status_code == 400
+    assert client.get("/api/affordability?buyer=alien").status_code == 400
+    upgrade = client.get("/api/affordability?equity=400000&income=100000&buyer=upgrade&costs=0").get_json()
+    now = [row for row in upgrade["data"] if row["point"] == "now"][0]
+    assert abs(now["max_price"] - 400000 / 0.30) < 1
 
 
 def test_homes_vs_stocks_endpoints(client):
@@ -389,6 +398,8 @@ def test_pension_fees_endpoints(client):
     steps = client.get("/api/pension_fees_steps").get_json()["data"]
     assert {row["step"] for row in steps} == {"balance_01", "deposit_1"}
     assert client.get("/api/pension_fees?age=70&retire_age=60").status_code == 400
+    assert client.get("/api/pension_fees?track=crypto").status_code == 400
+    assert client.get("/api/pension_fees?track=sp500").status_code == 200
 
 
 def test_cash_vehicles_endpoints(client):

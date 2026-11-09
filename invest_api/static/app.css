@@ -1067,6 +1067,108 @@ h3 {
   justify-content: flex-start;
 }
 
+/* Two rows (the chosen mix and all-solid) on the same columns, above the down-payment chart. */
+.metric-compare {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  flex: 1 1 100%;
+  min-width: 0;
+  padding: 8px 12px 10px;
+}
+
+.metrics {
+  min-width: 0;
+}
+
+.metric-compare .story-table th,
+.metric-compare .story-table td {
+  white-space: normal;
+}
+
+.metric-compare .story-table table {
+  min-width: 0;
+  width: 100%;
+}
+
+@media (max-width: 560px) {
+  .metric-compare {
+    padding: 6px 8px 8px;
+  }
+
+  .metric-compare th,
+  .metric-compare td {
+    padding-inline: 4px;
+  }
+
+  .metric-compare thead th {
+    font-size: 11px;
+  }
+
+  .metric-compare tbody th {
+    font-size: 12px;
+    white-space: normal;
+  }
+
+  .metric-compare tbody th .metric-swatch {
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .metric-compare tbody td {
+    font-size: 15px;
+  }
+}
+
+.metric-compare th,
+.metric-compare td {
+  text-align: start;
+}
+
+.metric-compare thead th {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 760;
+}
+
+.metric-compare tbody th {
+  font-weight: 760;
+  white-space: nowrap;
+}
+
+.metric-compare tbody th .metric-swatch {
+  margin-inline-end: 6px;
+  vertical-align: middle;
+}
+
+.metric-compare tbody td {
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 780;
+}
+
+.metric-compare-lead {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+
+.metric-compare tbody td.is-best {
+  background: color-mix(in srgb, var(--accent, #145f59) 10%, transparent);
+  color: var(--accent, #145f59);
+}
+
+.metric-compare tbody td:not(.is-best) {
+  font-weight: 560;
+}
+
+.metric-compare-note {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 6px 0 0;
+}
+
 .metric {
   background: var(--panel);
   border: 1px solid var(--line);
@@ -2449,6 +2551,12 @@ button.vchart-legend-item[aria-pressed="false"] {
   text-align: right;
 }
 
+/* A text value (valueText) sits in a span inside strong; keep it at the value size, not the label size. */
+.metrics.metric-tiles .metric strong > span {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
 @media (max-width: 560px) {
   .metrics.metric-tiles {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3649,6 +3757,71 @@ button.vchart-legend-item[aria-pressed="false"] {
 
 .down-ladder td.is-best {
   color: #145f59;
+}
+
+/* Slider control (young couples) */
+.field.slider-field {
+  display: grid;
+  gap: 4px;
+  flex: 1 1 100%;
+  max-width: none;
+  min-width: 0;
+  width: 100%;
+}
+
+/* Same direction as the chart's x axis: small on the left. */
+.slider-field input[type="range"],
+.slider-ends {
+  direction: ltr;
+}
+
+.slider-head {
+  align-items: baseline;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.slider-head output {
+  color: #145f59;
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+}
+
+.slider-field input[type="range"] {
+  accent-color: #145f59;
+  width: 100%;
+}
+
+.slider-ends span {
+  direction: rtl;
+  unicode-bidi: isolate;
+}
+
+.slider-ends {
+  color: var(--muted);
+  display: flex;
+  font-size: 12px;
+  justify-content: space-between;
+}
+
+.afford-deal th small {
+  color: var(--muted);
+  display: block;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.afford-deal td {
+  text-align: start;
+  white-space: normal;
+}
+
+.afford-deal tr.is-sum th,
+.afford-deal tr.is-sum td {
+  border-top: 2px solid color-mix(in srgb, #17201d 25%, transparent);
+  font-weight: 800;
 }
 
 /* Where to hold the cash */

@@ -417,13 +417,17 @@ def _parse_trinity_args(args) -> Params:
 
 
 def _parse_affordability_args(args) -> Params:
-    _reject_unknown(args, {"equity", "income", "rate", "years", "ltv", "pti", "costs", "drop"})
+    _reject_unknown(args, {"equity", "income", "rate", "years", "pti", "costs", "drop", "buyer", "renovation"})
+    buyer = args.get("buyer", calc.DEFAULT_AFFORD_BUYER)
+    if buyer not in calc.AFFORD_LTV:
+        raise ApiValidationError("סוג הרוכש לא מוכר.")
     params: JsonDict = {
+        "buyer": buyer,
+        "renovation": _get_float(args, "renovation", calc.DEFAULT_AFFORD_RENOVATION, minimum=0, maximum=5e6),
         "equity": _get_float(args, "equity", calc.DEFAULT_AFFORD_EQUITY, minimum=1000, maximum=1e8),
         "income": _get_float(args, "income", calc.DEFAULT_AFFORD_INCOME, minimum=0, maximum=1e7),
         "rate": _get_float(args, "rate", calc.DEFAULT_AFFORD_RATE, minimum=0, maximum=0.3),
         "years": _get_int(args, "years", calc.DEFAULT_AFFORD_YEARS, minimum=1, maximum=40),
-        "ltv": _get_float(args, "ltv", calc.DEFAULT_AFFORD_LTV, minimum=0.05, maximum=0.95),
         "pti": _get_float(args, "pti", calc.DEFAULT_AFFORD_PTI, minimum=0.05, maximum=0.7),
         "costs": _get_float(args, "costs", calc.DEFAULT_AFFORD_COSTS, minimum=0, maximum=0.2),
         "drop": _get_float(args, "drop", calc.DEFAULT_AFFORD_DROP, minimum=0, maximum=0.9),
@@ -432,12 +436,20 @@ def _parse_affordability_args(args) -> Params:
 
 
 def _parse_down_payment_args(args) -> Params:
-    _reject_unknown(args, {"years", "stock_share", "glide", "wait_years"})
+    _reject_unknown(args, {"years", "stock_share", "glide", "wait_years", "market_index", "cash_kind"})
+    market_index = args.get("market_index", "sp500")
+    if market_index not in calc.DOWN_MARKETS:
+        raise ApiValidationError("מדד המניות לא מוכר.")
+    cash_kind = args.get("cash_kind", "fund")
+    if cash_kind not in calc.DOWN_CASH_KINDS:
+        raise ApiValidationError("סוג המזומן לא מוכר.")
     params: JsonDict = {
         "years": _get_int(args, "years", calc.DEFAULT_DOWN_YEARS, minimum=1, maximum=10),
         "stock_share": _get_float(args, "stock_share", calc.DEFAULT_DOWN_STOCKS, minimum=0, maximum=1),
         "glide": _get_bool(args, "glide", False),
         "wait_years": _get_int(args, "wait_years", calc.DEFAULT_DOWN_WAIT, minimum=0, maximum=3),
+        "market_index": market_index,
+        "cash_kind": cash_kind,
     }
     return _freeze(params)
 
@@ -460,7 +472,7 @@ def _parse_cash_args(args) -> Params:
     return _freeze(params)
 
 
-PENSION_ARGS = ("age", "retire_age", "salary", "contribution", "salary_growth", "real_return", "fee_deposit", "fee_balance", "coefficient")
+PENSION_ARGS = ("age", "retire_age", "salary", "contribution", "salary_growth", "real_return", "fee_deposit", "fee_balance", "coefficient", "track")
 
 
 def _parse_pension_args(args) -> Params:
@@ -475,7 +487,10 @@ def _parse_pension_args(args) -> Params:
         "fee_deposit": _get_float(args, "fee_deposit", calc.DEFAULT_PENSION_FEE_DEPOSIT, minimum=0, maximum=0.06),
         "fee_balance": _get_float(args, "fee_balance", calc.DEFAULT_PENSION_FEE_BALANCE, minimum=0, maximum=0.02),
         "coefficient": _get_float(args, "coefficient", calc.DEFAULT_PENSION_COEFFICIENT, minimum=100, maximum=400),
+        "track": args.get("track", calc.DEFAULT_PENSION_TRACK),
     }
+    if params["track"] not in calc.PENSION_TRACKS:
+        raise ApiValidationError("מסלול ההשקעה לא מוכר.")
     return _freeze(params)
 
 

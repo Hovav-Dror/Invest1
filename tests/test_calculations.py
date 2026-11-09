@@ -415,6 +415,40 @@ def test_down_payment_waits_until_the_apartment_is_back():
     assert first["apartment"] == pytest.approx(1.0)
 
 
+def test_down_payment_does_not_wait_without_a_real_drop():
+    # Stocks lag cash (flat while cash earns 12%) but never fall: no reason to postpone.
+    n = 25
+    data = monthly_data([100.0] * n)
+    housing = housing_frame([100.0] * (n + 1), [12.0] * (n + 1))
+    result = calc.down_payment(data, housing, years=1, stock_share=1.0, wait_years=1, stock_fee=0.0, cash_spread=0.0)
+    assert (result["waited_months"] == 0).all()
+    assert len(result) == n - 12
+
+
+def test_down_payment_wait_stops_at_the_end_of_the_data():
+    # Stocks fall 20% and never recover: buy in the last month with data, keep every start month.
+    prices = list(np.linspace(100, 80, 13)) + [80.0] * 4
+    n = len(prices)
+    data = monthly_data(prices)
+    housing = housing_frame([100.0] * (n + 1), [0.0] * (n + 1))
+    result = calc.down_payment(data, housing, years=1, stock_share=1.0, wait_years=1, stock_fee=0.0, cash_spread=0.0)
+    assert len(result) == n - 12
+    assert result.iloc[0]["waited_months"] == 4
+
+
+def test_down_payment_israeli_shares_add_the_dividend_yield():
+    # A flat price index earns only the assumed dividend: 2.5% a year, then 25% tax on the gain.
+    n = 13
+    data = monthly_data([100.0] * n)
+    housing = housing_frame([100.0] * (n + 1), [0.0] * (n + 1)).assign(tase_index=200.0)
+    result = calc.down_payment(
+        data, housing, years=1, stock_share=1.0, stock_fee=0.0, cash_spread=0.0, market_index="israel"
+    )
+    assert result["apartment"].iloc[0] == pytest.approx(1 + 0.75 * calc.DOWN_IL_DIVIDEND)
+    with pytest.raises(calc.CalculationInputError):
+        calc.down_payment(data, housing, years=1, market_index="nasdaq")
+
+
 def test_down_payment_glide_ends_in_cash():
     n = 25
     data = monthly_data(list(np.linspace(100, 50, n)))
@@ -423,6 +457,25 @@ def test_down_payment_glide_ends_in_cash():
     fixed = calc.down_payment(data, housing, years=2, stock_share=1.0, stock_fee=0.0, cash_spread=0.0)
     assert fixed["apartment"].iloc[0] == pytest.approx(0.5)
     assert 0.5 < glide["apartment"].iloc[0] < 1.0
+
+
+def test_purchase_tax_brackets():
+    assert calc.purchase_tax(1_900_000) == 0
+    assert calc.purchase_tax(2_500_000) == pytest.approx((2_347_040 - 1_978_745) * 0.035 + (2_500_000 - 2_347_040) * 0.05)
+    assert calc.purchase_tax(1_000_000, "investor") == pytest.approx(80_000)
+
+
+def test_affordability_renovation_and_tax_come_out_of_equity():
+    # Plenty of income, no costs: renovation leaves less cash, and above the exemption tax eats into it.
+    base = dict(income=1_000_000, rate=0.05, years=30, costs=0.0, drop=0.3)
+    plain = calc.affordability(equity=400_000, **base).set_index("point").loc["now"]
+    renovated = calc.affordability(equity=400_000, renovation=100_000, **base).set_index("point").loc["now"]
+    assert plain["max_price"] == pytest.approx(1_600_000, rel=1e-9)
+    assert renovated["max_price"] == pytest.approx(1_200_000, rel=1e-9)
+    rich = calc.affordability(equity=1_000_000, **base).set_index("point").loc["now"]
+    # 25% of the price plus tax equals the cash.
+    assert rich["max_price"] * 0.25 + calc.purchase_tax(rich["max_price"]) == pytest.approx(1_000_000, rel=1e-9)
+    assert rich["purchase_tax"] > 0
 
 
 def test_affordability_kink_is_where_the_limits_meet():
@@ -487,7 +540,7 @@ def test_cash_vehicles_real_tax_never_refunds():
 def test_pension_fees_one_year_by_hand():
     # One year, flat salary, no return: 12 deposits of 1,000 less 2%, then 1% of the balance a year.
     result = calc.pension_fees(
-        age=30, retire_age=31, salary=10_000, contribution=0.1, salary_growth=0, real_return=0,
+        age=30, retire_age=31, salary=10_000, contribution=0.1, salary_growth=0, real_return=0, track="fixed",
         fee_deposit=0.02, fee_balance=0.0, coefficient=200,
     )
     yours = result[result["scenario"] == "yours"].set_index("age")
@@ -500,13 +553,30 @@ def test_pension_fees_one_year_by_hand():
 
 def test_pension_fees_balance_fee_compounds():
     # A single deposit kept for many years loses about the balance fee every year.
-    flat = dict(age=30, retire_age=50, salary=1000, contribution=0.1, salary_growth=0, real_return=0, fee_deposit=0)
+    flat = dict(age=30, retire_age=50, salary=1000, contribution=0.1, salary_growth=0, real_return=0, track="fixed", fee_deposit=0)
     cheap = calc.pension_fees(fee_balance=0.0, **flat)
     dear = calc.pension_fees(fee_balance=0.01, **flat)
     assert dear["balance"].iloc[20] < cheap["balance"].iloc[20]
     steps = calc.pension_fees_steps(**flat, fee_balance=0.0).set_index("step")
     assert steps.loc["deposit_1", "share"] == pytest.approx(0.01)
     assert steps.loc["balance_01", "balance_loss"] > 0
+
+
+def test_pension_age_track_steps_down_with_age():
+    stocks, other = calc.PENSION_STOCK_RETURN, calc.PENSION_OTHER_RETURN
+    assert calc.pension_track_return("age", 30) == pytest.approx(0.53 * stocks + 0.47 * other)
+    assert calc.pension_track_return("age", 55) == pytest.approx(0.38 * stocks + 0.62 * other)
+    assert calc.pension_track_return("age", 62) == pytest.approx(0.22 * stocks + 0.78 * other)
+    assert calc.pension_track_return("sp500", 62) == pytest.approx(stocks)
+    assert calc.pension_track_return("fixed", 62, 0.04) == pytest.approx(0.04)
+    # One year at 49 and one at 50: the two yearly returns differ.
+    flat = dict(age=49, retire_age=51, salary=10_000, contribution=0.1, salary_growth=0, fee_deposit=0, fee_balance=0)
+    age = calc.pension_fees(track="age", **flat)
+    fixed = calc.pension_fees(track="fixed", real_return=calc.pension_track_return("age", 49), **flat)
+    assert age["balance"].iloc[1] == pytest.approx(fixed["balance"].iloc[1])
+    assert age["balance"].iloc[2] < fixed["balance"].iloc[2]
+    with pytest.raises(calc.CalculationInputError):
+        calc.pension_fees(track="crypto")
 
 
 def test_cash_vehicles_inflation_changes_the_ranking():

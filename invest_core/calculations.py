@@ -984,10 +984,35 @@ DEFAULT_AFFORD_EQUITY = 400_000.0
 DEFAULT_AFFORD_INCOME = 20_000.0
 DEFAULT_AFFORD_RATE = 0.05
 DEFAULT_AFFORD_YEARS = 30
-DEFAULT_AFFORD_LTV = 0.75
 DEFAULT_AFFORD_PTI = 0.35
 DEFAULT_AFFORD_COSTS = 0.02
 DEFAULT_AFFORD_DROP = 0.30
+DEFAULT_AFFORD_BUYER = "first"
+DEFAULT_AFFORD_RENOVATION = 0.0
+AFFORD_CHART_MAX = 1_000_000.0
+
+# Bank of Israel financing limit by buyer: a sole apartment, replacing one
+# (upgrading), or an additional apartment (investors).
+AFFORD_LTV = {"first": 0.75, "upgrade": 0.70, "investor": 0.50}
+DEFAULT_AFFORD_LTV = AFFORD_LTV["first"]
+
+# Purchase tax brackets (lower bound, rate), frozen until January 2028. A buyer
+# who upgrades and sells the old apartment within 18 months pays the sole-
+# apartment rates too.
+PURCHASE_TAX_SOLE = ((0.0, 0.0), (1_978_745.0, 0.035), (2_347_040.0, 0.05), (6_055_070.0, 0.08), (20_183_565.0, 0.10))
+PURCHASE_TAX_ADDITIONAL = ((0.0, 0.08), (6_055_070.0, 0.10))
+
+
+def purchase_tax(price: float, buyer: str = DEFAULT_AFFORD_BUYER) -> float:
+    """Israeli purchase tax on a dwelling, by marginal brackets."""
+
+    brackets = PURCHASE_TAX_ADDITIONAL if buyer == "investor" else PURCHASE_TAX_SOLE
+    tax = 0.0
+    for index, (lower, rate) in enumerate(brackets):
+        upper = brackets[index + 1][0] if index + 1 < len(brackets) else float("inf")
+        if price > lower:
+            tax += (min(price, upper) - lower) * rate
+    return tax
 
 
 def _annuity_factor(rate: float, years: int) -> float:
@@ -1000,60 +1025,110 @@ def _annuity_factor(rate: float, years: int) -> float:
     return (1 - (1 + monthly) ** -months) / monthly
 
 
+def _largest_price(cost, budget: float) -> float:
+    """Largest price whose ``cost(price)`` fits ``budget``; ``cost`` is increasing."""
+
+    if budget <= 0:
+        return 0.0
+    low, high = 0.0, 1.0
+    while cost(high) <= budget:
+        high *= 2
+    for _ in range(80):
+        middle = (low + high) / 2
+        if cost(middle) <= budget:
+            low = middle
+        else:
+            high = middle
+    return low
+
+
 def affordability(
     equity: float = DEFAULT_AFFORD_EQUITY,
     income: float = DEFAULT_AFFORD_INCOME,
     rate: float = DEFAULT_AFFORD_RATE,
     years: int = DEFAULT_AFFORD_YEARS,
-    ltv: float = DEFAULT_AFFORD_LTV,
+    ltv: float | None = None,
     pti: float = DEFAULT_AFFORD_PTI,
     costs: float = DEFAULT_AFFORD_COSTS,
     drop: float = DEFAULT_AFFORD_DROP,
+    buyer: str = DEFAULT_AFFORD_BUYER,
+    renovation: float = DEFAULT_AFFORD_RENOVATION,
 ) -> pd.DataFrame:
     """Highest apartment price a given down payment can buy, for a range of down payments.
 
-    Two limits apply to the mortgage: at most ``ltv`` of the price, and a
-    monthly payment of at most ``pti`` of net household ``income``. Buying also
-    costs ``costs`` of the price in cash (lawyer, appraiser, moving), paid from
-    the down payment. The price is the lower of the two limits:
+    First ``renovation`` (renovation, furniture, moving) comes out of the
+    equity; what is left pays for everything the bank does not lend: the part
+    of the price above the mortgage, ``costs`` of the price (lawyer, broker,
+    appraiser) and purchase tax (by ``buyer``). Two limits apply to the
+    mortgage: at most ``ltv`` of the price (by default the Bank of Israel
+    limit for ``buyer``), and a monthly payment of at most ``pti`` of net
+    household ``income``. The price is the highest one that meets both:
 
-    * by LTV: ``equity / (1 - ltv + costs)``
-    * by income: ``(equity + max_loan) / (1 + costs)``
+    * by LTV: ``price * (1 - ltv + costs) + tax(price) <= cash``
+    * by income: ``price * (1 + costs) + tax(price) <= cash + max_loan``
 
     Under the LTV limit each shekel of equity buys about 1 / (1 - ltv + costs)
     shekels of apartment; under the income limit, only about one. Rows cover
-    down payments from zero to about twice ``equity``; ``point`` marks the
-    current down payment (``now``), the down payment after a ``drop`` in the
-    portfolio (``after_drop``) and the down payment at which the binding limit
-    switches (``kink``).
+    down payments from zero to ``AFFORD_CHART_MAX`` (more when ``equity`` or
+    the switch point is beyond it); ``point`` marks the current down payment
+    (``now``), the down payment after a ``drop`` in the portfolio
+    (``after_drop``) and the down payment at which the binding limit switches
+    (``kink``). ``marginal`` is how much more apartment the next 1,000 shekels
+    of equity would buy, per shekel.
     """
 
     if equity <= 0:
         raise CalculationInputError("ההון העצמי צריך להיות גדול מאפס.")
+    if buyer not in AFFORD_LTV:
+        raise CalculationInputError("סוג הרוכש לא מוכר.")
+    ltv = AFFORD_LTV[buyer] if ltv is None else ltv
     if not 0 < ltv < 1:
         raise CalculationInputError("שיעור המימון צריך להיות בין 0 ל-100%.")
+    if renovation < 0:
+        raise CalculationInputError("עלות השיפוץ לא יכולה להיות שלילית.")
     factor = _annuity_factor(rate, years)
     max_loan = pti * income * factor
-    cash_share = 1 - ltv + costs
-    kink = max_loan * cash_share / ltv
+
+    def tax(price: float) -> float:
+        return purchase_tax(price, buyer)
+
+    def by_ltv_cost(price: float) -> float:
+        return price * (1 - ltv + costs) + tax(price)
+
+    def by_income_cost(price: float) -> float:
+        return price * (1 + costs) + tax(price)
+
+    def price_for(value: float) -> tuple[float, float]:
+        cash = max(value - renovation, 0.0)
+        return _largest_price(by_ltv_cost, cash), _largest_price(by_income_cost, cash + max_loan)
 
     def row(value: float, point: str = "") -> dict:
-        by_ltv = value / cash_share
-        by_income = (value + max_loan) / (1 + costs)
-        price = min(by_ltv, by_income)
-        loan = max(price * (1 + costs) - value, 0.0)
+        cash = max(value - renovation, 0.0)
+        price_ltv, price_income = price_for(value)
+        price = min(price_ltv, price_income)
+        loan = max(by_income_cost(price) - cash, 0.0)
+        next_ltv, next_income = price_for(value + 1000)
         return {
             "equity": value,
             "max_price": price,
             "mortgage": loan,
             "payment": loan / factor,
-            "price_ltv": by_ltv,
-            "price_income": by_income,
-            "binding": "ltv" if by_ltv <= by_income else "income",
+            "price_ltv": price_ltv,
+            "price_income": price_income,
+            "binding": "ltv" if price_ltv <= price_income else "income",
+            "renovation": min(renovation, value),
+            "fees": price * costs,
+            "purchase_tax": tax(price),
+            "marginal": (min(next_ltv, next_income) - price) / 1000,
             "point": point,
         }
 
-    top = max(equity * 2, kink * 1.25)
+    # The switch: the loan is both the LTV share of the price and the income maximum.
+    kink_price = max_loan / ltv
+    kink = by_ltv_cost(kink_price) + renovation if max_loan > 0 else 0.0
+    # A fixed range for typical down payments, so the chart axis stays put
+    # while the down payment changes; wider only when needed.
+    top = max(AFFORD_CHART_MAX, equity * 1.15, kink * 1.3)
     marks = {equity: "now", equity * (1 - drop): "after_drop"}
     if 0 < kink < top:
         marks.setdefault(kink, "kink")
@@ -1069,21 +1144,37 @@ DEFAULT_DOWN_STOCKS = 0.3
 DEFAULT_DOWN_WAIT = 0
 DOWN_STOCK_FEE = 0.001  # annual, a cheap S&P 500 fund
 DOWN_CASH_SPREAD = 0.003  # annual, money-market fund return below the Bank of Israel rate
+DOWN_WAIT_TRIGGER = 0.10  # postpone only after the portfolio fell this much from its peak
+# Israeli shares: the TASE general index and TA-125 are price indices, so a
+# constant dividend yield is added. TASE reported an average yield of 2.8% in
+# 2022 and 2.9% in 2023 for listed companies; 2.5% is a little below that.
+DOWN_IL_DIVIDEND = 0.025
+DOWN_MARKETS = ("sp500", "israel")
+# Cash: a shekel money-market fund (the cash rate less the spread), or money
+# linked to the CPI with no real interest (a benchmark: it keeps its buying power
+# in goods, not in apartments).
+DOWN_CASH_KINDS = ("fund", "linked")
 
 
 def _down_payment_market(data: InvestData, housing: pd.DataFrame) -> pd.DataFrame:
-    """Monthly boundaries with S&P 500 in shekels, Israeli CPI, dwelling prices and the cash rate.
+    """Monthly boundaries with S&P 500 in shekels, Israeli CPI, dwelling prices, the cash rate and Israeli shares.
 
-    At boundary ``d`` the dwelling index is the one for month ``d - 1`` (the
-    boundary closes that month), and cash earns month ``d``'s rate until the
-    next boundary.
+    At boundary ``d`` the dwelling index and the Israeli share index are the
+    ones for month ``d - 1`` (the boundary closes that month), and cash earns
+    month ``d``'s rate until the next boundary. ``tase`` is empty when the
+    housing frame has no ``tase_index``.
     """
 
     market = monthly_market(data)[["date", "value_ils", "cpi_il"]]
     index = housing.set_index("month")
+
+    def previous(month):
+        return month + pd.DateOffset(months=1)
+
     market = market.assign(
-        housing=market["date"].map(index["housing_index"].rename(lambda month: month + pd.DateOffset(months=1))),
+        housing=market["date"].map(index["housing_index"].rename(previous)),
         cash_rate=market["date"].map(index["boi_rate"]),
+        tase=market["date"].map(index["tase_index"].rename(previous)) if "tase_index" in index else np.nan,
     )
     valid = market[["value_ils", "cpi_il", "housing", "cash_rate"]].notna().all(axis=1)
     if not valid.any():
@@ -1104,11 +1195,16 @@ def down_payment(
     wait_years: int = DEFAULT_DOWN_WAIT,
     stock_fee: float = DOWN_STOCK_FEE,
     cash_spread: float = DOWN_CASH_SPREAD,
+    market_index: str = "sp500",
+    cash_kind: str = "fund",
 ) -> pd.DataFrame:
     """How much apartment a down payment buys after ``years``, for every start month.
 
-    The money is split between the S&P 500 in shekels and cash (the Bank of
-    Israel rate less ``cash_spread``), rebalanced monthly. With ``glide`` the
+    The money is split between stocks and cash, rebalanced monthly. Cash is a
+    money-market fund earning the cash rate less ``cash_spread``
+    (``cash_kind="fund"``), or CPI-linked with no real interest (``"linked"``). Stocks are the S&P 500 in shekels with
+    dividends (``market_index="sp500"``) or Israeli shares (``"israel"``: the
+    TASE general index, then TA-125, plus ``DOWN_IL_DIVIDEND`` a year). With ``glide`` the
     stock share falls linearly from ``stock_share`` to zero at the purchase
     date. ``apartment`` is the value after tax divided by the growth of the
     dwelling price index: 1.0 buys the same apartment as at the start.
@@ -1116,11 +1212,13 @@ def down_payment(
     Tax: 25% of the real gain, once at the purchase (no tax on rebalancing, as
     in a provident fund for investment), never a refund on a loss.
 
-    Waiting: if at the planned date the money buys less than it would have in
-    cash (that is, stocks hurt), the couple keeps it invested and buys in the
-    first month it catches up with the all-cash path, or after ``wait_years``
-    at the latest. All cash never waits. Rent while waiting is not counted. Every start month needs data through the latest possible
-    purchase, so longer waits leave fewer start months.
+    Waiting: if at the planned date the portfolio (in shekels, before tax) is
+    ``DOWN_WAIT_TRIGGER`` or more below its highest value since the start, the
+    couple keeps it invested and buys in the first month it is back at that
+    peak, or after ``wait_years`` at the latest. All cash never waits. Rent
+    while waiting is not counted. When the data ends during a wait, the
+    purchase is in the last month with data, so every setting covers the same
+    start months.
 
     For comparison each row also has ``cash`` (all cash) and ``stocks`` (all
     stocks), both bought on the planned date without waiting.
@@ -1130,6 +1228,10 @@ def down_payment(
         raise CalculationInputError("חלק המניות צריך להיות בין 0 ל-100%.")
     if years < 1 or wait_years < 0:
         raise CalculationInputError("משך החיסכון צריך להיות לפחות שנה.")
+    if market_index not in DOWN_MARKETS:
+        raise CalculationInputError("מדד המניות לא מוכר.")
+    if cash_kind not in DOWN_CASH_KINDS:
+        raise CalculationInputError("סוג המזומן לא מוכר.")
     data = data or load_data()
     if housing is None:
         from invest_core.data import load_housing_monthly
@@ -1137,42 +1239,57 @@ def down_payment(
         housing = load_housing_monthly()
     market = _down_payment_market(data, housing)
     horizon = years * 12
-    longest = horizon + wait_years * 12
-    starts = len(market) - longest
+    starts = len(market) - horizon
     if starts <= 0:
         raise CalculationInputError("אין מספיק שנים של נתונים לתקופה הזו.")
 
-    value = market["value_ils"].to_numpy()
-    stock_growth = value[1:] / value[:-1] * (1 - stock_fee) ** (1 / 12)
-    cash_growth = 1 + (market["cash_rate"].to_numpy()[:-1] / 100 - cash_spread) / 12
+    if market_index == "israel":
+        if market["tase"].isna().any():
+            raise CalculationInputError("אין נתוני מניות ישראליות לכל התקופה.")
+        value = market["tase"].to_numpy()
+        dividend = (1 + DOWN_IL_DIVIDEND) ** (1 / 12)
+    else:
+        value = market["value_ils"].to_numpy()
+        dividend = 1.0
+    stock_growth = value[1:] / value[:-1] * dividend * (1 - stock_fee) ** (1 / 12)
+    if cash_kind == "linked":
+        cpi_values = market["cpi_il"].to_numpy()
+        cash_growth = cpi_values[1:] / cpi_values[:-1]
+    else:
+        cash_growth = 1 + (market["cash_rate"].to_numpy()[:-1] / 100 - cash_spread) / 12
     cpi = market["cpi_il"].to_numpy()
     homes = market["housing"].to_numpy()
     dates = market["date"]
 
-    def shares(share: float, glide_path: bool) -> np.ndarray:
-        months = np.arange(longest)
-        if not glide_path:
-            return np.full(longest, share)
-        return np.where(months < horizon, share * (1 - months / horizon), 0.0)
+    wait_months = wait_years * 12
 
-    def apartment_path(start: int, weights: np.ndarray) -> np.ndarray:
-        span = slice(start, start + longest)
+    def shares(share: float, glide_path: bool, months: int) -> np.ndarray:
+        steps = np.arange(months)
+        if not glide_path:
+            return np.full(months, share)
+        return np.where(steps < horizon, share * (1 - steps / horizon), 0.0)
+
+    def paths(start: int, share: float, glide_path: bool) -> tuple[np.ndarray, np.ndarray]:
+        """Balance before tax and apartment fraction after tax, from the start to the last month available."""
+        months = min(horizon + wait_months, len(market) - 1 - start)
+        weights = shares(share, glide_path, months)
+        span = slice(start, start + months)
         growth = weights * stock_growth[span] + (1 - weights) * cash_growth[span]
         balance = np.concatenate([[1.0], np.cumprod(growth)])
-        inflation = cpi[start : start + longest + 1] / cpi[start]
+        inflation = cpi[start : start + months + 1] / cpi[start]
         after_tax = balance - TAX_RATE * np.maximum(balance - inflation, 0.0)
-        return after_tax / (homes[start : start + longest + 1] / homes[start])
+        return balance, after_tax / (homes[start : start + months + 1] / homes[start])
 
-    mix, all_cash, all_stocks = shares(stock_share, glide), shares(0.0, False), shares(1.0, False)
     rows = []
     for start in range(starts):
-        path = apartment_path(start, mix)
-        cash_path = apartment_path(start, all_cash)
+        balance, path = paths(start, stock_share, glide)
+        cash_path = paths(start, 0.0, False)[1]
         buy = horizon
-        caught_up = path >= cash_path - 1e-9
-        if wait_years and not caught_up[horizon]:
-            later = np.nonzero(caught_up[horizon + 1 :])[0]
-            buy = horizon + 1 + int(later[0]) if len(later) else longest
+        if wait_months and stock_share > 0:
+            peak = balance[: horizon + 1].max()
+            if balance[horizon] < peak * (1 - DOWN_WAIT_TRIGGER):
+                back = np.nonzero(balance[horizon + 1 :] >= peak - 1e-12)[0]
+                buy = horizon + 1 + int(back[0]) if len(back) else len(balance) - 1
         rows.append(
             {
                 "start": dates[start],
@@ -1181,7 +1298,7 @@ def down_payment(
                 "apartment": path[buy],
                 "apartment_on_time": path[horizon],
                 "cash": cash_path[horizon],
-                "stocks": apartment_path(start, all_stocks)[horizon],
+                "stocks": paths(start, 1.0, False)[1][horizon],
                 "homes_change": homes[start + buy] / homes[start] - 1,
             }
         )
@@ -1197,12 +1314,17 @@ def down_payment_ladder(
     years: int = DEFAULT_DOWN_YEARS,
     glide: bool = False,
     wait_years: int = DEFAULT_DOWN_WAIT,
+    market_index: str = "sp500",
+    cash_kind: str = "fund",
 ) -> pd.DataFrame:
     """``down_payment`` summarized over all start months, for several stock shares."""
 
     rows = []
     for share in DOWN_LADDER_SHARES:
-        result = down_payment(data, housing, years=years, stock_share=share, glide=glide, wait_years=wait_years)
+        result = down_payment(
+            data, housing, years=years, stock_share=share, glide=glide, wait_years=wait_years, market_index=market_index,
+            cash_kind=cash_kind,
+        )
         apartment = result["apartment"]
         rows.append(
             {
@@ -1232,7 +1354,8 @@ def homes_vs_stocks(
 
     Columns: ``date`` (monthly boundary, as in ``down_payment``), ``homes``
     (CBS dwelling index), ``sp500`` (S&P 500 total return in shekels),
-    ``tase`` (TASE general share index, a price index, until 2016-08), each 1.0
+    ``tase`` (Israeli shares: TASE general index, then TA-125 from 2016-09; a
+    price index without dividends), each 1.0
     at the first row and divided by Israeli CPI when ``real``; the 12-month
     change of each (``homes_12m``, ``sp500_12m``, ``tase_12m``); and
     ``rate``, the Bank of Israel rate in percent.
@@ -1247,11 +1370,6 @@ def homes_vs_stocks(
 
         housing = load_housing_monthly()
     market = _down_payment_market(data, housing)
-    if "tase_index" in housing:
-        tase = housing.set_index("month")["tase_index"].rename(lambda month: month + pd.DateOffset(months=1))
-        market["tase"] = market["date"].map(tase)
-    else:
-        market["tase"] = np.nan
     frame = pd.DataFrame(
         {
             "date": market["date"],
@@ -1437,6 +1555,39 @@ DEFAULT_PENSION_FEE_DEPOSIT = 0.0157  # market average, 2024
 DEFAULT_PENSION_FEE_BALANCE = 0.0015
 DEFAULT_PENSION_COEFFICIENT = 200.0
 
+# Investment tracks. A track's real return is its stock share times a long-run
+# real return on stocks, plus the rest times a real return on bonds and other
+# assets (including earmarked government bonds in comprehensive funds).
+# Assumptions, not forecasts: about 5% a year above inflation for world stocks
+# over the long run, 2% for the rest.
+PENSION_STOCK_RETURN = 0.05
+PENSION_OTHER_RETURN = 0.02
+# Age-based tracks (the default for most members): stock share by age band.
+# 53% and 22% are typical shares for the youngest and oldest tracks; 38% is
+# between them for the 50-60 track.
+PENSION_AGE_BANDS = ((50, 0.53), (60, 0.38), (200, 0.22))
+PENSION_TRACKS = ("age", "sp500", "bonds", "fixed")
+DEFAULT_PENSION_TRACK = "age"
+
+
+def pension_track_return(track: str, age: float, fixed_return: float = DEFAULT_PENSION_RETURN) -> float:
+    """Real yearly return before fees of a track at an age."""
+
+    def mix(stocks: float) -> float:
+        return stocks * PENSION_STOCK_RETURN + (1 - stocks) * PENSION_OTHER_RETURN
+
+    if track == "age":
+        for upper, stocks in PENSION_AGE_BANDS:
+            if age < upper:
+                return mix(stocks)
+    if track == "sp500":
+        return mix(1.0)
+    if track == "bonds":
+        return mix(0.0)
+    if track == "fixed":
+        return fixed_return
+    raise CalculationInputError("מסלול ההשקעה לא מוכר.")
+
 # Fixed comparisons: (id, fee on deposits, fee on balance).
 PENSION_SCENARIOS = (
     ("default_fund", 0.01, 0.0022),  # default funds, 2021 tender
@@ -1450,18 +1601,18 @@ def _pension_path(
     salary: float,
     contribution: float,
     salary_growth: float,
-    real_return: float,
+    yearly_returns: list[float],
     fee_deposit: float,
     fee_balance: float,
 ) -> np.ndarray:
-    """Real balance at the end of each year, monthly deposits and fees."""
+    """Real balance at the end of each year, monthly deposits and fees; ``yearly_returns[y]`` applies in year ``y``."""
 
-    monthly_return = (1 + real_return) ** (1 / 12)
     monthly_fee = (1 - fee_balance) ** (1 / 12)
     balance = 0.0
     yearly = [0.0]
     for month in range(months):
         wage = salary * (1 + salary_growth) ** (month // 12)
+        monthly_return = (1 + yearly_returns[month // 12]) ** (1 / 12)
         balance = balance * monthly_return * monthly_fee + wage * contribution * (1 - fee_deposit)
         if (month + 1) % 12 == 0:
             yearly.append(balance)
@@ -1478,12 +1629,14 @@ def pension_fees(
     fee_deposit: float = DEFAULT_PENSION_FEE_DEPOSIT,
     fee_balance: float = DEFAULT_PENSION_FEE_BALANCE,
     coefficient: float = DEFAULT_PENSION_COEFFICIENT,
+    track: str = DEFAULT_PENSION_TRACK,
 ) -> pd.DataFrame:
     """Pension balance by age under your fees and three fixed comparisons.
 
     Everything is in today's shekels: ``salary`` is the gross monthly salary
-    now, growing ``salary_growth`` a year above inflation; ``real_return`` is
-    the fund's return above inflation before fees. Each month ``contribution``
+    now, growing ``salary_growth`` a year above inflation. The fund's return
+    above inflation, before fees, follows ``track`` (see
+    ``pension_track_return``); ``real_return`` is used only with ``"fixed"``. Each month ``contribution``
     of the salary is deposited, less ``fee_deposit``; the balance fee is
     charged monthly so that a year removes exactly ``fee_balance``.
 
@@ -1495,10 +1648,13 @@ def pension_fees(
         raise CalculationInputError("גיל ההתחלה צריך להיות לפני גיל הפרישה.")
     if salary <= 0 or coefficient <= 0:
         raise CalculationInputError("השכר והמקדם צריכים להיות חיוביים.")
+    if track not in PENSION_TRACKS:
+        raise CalculationInputError("מסלול ההשקעה לא מוכר.")
     months = (retire_age - age) * 12
+    returns = [pension_track_return(track, age + year, real_return) for year in range(retire_age - age)]
     rows = []
     for scenario, deposit_fee, balance_fee in (("yours", fee_deposit, fee_balance),) + PENSION_SCENARIOS:
-        path = _pension_path(months, salary, contribution, salary_growth, real_return, deposit_fee, balance_fee)
+        path = _pension_path(months, salary, contribution, salary_growth, returns, deposit_fee, balance_fee)
         for offset, balance in enumerate(path):
             rows.append({"scenario": scenario, "age": age + offset, "balance": balance, "pension": balance / coefficient})
     return pd.DataFrame(rows)

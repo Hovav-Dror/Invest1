@@ -231,7 +231,7 @@ spec = {
   kind: "line", key, title, subtitle, notes, caption, summary,
   x: { format(v), tick(v), label, integer: true, secondary(v) },
   y: { format(v), tick(v, compact), label, zero: true, domain: [min, max] },
-  series: [{ id, label, color, width, dash, area, legend, legendValue, endLabel,
+  series: [{ id, label, color, width, dash, area, dots, dotRadius, legend, legendValue, endLabel,
              points: [{ x, y, data }] }],
   refLines: [{ y, label, className }], vLines: [{ x, label }], bands: [{ x0, x1, label }],
   endLabels: true, zoomable: true, aspect: 0.55,
@@ -321,7 +321,9 @@ function drawLine(spec, instance, width) {
             const r = compact ? 4 : 6;
             return `<path class="vchart-point" d="M${f(cx)} ${f(cy - r)}L${f(cx + r)} ${f(cy + r * 0.8)}L${f(cx - r)} ${f(cy + r * 0.8)}Z" fill="${series.color}"></path>`;
           }
-          return `<circle class="vchart-point" cx="${f(cx)}" cy="${f(cy)}" r="${compact ? 2.5 : 4}" fill="${series.color}"></circle>`;
+          const radius = series.dotRadius ? (compact ? series.dotRadius * 0.75 : series.dotRadius) : (compact ? 2.5 : 4);
+          const ring = series.dotRadius ? ` stroke="#fff" stroke-width="2.5"` : "";
+          return `<circle class="vchart-point" cx="${f(cx)}" cy="${f(cy)}" r="${f(radius)}" fill="${series.color}"${ring}></circle>`;
         }).join("")
         : "";
       return `${area}<path d="${path}" fill="none" stroke="${series.color}" stroke-width="${series.width ?? 2}" ${series.dash ? `stroke-dasharray="${series.dash}"` : ""} stroke-linejoin="round" stroke-linecap="round"></path>${dots}`;
@@ -359,12 +361,19 @@ function drawLine(spec, instance, width) {
   }
 
   // Shaded x ranges behind everything else, clipped to the visible range.
-  const bands = (spec.bands || []).filter((band) => band.x1 >= xMin && band.x0 <= xMax).map((band) => {
-    const x0 = xScale(Math.max(band.x0, xMin));
-    const x1 = xScale(Math.min(band.x1, xMax));
-    return `<rect class="vchart-band" x="${f(Math.min(x0, x1))}" y="${f(pad.top)}" width="${f(Math.abs(x1 - x0))}" height="${f(plotBottom - pad.top)}"></rect>
-      ${band.label && !compact ? `<text class="vchart-band-label" x="${f((x0 + x1) / 2)}" y="${f(plotBottom - 6)}" text-anchor="middle">${escapeHtml(band.label)}</text>` : ""}`;
-  }).join("");
+  // A label that would overlap the previous one (about 6px a character) is left out.
+  let lastLabelEdge = -Infinity;
+  const bands = (spec.bands || []).filter((band) => band.x1 >= xMin && band.x0 <= xMax)
+    .slice().sort((a, b) => a.x0 - b.x0).map((band) => {
+      const x0 = xScale(Math.max(band.x0, xMin));
+      const x1 = xScale(Math.min(band.x1, xMax));
+      const middle = (x0 + x1) / 2;
+      const half = String(band.label || "").length * 3;
+      const showLabel = band.label && !compact && middle - half > lastLabelEdge + 4;
+      if (showLabel) lastLabelEdge = middle + half;
+      return `<rect class="vchart-band" x="${f(Math.min(x0, x1))}" y="${f(pad.top)}" width="${f(Math.abs(x1 - x0))}" height="${f(plotBottom - pad.top)}"></rect>
+      ${showLabel ? `<text class="vchart-band-label" x="${f(middle)}" y="${f(plotBottom - 6)}" text-anchor="middle">${escapeHtml(band.label)}</text>` : ""}`;
+    }).join("");
 
   const axisLabels = `
     ${spec.x.label ? `<text class="vchart-axis-label" x="${f((pad.left + plotRight) / 2)}" y="${f(height - 4)}" text-anchor="middle">${escapeHtml(spec.x.label)}</text>` : ""}
