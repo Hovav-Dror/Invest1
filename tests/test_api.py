@@ -351,6 +351,15 @@ def test_trinity_in_real_shekels(client):
     assert client.get("/api/trinity?value_mode=nominal").status_code == 400
 
 
+def test_down_payment_endpoint(client):
+    payload = client.get("/api/down_payment?years=4&stock_share=0.3&glide=false&wait_years=0").get_json()
+    rows = payload["data"]
+    assert rows[0]["start"].startswith("1994-03")
+    assert all(row["waited_months"] == 0 for row in rows)
+    assert payload["metadata"]["result_period"]["start"] == "1994-03-01"
+    assert client.get("/api/down_payment?wait_years=9").status_code == 400
+
+
 def test_affordability_endpoint(client):
     payload = client.get("/api/affordability?equity=400000&income=20000&rate=0.05").get_json()
     points = {row["point"]: row for row in payload["data"] if row["point"]}

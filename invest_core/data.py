@@ -71,6 +71,14 @@ def load_object(name: str, data_dir: str | Path = DEFAULT_DATA_DIR) -> pd.DataFr
     return frame
 
 
+def load_housing_monthly(data_dir: str | Path = DEFAULT_DATA_DIR) -> pd.DataFrame:
+    """Monthly CBS dwelling price index and Bank of Israel rate (see scripts/build_young_couples_data.py)."""
+
+    frame = pd.read_parquet(Path(data_dir) / "young_couples_monthly.parquet")
+    frame["month"] = pd.to_datetime(frame["month"])
+    return frame
+
+
 def load_data(data_dir: str | Path = DEFAULT_DATA_DIR) -> InvestData:
     frames = {name: load_object(name, data_dir) for name in available_objects(data_dir)}
     return InvestData(**frames)

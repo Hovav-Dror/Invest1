@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 
 from invest_core import calculations as calc
-from invest_core.data import load_data
+from invest_core.data import load_data, load_housing_monthly
 from invest_core.methodology import data_version, result_metadata
 
 JsonDict = dict[str, Any]
@@ -44,6 +44,8 @@ ENDPOINT_NAMES = (
     "sp500_scv_after_tax",
     "trinity",
     "affordability",
+    "down_payment",
+    "down_payment_ladder",
 )
 
 EXPENSIVE_ENDPOINTS = {
@@ -62,6 +64,8 @@ EXPENSIVE_ENDPOINTS = {
     "sp500_scv_heatmap",
     "sp500_scv_after_tax",
     "trinity",
+    "down_payment",
+    "down_payment_ladder",
 }
 
 
@@ -419,6 +423,17 @@ def _parse_affordability_args(args) -> Params:
     return _freeze(params)
 
 
+def _parse_down_payment_args(args) -> Params:
+    _reject_unknown(args, {"years", "stock_share", "glide", "wait_years"})
+    params: JsonDict = {
+        "years": _get_int(args, "years", calc.DEFAULT_DOWN_YEARS, minimum=1, maximum=10),
+        "stock_share": _get_float(args, "stock_share", calc.DEFAULT_DOWN_STOCKS, minimum=0, maximum=1),
+        "glide": _get_bool(args, "glide", False),
+        "wait_years": _get_int(args, "wait_years", calc.DEFAULT_DOWN_WAIT, minimum=0, maximum=3),
+    }
+    return _freeze(params)
+
+
 def _parse_year_end_args(args) -> Params:
     _reject_unknown(args, {"year_end"})
     params: JsonDict = {}
@@ -515,7 +530,17 @@ def _dispatch(name: str, params: Params) -> pd.DataFrame:
         return calc.trinity(data=data, **kwargs)
     if name == "affordability":
         return calc.affordability(**kwargs)
+    if name == "down_payment":
+        return calc.down_payment(data=data, housing=_housing(), **kwargs)
+    if name == "down_payment_ladder":
+        kwargs.pop("stock_share", None)
+        return calc.down_payment_ladder(data=data, housing=_housing(), **kwargs)
     raise KeyError(name)
+
+
+@lru_cache(maxsize=1)
+def _housing() -> pd.DataFrame:
+    return load_housing_monthly(DATA_DIR)
 
 
 @lru_cache(maxsize=1)
@@ -561,6 +586,8 @@ PARSERS: dict[str, Callable[[Any], Params]] = {
     "sp500_scv_after_tax": _parse_scv_rolling_args,
     "trinity": _parse_trinity_args,
     "affordability": _parse_affordability_args,
+    "down_payment": _parse_down_payment_args,
+    "down_payment_ladder": _parse_down_payment_args,
 }
 
 

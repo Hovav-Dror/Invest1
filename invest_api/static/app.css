@@ -3605,6 +3605,38 @@ button.vchart-legend-item[aria-pressed="false"] {
   white-space: nowrap;
 }
 
+/* Young couples: stock-share summary under the down-payment chart */
+.down-ladder {
+  margin-top: 22px;
+}
+
+.down-ladder h4 {
+  font-size: 16px;
+  margin: 0 0 8px;
+}
+
+.down-ladder .story-table table {
+  min-width: 0;
+}
+
+.down-ladder .story-table td,
+.down-ladder .story-table th {
+  font-variant-numeric: tabular-nums;
+  padding: 8px 10px;
+}
+
+.down-ladder tr.is-selected th,
+.down-ladder tr.is-selected td {
+  background: color-mix(in srgb, #145f59 10%, transparent);
+  font-weight: 800;
+}
+
+.down-ladder-note {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 8px 0 0;
+}
+
 /* IRA reading width */
 #story[data-view="ira"] .story-copy p,
 #story[data-view="ira"] .story-copy li,

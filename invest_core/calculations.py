@@ -1060,3 +1060,160 @@ def affordability(
     grid = [float(value) for value in np.linspace(0, top, 121) if not any(np.isclose(value, mark) for mark in marks)]
     rows = [row(value) for value in grid] + [row(value, point) for value, point in marks.items()]
     return pd.DataFrame(rows).sort_values("equity", kind="stable").reset_index(drop=True)
+
+
+# --- Young couples: how much apartment the down payment buys after N years ----
+
+DEFAULT_DOWN_YEARS = 4
+DEFAULT_DOWN_STOCKS = 0.3
+DEFAULT_DOWN_WAIT = 0
+DOWN_STOCK_FEE = 0.001  # annual, a cheap S&P 500 fund
+DOWN_CASH_SPREAD = 0.003  # annual, money-market fund return below the Bank of Israel rate
+
+
+def _down_payment_market(data: InvestData, housing: pd.DataFrame) -> pd.DataFrame:
+    """Monthly boundaries with S&P 500 in shekels, Israeli CPI, dwelling prices and the cash rate.
+
+    At boundary ``d`` the dwelling index is the one for month ``d - 1`` (the
+    boundary closes that month), and cash earns month ``d``'s rate until the
+    next boundary.
+    """
+
+    market = monthly_market(data)[["date", "value_ils", "cpi_il"]]
+    index = housing.set_index("month")
+    market = market.assign(
+        housing=market["date"].map(index["housing_index"].rename(lambda month: month + pd.DateOffset(months=1))),
+        cash_rate=market["date"].map(index["boi_rate"]),
+    )
+    valid = market[["value_ils", "cpi_il", "housing", "cash_rate"]].notna().all(axis=1)
+    if not valid.any():
+        raise CalculationInputError("אין נתונים משותפים למניות, לדיור ולריבית.")
+    first, last = valid.idxmax(), valid[::-1].idxmax()
+    market = market.loc[first:last].reset_index(drop=True)
+    if market[["value_ils", "cpi_il", "housing", "cash_rate"]].isna().any().any():
+        raise CalculationInputError("יש חודשים חסרים בנתוני הדיור או הריבית.")
+    return market
+
+
+def down_payment(
+    data: InvestData | None = None,
+    housing: pd.DataFrame | None = None,
+    years: int = DEFAULT_DOWN_YEARS,
+    stock_share: float = DEFAULT_DOWN_STOCKS,
+    glide: bool = False,
+    wait_years: int = DEFAULT_DOWN_WAIT,
+    stock_fee: float = DOWN_STOCK_FEE,
+    cash_spread: float = DOWN_CASH_SPREAD,
+) -> pd.DataFrame:
+    """How much apartment a down payment buys after ``years``, for every start month.
+
+    The money is split between the S&P 500 in shekels and cash (the Bank of
+    Israel rate less ``cash_spread``), rebalanced monthly. With ``glide`` the
+    stock share falls linearly from ``stock_share`` to zero at the purchase
+    date. ``apartment`` is the value after tax divided by the growth of the
+    dwelling price index: 1.0 buys the same apartment as at the start.
+
+    Tax: 25% of the real gain, once at the purchase (no tax on rebalancing, as
+    in a provident fund for investment), never a refund on a loss.
+
+    Waiting: if at the planned date the money buys less than it would have in
+    cash (that is, stocks hurt), the couple keeps it invested and buys in the
+    first month it catches up with the all-cash path, or after ``wait_years``
+    at the latest. All cash never waits. Rent while waiting is not counted. Every start month needs data through the latest possible
+    purchase, so longer waits leave fewer start months.
+
+    For comparison each row also has ``cash`` (all cash) and ``stocks`` (all
+    stocks), both bought on the planned date without waiting.
+    """
+
+    if not 0 <= stock_share <= 1:
+        raise CalculationInputError("חלק המניות צריך להיות בין 0 ל-100%.")
+    if years < 1 or wait_years < 0:
+        raise CalculationInputError("משך החיסכון צריך להיות לפחות שנה.")
+    data = data or load_data()
+    if housing is None:
+        from invest_core.data import load_housing_monthly
+
+        housing = load_housing_monthly()
+    market = _down_payment_market(data, housing)
+    horizon = years * 12
+    longest = horizon + wait_years * 12
+    starts = len(market) - longest
+    if starts <= 0:
+        raise CalculationInputError("אין מספיק שנים של נתונים לתקופה הזו.")
+
+    value = market["value_ils"].to_numpy()
+    stock_growth = value[1:] / value[:-1] * (1 - stock_fee) ** (1 / 12)
+    cash_growth = 1 + (market["cash_rate"].to_numpy()[:-1] / 100 - cash_spread) / 12
+    cpi = market["cpi_il"].to_numpy()
+    homes = market["housing"].to_numpy()
+    dates = market["date"]
+
+    def shares(share: float, glide_path: bool) -> np.ndarray:
+        months = np.arange(longest)
+        if not glide_path:
+            return np.full(longest, share)
+        return np.where(months < horizon, share * (1 - months / horizon), 0.0)
+
+    def apartment_path(start: int, weights: np.ndarray) -> np.ndarray:
+        span = slice(start, start + longest)
+        growth = weights * stock_growth[span] + (1 - weights) * cash_growth[span]
+        balance = np.concatenate([[1.0], np.cumprod(growth)])
+        inflation = cpi[start : start + longest + 1] / cpi[start]
+        after_tax = balance - TAX_RATE * np.maximum(balance - inflation, 0.0)
+        return after_tax / (homes[start : start + longest + 1] / homes[start])
+
+    mix, all_cash, all_stocks = shares(stock_share, glide), shares(0.0, False), shares(1.0, False)
+    rows = []
+    for start in range(starts):
+        path = apartment_path(start, mix)
+        cash_path = apartment_path(start, all_cash)
+        buy = horizon
+        caught_up = path >= cash_path - 1e-9
+        if wait_years and not caught_up[horizon]:
+            later = np.nonzero(caught_up[horizon + 1 :])[0]
+            buy = horizon + 1 + int(later[0]) if len(later) else longest
+        rows.append(
+            {
+                "start": dates[start],
+                "buy": dates[start + buy],
+                "waited_months": buy - horizon,
+                "apartment": path[buy],
+                "apartment_on_time": path[horizon],
+                "cash": cash_path[horizon],
+                "stocks": apartment_path(start, all_stocks)[horizon],
+                "homes_change": homes[start + buy] / homes[start] - 1,
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+DOWN_LADDER_SHARES = (0.0, 0.2, 0.3, 0.4, 0.6, 0.8, 1.0)
+
+
+def down_payment_ladder(
+    data: InvestData | None = None,
+    housing: pd.DataFrame | None = None,
+    years: int = DEFAULT_DOWN_YEARS,
+    glide: bool = False,
+    wait_years: int = DEFAULT_DOWN_WAIT,
+) -> pd.DataFrame:
+    """``down_payment`` summarized over all start months, for several stock shares."""
+
+    rows = []
+    for share in DOWN_LADDER_SHARES:
+        result = down_payment(data, housing, years=years, stock_share=share, glide=glide, wait_years=wait_years)
+        apartment = result["apartment"]
+        rows.append(
+            {
+                "stock_share": share,
+                "windows": len(result),
+                "median": apartment.median(),
+                "p10": apartment.quantile(0.1),
+                "worst": apartment.min(),
+                "below_90": (apartment < 0.9).mean(),
+                "beat_cash": (apartment > result["cash"] + 1e-12).mean(),
+                "waited": (result["waited_months"] > 0).mean(),
+            }
+        )
+    return pd.DataFrame(rows)

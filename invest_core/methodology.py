@@ -58,6 +58,8 @@ def _period(frame: pd.DataFrame) -> dict:
         return {"start": int((frame["Year"] - frame["N"]).min()), "end": int(frame["Year"].max())}
     if "Year" in frame:
         return {"start": int(frame["Year"].min()), "end": int(frame["Year"].max())}
+    if {"start", "buy"} <= set(frame.columns):
+        return {"start": pd.to_datetime(frame["start"]).min().strftime("%Y-%m-%d"), "end": pd.to_datetime(frame["buy"]).max().strftime("%Y-%m-%d")}
     return {"start": None, "end": None}
 
 
@@ -68,6 +70,14 @@ def _assumptions(name: str, params: dict) -> list[str]:
             f"משכנתא עד {params.get('ltv', 0.75):.0%} ממחיר הדירה, והחזר חודשי עד {params.get('pti', 0.35):.0%} מההכנסה נטו של משק הבית.",
             "ריבית אחת לכל ההלוואה, לוח שפיצר, בלי הצמדה למדד. בפועל משכנתא מורכבת מכמה מסלולים.",
             f"עלויות נלוות של {params.get('costs', 0.02):.0%} ממחיר הדירה (עורך דין, שמאי, מעבר), שמשולמות מההון העצמי. בלי מס רכישה, כמו בדירה יחידה מתחת לתקרת הפטור.",
+        ]
+    if name in {"down_payment", "down_payment_ladder"}:
+        return [
+            "מודל לימודי; סכום חד-פעמי בהתחלה, בלי הפקדות נוספות.",
+            "מניות: S&P 500 בשקלים, כולל דיבידנדים, בדמי ניהול של 0.1% בשנה. מזומן: ריבית בנק ישראל פחות 0.3% בשנה, כמו בקרן כספית. איזון חודשי.",
+            "מס של 25% על הרווח הריאלי, פעם אחת בקנייה, בלי מס על האיזון (כמו בקופת גמל להשקעה). הפסד לא מקבל החזר.",
+            "\"כמה דירה\": השווי אחרי מס חלקי השינוי במדד מחירי הדירות של הלמ\"ס. 100% קונה את אותה דירה כמו בהתחלה.",
+            "בהמתנה לא נספר שכר הדירה ששילמתם בינתיים.",
         ]
     items = ["מודל לימודי; ללא הפקדות נוספות או התאמה למצב אישי."]
     if name in TAX_ENDPOINTS:
@@ -96,6 +106,10 @@ def _warnings(name: str, frame: pd.DataFrame, period: dict, params: dict) -> lis
         "היסטוריה היא תיאור של העבר, ולא תחזית או הסתברות להצלחה בעתיד.",
         "הנתונים ההיסטוריים משלבים כמה מקורות ושחזורים; נתוני ישראל בתקופות המוקדמות אינם מאומתים במלואם.",
     ]
+    if name in {"down_payment", "down_payment_ladder"}:
+        items.append("הנתונים מתחילים ב-1994, ורוב התקופה הייתה של עליית מחירי דירות חזקה וריבית נמוכה. תקופות חופפות, ולכן יש בהן רק מעט תקופות שונות באמת.")
+        items.append("מדד מחירי הדירות מתאר דירה ממוצעת. דירה מסוימת, באזור מסוים, יכולה להתנהג אחרת.")
+        return items
     monthly = "date" in frame or name == "sp500_risk_ladder"
     if not monthly and name not in CATALOG_ENDPOINTS:
         items.append("נתוני 2024–2025 נלקחו מאותו מדד או קרן כמו ההיסטוריה של כל סדרה ככל האפשר; לחלק מהסדרות יש תחליף.")

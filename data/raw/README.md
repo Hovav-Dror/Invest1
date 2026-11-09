@@ -1,6 +1,6 @@
 # Raw inputs for the young-couples section
 
-Downloaded or copied as-is; not yet processed or used by the API. Downloaded on 2026-11-09.
+Downloaded or copied as-is on 2026-11-09. `scripts/build_young_couples_data.py` turns the CBS dwelling index and the Bank of Israel rate into `data/young_couples_monthly.parquet`, which the API uses; the other files are not used yet.
 
 | File | What | Source | Coverage | Notes |
 | --- | --- | --- | --- | --- |

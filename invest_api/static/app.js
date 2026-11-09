@@ -80,6 +80,12 @@ import {
   };
 
   const labelMap = {
+    buy: "קנייה",
+    waited_months: "חודשי המתנה",
+    apartment: "כמה דירה (1 = אותה דירה)",
+    cash: "כמה דירה, הכל במזומן",
+    stocks: "כמה דירה, הכל במניות",
+    homes_change: "שינוי במחירי הדירות",
     equity: "הון עצמי",
     max_price: "מחיר דירה מקסימלי",
     mortgage: "משכנתא",
@@ -868,7 +874,11 @@ import {
               { text: "כמה דירה ההון העצמי קונה?", href: "#young-equity" },
               " מחשבון שמראה כמה ירידה בתיק פוגעת בדירה שאפשר לקנות, ולמה התשובה תלויה בהכנסה לא פחות מאשר בהון."
             ],
-            "בהמשך: כמה מניות מתאים לכסף שמיועד לדירה בעוד כמה שנים, איפה להחזיק אותו בינתיים, ומה עוד חשוב לבדוק בתחילת הדרך."
+            [
+              { text: "כסף לדירה בעוד כמה שנים: כמה מניות?", href: "#young-down" },
+              " מה היה קורה לכסף שמיועד להון עצמי, בכל חודש התחלה מאז 1994, במונחי דירה ולא בשקלים."
+            ],
+            "בהמשך: איפה להחזיק את הכסף בינתיים, ומה עוד חשוב לבדוק בתחילת הדרך."
           ]
         }
       ]
@@ -901,7 +911,51 @@ import {
             "עם אותו הון והכנסה של 10 אלף, ההכנסה היא שמגבילה: דירה של כ-1.03 מיליון. אחרי אותה ירידה אפשר עדיין לקנות דירה של כ-0.91 מיליון, רק כ-11% פחות.",
             "זה קצת הפוך ממה שמצפים: דווקא זוג עם הכנסה טובה והון עצמי צנוע הוא זה שהכי רגיש לירידה בתיק. ומי שממילא מתכנן דירה זולה מהמקסימום, נפגע פחות מכל אחד מהם.",
             { subheading: "ומה זה לא אומר" },
-            "זה לא אומר כמה מניות להחזיק. גם בלי מניות, הכסף יכול לאבד כוח קנייה אם מחירי הדירות עולים מהר. לשאלה הזו נגיע בהמשך החלק."
+            [
+              "זה לא אומר כמה מניות להחזיק. גם בלי מניות, הכסף יכול לאבד כוח קנייה אם מחירי הדירות עולים מהר. על זה בעמוד ",
+              { text: "כסף לדירה בעוד כמה שנים: כמה מניות?", href: "#young-down" },
+              "."
+            ]
+          ]
+        }
+      ]
+    },
+    "young-down": {
+      tab: "כמה מניות בכסף לדירה?",
+      paragraphs: [
+        "יש לכם כסף להון עצמי, ותקנו דירה בעוד כמה שנים. העצה הרגילה: לא לשים במניות, כי יש הוצאה גדולה באופק. אבל גם כסף \"בטוח\" יכול להפסיד, אם מחירי הדירות עולים מהר יותר מהריבית.",
+        "לכן הכלי לא מודד בשקלים, אלא בדירה: כמה דירה הכסף קונה ביום הקנייה, לעומת הדירה שהוא היה קונה ביום שהתחלתם. 100% זו אותה דירה. 80% זו דירה קטנה או זולה יותר ב-20%."
+      ],
+      afterChart: [
+        {
+          title: "איך זה עובד?",
+          paragraphs: [
+            "כל נקודה בגרף היא זוג שהתחיל לחסוך בחודש מסוים מאז 1994, ושם את הכסף בחלוקה שבחרתם: חלק ב-S&P 500 בשקלים, והשאר במזומן שמרוויח בערך את ריבית בנק ישראל, כמו בקרן כספית. ביום הקנייה משלמים מס על הרווח, ובודקים כמה עלו בינתיים מחירי הדירות לפי מדד הלמ\"ס.",
+            "\"אפשר לחכות\" פירושו: אם ביום המתוכנן הכסף קונה פחות ממה שהיה קונה במזומן, כלומר המניות פגעו, ממשיכים לחכות עד שהפער נסגר, אבל לא יותר מהזמן שבחרתם. שכר הדירה ששילמתם בזמן ההמתנה לא נספר כאן, וגם הוא עולה כסף.",
+            "\"להוריד מניות בהדרגה\" פירושו שחלק המניות יורד בכל חודש, עד שביום הקנייה הכל במזומן."
+          ]
+        },
+        {
+          title: "ומה לומדים?",
+          paragraphs: [
+            { callout: [
+              { html: "<strong class=\"callout-lead\">בשורה התחתונה:</strong> מאז 1994, כסף במזומן קנה ברוב התקופות פחות דירה ממה שהתחיל. מי שהחזיק חלק במניות קנה בדרך כלל יותר, אבל בתקופות הרעות הוא קנה הרבה פחות. אין כאן אפשרות בטוחה, רק בחירה בין הפסד מתון וכמעט ודאי לבין סיכוי להרוויח עם סיכון להפסד גדול." }
+            ] },
+            "בברירת המחדל של 4 שנים: במזומן, בתקופה טיפוסית הכסף קנה כ-88% מהדירה של ההתחלה, ובחצי מהתקופות פחות מ-90%. עם 40% מניות, בתקופה טיפוסית בערך אותה דירה. עם 100% מניות, בתקופה טיפוסית כ-115%, אבל ב-10% מהתקופות הגרועות 64% או פחות.",
+            "המניות קנו יותר דירה מהמזומן בכ-70% מהתקופות, כמעט בלי קשר לכמה מניות היו בתיק. מה שמשתנה עם חלק המניות הוא הגודל: כמה מרוויחים כשזה עובד, וכמה מפסידים כשלא.",
+            { subheading: "התקופה הגרועה ביותר: גם למניות וגם למזומן" },
+            "התקופה הגרועה ביותר הייתה אותה תקופה לכל החלופות: מי שהתחיל באמצע 2007 וקנה ב-2011. המניות קרסו במשבר של 2008, ובאותן שנים מחירי הדירות בישראל עלו בכ-60%. גם במזומן הכסף קנה רק כשני שלישים מהדירה.",
+            "זה הפוך ממה שמקובל לחשוב, ש\"הזדמנויות בדיור מגיעות במשבר\". במשבר של 2008 הדירות בישראל לא הוזלו. הן התייקרו.",
+            { subheading: "התקופה משנה הכל" },
+            "מי שהתחיל בין 1994 ל-2004 קנה במזומן יותר דירה ממה שהתחיל: הריבית הייתה גבוהה ומחירי הדירות כמעט לא עלו. מי שהתחיל מ-2005 ואילך הפסיד במזומן כמעט תמיד, כי הדירות התייקרו מהר והריבית הייתה נמוכה. כלומר, התשובה תלויה מאוד במה שיקרה למחירי הדירות ולריבית בשנים שלכם, ואת זה אף אחד לא יודע.",
+            { subheading: "וכמה הערות" },
+            "חודשי ההתחלה חופפים זה לזה: מי שהתחיל ביולי 2007 ומי שהתחיל באוגוסט 2007 עברו כמעט אותו דבר. ב-32 שנים של נתונים יש רק כמה תקופות של 4 שנים שונות באמת. לכן כדאי להסתכל על התמונה הכללית, ולא על אחוז מדויק.",
+            "המדד מתאר דירה ממוצעת בישראל. הדירה שאתם מחפשים, באזור שלכם, יכולה להתנהג אחרת.",
+            [
+              "והאחוז הזה הוא כמה הון עצמי נשאר לכם, לא בהכרח כמה דירה. אם ההכנסה היא שמגבילה את המשכנתא, ירידה בהון פוגעת בדירה פחות. ראו ",
+              { text: "כמה דירה ההון העצמי קונה?", href: "#young-equity" },
+              "."
+            ]
           ]
         }
       ]
@@ -1588,6 +1642,24 @@ import {
       metric: metricAffordability
     },
     {
+      id: "young-down",
+      group: "Young couples",
+      title: "כסף לדירה בעוד כמה שנים: כמה מניות?",
+      nav: "כמה מניות בכסף לדירה?",
+      kicker: "מניות מול מזומן, במונחי דירה",
+      takeaway: "מה היה קורה לכסף שמיועד להון עצמי, בכל חודש התחלה מאז 1994. לא בשקלים, אלא בכמה דירה הוא קונה בסוף.",
+      endpoint: "down_payment",
+      controls: [
+        select("years", "עוד כמה שנים קונים", [2, 3, 4, 5, 6, 7].map((n) => [String(n), `${n} שנים`]), "4"),
+        select("stock_share", "חלק המניות", ["0", "20", "30", "40", "60", "80", "100"].map((n) => [n, `${n}%`]), "30"),
+        select("wait_years", "אם המניות ירדו, אפשר לחכות", [["0", "לא"], ["1", "עד שנה"], ["2", "עד שנתיים"], ["3", "עד 3 שנים"]], "0"),
+        checkbox("glide", "להוריד מניות בהדרגה עד הקנייה", false)
+      ],
+      chart: { type: "downPayment" },
+      tableColumns: ["start", "buy", "waited_months", "apartment", "cash", "stocks", "homes_change"],
+      metric: metricDownPayment
+    },
+    {
       id: "about",
       group: "Intro",
       title: "על האתר",
@@ -1718,7 +1790,7 @@ import {
     { label: "סיכון", views: ["sp500-risk"] },
     { label: "מה לשים בתיק?", views: ["us-world", "scv"] },
     { label: "השוואת תיקים", views: ["portfolio-summary"], priority: true },
-    { label: "זוגות צעירים", views: ["young-intro", "young-equity"] },
+    { label: "זוגות צעירים", views: ["young-intro", "young-equity", "young-down"] },
     { label: "משיכה מהתיק (טריניטי)", views: ["trinity"] }
   ];
 
@@ -3167,6 +3239,10 @@ import {
       if (endpoint === "global_vs_sp500_heatmap" && key !== "max_years") return;
       if (endpoint === "sp500_scv_heatmap" && key !== "max_years") return;
       if ((endpoint === "sp500_scv_rolling" || endpoint === "sp500_scv_after_tax") && key !== "window") return;
+      if ((endpoint === "down_payment" || endpoint === "down_payment_ladder") && key === "stock_share") {
+        if (endpoint === "down_payment") params.set(key, String(Number(value) / 100));
+        return;
+      }
       if (endpoint === "affordability" && ["rate", "pti", "drop", "costs"].includes(key)) {
         params.set(key, String(Number(value) / 100));
         return;
@@ -4045,6 +4121,27 @@ import {
     };
   }
 
+  const sortedFinite = (values) => values.filter(Number.isFinite).sort((a, b) => a - b);
+
+  const apartmentPercent = (value) => `${Math.round(value * 100)}%`;
+
+  function metricDownPayment(payload) {
+    const rows = payload.data || [];
+    if (!rows.length) return [];
+    const values = sortedFinite(rows.map((row) => numericValue(row.apartment)));
+    const cash = sortedFinite(rows.map((row) => numericValue(row.cash)));
+    const beat = rows.filter((row) => numericValue(row.apartment) > numericValue(row.cash) + 1e-9).length;
+    const waited = rows.filter((row) => Number(row.waited_months) > 0).length;
+    const share = Number(stateFromForm().stock_share);
+    return [
+      { label: "בתקופה טיפוסית (חציון)", valueText: apartmentPercent(quantile(values, 0.5)), color: "#145f59", note: `מהדירה של ההתחלה. הכל במזומן: ${apartmentPercent(quantile(cash, 0.5))}` },
+      { label: "ב-10% התקופות הגרועות", valueText: `${apartmentPercent(quantile(values, 0.1))} או פחות`, color: "#c0582b", note: `הגרועה ביותר: ${apartmentPercent(values[0])}` },
+      share > 0
+        ? { label: "יותר דירה מאשר במזומן", valueText: `${Math.round((beat / rows.length) * 100)}%`, color: "#385f9f", note: waited ? `מהתקופות. ב-${Math.round((waited / rows.length) * 100)}% מהן חיכו` : `מתוך ${rows.length} חודשי התחלה` }
+        : { label: "חודשי התחלה", valueText: String(rows.length), color: "#385f9f", note: "מ-1994, חופפים זה לזה" }
+    ];
+  }
+
   function metricAffordability(payload) {
     const { now, after_drop: after } = affordabilityPoints(payload.data || []);
     if (!now || !after) return [];
@@ -4301,6 +4398,10 @@ import {
     }
     if (chartConfig.type === "affordability") {
       renderAffordabilityChart(payload);
+      return;
+    }
+    if (chartConfig.type === "downPayment") {
+      renderDownPaymentChart(payload);
       return;
     }
     renderLineChart(payload, chartConfig);
@@ -4710,6 +4811,109 @@ import {
         };
       }
     });
+  }
+
+  const downMonthLabel = (value) => {
+    const date = new Date(value);
+    return `${String(date.getUTCMonth() + 1).padStart(2, "0")}/${date.getUTCFullYear()}`;
+  };
+  const yearFraction = (value) => {
+    const date = new Date(value);
+    return date.getUTCFullYear() + date.getUTCMonth() / 12;
+  };
+
+  /** Apartment bought by start month, for the chosen mix next to all cash, plus a summary across stock shares. */
+  function renderDownPaymentChart(payload) {
+    const rows = payload.data || [];
+    const target = chartTarget();
+    releaseChart(target);
+    if (!rows.length) {
+      chartMessage(ui.noNumericSeries);
+      return;
+    }
+    const state = stateFromForm();
+    const share = Number(state.stock_share);
+    const years = Number(state.years);
+    const line = (key) => rows.map((row) => ({ x: yearFraction(row.start), y: numericValue(row[key]), data: row }));
+    const values = rows.flatMap((row) => [numericValue(row.apartment), numericValue(row.cash)]);
+    target.innerHTML = `
+      <div class="trinity-chart">
+        <div class="trinity-chart-head"><h4>כמה דירה הכסף קנה, לפי חודש ההתחלה</h4></div>
+        <div class="trinity-plot"></div>
+      </div>
+      <section class="down-ladder" aria-live="polite">
+        <h4>ומה עם חלק מניות אחר?</h4>
+        <p class="down-ladder-note">אותם ${years} שנים, על פני כל חודשי ההתחלה. מחשב...</p>
+      </section>`;
+    drawChart(target.querySelector(".trinity-plot"), {
+      kind: "line",
+      key: "down-payment",
+      summary: `${rows.length} חודשי התחלה, קנייה אחרי ${years} שנים, ${share}% מניות`,
+      aspect: 0.52,
+      zoomable: true,
+      caption: "100% פירושו שהכסף קונה בדיוק את הדירה שהיה קונה בהתחלה. אחרי מס, ביחס למדד מחירי הדירות של הלמ\"ס.",
+      x: {
+        integer: false,
+        format: (value) => `התחלה ב-${Math.floor(value)}`,
+        tick: (value) => String(Math.round(value)),
+        label: "חודש ההתחלה"
+      },
+      y: {
+        format: apartmentPercent,
+        tick: apartmentPercent,
+        domain: [Math.min(0.4, Math.min(...values) - 0.05), Math.max(1.2, Math.max(...values) + 0.05)],
+        label: "כמה דירה"
+      },
+      series: [
+        { id: "mix", label: share ? `${share}% מניות` : "הכל במזומן", color: "#145f59", width: 2.4, points: line("apartment") },
+        share ? { id: "cash", label: "הכל במזומן", color: "#9aa39f", width: 1.6, dash: "5 4", points: line("cash") } : null
+      ].filter(Boolean),
+      refLines: [{ y: 1, label: "אותה דירה" }],
+      tooltip: (x, hits) => {
+        const row = hits[0].point.data;
+        const waited = Number(row.waited_months);
+        return {
+          header: `${downMonthLabel(row.start)} עד ${downMonthLabel(row.buy)}`,
+          rows: [
+            { color: "#145f59", label: share ? `${share}% מניות` : "הכל במזומן", value: apartmentPercent(numericValue(row.apartment)) },
+            share ? { color: "#9aa39f", label: "הכל במזומן", value: apartmentPercent(numericValue(row.cash)) } : null,
+            waited ? { color: "#c0582b", label: "חיכו", value: `${waited} חודשים (בזמן: ${apartmentPercent(numericValue(row.apartment_on_time))})` } : null,
+            { color: "#68736f", label: "מחירי הדירות", value: `${numericValue(row.homes_change) >= 0 ? "+" : ""}${Math.round(numericValue(row.homes_change) * 100)}%` }
+          ].filter(Boolean)
+        };
+      }
+    });
+    renderDownPaymentLadder(payload, state);
+  }
+
+  async function renderDownPaymentLadder(payload, state) {
+    let ladder;
+    try {
+      ladder = await fetchPayload(`api/down_payment_ladder?${paramsFor("down_payment_ladder", state)}`);
+    } catch (error) {
+      return;
+    }
+    const slot = chartTarget().querySelector(".down-ladder");
+    if (lastPayload !== payload || !slot) return;
+    const share = Number(state.stock_share) / 100;
+    const rows = ladder.data || [];
+    const body = rows.map((row) => {
+      const selected = Math.abs(numericValue(row.stock_share) - share) < 1e-9;
+      return `<tr${selected ? ` class="is-selected"` : ""}>
+        <th scope="row">${Math.round(numericValue(row.stock_share) * 100)}% מניות</th>
+        <td>${apartmentPercent(numericValue(row.median))}</td>
+        <td>${apartmentPercent(numericValue(row.p10))}</td>
+        <td>${apartmentPercent(numericValue(row.worst))}</td>
+        <td>${numericValue(row.stock_share) ? `${Math.round(numericValue(row.beat_cash) * 100)}%` : "—"}</td>
+      </tr>`;
+    }).join("");
+    slot.innerHTML = `
+      <h4>ומה עם חלק מניות אחר?</h4>
+      <div class="story-table"><table>
+        <thead><tr><th></th><th>חציון</th><th>10% הגרועות</th><th>הגרועה ביותר</th><th>יותר ממזומן</th></tr></thead>
+        <tbody>${body}</tbody>
+      </table></div>
+      <p class="down-ladder-note">אותם ${state.years} שנים ואותן הגדרות, על פני ${rows[0] ? rows[0].windows : ""} חודשי התחלה. כמה דירה הכסף קנה, ביחס לדירה של ההתחלה.</p>`;
   }
 
   /** One row per holding period: share of windows that ended in a real loss, with the median beside it. */
@@ -5426,7 +5630,10 @@ import {
       sp500_scv_rolling: "S&P מול ערך קטנות",
       sp500_scv_heatmap: "מפת תקופות ערך קטנות",
       sp500_scv_after_tax: "ערך קטנות אחרי מס",
-      trinity: "טריניטי"
+      trinity: "טריניטי",
+      affordability: "המחשבון",
+      down_payment: "התקופות",
+      down_payment_ladder: "ההשוואה"
     };
     return explicit[endpoint] || endpoint;
   }

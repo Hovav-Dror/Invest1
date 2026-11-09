@@ -82,6 +82,7 @@ removes exactly `f`%. No fee is charged at the entry date.
 | `independent_commissions`, `tax_us_vs_il` | Self-managed costs: conversion spread, broker commission, custody fee | Share count fixed at purchase; dollar-method tax uses the sale exchange rate |
 | `trinity` | Fixed real withdrawal by start year | Balances stop at zero (they went negative); `depleted_year` added; the start year's own return is applied |
 | `affordability` | Highest apartment price by down payment: the lower of an LTV limit (`equity / (1 - ltv + costs)`) and an income limit (`(equity + max_loan) / (1 + costs)`, where `max_loan` is a Shpitzer loan whose payment is `pti` of net income). Marks today, after a portfolio drop, and the kink where the limits meet | New. No historical data |
+| `down_payment`, `down_payment_ladder` | For every start month from 1994: a lump sum split between the S&P 500 in shekels (0.1% fee) and cash (Bank of Israel rate less 0.3%), rebalanced monthly, optionally gliding to all cash. At purchase: 25% tax on the real gain (no tax on rebalancing), divided by the growth of the CBS dwelling price index. Optional waiting: if the mix buys less than all cash would have, wait until it catches up, up to N years. The ladder summarizes several stock shares | New. Monthly dwelling index and rate in `data/young_couples_monthly.parquet` (built by `scripts/build_young_couples_data.py`); at boundary `d` the dwelling index is month `d-1` and cash earns month `d`'s rate |
 
 ## Data corrections
 

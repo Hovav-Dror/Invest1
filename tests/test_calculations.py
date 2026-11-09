@@ -374,6 +374,57 @@ def test_affordability_income_limit_costs_about_one_for_one():
     assert points.loc["now", "payment"] == pytest.approx(1_500)
 
 
+def housing_frame(index, rate, start="1999-12-01"):
+    """Monthly dwelling index and Bank of Israel rate; boundary d uses the index of month d-1."""
+
+    months = pd.date_range(start, periods=len(index), freq="MS")
+    return pd.DataFrame({"month": months, "housing_index": index, "boi_rate": rate})
+
+
+def test_down_payment_cash_earns_the_rate_less_tax():
+    n = 13
+    data = monthly_data([100.0] * n)
+    housing = housing_frame([100.0] * (n + 1), [12.0] * (n + 1))
+    result = calc.down_payment(data, housing, years=1, stock_share=0.0, cash_spread=0.0)
+    gain = 1.01 ** 12 - 1
+    assert result["apartment"].iloc[0] == pytest.approx(1 + 0.75 * gain)
+    assert result["cash"].iloc[0] == pytest.approx(result["apartment"].iloc[0])
+
+
+def test_down_payment_divides_by_dwelling_prices_after_tax():
+    # Stocks and dwelling prices both double in a year; tax takes 25% of the gain.
+    n = 13
+    prices = list(np.geomspace(100, 200, n))
+    data = monthly_data(prices)
+    housing = housing_frame(list(np.geomspace(100, 200, n)) + [200.0], [0.0] * (n + 1))
+    result = calc.down_payment(data, housing, years=1, stock_share=1.0, stock_fee=0.0, cash_spread=0.0)
+    assert result["apartment"].iloc[0] == pytest.approx((2 - 0.25) / 2)
+    assert result["homes_change"].iloc[0] == pytest.approx(1.0)
+
+
+def test_down_payment_waits_until_the_apartment_is_back():
+    # Stocks fall 20% in the first year, then recover by month 18.
+    prices = list(np.linspace(100, 80, 13)) + list(np.linspace(80 + 10 / 3, 100, 6)) + [100.0] * 6
+    n = len(prices)
+    data = monthly_data(prices)
+    housing = housing_frame([100.0] * (n + 1), [0.0] * (n + 1))
+    result = calc.down_payment(data, housing, years=1, stock_share=1.0, wait_years=1, stock_fee=0.0, cash_spread=0.0)
+    first = result.iloc[0]
+    assert first["apartment_on_time"] == pytest.approx(0.8)
+    assert first["waited_months"] == 6
+    assert first["apartment"] == pytest.approx(1.0)
+
+
+def test_down_payment_glide_ends_in_cash():
+    n = 25
+    data = monthly_data(list(np.linspace(100, 50, n)))
+    housing = housing_frame([100.0] * (n + 1), [0.0] * (n + 1))
+    glide = calc.down_payment(data, housing, years=2, stock_share=1.0, glide=True, stock_fee=0.0, cash_spread=0.0)
+    fixed = calc.down_payment(data, housing, years=2, stock_share=1.0, stock_fee=0.0, cash_spread=0.0)
+    assert fixed["apartment"].iloc[0] == pytest.approx(0.5)
+    assert 0.5 < glide["apartment"].iloc[0] < 1.0
+
+
 def test_affordability_kink_is_where_the_limits_meet():
     result = calc.affordability(equity=400_000, income=10_000, rate=0.05, years=30, costs=0.02)
     kink = result.set_index("point").loc["kink"]
