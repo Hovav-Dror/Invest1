@@ -75,10 +75,19 @@ import {
     "Independent investing": "מסחר עצמאי",
     "Lazy portfolios": "תיקים עצלים",
     "Rolling comparisons": "השוואות היסטוריות",
-    Withdrawal: "משיכה ופרישה"
+    Withdrawal: "משיכה ופרישה",
+    "Young couples": "זוגות צעירים"
   };
 
   const labelMap = {
+    equity: "הון עצמי",
+    max_price: "מחיר דירה מקסימלי",
+    mortgage: "משכנתא",
+    payment: "החזר חודשי",
+    price_ltv: "תקרה לפי 75% מימון",
+    price_income: "תקרה לפי ההכנסה",
+    binding: "המגבלה שקובעת",
+    point: "נקודה מסומנת",
     date: "תאריך",
     start: "מתאריך",
     end: "עד תאריך",
@@ -828,6 +837,74 @@ import {
       ],
       notes: ["מקור: TrinityPlot / TrinityPlot1", "קלטים מקוריים: TrinityPortfolio, TrinityDrawP, TrinityYears, TrinityBase"]
     },
+    "young-intro": {
+      tab: "זוגות צעירים",
+      sections: [
+        {
+          title: "עצות שלא נכתבו בשבילכם",
+          paragraphs: [
+            "הרבה מהעצות שצעירים מקבלים, גם באתרים כמו זה, מתעלמות מזה שהם צעירים. \"תפרישו כל חודש אחוז קבוע מהמשכורת\", \"תשקיעו לטווח ארוך ואל תיגעו\". נשמע הגיוני, אבל זה נכתב למי שכבר מסודר.",
+            "בתחילת הדרך המשכורת עוד התחלתית, וצרכים חדשים מגיעים בבת אחת. פתאום משלמים על דיור, אולי לראשונה בלי ההורים. נעשים עצמאיים, מנסים לבנות בית ועתיד. לחסוך מהמשכורת? קל להגיד.",
+            "ואז, אחרי החתונה ועם קצת עזרה מהמשפחה, אולי יש סכום כסף. ברור שיום אחד תצטרכו משכנתא, אבל לא ברור מתי. עד מתי לשכור? ומה לעשות עם הכסף בינתיים?",
+            "זוג צעיר הוא רק הדוגמה הכי נפוצה. אותן שאלות עולות לכל מי שנמצא בתחילת הדרך."
+          ]
+        },
+        {
+          title: "מה שונה כשמתחילים",
+          paragraphs: [
+            { list: [
+              { html: "<strong>האופק קצר.</strong> לא 30 שנה עד הפנסיה, אלא כמה שנים עד הדירה. ובכמה שנים מניות יכולות גם לרדת ולא להספיק לחזור." },
+              { html: "<strong>המטרה גדולה, חד-פעמית ובשקלים.</strong> לא \"כמה שיותר\", אלא סכום מסוים להון עצמי, בזמן שמחירי הדירות לא מחכים." },
+              { html: "<strong>יש מינוף.</strong> ההון העצמי הוא רק חלק ממחיר הדירה, והמשכנתא משלימה. לכן כל שקל שנעלם מההון יכול לעלות יותר משקל בדירה." },
+              { html: "<strong>הנכס הגדול הוא כושר ההשתכרות.</strong> המשכורת עוד תעלה, והיא שקובעת כמה משכנתא תקבלו. זה משנה את כל החשבון." }
+            ] }
+          ]
+        },
+        {
+          title: "מה יש כאן",
+          paragraphs: [
+            [
+              { text: "כמה דירה ההון העצמי קונה?", href: "#young-equity" },
+              " מחשבון שמראה כמה ירידה בתיק פוגעת בדירה שאפשר לקנות, ולמה התשובה תלויה בהכנסה לא פחות מאשר בהון."
+            ],
+            "בהמשך: כמה מניות מתאים לכסף שמיועד לדירה בעוד כמה שנים, איפה להחזיק אותו בינתיים, ומה עוד חשוב לבדוק בתחילת הדרך."
+          ]
+        }
+      ]
+    },
+    "young-equity": {
+      tab: "כמה דירה ההון קונה?",
+      paragraphs: [
+        "נניח שיש לכם הון עצמי לדירה, והוא מושקע בינתיים. השוק יורד ב-30%. כמה דירה איבדתם?",
+        "התשובה המקובלת: הרבה יותר מ-30%, בגלל המינוף. אבל זה נכון רק לחלק מהזוגות. הכלי הזה מראה למי."
+      ],
+      afterChart: [
+        {
+          title: "איך זה עובד?",
+          paragraphs: [
+            "הבנק מגביל את המשכנתא בשתי דרכים, וקובעת המגבלה המחמירה מביניהן:",
+            { list: [
+              { html: "<strong>עד 75% ממחיר הדירה</strong> בדירה ראשונה. כלומר, ההון העצמי צריך לכסות לפחות רבע מהמחיר, ועוד את העלויות הנלוות." },
+              { html: "<strong>החזר חודשי עד חלק מסוים מההכנסה.</strong> בנק ישראל מגביל ל-50%, אבל בפועל בנקים מעדיפים בערך שליש. כאן ברירת המחדל היא 35%." }
+            ] },
+            "בגרף, כל נקודה על הקו הירוק היא הון עצמי אחר, והמחיר המקסימלי שהוא מאפשר. כל עוד ההון קטן, הקו עולה בתלילות: כל שקל של הון מוסיף כמעט 4 שקלים של דירה. מהנקודה שבה ההכנסה מתחילה להגביל, הקו מתמתן: כל שקל של הון מוסיף רק שקל של דירה."
+          ]
+        },
+        {
+          title: "ומה לומדים?",
+          paragraphs: [
+            { callout: [
+              { html: "<strong class=\"callout-lead\">בשורה התחתונה:</strong> ירידה בתיק פוגעת הכי הרבה במי שההון העצמי שלו קטן ביחס להכנסה. אצלו, ירידה של 30% בהון היא כמעט 30% פחות דירה. מי שההכנסה מגבילה אותו מאבד הרבה פחות." }
+            ] },
+            "למשל, עם הון עצמי של 400 אלף ש\"ח והכנסה של 20 אלף נטו בחודש, אפשר לקנות דירה של כ-1.48 מיליון. אחרי ירידה של 30% נשארים 280 אלף, שמספיקים לדירה של כ-1.04 מיליון: 30% פחות.",
+            "עם אותו הון והכנסה של 10 אלף, ההכנסה היא שמגבילה: דירה של כ-1.03 מיליון. אחרי אותה ירידה אפשר עדיין לקנות דירה של כ-0.91 מיליון, רק כ-11% פחות.",
+            "זה קצת הפוך ממה שמצפים: דווקא זוג עם הכנסה טובה והון עצמי צנוע הוא זה שהכי רגיש לירידה בתיק. ומי שממילא מתכנן דירה זולה מהמקסימום, נפגע פחות מכל אחד מהם.",
+            { subheading: "ומה זה לא אומר" },
+            "זה לא אומר כמה מניות להחזיק. גם בלי מניות, הכסף יכול לאבד כוח קנייה אם מחירי הדירות עולים מהר. לשאלה הזו נגיע בהמשך החלק."
+          ]
+        }
+      ]
+    },
     about: {
       tab: "אודות",
       sections: [
@@ -1479,6 +1556,37 @@ import {
       metric: metricTrinity
     },
     {
+      id: "young-intro",
+      group: "Young couples",
+      title: "זוגות צעירים: כסף בתחילת הדרך",
+      nav: "הקדמה",
+      kicker: "כשהעצות הרגילות לא מתאימות",
+      takeaway: "רוב העצות על השקעות נכתבות למי שכבר מסודר. בתחילת הדרך המשכורת קטנה, ההוצאות חדשות, ובאופק יש דירה, בלי לדעת מתי.",
+      staticOnly: true,
+      controls: []
+    },
+    {
+      id: "young-equity",
+      group: "Young couples",
+      title: "כמה דירה ההון העצמי קונה?",
+      nav: "כמה דירה ההון קונה?",
+      kicker: "הון עצמי, הכנסה ומשכנתא",
+      takeaway: "ירידה בתיק של ההון העצמי פוגעת בדירה שאפשר לקנות. כמה? זה תלוי במה מגביל אתכם: גובה ההון העצמי, או גובה ההכנסה.",
+      endpoint: "affordability",
+      controls: [
+        field("equity", "הון עצמי (₪)", "text", "400000"),
+        field("income", "הכנסה חודשית נטו של משק הבית (₪)", "text", "20000"),
+        select("drop", "ירידה בתיק", ["10", "20", "30", "40", "50"].map((n) => [n, `${n}%`]), "30"),
+        select("rate", "ריבית משכנתא", ["3", "4", "4.5", "5", "5.5", "6", "7"].map((n) => [n, `${n}%`]), "5"),
+        { ...select("years", "תקופת המשכנתא", [20, 25, 30].map((n) => [String(n), `${n} שנה`]), "30"), advanced: true },
+        { ...select("pti", "החזר מקסימלי מההכנסה", ["25", "30", "35", "40"].map((n) => [n, `${n}%`]), "35"), advanced: true },
+        { ...select("costs", "עלויות נלוות", ["0", "1", "2", "3", "5"].map((n) => [n, `${n}% מהמחיר`]), "2"), advanced: true }
+      ],
+      chart: { type: "affordability" },
+      tableColumns: ["equity", "max_price", "mortgage", "payment", "binding"],
+      metric: metricAffordability
+    },
+    {
       id: "about",
       group: "Intro",
       title: "על האתר",
@@ -1528,7 +1636,7 @@ import {
   let storyCollapseSeq = 0;
   let chartHost = null;
   let skipNextHashChange = false;
-  const moneyInputNames = new Set(["initial", "base"]);
+  const moneyInputNames = new Set(["initial", "base", "equity", "income"]);
   const percentFractionInputNames = new Set(["dollar_commission", "yearly_commission"]);
 
   function field(name, label, type, value, step, hint) {
@@ -1609,6 +1717,7 @@ import {
     { label: "סיכון", views: ["sp500-risk"] },
     { label: "מה לשים בתיק?", views: ["us-world", "scv"] },
     { label: "השוואת תיקים", views: ["portfolio-summary"], priority: true },
+    { label: "זוגות צעירים", views: ["young-intro", "young-equity"] },
     { label: "משיכה מהתיק (טריניטי)", views: ["trinity"] }
   ];
 
@@ -3057,6 +3166,10 @@ import {
       if (endpoint === "global_vs_sp500_heatmap" && key !== "max_years") return;
       if (endpoint === "sp500_scv_heatmap" && key !== "max_years") return;
       if ((endpoint === "sp500_scv_rolling" || endpoint === "sp500_scv_after_tax") && key !== "window") return;
+      if (endpoint === "affordability" && ["rate", "pti", "drop", "costs"].includes(key)) {
+        params.set(key, String(Number(value) / 100));
+        return;
+      }
       if (endpoint === "trinity" && key === "yearly_draw") {
         params.set(key, String(Number(value) / 100));
         return;
@@ -3931,6 +4044,21 @@ import {
     };
   }
 
+  function metricAffordability(payload) {
+    const { now, after_drop: after } = affordabilityPoints(payload.data || []);
+    if (!now || !after) return [];
+    const price = numericValue(now.max_price);
+    const afterPrice = numericValue(after.max_price);
+    const equityLost = numericValue(now.equity) - numericValue(after.equity);
+    const priceLost = price - afterPrice;
+    const limit = (row) => row.binding === "ltv" ? "מגביל: ההון העצמי" : "מגבילה: ההכנסה";
+    return [
+      { label: "דירה מקסימלית היום", value: price, format: "shekel", color: "#145f59", note: `${limit(now)}. החזר של ${formatShekel(numericValue(now.payment))} בחודש` },
+      { label: "אחרי הירידה בתיק", value: afterPrice, format: "shekel", color: "#c0582b", note: `נמוך ב-${formatPercent(priceLost / price, 0)}. ${limit(after)}` },
+      { label: "כל שקל שירד מההון", value: Math.round((priceLost / equityLost) * 10) / 10, suffix: "₪ דירה", color: "#68736f", note: "בממוצע, בין היום לאחרי הירידה" }
+    ];
+  }
+
   /** The comparison card needs both currencies, so it is filled by renderTrinityCompare. */
   function metricTrinity() {
     return [];
@@ -4168,6 +4296,10 @@ import {
     }
     if (chartConfig.type === "trinity") {
       renderTrinityChart(payload, chartConfig);
+      return;
+    }
+    if (chartConfig.type === "affordability") {
+      renderAffordabilityChart(payload);
       return;
     }
     renderLineChart(payload, chartConfig);
@@ -4504,6 +4636,76 @@ import {
             { color: "#9aa39f", label: "היתרה הנמוכה בדרך", value: money(numericValue(row.Investment_low)) },
             row.depleted_year ? { color: "#c0582b", label: "התיק התרוקן בשנת", value: String(row.depleted_year) } : null
           ].filter(Boolean)
+        };
+      }
+    });
+  }
+
+  function affordabilityPoints(rows) {
+    const points = {};
+    rows.forEach((row) => { if (row.point) points[row.point] = row; });
+    return points;
+  }
+
+  /** Max apartment price by down payment: the lower of the LTV and income limits, with today and after-drop marked. */
+  function renderAffordabilityChart(payload) {
+    const rows = payload.data || [];
+    const target = chartTarget();
+    releaseChart(target);
+    const { now, after_drop: after, kink } = affordabilityPoints(rows);
+    if (!rows.length || !now) {
+      chartMessage(ui.noNumericSeries);
+      return;
+    }
+    const millions = (value) => `${(value / 1e6).toLocaleString("en-US", { maximumFractionDigits: 2 })} מיליון ₪`;
+    const thousands = (value) => `${Math.round(value / 1000).toLocaleString("en-US")} אלף ₪`;
+    const top = Math.max(...rows.map((row) => numericValue(row.max_price) || 0));
+    const line = (key) => rows.map((row) => ({ x: numericValue(row.equity), y: numericValue(row[key]), data: row }));
+    const capped = (key) => line(key).map((point) => ({ ...point, y: point.y > top * 1.15 ? null : point.y }));
+    const marker = (row) => rows.map((item) => ({ x: numericValue(item.equity), y: item === row ? numericValue(item.max_price) : null, data: item }));
+    target.innerHTML = `
+      <div class="trinity-chart">
+        <div class="trinity-chart-head"><h4>מחיר הדירה המקסימלי לפי ההון העצמי</h4></div>
+        <div class="trinity-plot"></div>
+      </div>`;
+    drawChart(target.querySelector(".trinity-plot"), {
+      kind: "line",
+      key: "affordability",
+      summary: `הון עצמי של ${thousands(numericValue(now.equity))} מאפשר דירה של עד ${millions(numericValue(now.max_price))}`,
+      aspect: 0.56,
+      zoomable: false,
+      caption: "הקו הירוק הוא הנמוך מבין שתי המגבלות. הקווים המקווקווים מראים כל מגבלה לבדה.",
+      x: {
+        integer: false,
+        format: (value) => `הון עצמי ${thousands(value)}`,
+        tick: (value) => Math.round(value / 1000).toLocaleString("en-US"),
+        label: "הון עצמי, באלפי ₪"
+      },
+      y: {
+        format: millions,
+        tick: (value) => (value / 1e6).toLocaleString("en-US", { maximumFractionDigits: 1 }),
+        zero: true,
+        domain: [0, top * 1.08],
+        label: "מחיר דירה, במיליוני ₪"
+      },
+      series: [
+        { id: "price", label: "מחיר דירה מקסימלי", color: "#145f59", width: 3, points: line("max_price") },
+        { id: "ltv", label: "תקרה לפי 75% מימון", color: "#9aa39f", width: 1.6, dash: "4 4", points: capped("price_ltv") },
+        { id: "income", label: "תקרה לפי ההכנסה", color: "#385f9f", width: 1.6, dash: "9 5", points: capped("price_income") },
+        { id: "now", label: "היום", color: "#145f59", width: 0, dots: true, points: marker(now) },
+        after ? { id: "after", label: "אחרי הירידה", color: "#c0582b", width: 0, dots: true, points: marker(after) } : null
+      ].filter(Boolean),
+      vLines: kink ? [{ x: numericValue(kink.equity), label: "מכאן ההכנסה מגבילה" }] : [],
+      tooltip: (x, hits) => {
+        const row = hits[0].point.data;
+        return {
+          header: `הון עצמי ${thousands(numericValue(row.equity))}`,
+          rows: [
+            { color: "#145f59", label: "מחיר דירה מקסימלי", value: millions(numericValue(row.max_price)) },
+            { color: "#68736f", label: "משכנתא", value: millions(numericValue(row.mortgage)) },
+            { color: "#68736f", label: "החזר חודשי", value: formatShekel(numericValue(row.payment)) },
+            { color: row.binding === "ltv" ? "#9aa39f" : "#385f9f", label: "מגביל", value: row.binding === "ltv" ? "ההון העצמי (75% מימון)" : "ההכנסה" }
+          ]
         };
       }
     });

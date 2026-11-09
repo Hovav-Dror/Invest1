@@ -349,3 +349,13 @@ def test_trinity_in_real_shekels(client):
     depleted = [row["start_year"] for row in ils["data"] if row["depleted_year"] is not None]
     assert depleted == [1969]
     assert client.get("/api/trinity?value_mode=nominal").status_code == 400
+
+
+def test_affordability_endpoint(client):
+    payload = client.get("/api/affordability?equity=400000&income=20000&rate=0.05").get_json()
+    points = {row["point"]: row for row in payload["data"] if row["point"]}
+    assert {"now", "after_drop"} <= set(points)
+    assert payload["metadata"]["units"]["currency"] == "ILS"
+    assert payload["metadata"]["units"]["inflation"] is None
+    assert client.get("/api/affordability?equity=0").status_code == 400
+    assert client.get("/api/affordability?bogus=1").status_code == 400

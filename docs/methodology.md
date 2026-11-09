@@ -81,6 +81,7 @@ removes exactly `f`%. No fee is charged at the entry date.
 | `kupat_gemel_pension` | Annuity from 60 vs equal withdrawals from a self-managed portfolio | Proportional cost basis on each sale; stops at zero and reports `IIbShortfall`; the annuity can start immediately for ages over 60 |
 | `independent_commissions`, `tax_us_vs_il` | Self-managed costs: conversion spread, broker commission, custody fee | Share count fixed at purchase; dollar-method tax uses the sale exchange rate |
 | `trinity` | Fixed real withdrawal by start year | Balances stop at zero (they went negative); `depleted_year` added; the start year's own return is applied |
+| `affordability` | Highest apartment price by down payment: the lower of an LTV limit (`equity / (1 - ltv + costs)`) and an income limit (`(equity + max_loan) / (1 + costs)`, where `max_loan` is a Shpitzer loan whose payment is `pti` of net income). Marks today, after a portfolio drop, and the kink where the limits meet | New. No historical data |
 
 ## Data corrections
 

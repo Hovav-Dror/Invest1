@@ -17,8 +17,10 @@ PENSION_SOURCE = "https://haotzarsheli.mof.gov.il/Subject/Pages/Provident-Fund.a
 
 MONEY_ENDPOINTS = {
     "tax_events", "commission_effect", "commission_tax", "kupat_gemel", "kupat_gemel_pension",
-    "independent_commissions", "tax_us_vs_il", "trinity",
+    "independent_commissions", "tax_us_vs_il", "trinity", "affordability",
 }
+# Pure calculators: no historical data, so no data period or history warnings.
+CALCULATOR_ENDPOINTS = {"affordability"}
 TAX_ENDPOINTS = {
     "tax_events", "commission_effect", "commission_tax", "kupat_gemel", "kupat_gemel_pension",
     "tax_us_vs_il", "sp500_scv_after_tax",
@@ -60,6 +62,13 @@ def _period(frame: pd.DataFrame) -> dict:
 
 
 def _assumptions(name: str, params: dict) -> list[str]:
+    if name == "affordability":
+        return [
+            "מחשבון לימודי, לא אישור עקרוני למשכנתא. הבנק בודק גם דירוג אשראי, התחייבויות, יציבות הכנסה ושמאות.",
+            f"משכנתא עד {params.get('ltv', 0.75):.0%} ממחיר הדירה, והחזר חודשי עד {params.get('pti', 0.35):.0%} מההכנסה נטו של משק הבית.",
+            "ריבית אחת לכל ההלוואה, לוח שפיצר, בלי הצמדה למדד. בפועל משכנתא מורכבת מכמה מסלולים.",
+            f"עלויות נלוות של {params.get('costs', 0.02):.0%} ממחיר הדירה (עורך דין, שמאי, מעבר), שמשולמות מההון העצמי. בלי מס רכישה, כמו בדירה יחידה מתחת לתקרת הפטור.",
+        ]
     items = ["מודל לימודי; ללא הפקדות נוספות או התאמה למצב אישי."]
     if name in TAX_ENDPOINTS:
         items.append("מס מודל של 25% על הרווח הריאלי; הפסד אינו מוחזר אלא מקוזז מרווחים מאוחרים יותר.")
@@ -81,6 +90,8 @@ def _assumptions(name: str, params: dict) -> list[str]:
 
 
 def _warnings(name: str, frame: pd.DataFrame, period: dict, params: dict) -> list[str]:
+    if name in CALCULATOR_ENDPOINTS:
+        return ["הכללים והריביות משתנים מבנק לבנק ומשנה לשנה. כדאי לבדוק את המספרים שלכם מול הבנק או יועץ משכנתאות."]
     items = [
         "היסטוריה היא תיאור של העבר, ולא תחזית או הסתברות להצלחה בעתיד.",
         "הנתונים ההיסטוריים משלבים כמה מקורות ושחזורים; נתוני ישראל בתקופות המוקדמות אינם מאומתים במלואם.",
@@ -107,7 +118,7 @@ def result_metadata(name: str, params: dict, frame: pd.DataFrame, version: str) 
         currency = "USD" if usd else "ILS"
         if name in {"sp500_risk", "sp500_risk_ladder"} or (name == "trinity" and mode != "cpi_il") or (name.startswith("portfolio_") and mode == "cpi_us"):
             inflation = "US"
-        elif name in {"us_world_rolling", "us_global_rolling", "global_vs_sp500_heatmap"} or mode == "nominal":
+        elif name in {"us_world_rolling", "us_global_rolling", "global_vs_sp500_heatmap"} or name in CALCULATOR_ENDPOINTS or mode == "nominal":
             inflation = None
         else:
             inflation = "IL" if params.get("adjust_cpi", True) else None

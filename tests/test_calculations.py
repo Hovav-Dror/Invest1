@@ -349,3 +349,33 @@ def test_unrecovered_underwater_stretch_runs_to_the_last_year():
     data = annual_data({"A": [0, -10, 5, 2]})
     summary = calc.portfolio_summary(data, portfolios=["A"], year_start=2001, year_end=2003)
     assert summary["MaxShefelYears"].iloc[0] == 3
+
+
+# --- Young couples: affordability ---------------------------------------------
+
+
+def test_affordability_ltv_limit_multiplies_a_drop():
+    # Plenty of income: the 75% limit binds, so the price is equity / (25% + costs).
+    result = calc.affordability(equity=400_000, income=100_000, rate=0.05, years=30, costs=0.0, drop=0.3)
+    points = result.set_index("point")
+    assert points.loc["now", "max_price"] == pytest.approx(1_600_000)
+    assert points.loc["after_drop", "max_price"] == pytest.approx(1_120_000)
+    assert points.loc["now", "binding"] == "ltv"
+
+
+def test_affordability_income_limit_costs_about_one_for_one():
+    # Zero rate: the income limit is a loan of pti * income * months.
+    result = calc.affordability(equity=400_000, income=5_000, rate=0.0, years=10, pti=0.3, costs=0.0, drop=0.3)
+    points = result.set_index("point")
+    loan = 0.3 * 5_000 * 120
+    assert points.loc["now", "binding"] == "income"
+    assert points.loc["now", "max_price"] == pytest.approx(400_000 + loan)
+    assert points.loc["now", "max_price"] - points.loc["after_drop", "max_price"] == pytest.approx(120_000)
+    assert points.loc["now", "payment"] == pytest.approx(1_500)
+
+
+def test_affordability_kink_is_where_the_limits_meet():
+    result = calc.affordability(equity=400_000, income=10_000, rate=0.05, years=30, costs=0.02)
+    kink = result.set_index("point").loc["kink"]
+    assert kink["price_ltv"] == pytest.approx(kink["price_income"])
+    assert result["equity"].is_monotonic_increasing

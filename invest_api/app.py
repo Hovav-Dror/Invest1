@@ -43,6 +43,7 @@ ENDPOINT_NAMES = (
     "sp500_scv_heatmap",
     "sp500_scv_after_tax",
     "trinity",
+    "affordability",
 )
 
 EXPENSIVE_ENDPOINTS = {
@@ -403,6 +404,21 @@ def _parse_trinity_args(args) -> Params:
     return _freeze(params)
 
 
+def _parse_affordability_args(args) -> Params:
+    _reject_unknown(args, {"equity", "income", "rate", "years", "ltv", "pti", "costs", "drop"})
+    params: JsonDict = {
+        "equity": _get_float(args, "equity", calc.DEFAULT_AFFORD_EQUITY, minimum=1000, maximum=1e8),
+        "income": _get_float(args, "income", calc.DEFAULT_AFFORD_INCOME, minimum=0, maximum=1e7),
+        "rate": _get_float(args, "rate", calc.DEFAULT_AFFORD_RATE, minimum=0, maximum=0.3),
+        "years": _get_int(args, "years", calc.DEFAULT_AFFORD_YEARS, minimum=1, maximum=40),
+        "ltv": _get_float(args, "ltv", calc.DEFAULT_AFFORD_LTV, minimum=0.05, maximum=0.95),
+        "pti": _get_float(args, "pti", calc.DEFAULT_AFFORD_PTI, minimum=0.05, maximum=0.7),
+        "costs": _get_float(args, "costs", calc.DEFAULT_AFFORD_COSTS, minimum=0, maximum=0.2),
+        "drop": _get_float(args, "drop", calc.DEFAULT_AFFORD_DROP, minimum=0, maximum=0.9),
+    }
+    return _freeze(params)
+
+
 def _parse_year_end_args(args) -> Params:
     _reject_unknown(args, {"year_end"})
     params: JsonDict = {}
@@ -497,6 +513,8 @@ def _dispatch(name: str, params: Params) -> pd.DataFrame:
         return calc.sp500_scv_rolling(data=data, after_tax=True, **kwargs)
     if name == "trinity":
         return calc.trinity(data=data, **kwargs)
+    if name == "affordability":
+        return calc.affordability(**kwargs)
     raise KeyError(name)
 
 
@@ -542,6 +560,7 @@ PARSERS: dict[str, Callable[[Any], Params]] = {
     "sp500_scv_heatmap": _parse_heatmap_args,
     "sp500_scv_after_tax": _parse_scv_rolling_args,
     "trinity": _parse_trinity_args,
+    "affordability": _parse_affordability_args,
 }
 
 

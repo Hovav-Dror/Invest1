@@ -976,3 +976,87 @@ def trinity(
             }
         )
     return pd.DataFrame(rows, columns=["start_year", "end_year", "Investment_remained", "Investment_low", "depleted_year"])
+
+
+# --- Young couples: how much apartment the down payment buys ------------------
+
+DEFAULT_AFFORD_EQUITY = 400_000.0
+DEFAULT_AFFORD_INCOME = 20_000.0
+DEFAULT_AFFORD_RATE = 0.05
+DEFAULT_AFFORD_YEARS = 30
+DEFAULT_AFFORD_LTV = 0.75
+DEFAULT_AFFORD_PTI = 0.35
+DEFAULT_AFFORD_COSTS = 0.02
+DEFAULT_AFFORD_DROP = 0.30
+
+
+def _annuity_factor(rate: float, years: int) -> float:
+    """Loan amount per 1 of monthly payment (Shpitzer schedule, monthly compounding)."""
+
+    months = years * 12
+    monthly = rate / 12
+    if monthly == 0:
+        return float(months)
+    return (1 - (1 + monthly) ** -months) / monthly
+
+
+def affordability(
+    equity: float = DEFAULT_AFFORD_EQUITY,
+    income: float = DEFAULT_AFFORD_INCOME,
+    rate: float = DEFAULT_AFFORD_RATE,
+    years: int = DEFAULT_AFFORD_YEARS,
+    ltv: float = DEFAULT_AFFORD_LTV,
+    pti: float = DEFAULT_AFFORD_PTI,
+    costs: float = DEFAULT_AFFORD_COSTS,
+    drop: float = DEFAULT_AFFORD_DROP,
+) -> pd.DataFrame:
+    """Highest apartment price a given down payment can buy, for a range of down payments.
+
+    Two limits apply to the mortgage: at most ``ltv`` of the price, and a
+    monthly payment of at most ``pti`` of net household ``income``. Buying also
+    costs ``costs`` of the price in cash (lawyer, appraiser, moving), paid from
+    the down payment. The price is the lower of the two limits:
+
+    * by LTV: ``equity / (1 - ltv + costs)``
+    * by income: ``(equity + max_loan) / (1 + costs)``
+
+    Under the LTV limit each shekel of equity buys about 1 / (1 - ltv + costs)
+    shekels of apartment; under the income limit, only about one. Rows cover
+    down payments from zero to about twice ``equity``; ``point`` marks the
+    current down payment (``now``), the down payment after a ``drop`` in the
+    portfolio (``after_drop``) and the down payment at which the binding limit
+    switches (``kink``).
+    """
+
+    if equity <= 0:
+        raise CalculationInputError("ההון העצמי צריך להיות גדול מאפס.")
+    if not 0 < ltv < 1:
+        raise CalculationInputError("שיעור המימון צריך להיות בין 0 ל-100%.")
+    factor = _annuity_factor(rate, years)
+    max_loan = pti * income * factor
+    cash_share = 1 - ltv + costs
+    kink = max_loan * cash_share / ltv
+
+    def row(value: float, point: str = "") -> dict:
+        by_ltv = value / cash_share
+        by_income = (value + max_loan) / (1 + costs)
+        price = min(by_ltv, by_income)
+        loan = max(price * (1 + costs) - value, 0.0)
+        return {
+            "equity": value,
+            "max_price": price,
+            "mortgage": loan,
+            "payment": loan / factor,
+            "price_ltv": by_ltv,
+            "price_income": by_income,
+            "binding": "ltv" if by_ltv <= by_income else "income",
+            "point": point,
+        }
+
+    top = max(equity * 2, kink * 1.25)
+    marks = {equity: "now", equity * (1 - drop): "after_drop"}
+    if 0 < kink < top:
+        marks.setdefault(kink, "kink")
+    grid = [float(value) for value in np.linspace(0, top, 121) if not any(np.isclose(value, mark) for mark in marks)]
+    rows = [row(value) for value in grid] + [row(value, point) for value, point in marks.items()]
+    return pd.DataFrame(rows).sort_values("equity", kind="stable").reset_index(drop=True)
