@@ -342,7 +342,11 @@ import {
           { text: "השוואת תיקי השקעות פאסיביים", href: "#portfolio-summary" },
           ". אם זה מה שחיפשתם - אפשר כנראה לקפוץ לשם ישר."
         ],
-        "יש גם את Trinity, אבל גם שם הכוונה היא לא בדיוק למחשבון Trinity הקלאסי שרואים בהרבה מקומות. ניסיתי לבדוק תרחיש שנראה לי יותר קרוב לחיים של מי שחי בישראל: משיכה של סכום שנתי קבוע בשקלים, ולא משיכה של אחוז קבוע מתיק שמחושב בדולרים.",
+        [
+          "יש גם את ",
+          { text: "Trinity", href: "#trinity" },
+          ", אבל גם שם הכוונה היא לא בדיוק למחשבון Trinity הקלאסי שרואים בהרבה מקומות. ניסיתי לבדוק תרחיש שנראה לי יותר קרוב לחיים של מי שחי בישראל: משיכה של סכום שנתי קבוע בשקלים, ולא משיכה של אחוז קבוע מתיק שמחושב בדולרים."
+        ],
         { subheading: "הקדמה למי שרוצה ללמוד מהדרך שאני עברתי", className: "story-intro-subheading", id: "intro-learning-path" },
         "עכשיו קצת על עדר הפילים שצץ לו.",
         [
@@ -363,7 +367,26 @@ import {
         { bold: "כי פתאום גיליתי שרבים מאיתנו משלמים סכומים שיכולים להגיע למאות אלפי שקלים, ולפעמים יותר, על דמי ניהול והוצאות מצטברות. כסף שיכול היה להישאר אצלנו, או אצל הילדים שלנו." },
         "לא סכומים שנכון להזניח.",
         { subheading: "מה תמצאו כאן?" },
-        "אם אתם רוצים ללמוד את הדרך - אפשר לעבור על הטאבים פחות או יותר לפי הסדר. הם מנסים לכסות את השאלות שעלו אצלי: למה בכלל מסחר עצמאי, למה אולי לא, איך עמלות ומסים משפיעים, מה הסיכון, מה לגבי קופות גמל להשקעה, IRA, ברוקרים אמריקאיים ועוד.",
+        [
+          "אם אתם רוצים ללמוד את הדרך - אפשר לעבור על הטאבים פחות או יותר לפי הסדר. בתחתית כל עמוד יש קישור לעמוד הבא. הם מנסים לכסות את השאלות שעלו אצלי: ",
+          { text: "למה בכלל מסחר עצמאי, למה אולי לא", href: "#tax-events" },
+          ", ",
+          { text: "איך עמלות ומסים משפיעים", href: "#commission-drag" },
+          ", ",
+          { text: "מה הסיכון", href: "#sp500-risk" },
+          ", ",
+          { text: "מה לשים בתיק", href: "#us-world" },
+          ", מה לגבי ",
+          { text: "קופות גמל להשקעה", href: "#kupat-gemel" },
+          ", ",
+          { text: "IRA", href: "#ira" },
+          ", ברוקרים אמריקאיים ועוד."
+        ],
+        [
+          "ולזוגות צעירים שחוסכים לדירה ולתחילת הדרך יש ",
+          { text: "פרק משלהם", href: "#young-intro" },
+          "."
+        ],
         [
           "אם אתם כבר מכירים את הרקע - אפשר לדלג ישר לכלים, ובעיקר ל",
           { text: "\"השוואת תיקי השקעות פאסיביים\"", href: "#portfolio-summary" },
@@ -444,7 +467,7 @@ import {
           { html: "<strong class=\"callout-lead\">משנה הרבה.</strong> על 100,000 ש\"ח לאורך 33 שנה, ההבדל בין דמי ניהול של 0.2% ל-1% הוא כמעט 200,000 ש\"ח. אם מישהו אומר לכם שזה זניח לעומת התשואה, אל תקשיבו לו." },
           [
             "מאמינים לי? אפשר לעבור הלאה ל",
-            { text: "קופת גמל להשקעה", href: "#kupat-gemel" },
+            { text: "כמה באמת עולה מסחר עצמאי", href: "#independent" },
             ". לא מאמינים? הנה הפרטים."
           ]
         ] }
@@ -515,7 +538,7 @@ import {
           [
             "את זה בדיוק אפשר לבדוק ב",
             { text: "השוואת תיקים", href: "#portfolio-summary" },
-            ", כנראה העמוד העיקרי באתר הזה. הוא גם זה שהוביל אותי למסקנה שרוב התיקים לא מקיימים את מה שהם מבטיחים. אולי אני טועה, וזו ההזדמנות שלכם ליצור קשר ולהסביר לי: hovav@hotmail.com."
+            ", כנראה העמוד העיקרי באתר הזה. הוא גם זה שהוביל אותי למסקנה שרוב התיקים לא מקיימים את מה שהם מבטיחים. אולי אני טועה, וזו ההזדמנות שלכם ליצור קשר ולהסביר לי: drorhovav1@gmail.com."
           ]
         ]
       },
@@ -702,7 +725,7 @@ import {
         "להשוואות האלה יש מגבלות. למשל, לא לכל התיקים יש נתונים לאותו מספר שנים, ולכן ברירת המחדל משווה את כולם על אותה תקופה. אפשר לבטל את זה ולראות לכל תיק את כל ההיסטוריה שלו. אז גודל הנקודה בתרשים מעיד על מספר השנים, ונקודות קטנות כדאי לקחת בעירבון מוגבל.",
         "בעיניי, הלא מקצועיות והסובייקטיביות, רוב התיקים העצלים לא נותנים יתרון משמעותי על פני תיקים פשוטים מאוד. היתרון שכן ראיתי הוא שפל קצר יותר, וגם הוא לא תמיד: מול S&P 500, תיקים מפוזרים קיצרו את השפל שאחרי 2000, אבל במחיר של צמיחה נמוכה יותר. מניות ערך קטנות, שגם הן מדד אחד, השיגו בנתונים האלה גם צמיחה גבוהה יותר וגם שפל קצר.",
         "ושוב: אני לא מומחה בתחום, והחישובים שלי לא עברו בדיקה חיצונית.",
-        "נדמה לי שאני כותב רק לעצמי. אם מישהו קורא ורוצה שאמשיך, תנו סימן: hovav@hotmail.com"
+        "נדמה לי שאני כותב רק לעצמי. אם מישהו קורא ורוצה שאמשיך, תנו סימן: drorhovav1@gmail.com"
       ],
       notes: ["מקור: PortfolioPlot1a / p1i ו-PortfolioPlot2a / p2i", "קלטים מקוריים: PortfolioCPI, PortfolioSelect, PortfolioHighlight, Portfolio15years, PortfolioYears, PortfolioCommision"]
     },
@@ -1453,7 +1476,7 @@ import {
               { text: "בבלוג \"כמותית\"", href: "https://quantitatively.club/" },
               ". תדירות הכתיבה בו נמוכה מאוד - רשומה עד שתיים בשנה, אם לא פחות. עם הזמן הצטברו מגוון נושאים."
             ],
-            "אם יש שאלות, הארות, הערות או כל משוב שהוא - אל תהססו לפנות אלי בכתובת hovav@hotmail.com אשמח לשמוע האם היה שימוש בכלי, והאם הייתה בו תועלת."
+            "אם יש שאלות, הארות, הערות או כל משוב שהוא - אל תהססו לפנות אלי בכתובת drorhovav1@gmail.com אשמח לשמוע האם היה שימוש בכלי, והאם הייתה בו תועלת."
           ]
         },
         {
@@ -2167,7 +2190,8 @@ import {
     simCard: document.getElementById("simCard"),
     workspace: document.querySelector(".workspace"),
     heading: document.querySelector(".view-heading"),
-    resultNotes: document.getElementById("resultNotes")
+    resultNotes: document.getElementById("resultNotes"),
+    pageSteps: document.getElementById("pageSteps")
   };
 
   const initialRoute = parseHash(location.hash);
@@ -2331,6 +2355,41 @@ import {
     about.addEventListener("click", () => goToView("about"));
     els.nav.appendChild(list);
     els.nav.appendChild(about);
+  }
+
+  /** Previous and next screen in menu order, at the bottom of each screen (the menu is hidden on phones). */
+  function renderPageSteps() {
+    const order = NAV_TOPICS.flatMap((topic) => topic.views);
+    const index = order.indexOf(activeView.id);
+    const target = els.pageSteps;
+    if (index < 0) {
+      target.hidden = true;
+      target.innerHTML = "";
+      return;
+    }
+    const topicOf = (viewId) => NAV_TOPICS.find((topic) => topic.views.includes(viewId));
+    const step = (viewId, direction) => {
+      const view = views.find((entry) => entry.id === viewId);
+      if (!view) return "";
+      const topic = topicOf(viewId);
+      const newTopic = topic !== topicOf(activeView.id);
+      const isNext = direction === "next";
+      const label = isNext ? "הבא" : "הקודם";
+      const context = newTopic && topic.views.length > 1 ? ` · ${topic.label}` : "";
+      return `
+        <a class="page-step page-step-${direction}" href="#${escapeHtml(view.id)}" data-step-view="${escapeHtml(view.id)}"${isNext ? ' rel="next"' : ' rel="prev"'}>
+          <span class="page-step-label">${isNext ? "" : '<span aria-hidden="true">→</span> '}${label}${escapeHtml(context)}${isNext ? ' <span aria-hidden="true">←</span>' : ""}</span>
+          <span class="page-step-title">${escapeHtml(view.title)}</span>
+        </a>`;
+    };
+    const prev = index > 0 ? step(order[index - 1], "prev") : "";
+    const next = index < order.length - 1 ? step(order[index + 1], "next") : "";
+    target.innerHTML = `${prev}${next}`;
+    target.hidden = !target.innerHTML.trim();
+    target.querySelectorAll("[data-step-view]").forEach((link) => {
+      // A step starts the next screen at its top, even if it was visited before.
+      link.addEventListener("click", () => viewScrollPositions.delete(link.dataset.stepView));
+    });
   }
 
   const HERO_PORTFOLIOS = [
@@ -6960,6 +7019,7 @@ import {
     els.chart.dataset.view = "";
     releaseChart(els.chart);
     renderNav();
+    renderPageSteps();
     renderIntroHero();
     els.title.textContent = activeView.title;
     document.title = `${activeView.title} · סייר תיקי ההשקעות`;

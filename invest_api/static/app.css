@@ -4358,3 +4358,86 @@ button.vchart-legend-item[aria-pressed="false"] {
 #afterStory[data-view="trinity"] .story-copy {
   max-width: 760px;
 }
+
+/* Previous / next screen at the bottom of each screen */
+.page-steps {
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 12px;
+  grid-template-areas: "prev next";
+  grid-template-columns: 1fr 1fr;
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+}
+
+.page-step {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  display: grid;
+  gap: 4px;
+  min-height: 44px;
+  padding: 12px 16px;
+  text-decoration: none;
+}
+
+.page-step:hover {
+  border-color: var(--line-strong);
+  background: var(--panel-soft);
+}
+
+.page-step:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.page-step-prev {
+  grid-area: prev;
+}
+
+.page-step-next {
+  background: var(--panel);
+  border-color: var(--accent);
+  grid-area: next;
+  text-align: left;
+}
+
+.page-step-next:hover {
+  background: var(--soft);
+  border-color: var(--accent);
+}
+
+.page-step-label {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.page-step-next .page-step-label {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.page-step-title {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.page-step-prev .page-step-title {
+  font-weight: 400;
+}
+
+@media (max-width: 560px) {
+  .page-steps {
+    grid-template-areas: "next" "prev";
+    grid-template-columns: 1fr;
+  }
+
+  .page-step-next {
+    text-align: right;
+  }
+
+  .page-step-next .page-step-title {
+    font-size: 16px;
+  }
+}
