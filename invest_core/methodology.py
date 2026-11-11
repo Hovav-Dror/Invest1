@@ -19,12 +19,18 @@ MONEY_ENDPOINTS = {
     "tax_events", "commission_effect", "commission_tax", "kupat_gemel", "kupat_gemel_pension",
     "independent_commissions", "tax_us_vs_il", "trinity", "affordability",
     "cash_vehicles", "cash_vehicles_inflation", "pension_fees", "pension_fees_steps",
+    "buy_vs_rent", "buy_vs_rent_horizons", "prepay_vs_invest", "prepay_history", "family_help",
+    "kids_savings", "hishtalmut",
 }
 # Pure calculators: no historical data, so no data period or history warnings.
-CALCULATOR_ENDPOINTS = {"affordability", "cash_vehicles", "cash_vehicles_inflation", "pension_fees", "pension_fees_steps"}
+CALCULATOR_ENDPOINTS = {
+    "affordability", "cash_vehicles", "cash_vehicles_inflation", "pension_fees", "pension_fees_steps",
+    "prepay_vs_invest", "family_help", "kids_savings", "hishtalmut",
+}
 TAX_ENDPOINTS = {
     "tax_events", "commission_effect", "commission_tax", "kupat_gemel", "kupat_gemel_pension",
     "tax_us_vs_il", "sp500_scv_after_tax",
+    "buy_vs_rent", "buy_vs_rent_horizons", "prepay_vs_invest", "prepay_history", "kids_savings",
 }
 FEE_ENDPOINTS = {
     "commission_effect", "commission_tax", "kupat_gemel", "kupat_gemel_pension",
@@ -61,6 +67,8 @@ def _period(frame: pd.DataFrame) -> dict:
         return {"start": int(frame["Year"].min()), "end": int(frame["Year"].max())}
     if {"start", "buy"} <= set(frame.columns):
         return {"start": pd.to_datetime(frame["start"]).min().strftime("%Y-%m-%d"), "end": pd.to_datetime(frame["buy"]).max().strftime("%Y-%m-%d")}
+    if {"start", "end"} <= set(frame.columns):
+        return {"start": pd.to_datetime(frame["start"]).min().strftime("%Y-%m-%d"), "end": pd.to_datetime(frame["end"]).max().strftime("%Y-%m-%d")}
     if {"peak", "low"} <= set(frame.columns):
         return {"start": pd.to_datetime(frame["peak"]).min().strftime("%Y-%m-%d"), "end": pd.to_datetime(frame["low"]).max().strftime("%Y-%m-%d")}
     return {"start": None, "end": None}
@@ -120,6 +128,40 @@ def _assumptions(name: str, params: dict) -> list[str]:
             "מק\"מ שנקנה ישירות ממוסה כמו כל אג\"ח שקלית לא צמודה: 15% על הריבית הנומינלית.",
             "בלי מס רווח הון על קופת הגמל אם הכסף נשאר בה עד גיל 60 ונמשך כקצבה. כאן מניחים שהוא נמשך לדירה.",
         ]
+    if name in {"buy_vs_rent", "buy_vs_rent_horizons"}:
+        return [
+            "מחשבון לימודי עם ריביות, תשואה, אינפלציה ועליית שכר דירה קבועות לכל התקופה. רק מחירי הדירות משתנים בין השורות.",
+            f"משכנתא של {params.get('ltv', 0.75):.0%} ממחיר הדירה לפי סוג הרוכש, בריבית אחת לכל ההלוואה, לוח שפיצר ל-30 שנה, בלי הצמדה.",
+            "שתי הדרכים מתחילות עם אותו סכום: ההון העצמי, מס רכישה ועלויות הקנייה. בכל חודש, מי שמשלם פחות משקיע את ההפרש.",
+            "בסוף התקופה הדירה נמכרת (עלויות מכירה, בלי מס שבח, כמו בדירה יחידה) והמשכנתא מוחזרת. על ההשקעות משולם מס של 25% על הרווח הריאלי.",
+            "התקופות ההיסטוריות: עליית מחירי הדירות מעל מדד המחירים לצרכן, בכל חלון באורך הזה מאז 1986. רק מחירי הדירות נלקחים מהעבר.",
+        ]
+    if name in {"prepay_vs_invest", "prepay_history"}:
+        return [
+            "פירעון מוקדם מקטין את ההחזר החודשי ומשאיר את התקופה; את החיסכון החודשי משקיעים. בלי פירעון, הסכום מושקע מיד.",
+            "המשכנתא בריבית קבועה מעל האינפלציה (כמו מסלול צמוד מדד), לפי הריבית והאינפלציה שבחרתם. בתקופות ההיסטוריות הריבית לא משתנה.",
+            "ההשקעה: S&P 500 בשקלים עם דיבידנדים ודמי ניהול של 0.1% בשנה, והשאר בקרן כספית (הריבית פחות 0.3%), באיזון חודשי. הכל חלקי מדד המחירים לצרכן.",
+            "מס של 25% על הרווח הריאלי של ההשקעות, פעם אחת בסוף. על ריבית שנחסכה אין מס. עמלת הפירעון יורדת מהסכום שמוחזר.",
+        ]
+    if name == "family_help":
+        return [
+            "אותו חישוב כמו במחשבון מחיר הדירה: שתי מגבלות על המשכנתא, מס רכישה ועלויות עסקה.",
+            "מתנה מתווספת להון העצמי. הלוואה מההורים מתווספת להון העצמי, בלי ריבית ובתשלומים שווים, והבנק מוריד את ההחזר להורים מההחזר המקסימלי שהוא מאשר.",
+        ]
+    if name == "kids_savings":
+        return [
+            "בשקלים של היום: ההפקדה של ביטוח לאומי, 58 ש\"ח בחודש ב-2026, מתעדכנת כל ינואר לפי המדד, ולכן קבועה בכוח קנייה. תוספת ההורים זהה.",
+            "מסלולים בקופת גמל: חלק המניות 15% (סיכון נמוך), 40% (בינוני) ו-75% (מוגבר). הערכות, לא נתון רשמי. תשואה מעל האינפלציה: 5% על מניות ו-2% על השאר. בנק: 0.5% מעל האינפלציה.",
+            "בלי דמי ניהול: עד גיל 21 ביטוח לאומי משלם אותם.",
+            "מענקים: 291 ש\"ח בגיל 3 ובבר או בת מצווה לילדים שנולדו מ-2017 (582 ש\"ח בגיל 18 לילדים שנולדו לפני כן), ו-582 ש\"ח בגיל 21 אם לא נמשך כסף לפני כן.",
+            "מס של 25% על הרווח הריאלי במשיכה. בבנק, במסלול לא צמוד, המס הוא 15% על הרווח הנומינלי; כאן לא נעשה הבדל.",
+        ]
+    if name == "hishtalmut":
+        return [
+            "הפקדה של 10% מהשכר (7.5% מהמעסיק ו-2.5% מהעובד), עד תקרת השכר לפטור ממס: 15,712 ש\"ח בחודש ב-2026.",
+            "הכסף נזיל בלי מס 6 שנים מההפקדה הראשונה. הרווחים פטורים ממס על הפקדות עד התקרה.",
+            "הכל בשקלים של היום: השכר קבוע בכוח קנייה, והתשואה מעל האינפלציה, פחות דמי ניהול מהצבירה.",
+        ]
     if name in {"homes_vs_stocks", "homes_vs_stocks_episodes"}:
         real = "חלקי מדד המחירים לצרכן, כלומר במונחים ריאליים" if params.get("real", True) else "נומינליים, בלי תקנון למדד"
         return [
@@ -153,6 +195,10 @@ def _warnings(name: str, frame: pd.DataFrame, period: dict, params: dict) -> lis
         return ["דמי הניהול בקרנות ברירת המחדל נקבעים במכרז ומובטחים לתקופה מוגבלת. כדאי לבדוק את דמי הניהול שלכם בדוח השנתי או באתר הר הכסף."]
     if name in {"cash_vehicles", "cash_vehicles_inflation"}:
         return ["דמי הניהול, הפער בפיקדון וכללי המס משתנים בין גופים ולאורך זמן. כדאי לבדוק את ההצעה הספציפית שלכם, ואת דמי הניהול בפועל בקופה."]
+    if name in {"kids_savings", "hishtalmut"}:
+        return ["הסכומים, התקרות והכללים מתעדכנים כל שנה. כדאי לבדוק את הנתונים העדכניים באתר ביטוח לאומי ובדוח של הקופה."]
+    if name == "prepay_vs_invest":
+        return ["עמלות פירעון מוקדם משתנות לפי מסלול ולפי הריבית בשוק. את הסכום המדויק מקבלים מהבנק לפני הפירעון."]
     if name in CALCULATOR_ENDPOINTS:
         return ["הכללים והריביות משתנים מבנק לבנק ומשנה לשנה. כדאי לבדוק את המספרים שלכם מול הבנק או יועץ משכנתאות."]
     items = [
@@ -162,6 +208,11 @@ def _warnings(name: str, frame: pd.DataFrame, period: dict, params: dict) -> lis
     if name in {"down_payment", "down_payment_ladder"}:
         items.append("הנתונים מתחילים ב-1986. תקופות חופפות, ולכן יש בהן רק מעט תקופות שונות באמת. הנתונים של 1986–1993 (מחירי דירות וריבית) משוחזרים ממקורות עקיפים, והם פחות מדויקים.")
         items.append("מדד מחירי הדירות מתאר דירה ממוצעת. דירה מסוימת, באזור מסוים, יכולה להתנהג אחרת.")
+        return items
+    if name in {"buy_vs_rent", "buy_vs_rent_horizons", "prepay_history"}:
+        items.append("הנתונים מתחילים ב-1986. התקופות חופפות, ולכן יש בהן רק מעט תקופות שונות באמת. הנתונים של 1986–1993 משוחזרים ממקורות עקיפים.")
+        if name != "prepay_history":
+            items.append("מדד מחירי הדירות מתאר דירה ממוצעת. דירה מסוימת, באזור מסוים, יכולה להתנהג אחרת.")
         return items
     if name in {"homes_vs_stocks", "homes_vs_stocks_episodes"}:
         items.append("מאז 1986 היו כשבעה משברים גדולים במניות. חלקם מופיעים פעמיים (S&P 500 ות\"א באותו משבר). זה מעט מדי כדי לקבוע כלל.")

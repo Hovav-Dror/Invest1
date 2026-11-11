@@ -1698,12 +1698,12 @@ def pension_fees_steps(**kwargs) -> pd.DataFrame:
 # --- Young couples: buy now, or rent and invest -------------------------------
 
 DEFAULT_RENT_PRICE = 2_200_000.0
-DEFAULT_RENT_RENT = 6_000.0
+DEFAULT_RENT_RENT = 5_000.0  # 2.7% a year of the price; the national average is about 2.5%-3%
 DEFAULT_RENT_YEARS = 10
 DEFAULT_RENT_RATE = DEFAULT_AFFORD_RATE
 DEFAULT_RENT_TERM = DEFAULT_AFFORD_YEARS
 DEFAULT_RENT_INFLATION = 0.02
-DEFAULT_RENT_GROWTH = 0.03  # nominal, per year
+DEFAULT_RENT_GROWTH = 0.025  # nominal, per year; CBS rent index rose ~2.4% a year in 2015-2025
 DEFAULT_RENT_INVEST = 0.06  # nominal, per year, after fees, before tax
 DEFAULT_RENT_UPKEEP = 0.005  # of the home value, per year
 DEFAULT_RENT_BUY_COSTS = DEFAULT_AFFORD_COSTS
@@ -2165,4 +2165,130 @@ def family_help(
                 "binding": now["binding"],
             }
         )
+    return pd.DataFrame(rows)
+
+
+# --- Young couples: savings for every child ------------------------------------
+
+KIDS_DEPOSIT = 58.0  # monthly government deposit, 2026; indexed every January, so constant in today's shekels
+KIDS_GRANT = 582.0  # at 21 if nothing was withdrawn; at 18 only for children born before 2017
+KIDS_SMALL_GRANT = 291.0  # at 3 and at bar/bat mitzvah, for children born from 2017
+# Investment tracks: share in stocks (assumption, see the page), and a bank deposit.
+KIDS_TRACKS = {"low": 0.15, "medium": 0.4, "high": 0.75, "bank": None}
+KIDS_BANK_REAL = 0.005
+DEFAULT_KIDS_TRACK = "high"
+
+
+def kids_savings(withdraw_age: int = 21, parent_addition: bool = True, born_2017: bool = True) -> pd.DataFrame:
+    """The child-savings plan from birth, by track, in today's shekels.
+
+    Bituach Leumi deposits ``KIDS_DEPOSIT`` a month, and parents may add the
+    same from the child allowance. Provident-fund tracks earn the stock share
+    times ``PENSION_STOCK_RETURN`` plus the rest times ``PENSION_OTHER_RETURN``
+    (real, no fees: the state pays them until 21); the bank track earns
+    ``KIDS_BANK_REAL``. Grants: ``KIDS_SMALL_GRANT`` at 3 and 13 for children
+    born from 2017 (``KIDS_GRANT`` at 18 for earlier ones), and ``KIDS_GRANT``
+    at 21 when nothing was withdrawn before. Tax: 25% of the real gain at
+    withdrawal.
+
+    Columns: track, age, balance, deposits (with the parent addition when
+    chosen), balance_no_parent, and at the last age after_tax (as chosen),
+    after_tax_parent and after_tax_no_parent.
+    """
+
+    if withdraw_age not in (18, 21):
+        raise CalculationInputError("גיל המשיכה צריך להיות 18 או 21.")
+    rows = []
+    for track, stocks in KIDS_TRACKS.items():
+        real = KIDS_BANK_REAL if stocks is None else stocks * PENSION_STOCK_RETURN + (1 - stocks) * PENSION_OTHER_RETURN
+        monthly = (1 + real) ** (1 / 12)
+        balances = {True: 0.0, False: 0.0}
+        deposits = {True: 0.0, False: 0.0}
+        rows.append({"track": track, "age": 0, "balance": 0.0, "deposits": 0.0, "balance_no_parent": 0.0})
+        for month in range(withdraw_age * 12):
+            age_after = (month + 1) / 12
+            for with_parent in (True, False):
+                deposit = KIDS_DEPOSIT * (2 if with_parent else 1) if month < 18 * 12 else 0.0
+                grant = 0.0
+                if month + 1 in (3 * 12, 13 * 12) and born_2017:
+                    grant = KIDS_SMALL_GRANT
+                if month + 1 == 18 * 12 and not born_2017:
+                    grant = KIDS_GRANT
+                if month + 1 == 21 * 12:
+                    grant = KIDS_GRANT
+                balances[with_parent] = balances[with_parent] * monthly + deposit + grant
+                deposits[with_parent] += deposit + grant
+            if (month + 1) % 12 == 0:
+                rows.append(
+                    {
+                        "track": track,
+                        "age": int(age_after),
+                        "balance": balances[parent_addition],
+                        "deposits": deposits[parent_addition],
+                        "balance_no_parent": balances[False],
+                    }
+                )
+        last = rows[-1]
+        last["after_tax"] = balances[parent_addition] - TAX_RATE * max(balances[parent_addition] - deposits[parent_addition], 0.0)
+        last["after_tax_parent"] = balances[True] - TAX_RATE * max(balances[True] - deposits[True], 0.0)
+        last["after_tax_no_parent"] = balances[False] - TAX_RATE * max(balances[False] - deposits[False], 0.0)
+    return pd.DataFrame(rows)
+
+
+# --- Young couples: keren hishtalmut as part of the down payment ---------------
+
+HISHTALMUT_CEILING = 15_712.0  # monthly salary ceiling for the tax exemption, 2026 (frozen until 2027)
+HISHTALMUT_RATE = 0.10  # 7.5% employer + 2.5% employee
+HISHTALMUT_LIQUID_YEARS = 6
+DEFAULT_HISHTALMUT_SALARY = 15_000.0
+DEFAULT_HISHTALMUT_RETURN = 0.04  # real, before fees
+DEFAULT_HISHTALMUT_FEE = 0.005
+DEFAULT_HISHTALMUT_YEARS = 5
+
+
+def hishtalmut(
+    salary_a: float = DEFAULT_HISHTALMUT_SALARY,
+    salary_b: float = DEFAULT_HISHTALMUT_SALARY,
+    balance_a: float = 35_000.0,
+    balance_b: float = 0.0,
+    opened_a: int = 2,
+    opened_b: int = 0,
+    years: int = DEFAULT_HISHTALMUT_YEARS,
+    real_return: float = DEFAULT_HISHTALMUT_RETURN,
+    fee: float = DEFAULT_HISHTALMUT_FEE,
+) -> pd.DataFrame:
+    """Two partners' study funds year by year until a purchase in ``years``, in today's shekels.
+
+    Each month ``HISHTALMUT_RATE`` of the salary up to ``HISHTALMUT_CEILING``
+    is deposited. ``opened_*`` is how many years ago the fund got its first
+    deposit (0 = no fund yet, opened now); the money is liquid without tax
+    ``HISHTALMUT_LIQUID_YEARS`` after that. A salary of 0 means no deposits.
+    Columns: year, balance_a, balance_b, liquid_a, liquid_b (bool), available
+    (the liquid balances), total.
+    """
+
+    if not 1 <= years <= 15:
+        raise CalculationInputError("מספר השנים צריך להיות בין 1 ל-15.")
+    if min(salary_a, salary_b, balance_a, balance_b) < 0 or min(opened_a, opened_b) < 0:
+        raise CalculationInputError("השכר, היתרה והוותק לא יכולים להיות שליליים.")
+    monthly = ((1 + real_return) * (1 - fee)) ** (1 / 12)
+    people = {"a": [salary_a, balance_a, opened_a], "b": [salary_b, balance_b, opened_b]}
+    rows = []
+    for year in range(years + 1):
+        if year:
+            for person in people.values():
+                for _ in range(12):
+                    person[1] = person[1] * monthly + HISHTALMUT_RATE * min(person[0], HISHTALMUT_CEILING)
+        row = {"year": year}
+        available = total = 0.0
+        for key, (salary, balance, opened) in people.items():
+            exists = balance > 0 or salary > 0
+            liquid = exists and opened + year >= HISHTALMUT_LIQUID_YEARS
+            row[f"balance_{key}"] = balance
+            row[f"liquid_{key}"] = liquid
+            total += balance
+            available += balance if liquid else 0.0
+        row["available"] = available
+        row["total"] = total
+        rows.append(row)
     return pd.DataFrame(rows)

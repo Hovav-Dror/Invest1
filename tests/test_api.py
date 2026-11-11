@@ -412,3 +412,22 @@ def test_cash_vehicles_endpoints(client):
     assert len(table) == 11
     assert client.get("/api/cash_vehicles?years=0").status_code == 400
     assert client.get("/api/cash_vehicles?bogus=1").status_code == 400
+
+
+@pytest.mark.parametrize(
+    "endpoint, bad",
+    [
+        ("buy_vs_rent", "years=0"),
+        ("buy_vs_rent_horizons", "buyer=alien"),
+        ("prepay_vs_invest", "horizon=0"),
+        ("prepay_history", "bogus=1"),
+        ("family_help", "loan_years=0"),
+        ("kids_savings", "withdraw_age=19"),
+        ("hishtalmut", "years=0"),
+    ],
+)
+def test_young_couples_stage_b_endpoints(client, endpoint, bad):
+    payload = client.get(f"/api/{endpoint}").get_json()
+    assert payload["data"]
+    assert payload["metadata"]["assumptions"]
+    assert client.get(f"/api/{endpoint}?{bad}").status_code == 400

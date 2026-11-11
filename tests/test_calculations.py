@@ -596,3 +596,70 @@ def test_cash_vehicles_inflation_changes_the_ranking():
     table = calc.cash_vehicles_inflation(years=4, rate=0.04, fund_fee=0.002, makam_cost=0.001)
     assert table["best"].iloc[0] == "makam"
     assert table["best"].iloc[-1] == "fund"
+
+
+# --- Young couples: stage B ----------------------------------------------------
+
+
+def test_buy_vs_rent_flat_world_differs_by_the_rent():
+    # No interest, returns, inflation, fees or growth: owning for a year leaves exactly the rent paid.
+    result = calc._buy_rent_wealth(
+        0.0, price=1_000_000, rent=1_000, years=1, rate=0.0, term=30, inflation=0.0, rent_growth=0.0,
+        invest_return=0.0, upkeep=0.0, buy_costs=0.0, sell_costs=0.0, ltv=0.5, buyer="first",
+    )
+    assert result["upfront"] == pytest.approx(500_000)
+    assert result["buy"] - result["rent"] == pytest.approx(12 * 1_000)
+
+
+def test_buy_vs_rent_breakeven_and_horizons():
+    frame = calc.buy_vs_rent()
+    assert frame["buy_advantage"].is_monotonic_increasing
+    breakeven = frame[frame["point"] == "breakeven"].iloc[0]
+    assert abs(breakeven["buy_advantage"]) < 50
+    assert 0 <= breakeven["history_share"] <= 1
+    horizons = calc.buy_vs_rent_horizons()
+    # Transaction costs spread over more years: a longer stay needs less growth.
+    assert horizons["breakeven_real"].iloc[0] > horizons["breakeven_real"].iloc[-1]
+    with pytest.raises(calc.CalculationInputError):
+        calc.buy_vs_rent(years=0)
+
+
+def test_prepay_without_interest_or_returns_is_a_wash():
+    frame = calc.prepay_vs_invest(rate=0.0, inflation=0.0, horizon=5)
+    flat = frame[frame["return_real"].abs() < 1e-12].iloc[0]
+    assert flat["invest_advantage"] == pytest.approx(0, abs=1e-6)
+    # A fee on prepaying helps investing.
+    with_fee = calc.prepay_vs_invest(rate=0.0, inflation=0.0, horizon=5, fee=0.05)
+    assert with_fee[with_fee["return_real"].abs() < 1e-12].iloc[0]["invest_advantage"] > 0
+    history = calc.prepay_history(horizon=10)
+    assert {"invest_advantage", "breakeven_real", "saving"} <= set(history.columns)
+    # Tax on the gain: investing must beat the mortgage's real rate.
+    assert history["breakeven_real"].iloc[0] > (1.05 / 1.02 - 1)
+
+
+def test_family_gift_beats_loan():
+    frame = calc.family_help(equity=400_000, income=20_000, help_amount=200_000).set_index("help")
+    assert frame.loc["gift", "max_price"] > frame.loc["none", "max_price"]
+    assert frame.loc["loan", "max_price"] < frame.loc["gift", "max_price"]
+    assert frame.loc["loan", "family_payment"] == pytest.approx(200_000 / 120)
+    same = calc.family_help(help_amount=0).set_index("help")
+    assert same.loc["loan", "max_price"] == pytest.approx(same.loc["none", "max_price"])
+
+
+def test_kids_savings_deposits_and_grants():
+    frame = calc.kids_savings(withdraw_age=21, parent_addition=True, born_2017=True)
+    last = frame[(frame["track"] == "bank") & (frame["age"] == 21)].iloc[0]
+    assert last["deposits"] == pytest.approx(116 * 12 * 18 + 291 * 2 + 582)
+    high = frame[(frame["track"] == "high") & (frame["age"] == 21)].iloc[0]
+    assert high["after_tax_parent"] > high["after_tax_no_parent"]
+    early = calc.kids_savings(withdraw_age=18, born_2017=False)
+    assert early[(early["track"] == "bank") & (early["age"] == 18)].iloc[0]["deposits"] == pytest.approx(116 * 12 * 18 + 582)
+
+
+def test_hishtalmut_ceiling_and_liquidity():
+    frame = calc.hishtalmut(salary_a=30_000, salary_b=0, balance_a=0, opened_a=5, opened_b=0, years=2, real_return=0, fee=0)
+    # Deposits stop at the salary ceiling: 10% of 15,712 a month.
+    assert frame["balance_a"].iloc[1] == pytest.approx(12 * 1_571.2)
+    assert not frame["liquid_a"].iloc[0] and frame["liquid_a"].iloc[1]
+    assert not frame["liquid_b"].any()
+    assert frame["available"].iloc[1] == pytest.approx(frame["balance_a"].iloc[1])

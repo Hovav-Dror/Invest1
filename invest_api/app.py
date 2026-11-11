@@ -57,6 +57,8 @@ ENDPOINT_NAMES = (
     "prepay_vs_invest",
     "prepay_history",
     "family_help",
+    "kids_savings",
+    "hishtalmut",
 )
 
 EXPENSIVE_ENDPOINTS = {
@@ -567,6 +569,37 @@ def _parse_family_args(args) -> Params:
     return _freeze(params)
 
 
+def _parse_kids_args(args) -> Params:
+    _reject_unknown(args, {"withdraw_age", "parent_addition", "born_2017"})
+    params: JsonDict = {
+        "withdraw_age": _get_int(args, "withdraw_age", 21, minimum=18, maximum=21),
+        "parent_addition": _get_bool(args, "parent_addition", True),
+        "born_2017": _get_bool(args, "born_2017", True),
+    }
+    if params["withdraw_age"] not in (18, 21):
+        raise ApiValidationError("גיל המשיכה צריך להיות 18 או 21.")
+    return _freeze(params)
+
+
+HISHTALMUT_ARGS = ("salary_a", "salary_b", "balance_a", "balance_b", "opened_a", "opened_b", "years", "real_return", "fee")
+
+
+def _parse_hishtalmut_args(args) -> Params:
+    _reject_unknown(args, set(HISHTALMUT_ARGS))
+    params: JsonDict = {
+        "salary_a": _get_float(args, "salary_a", calc.DEFAULT_HISHTALMUT_SALARY, minimum=0, maximum=1e6),
+        "salary_b": _get_float(args, "salary_b", calc.DEFAULT_HISHTALMUT_SALARY, minimum=0, maximum=1e6),
+        "balance_a": _get_float(args, "balance_a", 35_000.0, minimum=0, maximum=1e8),
+        "balance_b": _get_float(args, "balance_b", 0.0, minimum=0, maximum=1e8),
+        "opened_a": _get_int(args, "opened_a", 2, minimum=0, maximum=40),
+        "opened_b": _get_int(args, "opened_b", 0, minimum=0, maximum=40),
+        "years": _get_int(args, "years", calc.DEFAULT_HISHTALMUT_YEARS, minimum=1, maximum=15),
+        "real_return": _get_float(args, "real_return", calc.DEFAULT_HISHTALMUT_RETURN, minimum=-0.05, maximum=0.15),
+        "fee": _get_float(args, "fee", calc.DEFAULT_HISHTALMUT_FEE, minimum=0, maximum=0.03),
+    }
+    return _freeze(params)
+
+
 def _parse_homes_vs_stocks_args(args) -> Params:
     _reject_unknown(args, {"real"})
     return _freeze({"real": _get_bool(args, "real", True)})
@@ -697,6 +730,10 @@ def _dispatch(name: str, params: Params) -> pd.DataFrame:
         return calc.prepay_history(data=data, housing=_housing(), **kwargs)
     if name == "family_help":
         return calc.family_help(**kwargs)
+    if name == "kids_savings":
+        return calc.kids_savings(**kwargs)
+    if name == "hishtalmut":
+        return calc.hishtalmut(**kwargs)
     raise KeyError(name)
 
 
@@ -761,6 +798,8 @@ PARSERS: dict[str, Callable[[Any], Params]] = {
     "prepay_vs_invest": _parse_prepay_args,
     "prepay_history": _parse_prepay_args,
     "family_help": _parse_family_args,
+    "kids_savings": _parse_kids_args,
+    "hishtalmut": _parse_hishtalmut_args,
 }
 
 
