@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>סייר תיקי ההשקעות של חובב</title>
+    <link rel="canonical" href="https://numbersguys.com/Invest1/">
     <link rel="stylesheet" href="static/app.css">
   </head>
   <body>
@@ -58,11 +59,13 @@
           <section id="afterStory" class="story-panel story-panel-after" lang="he" aria-label="סיכום בעברית"></section>
 
           <section class="table-panel" aria-label="טבלת נתונים">
-            <div class="table-title">
-              <h3>טבלת נתונים</h3>
-              <p id="tableNote"></p>
-            </div>
-            <div id="table" class="table-wrap"></div>
+            <details class="table-toggle" data-table-key="data">
+              <summary class="table-title">
+                <h3>טבלת נתונים</h3>
+                <p id="tableNote"></p>
+              </summary>
+              <div id="table" class="table-wrap"></div>
+            </details>
           </section>
 
           <section id="resultNotes" class="result-notes" lang="he" aria-label="הנחות ומגבלות" hidden></section>

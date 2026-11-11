@@ -4441,3 +4441,38 @@ button.vchart-legend-item[aria-pressed="false"] {
     font-size: 16px;
   }
 }
+
+/* Tables that start closed: click the title to open */
+.table-toggle > summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+}
+.table-toggle > summary::-webkit-details-marker {
+  display: none;
+}
+.table-toggle > summary h3,
+.table-toggle > summary h4 {
+  margin: 0;
+}
+.table-toggle > summary::after {
+  content: "הצגת הטבלה ▾";
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 400;
+  margin-inline-start: auto;
+  white-space: nowrap;
+}
+.table-toggle[open] > summary::after {
+  content: "הסתרה ▴";
+}
+.table-toggle:not([open]) > summary.table-title {
+  border-bottom: 0;
+}
+.table-toggle > summary:focus-visible {
+  outline: 2px solid #145f59;
+  outline-offset: 2px;
+}
