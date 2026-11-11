@@ -52,6 +52,11 @@ ENDPOINT_NAMES = (
     "cash_vehicles_inflation",
     "pension_fees",
     "pension_fees_steps",
+    "buy_vs_rent",
+    "buy_vs_rent_horizons",
+    "prepay_vs_invest",
+    "prepay_history",
+    "family_help",
 )
 
 EXPENSIVE_ENDPOINTS = {
@@ -74,6 +79,9 @@ EXPENSIVE_ENDPOINTS = {
     "down_payment_ladder",
     "homes_vs_stocks",
     "homes_vs_stocks_episodes",
+    "buy_vs_rent",
+    "buy_vs_rent_horizons",
+    "prepay_history",
 }
 
 
@@ -494,6 +502,71 @@ def _parse_pension_args(args) -> Params:
     return _freeze(params)
 
 
+RENT_ARGS = ("price", "rent", "years", "rate", "inflation", "rent_growth", "invest_return", "upkeep", "buy_costs", "sell_costs", "buyer")
+
+
+def _parse_rent_args(args) -> Params:
+    _reject_unknown(args, set(RENT_ARGS))
+    buyer = args.get("buyer", calc.DEFAULT_RENT_BUYER)
+    if buyer not in calc.AFFORD_LTV:
+        raise ApiValidationError("סוג הרוכש לא מוכר.")
+    params: JsonDict = {
+        "price": _get_float(args, "price", calc.DEFAULT_RENT_PRICE, minimum=100_000, maximum=5e7),
+        "rent": _get_float(args, "rent", calc.DEFAULT_RENT_RENT, minimum=500, maximum=200_000),
+        "years": _get_int(args, "years", calc.DEFAULT_RENT_YEARS, minimum=1, maximum=30),
+        "rate": _get_float(args, "rate", calc.DEFAULT_RENT_RATE, minimum=0, maximum=0.2),
+        "inflation": _get_float(args, "inflation", calc.DEFAULT_RENT_INFLATION, minimum=-0.02, maximum=0.15),
+        "rent_growth": _get_float(args, "rent_growth", calc.DEFAULT_RENT_GROWTH, minimum=-0.05, maximum=0.2),
+        "invest_return": _get_float(args, "invest_return", calc.DEFAULT_RENT_INVEST, minimum=-0.05, maximum=0.2),
+        "upkeep": _get_float(args, "upkeep", calc.DEFAULT_RENT_UPKEEP, minimum=0, maximum=0.05),
+        "buy_costs": _get_float(args, "buy_costs", calc.DEFAULT_RENT_BUY_COSTS, minimum=0, maximum=0.1),
+        "sell_costs": _get_float(args, "sell_costs", calc.DEFAULT_RENT_SELL_COSTS, minimum=0, maximum=0.1),
+        "buyer": buyer,
+        "ltv": calc.AFFORD_LTV[buyer],
+    }
+    return _freeze(params)
+
+
+PREPAY_ARGS = ("amount", "rate", "years_left", "horizon", "inflation", "fee", "stock_share")
+
+
+def _parse_prepay_args(args) -> Params:
+    _reject_unknown(args, set(PREPAY_ARGS))
+    params: JsonDict = {
+        "amount": _get_float(args, "amount", calc.DEFAULT_PREPAY_AMOUNT, minimum=1000, maximum=1e8),
+        "rate": _get_float(args, "rate", calc.DEFAULT_PREPAY_RATE, minimum=0, maximum=0.2),
+        "years_left": _get_int(args, "years_left", calc.DEFAULT_PREPAY_YEARS_LEFT, minimum=1, maximum=30),
+        "horizon": _get_int(args, "horizon", calc.DEFAULT_PREPAY_HORIZON, minimum=1, maximum=25),
+        "inflation": _get_float(args, "inflation", calc.DEFAULT_PREPAY_INFLATION, minimum=-0.02, maximum=0.15),
+        "fee": _get_float(args, "fee", calc.DEFAULT_PREPAY_FEE, minimum=0, maximum=0.3),
+        "stock_share": _get_float(args, "stock_share", calc.DEFAULT_PREPAY_STOCKS, minimum=0, maximum=1),
+    }
+    return _freeze(params)
+
+
+FAMILY_ARGS = ("equity", "income", "help_amount", "loan_years", "rate", "years", "pti", "costs", "buyer", "renovation")
+
+
+def _parse_family_args(args) -> Params:
+    _reject_unknown(args, set(FAMILY_ARGS))
+    buyer = args.get("buyer", calc.DEFAULT_AFFORD_BUYER)
+    if buyer not in calc.AFFORD_LTV:
+        raise ApiValidationError("סוג הרוכש לא מוכר.")
+    params: JsonDict = {
+        "equity": _get_float(args, "equity", calc.DEFAULT_AFFORD_EQUITY, minimum=1000, maximum=1e8),
+        "income": _get_float(args, "income", calc.DEFAULT_AFFORD_INCOME, minimum=1000, maximum=1e7),
+        "help_amount": _get_float(args, "help_amount", calc.DEFAULT_FAMILY_HELP, minimum=0, maximum=1e8),
+        "loan_years": _get_int(args, "loan_years", calc.DEFAULT_FAMILY_LOAN_YEARS, minimum=1, maximum=30),
+        "rate": _get_float(args, "rate", calc.DEFAULT_AFFORD_RATE, minimum=0, maximum=0.3),
+        "years": _get_int(args, "years", calc.DEFAULT_AFFORD_YEARS, minimum=1, maximum=40),
+        "pti": _get_float(args, "pti", calc.DEFAULT_AFFORD_PTI, minimum=0.05, maximum=0.7),
+        "costs": _get_float(args, "costs", calc.DEFAULT_AFFORD_COSTS, minimum=0, maximum=0.2),
+        "renovation": _get_float(args, "renovation", calc.DEFAULT_AFFORD_RENOVATION, minimum=0, maximum=5e6),
+        "buyer": buyer,
+    }
+    return _freeze(params)
+
+
 def _parse_homes_vs_stocks_args(args) -> Params:
     _reject_unknown(args, {"real"})
     return _freeze({"real": _get_bool(args, "real", True)})
@@ -613,6 +686,17 @@ def _dispatch(name: str, params: Params) -> pd.DataFrame:
         return calc.pension_fees(**kwargs)
     if name == "pension_fees_steps":
         return calc.pension_fees_steps(**kwargs)
+    if name == "buy_vs_rent":
+        return calc.buy_vs_rent(data=data, housing=_housing(), **kwargs)
+    if name == "buy_vs_rent_horizons":
+        return calc.buy_vs_rent_horizons(data=data, housing=_housing(), **kwargs)
+    if name == "prepay_vs_invest":
+        kwargs.pop("stock_share", None)
+        return calc.prepay_vs_invest(**kwargs)
+    if name == "prepay_history":
+        return calc.prepay_history(data=data, housing=_housing(), **kwargs)
+    if name == "family_help":
+        return calc.family_help(**kwargs)
     raise KeyError(name)
 
 
@@ -672,6 +756,11 @@ PARSERS: dict[str, Callable[[Any], Params]] = {
     "cash_vehicles_inflation": _parse_cash_args,
     "pension_fees": _parse_pension_args,
     "pension_fees_steps": _parse_pension_args,
+    "buy_vs_rent": _parse_rent_args,
+    "buy_vs_rent_horizons": _parse_rent_args,
+    "prepay_vs_invest": _parse_prepay_args,
+    "prepay_history": _parse_prepay_args,
+    "family_help": _parse_family_args,
 }
 
 

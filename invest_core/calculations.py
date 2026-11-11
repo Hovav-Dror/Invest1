@@ -1693,3 +1693,476 @@ def pension_fees_steps(**kwargs) -> pd.DataFrame:
             }
         )
     return pd.DataFrame(rows)
+
+
+# --- Young couples: buy now, or rent and invest -------------------------------
+
+DEFAULT_RENT_PRICE = 2_200_000.0
+DEFAULT_RENT_RENT = 6_000.0
+DEFAULT_RENT_YEARS = 10
+DEFAULT_RENT_RATE = DEFAULT_AFFORD_RATE
+DEFAULT_RENT_TERM = DEFAULT_AFFORD_YEARS
+DEFAULT_RENT_INFLATION = 0.02
+DEFAULT_RENT_GROWTH = 0.03  # nominal, per year
+DEFAULT_RENT_INVEST = 0.06  # nominal, per year, after fees, before tax
+DEFAULT_RENT_UPKEEP = 0.005  # of the home value, per year
+DEFAULT_RENT_BUY_COSTS = DEFAULT_AFFORD_COSTS
+DEFAULT_RENT_SELL_COSTS = 0.02
+DEFAULT_RENT_LTV = DEFAULT_AFFORD_LTV
+DEFAULT_RENT_BUYER = DEFAULT_AFFORD_BUYER
+RENT_GROWTH_GRID = tuple(round(-0.03 + step * 0.005, 3) for step in range(19))  # real, -3% to +6%
+RENT_HORIZONS = (2, 3, 4, 5, 7, 10, 15, 20, 25)
+
+
+class _Portfolio:
+    """Money invested monthly; 25% tax on the gain above inflation when sold."""
+
+    def __init__(self, monthly_return: float, monthly_inflation: float) -> None:
+        self.value = 0.0
+        self.basis = 0.0  # what was put in, in shekels of the current month
+        self.growth = monthly_return
+        self.inflation = monthly_inflation
+
+    def step(self, deposit: float) -> None:
+        self.value = self.value * self.growth + deposit
+        self.basis = self.basis * self.inflation + deposit
+
+    def after_tax(self) -> float:
+        return self.value - TAX_RATE * max(self.value - self.basis, 0.0)
+
+
+def _buy_rent_wealth(
+    home_growth: float,
+    price: float,
+    rent: float,
+    years: int,
+    rate: float,
+    term: int,
+    inflation: float,
+    rent_growth: float,
+    invest_return: float,
+    upkeep: float,
+    buy_costs: float,
+    sell_costs: float,
+    ltv: float,
+    buyer: str,
+) -> dict:
+    """Nominal wealth after ``years`` of buying vs renting, if homes grow ``home_growth`` a year (nominal).
+
+    Both start with the same cash: the buyer's down payment, fees and purchase
+    tax. The renter invests it. Each month whoever pays less (mortgage and
+    upkeep vs rent) invests the difference, at ``invest_return``. At the end
+    the buyer sells the home (``sell_costs``) and repays the mortgage; both
+    sell their investments and pay 25% tax on the real gain.
+    """
+
+    months = years * 12
+    loan = price * ltv
+    upfront = price * (1 - ltv + buy_costs) + purchase_tax(price, buyer)
+    payment = loan / _annuity_factor(rate, term)
+    monthly_rate = rate / 12
+    monthly_home = (1 + home_growth) ** (1 / 12)
+    monthly_inflation = (1 + inflation) ** (1 / 12)
+    monthly_invest = (1 + invest_return) ** (1 / 12)
+    owner, renter = _Portfolio(monthly_invest, monthly_inflation), _Portfolio(monthly_invest, monthly_inflation)
+    renter.value = renter.basis = upfront
+    balance = loan
+    home = price
+    paid_owner = paid_renter = 0.0
+    for month in range(months):
+        mortgage = 0.0
+        if balance > 0:
+            interest = balance * monthly_rate
+            mortgage = min(payment, balance + interest)
+            balance = balance + interest - mortgage
+        owner_cost = mortgage + home * upkeep / 12
+        rent_cost = rent * (1 + rent_growth) ** (month // 12)
+        paid_owner += owner_cost
+        paid_renter += rent_cost
+        owner.step(max(rent_cost - owner_cost, 0.0))
+        renter.step(max(owner_cost - rent_cost, 0.0))
+        home *= monthly_home
+    buy = home * (1 - sell_costs) - max(balance, 0.0) + owner.after_tax()
+    rent_total = renter.after_tax()
+    return {
+        "buy": buy,
+        "rent": rent_total,
+        "home_value": home,
+        "mortgage_left": max(balance, 0.0),
+        "upfront": upfront,
+        "payment": payment,
+        "paid_owner": paid_owner,
+        "paid_renter": paid_renter,
+    }
+
+
+def _breakeven_growth(wealth) -> float:
+    """Nominal yearly home growth at which buying and renting end equal (``wealth(g)`` gives buy - rent)."""
+
+    low, high = -0.5, 1.0
+    if wealth(low) > 0:
+        return low
+    if wealth(high) < 0:
+        return high
+    for _ in range(60):
+        middle = (low + high) / 2
+        if wealth(middle) < 0:
+            low = middle
+        else:
+            high = middle
+    return (low + high) / 2
+
+
+def _home_real_growth_history(data: InvestData, housing: pd.DataFrame, years: int) -> np.ndarray:
+    """Real yearly growth of dwelling prices over every ``years``-long window since 1986."""
+
+    homes = homes_vs_stocks(data=data, housing=housing, real=True)["homes"].to_numpy()
+    months = years * 12
+    if len(homes) <= months:
+        return np.array([])
+    return (homes[months:] / homes[:-months]) ** (1 / years) - 1
+
+
+def buy_vs_rent(
+    data: InvestData | None = None,
+    housing: pd.DataFrame | None = None,
+    price: float = DEFAULT_RENT_PRICE,
+    rent: float = DEFAULT_RENT_RENT,
+    years: int = DEFAULT_RENT_YEARS,
+    rate: float = DEFAULT_RENT_RATE,
+    term: int = DEFAULT_RENT_TERM,
+    inflation: float = DEFAULT_RENT_INFLATION,
+    rent_growth: float = DEFAULT_RENT_GROWTH,
+    invest_return: float = DEFAULT_RENT_INVEST,
+    upkeep: float = DEFAULT_RENT_UPKEEP,
+    buy_costs: float = DEFAULT_RENT_BUY_COSTS,
+    sell_costs: float = DEFAULT_RENT_SELL_COSTS,
+    ltv: float = DEFAULT_RENT_LTV,
+    buyer: str = DEFAULT_RENT_BUYER,
+) -> pd.DataFrame:
+    """Buy now or rent and invest: wealth after ``years`` by yearly home price growth.
+
+    A forward calculation at fixed rates (see ``_buy_rent_wealth``). Rows
+    cover real home growth from -3% to +6% a year, plus the break-even growth
+    (``point == "breakeven"``) and the median of history (``"history"``).
+    Columns: growth_real, growth_nominal, buy_wealth, rent_wealth (nominal),
+    buy_advantage (buy - rent, in today's shekels), buy_today, rent_today, history_share (the share of
+    ``years``-long windows since 1986 in which real dwelling prices grew at
+    least this fast), point, and the fixed upfront, payment and mortgage_left.
+    """
+
+    if price <= 0 or rent <= 0:
+        raise CalculationInputError("המחיר ושכר הדירה צריכים להיות חיוביים.")
+    if not 1 <= years <= 30:
+        raise CalculationInputError("מספר השנים צריך להיות בין 1 ל-30.")
+    if not 0 < ltv < 1:
+        raise CalculationInputError("שיעור המימון צריך להיות בין 0 ל-100%.")
+    if buyer not in AFFORD_LTV:
+        raise CalculationInputError("סוג הרוכש לא מוכר.")
+    data = data or load_data()
+    if housing is None:
+        from invest_core.data import load_housing_monthly
+
+        housing = load_housing_monthly()
+    history = _home_real_growth_history(data, housing, years)
+    deflator = (1 + inflation) ** years
+    settings = dict(
+        price=price, rent=rent, years=years, rate=rate, term=term, inflation=inflation, rent_growth=rent_growth,
+        invest_return=invest_return, upkeep=upkeep, buy_costs=buy_costs, sell_costs=sell_costs, ltv=ltv, buyer=buyer,
+    )
+
+    def wealth(nominal: float) -> dict:
+        return _buy_rent_wealth(nominal, **settings)
+
+    breakeven = _breakeven_growth(lambda nominal: (lambda w: w["buy"] - w["rent"])(wealth(nominal)))
+    marks = {round((1 + breakeven) / (1 + inflation) - 1, 6): "breakeven"}
+    if len(history):
+        marks.setdefault(round(float(np.median(history)), 6), "history")
+
+    def row(real: float, point: str = "") -> dict:
+        nominal = (1 + real) * (1 + inflation) - 1
+        result = wealth(nominal)
+        return {
+            "growth_real": real,
+            "growth_nominal": nominal,
+            "buy_wealth": result["buy"],
+            "rent_wealth": result["rent"],
+            "buy_advantage": (result["buy"] - result["rent"]) / deflator,
+            "buy_today": result["buy"] / deflator,
+            "rent_today": result["rent"] / deflator,
+            "history_share": float(np.mean(history >= real - 1e-12)) if len(history) else np.nan,
+            "upfront": result["upfront"],
+            "payment": result["payment"],
+            "mortgage_left": result["mortgage_left"],
+            "paid_owner": result["paid_owner"],
+            "paid_renter": result["paid_renter"],
+            "point": point,
+        }
+
+    grid = [value for value in RENT_GROWTH_GRID if not any(abs(value - mark) < 1e-9 for mark in marks)]
+    rows = [row(value) for value in grid] + [row(value, point) for value, point in marks.items()]
+    return pd.DataFrame(rows).sort_values("growth_real", kind="stable").reset_index(drop=True)
+
+
+def buy_vs_rent_horizons(
+    data: InvestData | None = None,
+    housing: pd.DataFrame | None = None,
+    **kwargs,
+) -> pd.DataFrame:
+    """Break-even real home growth for each horizon, next to what history shows.
+
+    Takes the same arguments as ``buy_vs_rent`` (``years`` is ignored).
+    Columns: years, breakeven_real, history_median, history_p10, history_p90,
+    history_share (windows at or above the break-even), windows.
+    """
+
+    data = data or load_data()
+    if housing is None:
+        from invest_core.data import load_housing_monthly
+
+        housing = load_housing_monthly()
+    kwargs.pop("years", None)
+    settings = {
+        "price": DEFAULT_RENT_PRICE, "rent": DEFAULT_RENT_RENT, "rate": DEFAULT_RENT_RATE, "term": DEFAULT_RENT_TERM,
+        "inflation": DEFAULT_RENT_INFLATION, "rent_growth": DEFAULT_RENT_GROWTH, "invest_return": DEFAULT_RENT_INVEST,
+        "upkeep": DEFAULT_RENT_UPKEEP, "buy_costs": DEFAULT_RENT_BUY_COSTS, "sell_costs": DEFAULT_RENT_SELL_COSTS,
+        "ltv": DEFAULT_RENT_LTV, "buyer": DEFAULT_RENT_BUYER, **kwargs,
+    }
+    rows = []
+    for years in RENT_HORIZONS:
+        nominal = _breakeven_growth(lambda g: (lambda w: w["buy"] - w["rent"])(_buy_rent_wealth(g, years=years, **settings)))
+        real = (1 + nominal) / (1 + settings["inflation"]) - 1
+        history = _home_real_growth_history(data, housing, years)
+        rows.append(
+            {
+                "years": years,
+                "breakeven_real": real,
+                "history_median": float(np.median(history)) if len(history) else np.nan,
+                "history_p10": float(np.quantile(history, 0.1)) if len(history) else np.nan,
+                "history_p90": float(np.quantile(history, 0.9)) if len(history) else np.nan,
+                "history_share": float(np.mean(history >= real)) if len(history) else np.nan,
+                "windows": len(history),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+# --- Young couples: repay the mortgage early, or invest ----------------------
+
+DEFAULT_PREPAY_AMOUNT = 100_000.0
+DEFAULT_PREPAY_RATE = 0.05  # nominal mortgage rate on the track being repaid
+DEFAULT_PREPAY_YEARS_LEFT = 25
+DEFAULT_PREPAY_HORIZON = 10
+DEFAULT_PREPAY_INFLATION = 0.02
+DEFAULT_PREPAY_FEE = 0.0  # early-repayment fee, as a share of the amount
+DEFAULT_PREPAY_STOCKS = 1.0
+PREPAY_RETURN_GRID = tuple(round(-0.02 + step * 0.005, 3) for step in range(21))  # real, -2% to +8%
+
+
+def _prepay_gap(
+    amount: float,
+    real_rate: float,
+    years_left: int,
+    fee: float,
+    growth: np.ndarray,
+) -> tuple[float, float, float]:
+    """Wealth of investing minus wealth of prepaying, in real terms, over ``len(growth)`` months.
+
+    Prepaying ``amount`` (less ``fee``) cuts the monthly payment and keeps the
+    term; the saving is invested every month. Investing puts ``amount`` in the
+    market at once and keeps paying the higher payment. Everything is in
+    today's shekels (as for a CPI-linked loan) and 25% tax is paid on the real
+    gain at the end. Returns (gap, invest_wealth, prepay_wealth), where wealth
+    is the portfolio after tax less the part of the loan still owed.
+    """
+
+    repaid = amount * (1 - fee)
+    saving = repaid / _annuity_factor(real_rate, years_left)
+    monthly = real_rate / 12
+    invest_value = amount
+    prepay_value = prepay_basis = 0.0
+    owed = repaid  # the part of the loan the investor still owes
+    months_left = years_left * 12
+    for month, step in enumerate(growth):
+        invest_value *= step
+        prepay_value = prepay_value * step
+        if month < months_left:
+            prepay_value += saving
+            prepay_basis += saving
+            owed = owed * (1 + monthly) - saving
+    owed = max(owed, 0.0)
+
+    def after_tax(value: float, basis: float) -> float:
+        return value - TAX_RATE * max(value - basis, 0.0)
+
+    invest = after_tax(invest_value, amount) - owed
+    prepay = after_tax(prepay_value, prepay_basis)
+    return invest - prepay, invest, prepay
+
+
+def prepay_vs_invest(
+    amount: float = DEFAULT_PREPAY_AMOUNT,
+    rate: float = DEFAULT_PREPAY_RATE,
+    years_left: int = DEFAULT_PREPAY_YEARS_LEFT,
+    horizon: int = DEFAULT_PREPAY_HORIZON,
+    inflation: float = DEFAULT_PREPAY_INFLATION,
+    fee: float = DEFAULT_PREPAY_FEE,
+) -> pd.DataFrame:
+    """Investing minus prepaying after ``horizon`` years, by a fixed real return on the investment.
+
+    Rows cover real yearly returns from -2% to +8%, plus the break-even return
+    (``point == "breakeven"``). Columns: return_real, invest_advantage, invest_wealth, prepay_wealth
+    (today's shekels), point, saving (the monthly payment cut by prepaying),
+    rate_real.
+    """
+
+    _check_prepay(amount, years_left, horizon, fee)
+    real_rate = (1 + rate) / (1 + inflation) - 1
+    months = horizon * 12
+
+    def gap(real_return: float) -> tuple[float, float, float]:
+        growth = np.full(months, (1 + real_return) ** (1 / 12))
+        return _prepay_gap(amount, real_rate, years_left, fee, growth)
+
+    low, high = -0.5, 1.0
+    for _ in range(60):
+        middle = (low + high) / 2
+        if gap(middle)[0] < 0:
+            low = middle
+        else:
+            high = middle
+    breakeven = round((low + high) / 2, 6)
+    saving = amount * (1 - fee) / _annuity_factor(real_rate, years_left)
+    rows = []
+    for value, point in [(value, "") for value in PREPAY_RETURN_GRID if abs(value - breakeven) > 1e-9] + [(breakeven, "breakeven")]:
+        difference, invest, prepay = gap(value)
+        rows.append({"return_real": value, "invest_advantage": difference, "invest_wealth": invest, "prepay_wealth": prepay, "point": point, "saving": saving, "rate_real": real_rate})
+    return pd.DataFrame(rows).sort_values("return_real", kind="stable").reset_index(drop=True)
+
+
+def _check_prepay(amount: float, years_left: int, horizon: int, fee: float) -> None:
+    if amount <= 0:
+        raise CalculationInputError("הסכום צריך להיות חיובי.")
+    if not 1 <= years_left <= 30:
+        raise CalculationInputError("מספר השנים שנשארו במשכנתא צריך להיות בין 1 ל-30.")
+    if not 1 <= horizon <= 30:
+        raise CalculationInputError("מספר השנים צריך להיות בין 1 ל-30.")
+    if not 0 <= fee < 0.5:
+        raise CalculationInputError("עמלת הפירעון צריכה להיות בין 0 ל-50%.")
+
+
+def prepay_history(
+    data: InvestData | None = None,
+    housing: pd.DataFrame | None = None,
+    amount: float = DEFAULT_PREPAY_AMOUNT,
+    rate: float = DEFAULT_PREPAY_RATE,
+    years_left: int = DEFAULT_PREPAY_YEARS_LEFT,
+    horizon: int = DEFAULT_PREPAY_HORIZON,
+    inflation: float = DEFAULT_PREPAY_INFLATION,
+    fee: float = DEFAULT_PREPAY_FEE,
+    stock_share: float = DEFAULT_PREPAY_STOCKS,
+) -> pd.DataFrame:
+    """Investing minus prepaying for every start month since 1986, with historical returns.
+
+    The investment is ``stock_share`` in the S&P 500 in shekels (dividends,
+    0.1% a year fee) and the rest in a money-market fund, rebalanced monthly,
+    all deflated by Israeli CPI. The mortgage keeps the fixed real rate
+    implied by ``rate`` and ``inflation``. Columns: start, end, invest_advantage,
+    invest_wealth, prepay_wealth (today's shekels), return_real (the investment's yearly real
+    return in that window).
+    """
+
+    _check_prepay(amount, years_left, horizon, fee)
+    if not 0 <= stock_share <= 1:
+        raise CalculationInputError("חלק המניות צריך להיות בין 0 ל-100%.")
+    data = data or load_data()
+    if housing is None:
+        from invest_core.data import load_housing_monthly
+
+        housing = load_housing_monthly()
+    market = _down_payment_market(data, housing)
+    value = market["value_ils"].to_numpy()
+    cpi = market["cpi_il"].to_numpy()
+    stock = value[1:] / value[:-1] * (1 - DOWN_STOCK_FEE) ** (1 / 12)
+    cash = 1 + (market["cash_rate"].to_numpy()[:-1] / 100 - DOWN_CASH_SPREAD) / 12
+    real_growth = (stock_share * stock + (1 - stock_share) * cash) / (cpi[1:] / cpi[:-1])
+    real_rate = (1 + rate) / (1 + inflation) - 1
+    months = horizon * 12
+    if len(real_growth) < months:
+        raise CalculationInputError("אין מספיק שנים של נתונים לתקופה הזו.")
+    fixed = prepay_vs_invest(amount=amount, rate=rate, years_left=years_left, horizon=horizon, inflation=inflation, fee=fee)
+    breakeven = float(fixed.loc[fixed["point"] == "breakeven", "return_real"].iloc[0])
+    saving = float(fixed["saving"].iloc[0])
+    rows = []
+    for start in range(len(real_growth) - months + 1):
+        growth = real_growth[start:start + months]
+        difference, invest, prepay = _prepay_gap(amount, real_rate, years_left, fee, growth)
+        rows.append(
+            {
+                "start": market["date"][start],
+                "end": market["date"][start + months],
+                "invest_advantage": difference,
+                "invest_wealth": invest,
+                "prepay_wealth": prepay,
+                "return_real": float(np.prod(growth)) ** (1 / horizon) - 1,
+                "breakeven_real": breakeven,
+                "saving": saving,
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+# --- Young couples: help from parents, a gift or a loan ----------------------
+
+DEFAULT_FAMILY_HELP = 200_000.0
+DEFAULT_FAMILY_LOAN_YEARS = 10
+FAMILY_SCENARIOS = ("none", "gift", "loan")
+
+
+def family_help(
+    equity: float = DEFAULT_AFFORD_EQUITY,
+    income: float = DEFAULT_AFFORD_INCOME,
+    help_amount: float = DEFAULT_FAMILY_HELP,
+    loan_years: int = DEFAULT_FAMILY_LOAN_YEARS,
+    rate: float = DEFAULT_AFFORD_RATE,
+    years: int = DEFAULT_AFFORD_YEARS,
+    pti: float = DEFAULT_AFFORD_PTI,
+    costs: float = DEFAULT_AFFORD_COSTS,
+    buyer: str = DEFAULT_AFFORD_BUYER,
+    renovation: float = DEFAULT_AFFORD_RENOVATION,
+) -> pd.DataFrame:
+    """Highest apartment price without help, with a gift and with an interest-free loan from parents.
+
+    A gift adds to the equity. A loan adds the same equity, but the bank
+    counts its monthly repayment (``help_amount / loan_years / 12``) against
+    the income limit, so the mortgage can be smaller. Columns: help,
+    equity, max_price, mortgage, payment, family_payment, binding.
+    """
+
+    if help_amount < 0:
+        raise CalculationInputError("סכום העזרה לא יכול להיות שלילי.")
+    if not 1 <= loan_years <= 30:
+        raise CalculationInputError("תקופת ההלוואה צריכה להיות בין 1 ל-30 שנים.")
+    family_payment = help_amount / (loan_years * 12)
+    cases = (
+        ("none", equity, income, 0.0),
+        ("gift", equity + help_amount, income, 0.0),
+        # The bank lowers the mortgage payment it allows by the repayment to the parents.
+        ("loan", equity + help_amount, max(income - family_payment / pti, 0.0), family_payment),
+    )
+    rows = []
+    for scenario, value, usable_income, repayment in cases:
+        frame = affordability(equity=value, income=max(usable_income, 1e-9), rate=rate, years=years, pti=pti, costs=costs, buyer=buyer, renovation=renovation)
+        now = frame[frame["point"] == "now"].iloc[0]
+        rows.append(
+            {
+                "help": scenario,
+                "equity": value,
+                "max_price": now["max_price"],
+                "mortgage": now["mortgage"],
+                "payment": now["payment"],
+                "family_payment": repayment,
+                "binding": now["binding"],
+            }
+        )
+    return pd.DataFrame(rows)

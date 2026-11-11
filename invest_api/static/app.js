@@ -32,7 +32,16 @@ import {
     "Diff5",
     "Diff10",
     "Diff15",
-    "delta_cagr"
+    "delta_cagr",
+    "growth_real",
+    "growth_nominal",
+    "history_share",
+    "breakeven_real",
+    "history_median",
+    "history_p10",
+    "history_p90",
+    "return_real",
+    "rate_real"
   ]);
   const taxDateRange = {
     min: "1871-01-01",
@@ -111,6 +120,26 @@ import {
     binding: "מה מגביל את המשכנתא",
     purchase_tax: "מס רכישה",
     point: "נקודה מסומנת",
+    growth_real: "עליית מחירי הדירות בשנה, מעל האינפלציה",
+    growth_nominal: "עליית מחירי הדירות בשנה, בשקלים",
+    buy_wealth: "קנייה: כמה כסף בסוף (₪)",
+    rent_wealth: "שכירות: כמה כסף בסוף (₪)",
+    buy_advantage: "יתרון הקנייה (₪ של היום)",
+    buy_today: "קנייה: בשקלים של היום",
+    rent_today: "שכירות: בשקלים של היום",
+    history_share: "תקופות מאז 1986 עם עלייה כזו או יותר",
+    upfront: "הון עצמי שיוצא בקנייה",
+    mortgage_left: "יתרת משכנתא בסוף",
+    paid_owner: "שולם על משכנתא ותחזוקה",
+    paid_renter: "שולם על שכר דירה",
+    invest_advantage: "יתרון ההשקעה על הפירעון (₪ של היום)",
+    invest_wealth: "השקעה: כמה נשאר (₪ של היום)",
+    prepay_wealth: "פירעון: כמה נשאר (₪ של היום)",
+    return_real: "תשואה שנתית מעל האינפלציה",
+    breakeven_real: "תשואה שצריך כדי שההשקעה תנצח",
+    saving: "בכמה יורד ההחזר החודשי",
+    help: "עזרה",
+    family_payment: "החזר חודשי להורים",
     date: "תאריך",
     start: "מתאריך",
     end: "עד תאריך",
@@ -1310,6 +1339,170 @@ import {
         ] }
       ]
     },
+    "young-rent": {
+      tab: "לקנות או לשכור?",
+      paragraphs: [
+        "ההשוואה הנפוצה היא בין שכר הדירה לבין ההחזר החודשי של המשכנתא. היא מטעה. חלק מההחזר הוא החזר של ההלוואה עצמה, כלומר חיסכון. מצד שני, חלק מההון העצמי הולך למס רכישה, לעורך דין ולתיווך, והוא לא חוזר.",
+        "ההשוואה הנכונה היא בין שתי דרכים לגור באותה דירה כמה שנים: לקנות אותה עכשיו, או לשכור אותה ולהשקיע את ההון העצמי. בסוף התקופה בודקים בכמה כסף נשארתם בכל דרך.",
+        "את התוצאה קובעת בעיקר שאלה שאף אחד לא יודע לענות עליה: כמה יעלו מחירי הדירות. לכן המחשבון לא מנחש. הוא מראה באיזה קצב עלייה של מחירי הדירות שתי הדרכים יוצאות שוות, ובכמה מהתקופות מאז 1986 המחירים עלו מהר יותר."
+      ],
+      afterChart: [
+        {
+          title: "איך המחשבון מחשב",
+          paragraphs: [
+            "בשתי הדרכים מתחילים עם אותו סכום: ההון העצמי שצריך כדי לקנות, כולל מס רכישה, עורך דין ותיווך. מי שקונה משלם אותו לדירה. מי ששוכר משקיע אותו.",
+            "בכל חודש, מי שמשלם פחות משקיע את ההפרש. מי שקונה משלם החזר משכנתא ותחזוקה של הדירה. מי ששוכר משלם שכר דירה. בהתחלה שכר הדירה נמוך בדרך כלל מהחזר המשכנתא, ולכן השוכר משקיע עוד כסף כל חודש.",
+            "בסוף התקופה מוכרים הכול. מי שקנה מוכר את הדירה, משלם תיווך ועורך דין ומחזיר את יתרת המשכנתא. שניהם מוכרים את ההשקעות ומשלמים מס של 25% על הרווח שמעל האינפלציה. ההפרש מוצג בשקלים של היום."
+          ]
+        },
+        {
+          title: "מה קובע את התוצאה",
+          paragraphs: [
+            { callout: [
+              { html: "בברירת המחדל, דירה של 2.2 מיליון ש\"ח, שכר דירה של 6,000 ש\"ח ו-10 שנים, הקנייה משתלמת אם מחירי הדירות עולים בכ-0.7% בשנה מעל האינפלציה. ב-74% מהתקופות של 10 שנים מאז 1986 הם עלו מהר יותר. אם המחירים רק שומרים על ערכם, השכירות משאירה כ-150 אלף ש\"ח יותר." }
+            ] },
+            { list: [
+              { html: "<strong>כמה שנים תגורו בדירה.</strong> בקנייה ובמכירה משלמים מס רכישה, עורך דין ותיווך. בתקופה קצרה העלויות האלה לא מספיקות להתפזר, ולכן הקנייה צריכה עלייה מהירה יותר של המחירים. בטבלה \"נקודת האיזון לפי מספר השנים\" שמתחת לגרף רואים את זה: בשנתיים צריך עלייה של כ-2.5% בשנה, ב-10 שנים פחות מ-1%." },
+              { html: "<strong>שכר הדירה מול מחיר הדירה.</strong> שכר דירה של 6,000 ש\"ח בחודש הוא 3.3% בשנה ממחיר של 2.2 מיליון. זה פחות מריבית המשכנתא, ולכן בלי עליית מחירים שכירות היא בדרך כלל הדרך הזולה לגור באותה דירה. ככל ששכר הדירה גבוה יותר ביחס למחיר, הקנייה משתלמת יותר." },
+              { html: "<strong>ריבית המשכנתא מול התשואה על ההשקעה.</strong> מי ששוכר מרוויח את התשואה על ההשקעה, אחרי מס. מי שקונה חוסך את ריבית המשכנתא, בלי מס. ככל שהריבית גבוהה יותר, השכירות משתלמת יותר." }
+            ] },
+            "המחשבון מניח ששכר הדירה עולה ב-3% בשנה, כלומר בכ-1% מעל האינפלציה, בלי קשר למחירי הדירות. בפועל, כשמחירי הדירות עולים מהר, גם שכר הדירה נוטה לעלות, ואז הקנייה משתלמת עוד יותר. את קצב העלייה של שכר הדירה אפשר לשנות ב\"שינוי הנחות\"."
+          ]
+        },
+        {
+          title: "מה המחשבון לא כולל",
+          paragraphs: [
+            "דירה היא לא רק השקעה. בדירה משלכם אף אחד לא יפנה אתכם, ואפשר לשפץ אותה כרצונכם. בשכירות קל יותר לעבור עיר או עבודה. את הדברים האלה כל זוג שוקל אחרת, והם לא נמצאים במספרים.",
+            "השוכר במחשבון משקיע כל חודש את ההפרש, ולא מוציא אותו. בפועל לא כולם עושים את זה. בלי המשמעת הזאת היתרון של השכירות נעלם, כי המשכנתא היא חיסכון בכפייה.",
+            "ההשקעה במחשבון מרוויחה תשואה קבועה בכל שנה. בפועל יהיו שנים טובות ושנים רעות, והתוצאה של השכירות יכולה לצאת טובה או גרועה בהרבה. גם לקנייה יש סיכון: מחיר הדירה יכול לרדת, והמשכנתא נשארת.",
+            "הנתונים ההיסטוריים הם רק על מחירי הדירות. הריבית ושכר הדירה בעבר היו שונים מאלה של היום. לכן \"בכמה מהתקופות המחירים עלו מהר יותר\" מראה את הטווח של מה שקרה, ולא סיכוי שזה יקרה שוב. בתקופות של 20 שנה ויותר יש מעט מאוד תקופות שונות באמת, כולן מהשנים שבהן המחירים עלו.",
+            "ריבית אחת לכל המשכנתא, בלי הצמדה למדד. מס שבח לא נכלל: מכירה של דירה יחידה פטורה ממנו בדרך כלל. המחשבון מניח שאתם יכולים לקבל את המשכנתא.",
+            [
+              "כמה משכנתא אפשר לקבל, ומה מחיר הדירה שתוכלו לקנות, בעמוד ",
+              { text: "מה מחיר הדירה שתוכלו לקנות?", href: "#young-equity" },
+              "."
+            ]
+          ]
+        }
+      ],
+      sources: [
+        { list: [
+          YOUNG_SOURCES.homes,
+          YOUNG_SOURCES.cpi,
+          YOUNG_SOURCES.purchaseTax,
+          { html: "<strong>שכר דירה, ריביות, תשואה, תחזוקה ועלויות עסקה:</strong> קלטים שבוחרים בעמוד. ברירות המחדל הן הערכות למצב בסוף 2026, לא נתון רשמי." }
+        ] }
+      ]
+    },
+    "young-prepay": {
+      tab: "פירעון מוקדם או השקעה?",
+      paragraphs: [
+        "נכנס לכם סכום כסף: בונוס, מתנה, חיסכון שהצטבר. אפשר להחזיר איתו חלק מהמשכנתא, ואפשר להשקיע אותו. החזר מוקדם הוא השקעה בלי סיכון: כל שקל שמחזירים חוסך את ריבית המשכנתא, בוודאות ובלי מס. השקעה בבורסה מרוויחה בממוצע יותר, אבל לא בכל תקופה.",
+        "המחשבון משווה את שתי האפשרויות על אותו סכום. אם מחזירים, ההחזר החודשי יורד, ואת ההפרש משקיעים כל חודש. אם משקיעים, ההחזר נשאר כמו שהיה. בסוף התקופה בודקים כמה נשאר בכל אפשרות: ההשקעות אחרי מס, פחות מה שעוד חייבים לבנק.",
+        "הגרף מראה מה היה קורה אילו התחלתם בכל אחד מהחודשים מאז 1986, עם התשואות שהיו בפועל."
+      ],
+      afterChart: [
+        {
+          title: "מה רואים",
+          paragraphs: [
+            { callout: [
+              { html: "בברירת המחדל, 100 אלף ש\"ח, משכנתא בריבית של 5% ל-25 שנה, ו-10 שנים: השקעה ב-S&P 500 הייתה משאירה יותר כסף בכ-2 מכל 3 תקופות. כדי לנצח, היא צריכה להרוויח כ-3.8% בשנה מעל האינפלציה. זה יותר מהריבית של המשכנתא מעל האינפלציה, כ-2.9%, כי על הרווח בהשקעה משלמים מס, ועל ריבית שחוסכים לא משלמים." }
+            ] },
+            "בתקופות הגרועות, למשל למי שהתחיל להשקיע ב-1999 או ב-2000, ההשקעה הפסידה לפירעון עשרות אלפי שקלים. בתקופות הטובות היא ניצחה בעד כ-200 אלף ש\"ח. הפירעון נותן תוצאה אחת, ידועה מראש.",
+            "כשחלק מההשקעה בקרן כספית ולא במניות, היא מנצחת בפחות תקופות. קרן כספית מרוויחה בערך את ריבית בנק ישראל, ובדרך כלל זה פחות מריבית המשכנתא. להשקיע בהשקעה סולידית במקום להחזיר משכנתא בדרך כלל לא משתלם."
+          ]
+        },
+        {
+          title: "לפני שמחזירים",
+          paragraphs: [
+            { list: [
+              { html: "<strong>כרית ביטחון קודם.</strong> כסף שהוחזר לבנק לא חוזר. אם אחר כך תצטרכו כסף בתקופה קשה, תצטרכו ללוות אותו, ביוקר. לפני פירעון מוקדם כדאי שתהיה בצד כרית ביטחון נזילה." },
+              { html: "<strong>עמלת פירעון מוקדם.</strong> במסלולים בריבית קבועה הבנק גובה עמלה אם הריבית בשוק ירדה מאז שלקחתם את ההלוואה. במסלול פריים, ובמסלול בריבית משתנה בנקודת היציאה, אין עמלה כזו. את הסכום המדויק מקבלים מהבנק לפני שמחליטים, ואפשר להכניס אותו ב\"שינוי הנחות\"." },
+              { html: "<strong>איזה מסלול להחזיר.</strong> בדרך כלל את המסלול עם הריבית הגבוהה ביותר, אחרי העמלות. במסלול צמוד למדד הריבית שמופיעה בחוזה היא מעל האינפלציה, ולכן במחשבון בוחרים את הריבית ועוד האינפלציה." },
+              { html: "<strong>להקטין את ההחזר או לקצר את התקופה.</strong> המחשבון מקטין את ההחזר החודשי ומשקיע את ההפרש. אפשר גם להשאיר את ההחזר ולקצר את התקופה. כך חוסכים יותר ריבית, אבל לא נשאר כסף להשקיע כל חודש." }
+            ] }
+          ]
+        },
+        {
+          title: "מה המחשבון לא כולל",
+          paragraphs: [
+            "המשכנתא במחשבון היא בריבית קבועה מעל האינפלציה, כמו מסלול צמוד למדד. במסלול לא צמוד ההחזר קבוע בשקלים, והאינפלציה שוחקת אותו. התוצאה דומה, אבל לא זהה.",
+            "ההשקעה היא S&P 500 בשקלים, עם דיבידנדים ודמי ניהול של 0.1% בשנה, והשאר בקרן כספית. מס של 25% על הרווח הריאלי, פעם אחת בסוף התקופה. השקעה אחרת, או משיכה באמצע, ייתנו תוצאה אחרת.",
+            "התקופות חופפות, ולכן יש בהן מעט תקופות שונות באמת. העבר מראה את טווח התוצאות האפשרי, לא סיכוי.",
+            [
+              "מי שמצפה לכסף בעוד כמה שנים, למשל עזרה מהמשפחה, יכול לבנות את המשכנתא מראש כך שיהיה קל ולא יקר להחזיר חלק ממנה. על זה בעמוד ",
+              { text: "עזרה מההורים: מתנה, הלוואה או ירושה", href: "#young-family" },
+              "."
+            ]
+          ]
+        }
+      ],
+      sources: [
+        { list: [
+          YOUNG_SOURCES.sp500,
+          YOUNG_SOURCES.fund,
+          YOUNG_SOURCES.cpi,
+          { html: "<strong>ריבית המשכנתא, יתרת התקופה, אינפלציה ועמלת פירעון:</strong> קלטים שבוחרים בעמוד. ברירות המחדל הן הערכות, לא נתון רשמי." }
+        ] },
+        "הנתונים מסתיימים בינואר 2026, החודש האחרון שבו יש את כל הסדרות."
+      ]
+    },
+    "young-family": {
+      tab: "עזרה מההורים",
+      paragraphs: [
+        "הרבה זוגות צעירים קונים דירה בעזרת ההורים. העזרה יכולה להגיע בכמה צורות, ולכל אחת השפעה אחרת על המשכנתא. המחשבון משווה שלוש אפשרויות: בלי עזרה, מתנה, והלוואה בלי ריבית שמחזירים להורים בתשלומים חודשיים.",
+        "ההבדל בין מתנה להלוואה הוא לא רק מה שתהיו חייבים להורים. הבנק בודק כמה אתם מחזירים כל חודש לכל מי שאתם חייבים לו. החזר חודשי להורים מקטין את ההחזר שהבנק יאשר על המשכנתא, ולכן גם את המשכנתא עצמה."
+      ],
+      afterChart: [
+        {
+          title: "מתנה או הלוואה",
+          paragraphs: [
+            { callout: [
+              { html: "בברירת המחדל, הון עצמי של 400 אלף, מתוכם 100 אלף לשיפוץ, והכנסה של 20 אלף ש\"ח בחודש: בלי עזרה אפשר לקנות דירה של כ-1.11 מיליון. עם מתנה של 200 אלף, כ-1.77 מיליון. עם הלוואה של אותו סכום, שמחזירים ב-10 שנים, רק כ-1.46 מיליון: ההחזר להורים, כ-1,670 ש\"ח בחודש, מקטין את המשכנתא שהבנק מוכן לתת." }
+            ] },
+            "כשההכנסה היא מה שמגביל את המשכנתא, הלוואה מההורים יכולה אפילו להקטין את מחיר הדירה שאפשר לקנות. נסו הכנסה של 12 אלף ש\"ח: ההלוואה מוסיפה הון עצמי, אבל מורידה מהמשכנתא יותר ממה שהיא מוסיפה.",
+            "מכאן לא נובע שכדאי לקרוא להלוואה \"מתנה\". הבנק שואל מאיפה הגיע ההון העצמי, ובדרך כלל מבקש מכתב מתנה חתום. מי שמסתיר הלוואה עלול לגלות שההחזרים החודשיים, לבנק ולהורים ביחד, גדולים ממה שהוא יכול לשלם. אם זו באמת הלוואה, עדיף לדבר עם ההורים על לוח החזרים גמיש, או על החזר רק אחרי שהמשכנתא קטנה."
+          ]
+        },
+        {
+          title: "רשת ביטחון",
+          paragraphs: [
+            "גם עזרה שלא עוברת ככסף שווה משהו. אם יש מי שיעזור בתקופה קשה, למשל אחרי פיטורים, אפשר לקחת קצת יותר סיכון עם הכסף לדירה. למשל, להחזיק יותר ממנו במניות, ולחכות עם הקנייה אם הן ירדו.",
+            [
+              "כמה עוזר לחכות, ומה זה עולה, אפשר לבדוק בעמוד ",
+              { text: "כסף לדירה בשנים הקרובות: כמה ממנו במניות?", href: "#young-down" },
+              ", בבחירה \"אם המניות ירדו, לחכות עם הקנייה\"."
+            ]
+          ]
+        },
+        {
+          title: "כסף שצפוי להגיע בעוד כמה שנים",
+          paragraphs: [
+            "לפעמים ידוע, פחות או יותר, שבעוד 5–15 שנה יגיע עוד כסף: עזרה שהובטחה, או ירושה. זה משנה את הדרך שבה כדאי לבנות את המשכנתא.",
+            { list: [
+              { html: "<strong>מסלולים שקל להחזיר.</strong> מי שצפוי להחזיר חלק מהמשכנתא בעוד כמה שנים, כדאי שישים חלק גדול יותר במסלולים שאפשר להחזיר בלי עמלה גבוהה: פריים, או ריבית משתנה עם נקודת יציאה סמוך למועד הצפוי. בריבית קבועה לטווח ארוך הבנק יכול לגבות עמלה גבוהה על החזר מוקדם." },
+              { html: "<strong>החזר חודשי גבוה יותר לתקופה מוגבלת.</strong> אם הכסף אמור לכסות חלק מההלוואה, אפשר להעדיף עכשיו החזר חודשי שקשה מעט יותר, בידיעה שהוא ירד אחרי ההחזר." },
+              { html: "<strong>לא לבנות על זה.</strong> המועד והסכום לא ודאיים, והנושא רגיש. התוכנית צריכה להחזיק גם אם הכסף יגיע מאוחר יותר, יהיה קטן יותר, או לא יגיע בכלל." }
+            ] },
+            [
+              "האם להחזיר את המשכנתא כשהכסף מגיע, או להשקיע אותו? בעמוד ",
+              { text: "פירעון מוקדם של המשכנתא, או השקעה?", href: "#young-prepay" },
+              "."
+            ]
+          ]
+        },
+        {
+          title: "מה המחשבון לא כולל",
+          paragraphs: [
+            "ההלוואה מההורים היא בלי ריבית, בתשלומים שווים. הבנק מוריד את ההחזר להורים מההחזר המקסימלי שהוא מאשר על המשכנתא. בפועל כל בנק בודק את זה קצת אחרת.",
+            "כל שאר ההנחות כמו בעמוד \"מה מחיר הדירה שתוכלו לקנות?\": ריבית אחת לכל המשכנתא, מס רכישה לפי המדרגות של היום, ועלויות עסקה."
+          ]
+        }
+      ],
+      sources: [
+        { list: [YOUNG_SOURCES.afford, YOUNG_SOURCES.purchaseTax, YOUNG_SOURCES.mortgage] }
+      ]
+    },
     "young-pension": {
       tab: "דמי ניהול בפנסיה",
       paragraphs: [
@@ -2169,6 +2362,76 @@ import {
       metric: metricPensionFees
     },
     {
+      id: "young-rent",
+      group: "Young couples",
+      title: "לקנות דירה עכשיו, או לשכור ולהשקיע?",
+      nav: "לקנות או לשכור?",
+      kicker: "בכמה מחירי הדירות צריכים לעלות",
+      takeaway: "קנייה משתלמת רק אם מחירי הדירות עולים מספיק. המחשבון מראה כמה זה \"מספיק\", ובכמה מהתקופות מאז 1986 המחירים עלו יותר.",
+      endpoint: "buy_vs_rent",
+      controls: [
+        { kind: "slider", name: "price", label: "מחיר הדירה", value: "2200000", min: "800000", max: "6000000", step: "50000", format: (value) => `${(value / 1e6).toLocaleString("en-US", { maximumFractionDigits: 2 })} מיליון ₪` },
+        { kind: "slider", name: "rent", label: "שכר דירה חודשי לאותה דירה", value: "6000", min: "2500", max: "20000", step: "250", format: (value) => `${Math.round(value).toLocaleString("en-US")} ₪` },
+        select("years", "כמה שנים תגורו בדירה", [3, 5, 7, 10, 15, 20, 25].map((n) => [String(n), `${n} שנים`]), "10"),
+        HOME_RATE_CONTROL,
+        { ...select("invest_return", "תשואה על ההשקעה בשכירות", ["3", "4", "5", "6", "7", "8"].map((n) => [n, `${n}% בשנה`]), "6"), advanced: true },
+        { ...select("inflation", "אינפלציה", ["1", "2", "3", "4"].map((n) => [n, `${n}% בשנה`]), "2"), advanced: true },
+        { ...select("rent_growth", "עליית שכר הדירה", ["1", "2", "3", "4", "5"].map((n) => [n, `${n}% בשנה`]), "3"), advanced: true },
+        { ...select("upkeep", "תחזוקה ותיקונים", ["0", "0.25", "0.5", "0.75", "1"].map((n) => [n, `${n}% מהמחיר בשנה`]), "0.5"), advanced: true },
+        { ...select("buy_costs", "עורך דין ותיווך בקנייה", ["0", "1", "2", "3"].map((n) => [n, `${n}% מהמחיר`]), "2"), advanced: true },
+        { ...select("sell_costs", "עורך דין ותיווך במכירה", ["0", "1", "2", "3"].map((n) => [n, `${n}% מהמחיר`]), "2"), advanced: true },
+        { ...HOME_BUYER_CONTROL, advanced: true }
+      ],
+      chart: { type: "buyVsRent" },
+      tableColumns: ["growth_real", "buy_today", "rent_today", "buy_advantage", "history_share", "point"],
+      metric: metricBuyVsRent
+    },
+    {
+      id: "young-prepay",
+      group: "Young couples",
+      title: "פירעון מוקדם של המשכנתא, או השקעה?",
+      nav: "פירעון מוקדם או השקעה?",
+      kicker: "ריבית בטוחה מול תשואה לא ודאית",
+      takeaway: "כל שקל שמחזירים לבנק חוסך ריבית, בוודאות ובלי מס. השקעה מרוויחה בממוצע יותר, אבל לא תמיד. הגרף מראה מה היה קורה בכל חודש מאז 1986.",
+      endpoint: "prepay_history",
+      controls: [
+        field("amount", "הסכום (₪)", "text", "100000"),
+        select("rate", "ריבית המסלול שמחזירים", ["3", "4", "4.5", "5", "5.5", "6", "7"].map((n) => [n, `${n}%`]), "5"),
+        select("years_left", "כמה שנים נשארו במשכנתא", [10, 15, 20, 25, 30].map((n) => [String(n), `${n} שנים`]), "25"),
+        select("horizon", "בודקים אחרי", [3, 5, 10, 15, 20].map((n) => [String(n), `${n} שנים`]), "10"),
+        select("stock_share", "במה משקיעים", [["100", "הכל במניות (S&P 500)"], ["60", "60% מניות, 40% קרן כספית"], ["30", "30% מניות, 70% קרן כספית"], ["0", "הכל בקרן כספית"]], "100"),
+        { ...select("inflation", "אינפלציה", ["1", "2", "3", "4"].map((n) => [n, `${n}% בשנה`]), "2"), advanced: true },
+        { ...select("fee", "עמלת פירעון מוקדם", ["0", "1", "2", "3", "5", "8"].map((n) => [n, `${n}% מהסכום`]), "0"), advanced: true }
+      ],
+      chart: { type: "prepayHistory" },
+      tableColumns: ["start", "end", "invest_advantage", "invest_wealth", "prepay_wealth", "return_real"],
+      metric: metricPrepay
+    },
+    {
+      id: "young-family",
+      group: "Young couples",
+      title: "עזרה מההורים: מתנה, הלוואה או ירושה",
+      nav: "עזרה מההורים",
+      kicker: "מה הבנק רואה, ומה זה עושה למשכנתא",
+      takeaway: "מתנה מההורים מגדילה את ההון העצמי. הלוואה מההורים מגדילה אותו באותו סכום, אבל הבנק סופר גם את ההחזר להורים, ולכן מאשר משכנתא קטנה יותר.",
+      endpoint: "family_help",
+      controls: [
+        { kind: "slider", shared: "home-equity", name: "equity", label: "ההון העצמי שלכם, בלי העזרה", value: "400000", min: "50000", max: "3000000", step: "10000", format: (value) => value >= 1e6 ? `${(value / 1e6).toLocaleString("en-US", { maximumFractionDigits: 2 })} מיליון ₪` : `${Math.round(value / 1000).toLocaleString("en-US")} אלף ₪` },
+        { kind: "slider", shared: "home-income", name: "income", label: "הכנסה חודשית נטו של שניכם", value: "20000", min: "6000", max: "60000", step: "500", format: (value) => `${Math.round(value).toLocaleString("en-US")} ₪` },
+        { kind: "slider", name: "help_amount", label: "כמה ההורים נותנים", value: "200000", min: "0", max: "1500000", step: "10000", format: (value) => value >= 1e6 ? `${(value / 1e6).toLocaleString("en-US", { maximumFractionDigits: 2 })} מיליון ₪` : `${Math.round(value / 1000).toLocaleString("en-US")} אלף ₪` },
+        select("loan_years", "אם זו הלוואה: מחזירים במשך", [3, 5, 10, 15, 20].map((n) => [String(n), `${n} שנים`]), "10"),
+        HOME_RENOVATION_CONTROL,
+        { ...HOME_BUYER_CONTROL, advanced: true },
+        HOME_RATE_CONTROL,
+        { ...select("years", "תקופת המשכנתא", [20, 25, 30].map((n) => [String(n), `${n} שנה`]), "30"), advanced: true, shared: "home-years" },
+        HOME_PTI_CONTROL,
+        HOME_COSTS_CONTROL
+      ],
+      chart: { type: "familyHelp" },
+      tableColumns: ["help", "equity", "max_price", "mortgage", "payment", "family_payment", "binding"],
+      metric: metricFamilyHelp
+    },
+    {
       id: "about",
       group: "Intro",
       title: "על האתר",
@@ -2300,7 +2563,7 @@ import {
     { label: "סיכון", views: ["sp500-risk"] },
     { label: "מה לשים בתיק?", views: ["us-world", "scv"] },
     { label: "השוואת תיקים", views: ["portfolio-summary"], priority: true },
-    { label: "זוגות צעירים", views: ["young-intro", "young-equity", "young-safe", "young-down", "young-homes", "young-pension", "young-cash"] },
+    { label: "זוגות צעירים", views: ["young-intro", "young-equity", "young-safe", "young-down", "young-rent", "young-homes", "young-pension", "young-cash", "young-prepay", "young-family"] },
     { label: "משיכה מהתיק (טריניטי)", views: ["trinity"] }
   ];
 
@@ -3847,6 +4110,20 @@ import {
         params.set(key, String(Number(value) / 100));
         return;
       }
+      if ((endpoint === "prepay_history" || endpoint === "prepay_vs_invest") && ["rate", "inflation", "fee", "stock_share"].includes(key)) {
+        if (endpoint === "prepay_vs_invest" && key === "stock_share") return;
+        params.set(key, String(Number(value) / 100));
+        return;
+      }
+      if (endpoint === "family_help" && ["rate", "pti", "costs"].includes(key)) {
+        params.set(key, String(Number(value) / 100));
+        return;
+      }
+      if ((endpoint === "buy_vs_rent" || endpoint === "buy_vs_rent_horizons") && ["rate", "inflation", "rent_growth", "invest_return", "upkeep", "buy_costs", "sell_costs"].includes(key)) {
+        params.set(key, String(Number(value) / 100));
+        return;
+      }
+      if ((endpoint === "buy_vs_rent" || endpoint === "buy_vs_rent_horizons") && !["price", "rent", "years", "buyer"].includes(key)) return;
       if (endpoint === "affordability" && ["rate", "pti", "drop", "costs"].includes(key)) {
         params.set(key, String(Number(value) / 100));
         return;
@@ -5176,6 +5453,18 @@ import {
       renderPensionFees(payload);
       return;
     }
+    if (chartConfig.type === "buyVsRent") {
+      renderBuyVsRent(payload);
+      return;
+    }
+    if (chartConfig.type === "prepayHistory") {
+      renderPrepayHistory(payload);
+      return;
+    }
+    if (chartConfig.type === "familyHelp") {
+      renderFamilyHelp(payload);
+      return;
+    }
     renderLineChart(payload, chartConfig);
   }
 
@@ -5981,6 +6270,252 @@ import {
       <p class="down-ladder-note">באותן הנחות, מגיל ${params.age} עד ${params.retire_age}. בשקלים של היום.</p>`;
   }
 
+  const rentPoint = (rows, point) => rows.find((row) => row.point === point);
+  const signedShekel = (value) => value >= 0 ? `+${formatShekel(value)}` : `−${formatShekel(-value)}`;
+  const yearsText = (years) => Number(years) === 1 ? "שנה" : `${years} שנים`;
+
+  function metricBuyVsRent(payload) {
+    const rows = payload.data || [];
+    const breakeven = rentPoint(rows, "breakeven");
+    if (!breakeven) return [];
+    const params = payload.params || {};
+    const flat = rows.find((row) => Math.abs(numericValue(row.growth_real)) < 1e-9);
+    const share = numericValue(breakeven.history_share);
+    return [
+      { label: "נקודת האיזון", valueText: `${formatPercent(numericValue(breakeven.growth_real), 1)} בשנה`, color: "#145f59", note: `עלייה של מחירי הדירות מעל האינפלציה, שבה קנייה ושכירות יוצאות שוות אחרי ${yearsText(params.years)}` },
+      { label: "בעבר המחירים עלו יותר", valueText: Number.isFinite(share) ? `${Math.round(share * 100)}% מהתקופות` : "—", color: "#385f9f", note: `מכל התקופות של ${yearsText(params.years)} מאז 1986, לפי מדד מחירי הדירות` },
+      flat ? { label: "אם המחירים רק שומרים על ערכם", value: Math.round(Math.abs(numericValue(flat.buy_advantage))), format: "shekel", color: "#c0582b", note: numericValue(flat.buy_advantage) < 0 ? "יותר כסף בסוף לשוכרים, בשקלים של היום" : "יותר כסף בסוף לקונים, בשקלים של היום" } : null
+    ].filter(Boolean);
+  }
+
+  async function renderBuyVsRent(payload) {
+    const target = chartTarget();
+    releaseChart(target);
+    const rows = payload.data || [];
+    const breakeven = rentPoint(rows, "breakeven");
+    if (!rows.length || !breakeven) {
+      chartMessage(ui.noNumericSeries);
+      return;
+    }
+    const params = payload.params || {};
+    const history = rentPoint(rows, "history");
+    const pct = (value) => formatPercent(value, 1);
+    const line = rows.map((row) => ({ x: numericValue(row.growth_real) * 100, y: numericValue(row.buy_advantage), data: row }));
+    const first = rows[0];
+    target.innerHTML = `
+      <div class="trinity-chart">
+        <div class="trinity-chart-head"><h4>כמה כסף יותר נשאר לקונים מאשר לשוכרים, אחרי ${yearsText(params.years)}</h4></div>
+        <div class="trinity-plot"></div>
+      </div>
+      <section class="down-ladder afford-deal">
+        <h4>העסקה</h4>
+        <div class="story-table"><table><tbody>
+          <tr><th scope="row">הון עצמי שיוצא בקנייה<small>כולל מס רכישה, עורך דין ותיווך. השוכרים משקיעים אותו</small></th><td>${formatShekel(numericValue(first.upfront))}</td></tr>
+          <tr><th scope="row">החזר משכנתא חודשי</th><td>${formatShekel(numericValue(first.payment))}</td></tr>
+          <tr><th scope="row">שכר דירה חודשי בהתחלה</th><td>${formatShekel(Number(params.rent))}</td></tr>
+          <tr><th scope="row">שכר דירה שנתי ממחיר הדירה</th><td>${pct(Number(params.rent) * 12 / Number(params.price))}</td></tr>
+        </tbody></table></div>
+      </section>
+      <details class="down-ladder table-toggle" data-table-key="rent-horizons"${tableToggleOpen("rent-horizons")}>
+        <summary><h4>נקודת האיזון לפי מספר השנים</h4></summary>
+        <div class="down-ladder-body" aria-live="polite">
+          <p class="down-ladder-note">מחשב...</p>
+        </div>
+      </details>`;
+    const vLines = [{ x: numericValue(breakeven.growth_real) * 100, label: `איזון: ${pct(numericValue(breakeven.growth_real))}` }];
+    if (history) vLines.push({ x: numericValue(history.growth_real) * 100, label: `חציון העבר: ${pct(numericValue(history.growth_real))}` });
+    drawChart(target.querySelector(".trinity-plot"), {
+      kind: "line",
+      key: "buy-vs-rent",
+      summary: `הקנייה משתלמת אם מחירי הדירות עולים ביותר מ-${pct(numericValue(breakeven.growth_real))} בשנה מעל האינפלציה`,
+      aspect: 0.52,
+      zoomable: false,
+      caption: `מעל הקו האופקי הקנייה משאירה יותר כסף, ומתחתיו השכירות. בשקלים של היום, אחרי מס ואחרי מכירת הדירה. הקו האנכי השני הוא החציון של עליית המחירים בתקופות של ${yearsText(params.years)} מאז 1986.`,
+      refLines: [{ y: 0, label: "שוות" }],
+      vLines,
+      x: { integer: false, format: (value) => `מחירי הדירות: ${pct(value / 100)} בשנה מעל האינפלציה`, tick: (value) => `${Math.round(value * 10) / 10}%`, label: "עליית מחירי הדירות בשנה, מעל האינפלציה" },
+      y: { format: signedShekel, tick: shekelTick, label: "יתרון הקנייה" },
+      series: [{ id: "advantage", label: "יתרון הקנייה על השכירות", color: "#145f59", width: 3, points: line }],
+      tooltip: (x, hits) => {
+        const row = hits[0].point.data;
+        return {
+          header: `מחירי הדירות: ${pct(numericValue(row.growth_real))} בשנה מעל האינפלציה`,
+          rows: [
+            { color: "#145f59", label: "קנייה: כמה כסף בסוף", value: formatShekel(numericValue(row.buy_today)) },
+            { color: "#385f9f", label: "שכירות: כמה כסף בסוף", value: formatShekel(numericValue(row.rent_today)) },
+            { color: "#68736f", label: "תקופות מאז 1986 עם עלייה כזו או יותר", value: `${Math.round(numericValue(row.history_share) * 100)}%` }
+          ]
+        };
+      }
+    });
+    let table;
+    try {
+      table = await fetchPayload(`api/buy_vs_rent_horizons?${paramsFor("buy_vs_rent_horizons", stateFromForm())}`);
+    } catch (error) {
+      return;
+    }
+    const slot = chartTarget().querySelector(".down-ladder-body");
+    if (lastPayload !== payload || !slot) return;
+    const body = (table.data || []).map((row) => `<tr${Number(row.years) === Number(params.years) ? ` class="is-selected"` : ""}>
+      <th scope="row">${yearsText(row.years)}</th>
+      <td><b>${pct(numericValue(row.breakeven_real))}</b></td>
+      <td>${pct(numericValue(row.history_median))}</td>
+      <td>${pct(numericValue(row.history_p10))} עד ${pct(numericValue(row.history_p90))}</td>
+      <td>${Math.round(numericValue(row.history_share) * 100)}%</td>
+    </tr>`).join("");
+    slot.innerHTML = `
+      <div class="story-table"><table>
+        <thead><tr><th>גרים בדירה</th><th>נקודת האיזון</th><th>חציון העבר</th><th>80% מהתקופות בעבר</th><th>תקופות מעל האיזון</th></tr></thead>
+        <tbody>${body}</tbody>
+      </table></div>
+      <p class="down-ladder-note">עליית מחירי הדירות בשנה, מעל האינפלציה. נקודת האיזון לפי ההנחות שבחרתם. העבר: כל התקופות באורך הזה מאז 1986, לפי מדד מחירי הדירות של הלמ"ס. ככל שהתקופה ארוכה יותר, יש פחות תקופות שונות באמת.</p>`;
+  }
+
+  function metricPrepay(payload) {
+    const rows = payload.data || [];
+    if (!rows.length) return [];
+    const values = rows.map((row) => numericValue(row.invest_advantage)).sort((a, b) => a - b);
+    const wins = values.filter((value) => value > 0).length / values.length;
+    const median = values[Math.floor(values.length / 2)];
+    const first = rows[0];
+    return [
+      { label: "ההשקעה ניצחה", valueText: `${Math.round(wins * 100)}% מהתקופות`, color: "#145f59", note: `מתוך ${rows.length} חודשי התחלה מאז ${new Date(first.start).getUTCFullYear()}` },
+      { label: "בתקופה הגרועה ביותר", value: Math.round(values[0]), format: "shekel", color: "#c0582b", note: `ובתקופה טיפוסית ${signedShekel(median)}. בשקלים של היום, לטובת ההשקעה` },
+      { label: "התשואה שצריך כדי לנצח", valueText: `${formatPercent(numericValue(first.breakeven_real), 1)} בשנה`, color: "#68736f", note: `מעל האינפלציה, אחרי דמי ניהול. הפירעון מוריד את ההחזר ב-${formatShekel(numericValue(first.saving))} בחודש` }
+    ];
+  }
+
+  async function renderPrepayHistory(payload) {
+    const target = chartTarget();
+    releaseChart(target);
+    const rows = payload.data || [];
+    if (!rows.length) {
+      chartMessage(ui.noNumericSeries);
+      return;
+    }
+    const params = payload.params || {};
+    const points = rows.map((row) => ({ x: yearFraction(row.start), y: numericValue(row.invest_advantage), data: row }));
+    target.innerHTML = `
+      <div class="trinity-chart">
+        <div class="trinity-chart-head"><h4>כמה כסף יותר השאירה ההשקעה מהפירעון, לפי חודש ההתחלה</h4></div>
+        <div class="trinity-plot"></div>
+      </div>
+      <details class="down-ladder table-toggle" data-table-key="prepay-fixed"${tableToggleOpen("prepay-fixed")}>
+        <summary><h4>ובתשואה קבועה?</h4></summary>
+        <div class="down-ladder-body" aria-live="polite">
+          <p class="down-ladder-note">מחשב...</p>
+        </div>
+      </details>`;
+    drawChart(target.querySelector(".trinity-plot"), {
+      kind: "line",
+      key: "prepay-history",
+      summary: `השקעה של ${formatShekel(Number(params.amount))} במקום פירעון מוקדם, לפי חודש ההתחלה`,
+      aspect: 0.5,
+      zoomable: true,
+      caption: `מעל הקו האופקי ההשקעה השאירה יותר כסף אחרי ${yearsText(params.horizon)}, ומתחתיו הפירעון. בשקלים של היום, אחרי מס. ריבית המשכנתא קבועה בכל התקופות: ${formatPercent(Number(params.rate), 1)} בשנה, ואינפלציה של ${formatPercent(Number(params.inflation), 1)}.`,
+      refLines: [{ y: 0, label: "שוות" }],
+      x: { integer: false, format: (value) => `התחלה ב-${Math.floor(value)}`, tick: (value) => String(Math.round(value)), label: "חודש ההתחלה" },
+      y: { format: signedShekel, tick: shekelTick, label: "יתרון ההשקעה" },
+      series: [{ id: "advantage", label: "יתרון ההשקעה על הפירעון", color: "#145f59", width: 2.4, area: true, points }],
+      tooltip: (x, hits) => {
+        const row = hits[0].point.data;
+        return {
+          header: `${downMonthLabel(row.start)} עד ${downMonthLabel(row.end)}`,
+          rows: [
+            { color: "#145f59", label: "השקעה: כמה נשאר", value: formatShekel(numericValue(row.invest_wealth)) },
+            { color: "#385f9f", label: "פירעון: כמה נשאר", value: formatShekel(numericValue(row.prepay_wealth)) },
+            { color: "#68736f", label: "תשואת ההשקעה מעל האינפלציה", value: `${formatPercent(numericValue(row.return_real), 1)} בשנה` }
+          ]
+        };
+      }
+    });
+    let table;
+    try {
+      table = await fetchPayload(`api/prepay_vs_invest?${paramsFor("prepay_vs_invest", stateFromForm())}`);
+    } catch (error) {
+      return;
+    }
+    const slot = chartTarget().querySelector(".down-ladder-body");
+    if (lastPayload !== payload || !slot) return;
+    const shown = (table.data || []).filter((row) => row.point === "breakeven" || [0, 0.02, 0.04, 0.06, 0.08].some((value) => Math.abs(numericValue(row.return_real) - value) < 1e-9));
+    const body = shown.map((row) => `<tr${row.point === "breakeven" ? ` class="is-selected"` : ""}>
+      <th scope="row">${formatPercent(numericValue(row.return_real), 1)}${row.point === "breakeven" ? " (איזון)" : ""}</th>
+      <td>${formatShekel(numericValue(row.invest_wealth))}</td>
+      <td>${formatShekel(numericValue(row.prepay_wealth))}</td>
+      <td><b>${signedShekel(numericValue(row.invest_advantage))}</b></td>
+    </tr>`).join("");
+    slot.innerHTML = `
+      <div class="story-table"><table>
+        <thead><tr><th>תשואה בשנה, מעל האינפלציה</th><th>השקעה: כמה נשאר</th><th>פירעון: כמה נשאר</th><th>יתרון ההשקעה</th></tr></thead>
+        <tbody>${body}</tbody>
+      </table></div>
+      <p class="down-ladder-note">אותן הנחות, אבל עם תשואה קבועה בכל שנה במקום התשואות שהיו בפועל. בשקלים של היום, אחרי ${yearsText(params.horizon)}. "כמה נשאר": ההשקעות אחרי מס, פחות מה שעוד חייבים לבנק בגלל הסכום הזה.</p>`;
+  }
+
+  const FAMILY_HELP = [
+    { id: "none", label: "בלי עזרה", color: "#9aa39f" },
+    { id: "gift", label: "מתנה", color: "#145f59" },
+    { id: "loan", label: "הלוואה מההורים", color: "#c0582b" }
+  ];
+
+  function familyRows(payload) {
+    return Object.fromEntries((payload.data || []).map((row) => [row.help, row]));
+  }
+
+  function metricFamilyHelp(payload) {
+    const rows = familyRows(payload);
+    if (!rows.none || !rows.gift || !rows.loan) return [];
+    const base = numericValue(rows.none.max_price);
+    const gift = numericValue(rows.gift.max_price) - base;
+    const loan = numericValue(rows.loan.max_price) - base;
+    return [
+      { label: "מתנה מוסיפה למחיר הדירה", value: Math.round(gift), format: "shekel", color: "#145f59", note: `עד ${formatShekel(numericValue(rows.gift.max_price))}` },
+      { label: "הלוואה מוסיפה למחיר הדירה", valueText: signedShekel(Math.round(loan)), color: "#c0582b", note: `כי ההחזר להורים, ${formatShekel(numericValue(rows.loan.family_payment))} בחודש, מקטין את המשכנתא` },
+      { label: "ההבדל בין מתנה להלוואה", value: Math.round(gift - loan), format: "shekel", color: "#68736f", note: "במחיר הדירה שאפשר לקנות" }
+    ];
+  }
+
+  function renderFamilyHelp(payload) {
+    const target = chartTarget();
+    releaseChart(target);
+    const rows = familyRows(payload);
+    if (!rows.none) {
+      chartMessage(ui.noNumericSeries);
+      return;
+    }
+    const money = (value) => value >= 1e6 ? `${(value / 1e6).toLocaleString("en-US", { maximumFractionDigits: 2 })} מיליון ₪` : `${Math.round(value / 1000).toLocaleString("en-US")} אלף ₪`;
+    const top = Math.max(...FAMILY_HELP.map((item) => numericValue(rows[item.id].max_price)), 1);
+    const bars = FAMILY_HELP.map((item) => {
+      const row = rows[item.id];
+      return `<li>
+        <span class="cash-bars-name">${escapeHtml(item.label)}<small>הון עצמי ${money(numericValue(row.equity))}</small></span>
+        <span class="cash-bars-bar"><i style="width:${numericValue(row.max_price) / top * 100}%;background:${item.color}"></i></span>
+        <span class="cash-bars-value"><b>${money(numericValue(row.max_price))}</b><small>משכנתא ${money(numericValue(row.mortgage))}</small></span>
+      </li>`;
+    }).join("");
+    const cell = (html) => FAMILY_HELP.map((item) => `<td>${html(rows[item.id])}</td>`).join("");
+    target.innerHTML = `
+      <figure class="cash-bars">
+        <figcaption>המחיר המקסימלי של הדירה, בלי עזרה, עם מתנה ועם הלוואה מההורים</figcaption>
+        <ol>${bars}</ol>
+      </figure>
+      <section class="down-ladder afford-deal">
+        <h4>העסקה בכל אפשרות</h4>
+        <div class="story-table"><table>
+          <thead><tr><th></th>${FAMILY_HELP.map((item) => `<th>${escapeHtml(item.label)}</th>`).join("")}</tr></thead>
+          <tbody>
+            <tr><th scope="row">הון עצמי</th>${cell((row) => money(numericValue(row.equity)))}</tr>
+            <tr><th scope="row">משכנתא</th>${cell((row) => money(numericValue(row.mortgage)))}</tr>
+            <tr class="is-sum"><th scope="row">מחיר הדירה</th>${cell((row) => `<b>${money(numericValue(row.max_price))}</b>`)}</tr>
+            <tr><th scope="row">החזר חודשי לבנק</th>${cell((row) => formatShekel(numericValue(row.payment)))}</tr>
+            <tr><th scope="row">החזר חודשי להורים</th>${cell((row) => numericValue(row.family_payment) ? formatShekel(numericValue(row.family_payment)) : "—")}</tr>
+            <tr><th scope="row">מה מגביל את המשכנתא</th>${cell((row) => affordLimit(row))}</tr>
+          </tbody>
+        </table></div>
+        <p class="down-ladder-note">ההלוואה מההורים בלי ריבית, בתשלומים שווים. הבנק מוריד את ההחזר להורים מההחזר המקסימלי שהוא מאשר על המשכנתא.</p>
+      </section>`;
+  }
+
   async function renderDownPaymentLadder(payload, state) {
     let ladder;
     try {
@@ -6741,7 +7276,12 @@ import {
       cash_vehicles: "המחשבון",
       cash_vehicles_inflation: "לפי אינפלציה",
       pension_fees: "המחשבון",
-      pension_fees_steps: "כמה עולה כל שינוי"
+      pension_fees_steps: "כמה עולה כל שינוי",
+      buy_vs_rent: "המחשבון",
+      buy_vs_rent_horizons: "לפי מספר השנים",
+      prepay_history: "התקופות",
+      prepay_vs_invest: "בתשואה קבועה",
+      family_help: "המחשבון"
     };
     return explicit[endpoint] || endpoint;
   }
