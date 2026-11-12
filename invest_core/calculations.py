@@ -2250,7 +2250,8 @@ def short_goal_history(
     (Bank of Israel rate minus a spread), rebalanced monthly. Both are sold at
     the end with 25% tax on the real gain, and shown in shekels of the start
     month (deflated by Israeli CPI). Columns: start, end, invest_today,
-    cash_today, gap (invest minus cash) and stock_real (the S&P 500's real
+    cash_today, gap (invest minus cash), gap_stocks (the same, all in stocks:
+    the widest range, for a fixed chart scale) and stock_real (the S&P 500's real
     yearly return in that window).
     """
 
@@ -2286,6 +2287,7 @@ def short_goal_history(
     for start in range(len(mix_real) - months + 1):
         invest = after_tax(float(np.prod(mix_real[start:start + months])))
         saved = after_tax(float(np.prod(cash_real[start:start + months])))
+        stocks_only = after_tax(float(np.prod(stock_real[start:start + months])))
         rows.append(
             {
                 "start": market["date"].iloc[start],
@@ -2293,6 +2295,7 @@ def short_goal_history(
                 "invest_today": invest,
                 "cash_today": saved,
                 "gap": invest - saved,
+                "gap_stocks": stocks_only - saved,
                 "stock_real": float(np.prod(stock_real[start:start + months])) ** (1 / years) - 1,
             }
         )
