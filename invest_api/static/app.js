@@ -1463,6 +1463,7 @@ import {
               { html: "<strong>שכר הדירה מול מחיר הדירה.</strong> שכר דירה של 5,000 ש\"ח בחודש הוא 2.7% בשנה ממחיר של 2.2 מיליון, בערך הממוצע בישראל היום: 2.5%–3%, ובתל אביב פחות. זה פחות מריבית המשכנתא, ולכן בלי עליית מחירים שכירות היא בדרך כלל הדרך הזולה לגור באותה דירה. ככל ששכר הדירה גבוה יותר ביחס למחיר, הקנייה משתלמת יותר." },
               { html: "<strong>ריבית המשכנתא מול התשואה על ההשקעה.</strong> מי ששוכר מרוויח את התשואה על ההשקעה, אחרי מס. מי שקונה חוסך את ריבית המשכנתא, בלי מס. ככל שהריבית גבוהה יותר, השכירות משתלמת יותר." }
             ] },
+            "בברירת המחדל שוכרים את אותה דירה שקונים, כדי להשוות רק את הכסף. אפשר לבדוק גם שכירות של דירה אחרת, זולה או יקרה יותר: מזיזים את סרגל שכר הדירה, ומשאירים את מחיר הדירה של הקנייה. למשל, לשכור עכשיו דירה קטנה יותר, ולקנות את הדירה הגדולה רק אחר כך. אז ההפרש בסוף כולל גם את ההבדל בין הדירות: מי שגר בדירה זולה יותר חוסך כסף, אבל גם גר בפחות. בטבלה \"העסקה\" שמתחת לגרפים כתוב אם שכר הדירה שבחרתם מתאים לאותה דירה, או לדירה זולה או יקרה יותר.",
             "המחשבון מניח ששכר הדירה עולה ב-2.5% בשנה, כלומר בכחצי אחוז מעל האינפלציה, בלי קשר למחירי הדירות. בעשור האחרון, 2015–2025, שכר הדירה עלה בכ-27%, ומחירי הדירות בכ-60%. אם שכר הדירה יעלה מהר יותר, הקנייה תשתלם יותר. את קצב העלייה של שכר הדירה אפשר לשנות ב\"שינוי הנחות\"."
           ]
         },
@@ -2808,7 +2809,7 @@ import {
       endpoint: "buy_vs_rent",
       controls: [
         { kind: "slider", name: "price", label: "מחיר הדירה", value: "2200000", min: "800000", max: "6000000", step: "50000", format: (value) => `${(value / 1e6).toLocaleString("en-US", { maximumFractionDigits: 2 })} מיליון ₪` },
-        { kind: "slider", name: "rent", label: "שכר דירה חודשי לאותה דירה", value: "5000", min: "2500", max: "20000", step: "250", format: (value) => `${Math.round(value).toLocaleString("en-US")} ₪` },
+        { kind: "slider", name: "rent", label: "שכר דירה חודשי: לאותה דירה, או לדירה אחרת", value: "5000", min: "2500", max: "20000", step: "250", format: (value) => `${Math.round(value).toLocaleString("en-US")} ₪` },
         select("years", "כמה שנים תגורו בדירה", [3, 5, 7, 10, 15, 20, 25].map((n) => [String(n), `${n} שנים`]), "10"),
         HOME_RATE_CONTROL,
         select("stock_share", "במה השוכרים משקיעים, בבדיקה מול העבר", [["100", "הכל במניות (S&P 500)"], ["60", "60% מניות, 40% קרן כספית"], ["30", "30% מניות, 70% קרן כספית"], ["0", "הכל בקרן כספית"]], "100"),
@@ -6814,6 +6815,11 @@ import {
   const RENT_ENDPOINTS = new Set(["buy_vs_rent", "buy_vs_rent_horizons", "buy_vs_rent_history"]);
   const rentPoint = (rows, point) => rows.find((row) => row.point === point);
   const signedShekel = (value) => value >= 0 ? `+${formatShekel(value)}` : `−${formatShekel(-value)}`;
+  const rentHomeNote = (ratio) => ratio < 0.022
+    ? "פחות מהמקובל לאותה דירה, 2.5%–3%: כנראה דירה זולה יותר מזו שקונים"
+    : ratio > 0.033
+      ? "יותר מהמקובל לאותה דירה, 2.5%–3%: כנראה דירה יקרה יותר מזו שקונים"
+      : "בערך המקובל לאותה דירה: 2.5%–3%";
   const yearsText = (years) => Number(years) === 1 ? "שנה" : `${years} שנים`;
 
   function metricBuyVsRent(payload) {
@@ -6858,7 +6864,7 @@ import {
           <tr><th scope="row">הון עצמי שיוצא בקנייה<small>כולל מס רכישה, עורך דין ותיווך. השוכרים משקיעים אותו</small></th><td>${formatShekel(numericValue(first.upfront))}</td></tr>
           <tr><th scope="row">החזר משכנתא חודשי</th><td>${formatShekel(numericValue(first.payment))}</td></tr>
           <tr><th scope="row">שכר דירה חודשי בהתחלה</th><td>${formatShekel(Number(params.rent))}</td></tr>
-          <tr><th scope="row">שכר דירה שנתי ממחיר הדירה</th><td>${pct(Number(params.rent) * 12 / Number(params.price))}</td></tr>
+          <tr><th scope="row">שכר דירה שנתי ממחיר הדירה<small>${rentHomeNote(Number(params.rent) * 12 / Number(params.price))}</small></th><td>${pct(Number(params.rent) * 12 / Number(params.price))}</td></tr>
         </tbody></table></div>
       </section>
       <details class="down-ladder table-toggle" data-table-key="rent-horizons"${tableToggleOpen("rent-horizons")}>

@@ -188,6 +188,9 @@ h3 {
   padding: 14px;
   position: sticky;
   top: 69px;
+  max-height: calc(100vh - 69px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .nav-heading {
@@ -2513,8 +2516,11 @@ button.vchart-legend-item[aria-pressed="false"] {
   .nav {
     display: grid;
     gap: 4px;
+    max-height: none;
     overflow-x: visible;
+    overflow-y: visible;
     padding: 8px 12px 14px;
+    position: static;
   }
 }
 
