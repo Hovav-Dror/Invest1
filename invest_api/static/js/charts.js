@@ -297,6 +297,10 @@ function drawLine(spec, instance, width) {
   `).join("");
 
   const clipId = `clip-${Math.random().toString(36).slice(2, 9)}`;
+  const zoneValue = spec.zones ? (spec.zones.at ?? 0) : null;
+  const zoneShown = spec.zones && zoneValue > yMin && zoneValue < yMax;
+  const zoneY = zoneShown ? yScale(zoneValue) : null;
+  const zoneAreas = [];
   const lines = visible.map((series) => {
     const segments = [];
     let current = [];
@@ -311,8 +315,11 @@ function drawLine(spec, instance, width) {
     if (current.length) segments.push(current);
     return segments.map((segment) => {
       const path = segment.map((point, index) => `${index ? "L" : "M"}${f(xScale(point.x))} ${f(yScale(point.y))}`).join("");
-      const area = series.area
-        ? `<path d="${path}L${f(xScale(segment[segment.length - 1].x))} ${f(yScale(Math.max(yMin, Math.min(0, yMax))))}L${f(xScale(segment[0].x))} ${f(yScale(Math.max(yMin, Math.min(0, yMax))))}Z" fill="${series.color}" opacity="0.14"></path>`
+      const base = zoneShown ? zoneY : yScale(Math.max(yMin, Math.min(0, yMax)));
+      const areaPath = `${path}L${f(xScale(segment[segment.length - 1].x))} ${f(base)}L${f(xScale(segment[0].x))} ${f(base)}Z`;
+      if (series.area && zoneShown) zoneAreas.push(areaPath);
+      const area = series.area && !zoneShown
+        ? `<path d="${areaPath}" fill="${series.color}" opacity="0.14"></path>`
         : "";
       const dots = series.dots
         ? segment.filter(inView).map((point) => {
@@ -350,12 +357,30 @@ function drawLine(spec, instance, width) {
     ${line.label && !compact ? `<text class="vchart-ref-label" x="${f(xScale(line.x) + 5)}" y="${f(pad.top + 13)}">${escapeHtml(line.label)}</text>` : ""}
   `).join("");
 
-  // "↑ above means..." near the top and "↓ below means..." near the bottom, when the line is in view.
-  const zoneAt = spec.zones ? (spec.zones.at ?? 0) : null;
-  const zones = spec.zones && zoneAt > yMin && zoneAt < yMax ? [
-    spec.zones.above ? `<text class="vchart-zone-label vchart-zone-above" direction="rtl" x="${f(plotRight - 8)}" y="${f(pad.top + 14)}" text-anchor="start">${escapeHtml(`↑ ${spec.zones.above}`)}</text>` : "",
-    spec.zones.below ? `<text class="vchart-zone-label vchart-zone-below" direction="rtl" x="${f(plotRight - 8)}" y="${f(plotBottom - 8)}" text-anchor="start">${escapeHtml(`↓ ${spec.zones.below}`)}</text>` : ""
-  ].join("") : "";
+  // Zones: the halves above and below a line get their own tint, the area under the series is
+  // green above and orange below, and big labels with arrows next to the line say what each half means.
+  let zoneBack = "";
+  let zones = "";
+  let zoneLabels = "";
+  if (zoneShown) {
+    const width = plotRight - pad.left;
+    zoneBack = `
+      <defs>
+        <clipPath id="${clipId}-above"><rect x="${f(pad.left)}" y="${f(pad.top)}" width="${f(width)}" height="${f(zoneY - pad.top)}"></rect></clipPath>
+        <clipPath id="${clipId}-below"><rect x="${f(pad.left)}" y="${f(zoneY)}" width="${f(width)}" height="${f(plotBottom - zoneY)}"></rect></clipPath>
+      </defs>
+      <rect class="vchart-zone-back vchart-zone-above" x="${f(pad.left)}" y="${f(pad.top)}" width="${f(width)}" height="${f(zoneY - pad.top)}"></rect>
+      <rect class="vchart-zone-back vchart-zone-below" x="${f(pad.left)}" y="${f(zoneY)}" width="${f(width)}" height="${f(plotBottom - zoneY)}"></rect>`;
+    const areas = zoneAreas.map((d) => `<path d="${d}"></path>`).join("");
+    const labelX = plotRight - 10;
+    zones = `
+      <g class="vchart-zone-area vchart-zone-above" clip-path="url(#${clipId}-above)">${areas}</g>
+      <g class="vchart-zone-area vchart-zone-below" clip-path="url(#${clipId}-below)">${areas}</g>`;
+    zoneLabels = [
+      spec.zones.above && zoneY - pad.top > 30 ? `<text class="vchart-zone-label vchart-zone-above" direction="rtl" x="${f(labelX)}" y="${f(zoneY - 12)}" text-anchor="start">${escapeHtml(`▲ ${spec.zones.above}`)}</text>` : "",
+      spec.zones.below && plotBottom - zoneY > 30 ? `<text class="vchart-zone-label vchart-zone-below" direction="rtl" x="${f(labelX)}" y="${f(zoneY + 22)}" text-anchor="start">${escapeHtml(`▼ ${spec.zones.below}`)}</text>` : ""
+    ].join("");
+  }
 
   let ends = "";
   if (endLabels) {
@@ -390,12 +415,14 @@ function drawLine(spec, instance, width) {
 
   const svg = `${svgOpen(width, height, spec)}
     <defs><clipPath id="${clipId}"><rect x="${f(pad.left)}" y="${f(pad.top - 2)}" width="${f(plotRight - pad.left)}" height="${f(plotBottom - pad.top + 4)}"></rect></clipPath></defs>
+    ${zoneBack}
     ${bands}
     ${grid}
     <line class="vchart-axis" x1="${f(pad.left)}" x2="${f(plotRight)}" y1="${f(plotBottom)}" y2="${f(plotBottom)}"></line>
     ${refs}
-    <g clip-path="url(#${clipId})">${lines}</g>
     ${zones}
+    <g clip-path="url(#${clipId})">${lines}</g>
+    ${zoneLabels}
     ${annotations}
     ${ends}
     ${axisLabels}

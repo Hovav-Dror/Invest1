@@ -2193,20 +2193,36 @@ tbody tr:hover {
 }
 
 .vchart-zone-label {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 800;
   paint-order: stroke;
   stroke: #fff;
-  stroke-width: 4px;
+  stroke-width: 5px;
   stroke-linejoin: round;
 }
 
-.vchart-zone-above {
+.vchart-zone-label.vchart-zone-above {
   fill: #145f59;
 }
 
-.vchart-zone-below {
+.vchart-zone-label.vchart-zone-below {
   fill: #a14b26;
+}
+
+.vchart-zone-back.vchart-zone-above {
+  fill: rgba(20, 95, 89, 0.05);
+}
+
+.vchart-zone-back.vchart-zone-below {
+  fill: rgba(192, 88, 43, 0.06);
+}
+
+.vchart-zone-area.vchart-zone-above path {
+  fill: rgba(20, 95, 89, 0.22);
+}
+
+.vchart-zone-area.vchart-zone-below path {
+  fill: rgba(192, 88, 43, 0.28);
 }
 
 .vchart-end-label {
