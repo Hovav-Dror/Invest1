@@ -2192,6 +2192,23 @@ tbody tr:hover {
   font-size: 11px;
 }
 
+.vchart-zone-label {
+  font-size: 13px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: #fff;
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+
+.vchart-zone-above {
+  fill: #145f59;
+}
+
+.vchart-zone-below {
+  fill: #a14b26;
+}
+
 .vchart-end-label {
   font-size: 12px;
   font-weight: 700;

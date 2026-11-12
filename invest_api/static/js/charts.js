@@ -234,6 +234,7 @@ spec = {
   series: [{ id, label, color, width, dash, area, dots, dotRadius, legend, legendValue, endLabel,
              points: [{ x, y, data }] }],
   refLines: [{ y, label, className }], vLines: [{ x, label }], bands: [{ x0, x1, label }],
+  zones: { at: 0, above, below },  // what the areas above and below a line mean, with arrows
   endLabels: true, zoomable: true, aspect: 0.55,
   tooltip(x, hits) -> { header, rows: [{ color, label, value }] }
 }
@@ -349,6 +350,13 @@ function drawLine(spec, instance, width) {
     ${line.label && !compact ? `<text class="vchart-ref-label" x="${f(xScale(line.x) + 5)}" y="${f(pad.top + 13)}">${escapeHtml(line.label)}</text>` : ""}
   `).join("");
 
+  // "↑ above means..." near the top and "↓ below means..." near the bottom, when the line is in view.
+  const zoneAt = spec.zones ? (spec.zones.at ?? 0) : null;
+  const zones = spec.zones && zoneAt > yMin && zoneAt < yMax ? [
+    spec.zones.above ? `<text class="vchart-zone-label vchart-zone-above" direction="rtl" x="${f(plotRight - 8)}" y="${f(pad.top + 14)}" text-anchor="start">${escapeHtml(`↑ ${spec.zones.above}`)}</text>` : "",
+    spec.zones.below ? `<text class="vchart-zone-label vchart-zone-below" direction="rtl" x="${f(plotRight - 8)}" y="${f(plotBottom - 8)}" text-anchor="start">${escapeHtml(`↓ ${spec.zones.below}`)}</text>` : ""
+  ].join("") : "";
+
   let ends = "";
   if (endLabels) {
     const items = visible.map((series) => {
@@ -387,6 +395,7 @@ function drawLine(spec, instance, width) {
     <line class="vchart-axis" x1="${f(pad.left)}" x2="${f(plotRight)}" y1="${f(plotBottom)}" y2="${f(plotBottom)}"></line>
     ${refs}
     <g clip-path="url(#${clipId})">${lines}</g>
+    ${zones}
     ${annotations}
     ${ends}
     ${axisLabels}
