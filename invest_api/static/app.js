@@ -36,6 +36,9 @@ import {
     "growth_real",
     "growth_nominal",
     "history_share",
+    "history_buy_wins",
+    "home_real",
+    "invest_real",
     "breakeven_real",
     "history_median",
     "history_p10",
@@ -128,6 +131,9 @@ import {
     buy_today: "קנייה: בשקלים של היום",
     rent_today: "שכירות: בשקלים של היום",
     history_share: "תקופות מאז 1986 עם עלייה כזו או יותר",
+    history_buy_wins: "תקופות מאז 1986 שבהן הקנייה ניצחה",
+    home_real: "מחירי הדירות בשנה, מעל האינפלציה",
+    invest_real: "תשואת ההשקעה בשנה, מעל האינפלציה",
     upfront: "הון עצמי שיוצא בקנייה",
     mortgage_left: "יתרת משכנתא בסוף",
     paid_owner: "שולם על משכנתא ותחזוקה",
@@ -1409,7 +1415,7 @@ import {
       paragraphs: [
         "ההשוואה הנפוצה היא בין שכר הדירה לבין ההחזר החודשי של המשכנתא. היא מטעה. חלק מההחזר הוא החזר של ההלוואה עצמה, כלומר חיסכון. מצד שני, חלק מההון העצמי הולך למס רכישה, לעורך דין ולתיווך, והוא לא חוזר.",
         "ההשוואה הנכונה היא בין שתי דרכים לגור באותה דירה כמה שנים: לקנות אותה עכשיו, או לשכור אותה ולהשקיע את ההון העצמי. בסוף התקופה בודקים בכמה כסף נשארתם בכל דרך.",
-        "את התוצאה קובעת בעיקר שאלה שאף אחד לא יודע לענות עליה: כמה יעלו מחירי הדירות. לכן המחשבון לא מנחש. הוא מראה באיזה קצב עלייה של מחירי הדירות שתי הדרכים יוצאות שוות, ובכמה מהתקופות מאז 1986 המחירים עלו מהר יותר."
+        "את התוצאה קובעות בעיקר שתי שאלות שאף אחד לא יודע לענות עליהן: כמה יעלו מחירי הדירות, וכמה ירוויחו ההשקעות. לכן המחשבון לא מנחש. הוא מראה באיזה קצב עלייה של מחירי הדירות שתי הדרכים יוצאות שוות, ובכמה מהתקופות מאז 1986 המחירים עלו מהר יותר. הגרף השני מראה מה היה קורה בכל תקופה מאז 1986, כשגם מחירי הדירות וגם תשואת ההשקעה הם אלה שהיו בפועל."
       ],
       afterChart: [
         {
@@ -1424,7 +1430,7 @@ import {
           title: "מה קובע את התוצאה",
           paragraphs: [
             { callout: [
-              { html: "בברירת המחדל, דירה של 2.2 מיליון ש\"ח, שכר דירה של 5,000 ש\"ח ו-10 שנים, הקנייה משתלמת אם מחירי הדירות עולים בכ-1.4% בשנה מעל האינפלציה. בכ-70% מהתקופות של 10 שנים מאז 1986 הם עלו מהר יותר. אם המחירים רק שומרים על ערכם, השכירות משאירה כ-300 אלף ש\"ח יותר, בשקלים של היום." }
+              { html: "בברירת המחדל, דירה של 2.2 מיליון ש\"ח, שכר דירה של 5,000 ש\"ח ו-10 שנים, הקנייה משתלמת אם מחירי הדירות עולים בכ-1.4% בשנה מעל האינפלציה, כשההשקעה של השוכרים מרוויחה 4% בשנה מעל האינפלציה. בכ-70% מהתקופות של 10 שנים מאז 1986 מחירי הדירות עלו מהר יותר. אבל באותן שנים גם המניות הרוויחו בדרך כלל יותר מ-4%. כשגם תשואת המניות לקוחה מהעבר, הקנייה ניצחה רק בכמחצית מהתקופות. אם המחירים רק שומרים על ערכם, השכירות משאירה כ-300 אלף ש\"ח יותר, בשקלים של היום." }
             ] },
             { list: [
               { html: "<strong>כמה שנים תגורו בדירה.</strong> בקנייה ובמכירה משלמים מס רכישה, עורך דין ותיווך. בתקופה קצרה העלויות האלה לא מספיקות להתפזר, ולכן הקנייה צריכה עלייה מהירה יותר של המחירים. בטבלה \"נקודת האיזון לפי מספר השנים\" שמתחת לגרף רואים את זה: בשנתיים צריך עלייה של כ-3% בשנה, וב-10 שנים כ-1.4%." },
@@ -1435,12 +1441,30 @@ import {
           ]
         },
         {
+          title: "מה היה קורה בעבר",
+          paragraphs: [
+            "בגרף השני, בברירת המחדל, כל נקודה היא תקופה של 10 שנים שהתחילה באותו חודש, עם מחירי הדירות ותשואות ה-S&P 500 שהיו בה בפועל. ריבית המשכנתא, שכר הדירה והעלויות הם של היום. התוצאות לא מתפזרות באקראי: יש גושים ארוכים של שנים שבהם ניצחה דרך אחת.",
+            { list: [
+              { html: "<strong>התחלה ב-1988–1998: השכירות ניצחה.</strong> המניות עלו מהר, ומחירי הדירות עלו לאט, ומאמצע שנות ה-90 אפילו ירדו." },
+              { html: "<strong>התחלה ב-1999–2009: הקנייה ניצחה.</strong> המניות קרסו פעמיים, ב-2000–2002 וב-2008, ומחירי הדירות זינקו אחרי 2008." },
+              { html: "<strong>התחלה ב-2010–2016: ברוב החודשים השכירות ניצחה.</strong> מחירי הדירות עלו מהר, אבל ה-S&P 500 עלה עוד יותר." }
+            ] },
+            "לכן 360 חודשי ההתחלה הם בפועל שלוש או ארבע תקופות שונות באמת. זה לא מספיק כדי לקבוע שאחת הדרכים עדיפה.",
+            "התוצאה תלויה גם במה שהשוכרים משקיעים. כשהכל ב-S&P 500, הקנייה ניצחה ב-49% מהתקופות של 10 שנים. ב-60% מניות ו-40% קרן כספית היא ניצחה ב-66%, ובקרן כספית בלבד ב-70%. את זה אפשר לבחור למעלה, ב\"במה השוכרים משקיעים\". גם השנים האלה היו טובות במיוחד ל-S&P 500 בשקלים: בתקופה טיפוסית של 10 שנים הוא הרוויח כ-9% בשנה מעל האינפלציה.",
+            "בתקופות ארוכות הפער בין שתי ההשוואות גדל. ב-25 שנה מחירי הדירות עלו מעל נקודת האיזון בכל התקופות, אבל כשהשוכרים השקיעו ב-S&P 500, הקנייה ניצחה רק בכרבע מהן.",
+            "יש עוד סיבה לזהירות. חלק גדול מעליית מחירי הדירות מאז 1986 בא מירידת הריבית במשך עשרות שנים, עד כמעט אפס ב-2015–2022, ומשכר דירה שעלה לאט יותר מהמחירים. היום הריבית כבר לא גבוהה, ושכר הדירה כבר נמוך ביחס למחיר. לכן לא בטוח שהמחירים ימשיכו לעלות מהר כמו בעבר.",
+            { callout: [
+              { html: "המספרים לא מכריעים לטובת אף אחת מהדרכים. התוצאה תלויה בעיקר בשני דברים שאי אפשר לדעת מראש, מחירי הדירות ותשואת המניות, ובשאלה אם השוכרים באמת משקיעים את ההפרש. לכן השיקולים שמחוץ למספרים, בסעיף הבא, יכולים להכריע." }
+            ] }
+          ]
+        },
+        {
           title: "מה המחשבון לא כולל",
           paragraphs: [
             "דירה היא לא רק השקעה. בדירה משלכם אף אחד לא יפנה אתכם, ואפשר לשפץ אותה כרצונכם. בשכירות קל יותר לעבור עיר או עבודה. את הדברים האלה כל זוג שוקל אחרת, והם לא נמצאים במספרים.",
             "השוכר במחשבון משקיע כל חודש את ההפרש, ולא מוציא אותו. בפועל לא כולם עושים את זה. בלי המשמעת הזאת היתרון של השכירות נעלם, כי המשכנתא היא חיסכון בכפייה.",
             "ההשקעה במחשבון מרוויחה תשואה קבועה בכל שנה. בפועל יהיו שנים טובות ושנים רעות, והתוצאה של השכירות יכולה לצאת טובה או גרועה בהרבה. גם לקנייה יש סיכון: מחיר הדירה יכול לרדת, והמשכנתא נשארת.",
-            "הנתונים ההיסטוריים הם רק על מחירי הדירות. הריבית ושכר הדירה בעבר היו שונים מאלה של היום. לכן \"בכמה מהתקופות המחירים עלו מהר יותר\" מראה את הטווח של מה שקרה, ולא סיכוי שזה יקרה שוב. בתקופות של 20 שנה ויותר יש מעט מאוד תקופות שונות באמת, כולן מהשנים שבהן המחירים עלו.",
+            "הנתונים ההיסטוריים הם על מחירי הדירות ועל תשואת ההשקעה. הריבית ושכר הדירה בעבר היו שונים מאלה של היום. לכן \"בכמה מהתקופות המחירים עלו מהר יותר\" מראה את הטווח של מה שקרה, ולא סיכוי שזה יקרה שוב. בתקופות של 20 שנה ויותר יש מעט מאוד תקופות שונות באמת, כולן מהשנים שבהן המחירים עלו.",
             "ריבית אחת לכל המשכנתא, בלי הצמדה למדד. מס שבח לא נכלל: מכירה של דירה יחידה פטורה ממנו בדרך כלל. המחשבון מניח שאתם יכולים לקבל את המשכנתא.",
             [
               "כמה משכנתא אפשר לקבל, ומה מחיר הדירה שתוכלו לקנות, בעמוד ",
@@ -2772,13 +2796,14 @@ import {
       title: "לקנות דירה עכשיו, או לשכור ולהשקיע?",
       nav: "לקנות או לשכור?",
       kicker: "בכמה מחירי הדירות צריכים לעלות",
-      takeaway: "קנייה משתלמת רק אם מחירי הדירות עולים מספיק. המחשבון מראה כמה זה \"מספיק\", ובכמה מהתקופות מאז 1986 המחירים עלו יותר.",
+      takeaway: "קנייה משתלמת רק אם מחירי הדירות עולים מספיק. המחשבון מראה כמה זה \"מספיק\", ומה היה קורה בעבר. כשהשוכרים השקיעו במניות, כל דרך ניצחה בערך במחצית מהתקופות מאז 1986, בגושים ארוכים של שנים.",
       endpoint: "buy_vs_rent",
       controls: [
         { kind: "slider", name: "price", label: "מחיר הדירה", value: "2200000", min: "800000", max: "6000000", step: "50000", format: (value) => `${(value / 1e6).toLocaleString("en-US", { maximumFractionDigits: 2 })} מיליון ₪` },
         { kind: "slider", name: "rent", label: "שכר דירה חודשי לאותה דירה", value: "5000", min: "2500", max: "20000", step: "250", format: (value) => `${Math.round(value).toLocaleString("en-US")} ₪` },
         select("years", "כמה שנים תגורו בדירה", [3, 5, 7, 10, 15, 20, 25].map((n) => [String(n), `${n} שנים`]), "10"),
         HOME_RATE_CONTROL,
+        select("stock_share", "במה השוכרים משקיעים, בבדיקה מול העבר", [["100", "הכל במניות (S&P 500)"], ["60", "60% מניות, 40% קרן כספית"], ["30", "30% מניות, 70% קרן כספית"], ["0", "הכל בקרן כספית"]], "100"),
         { ...select("invest_return", "תשואה על ההשקעה בשכירות", ["3", "4", "5", "6", "7", "8"].map((n) => [n, `${n}% בשנה`]), "6"), advanced: true },
         { ...select("inflation", "אינפלציה", ["1", "2", "3", "4"].map((n) => [n, `${n}% בשנה`]), "2"), advanced: true },
         { ...select("rent_growth", "עליית שכר הדירה", ["1", "2", "2.5", "3", "4", "5"].map((n) => [n, `${n}% בשנה`]), "2.5"), advanced: true },
@@ -4619,11 +4644,11 @@ import {
         params.set(key, String(Number(value) / 100));
         return;
       }
-      if ((endpoint === "buy_vs_rent" || endpoint === "buy_vs_rent_horizons") && ["rate", "inflation", "rent_growth", "invest_return", "upkeep", "buy_costs", "sell_costs"].includes(key)) {
+      if (RENT_ENDPOINTS.has(endpoint) && ["rate", "inflation", "rent_growth", "invest_return", "upkeep", "buy_costs", "sell_costs", "stock_share"].includes(key)) {
         params.set(key, String(Number(value) / 100));
         return;
       }
-      if ((endpoint === "buy_vs_rent" || endpoint === "buy_vs_rent_horizons") && !["price", "rent", "years", "buyer"].includes(key)) return;
+      if (RENT_ENDPOINTS.has(endpoint) && !["price", "rent", "years", "buyer"].includes(key)) return;
       if (endpoint === "affordability" && ["rate", "pti", "drop", "costs"].includes(key)) {
         params.set(key, String(Number(value) / 100));
         return;
@@ -6778,6 +6803,7 @@ import {
       <p class="down-ladder-note">באותן הנחות, מגיל ${params.age} עד ${params.retire_age}. בשקלים של היום.</p>`;
   }
 
+  const RENT_ENDPOINTS = new Set(["buy_vs_rent", "buy_vs_rent_horizons", "buy_vs_rent_history"]);
   const rentPoint = (rows, point) => rows.find((row) => row.point === point);
   const signedShekel = (value) => value >= 0 ? `+${formatShekel(value)}` : `−${formatShekel(-value)}`;
   const yearsText = (years) => Number(years) === 1 ? "שנה" : `${years} שנים`;
@@ -6788,10 +6814,10 @@ import {
     if (!breakeven) return [];
     const params = payload.params || {};
     const flat = rows.find((row) => Math.abs(numericValue(row.growth_real)) < 1e-9);
-    const share = numericValue(breakeven.history_share);
+    const wins = numericValue(breakeven.history_buy_wins);
     return [
       { label: "נקודת האיזון", valueText: `${formatPercent(numericValue(breakeven.growth_real), 1)} בשנה`, color: "#145f59", note: `עלייה של מחירי הדירות מעל האינפלציה, שבה קנייה ושכירות יוצאות שוות אחרי ${yearsText(params.years)}` },
-      { label: "בעבר המחירים עלו יותר", valueText: Number.isFinite(share) ? `${Math.round(share * 100)}% מהתקופות` : "—", color: "#385f9f", note: `מכל התקופות של ${yearsText(params.years)} מאז 1986, לפי מדד מחירי הדירות` },
+      { label: "בעבר הקנייה ניצחה", valueText: Number.isFinite(wins) ? `${Math.round(wins * 100)}% מהתקופות` : "—", color: "#385f9f", note: `מכל התקופות של ${yearsText(params.years)} מאז 1986, כשגם מחירי הדירות וגם תשואת ההשקעה לקוחים מהעבר` },
       flat ? { label: "אם המחירים רק שומרים על ערכם", value: Math.round(Math.abs(numericValue(flat.buy_advantage))), format: "shekel", color: "#c0582b", note: numericValue(flat.buy_advantage) < 0 ? "יותר כסף בסוף לשוכרים, בשקלים של היום" : "יותר כסף בסוף לקונים, בשקלים של היום" } : null
     ].filter(Boolean);
   }
@@ -6824,6 +6850,10 @@ import {
           <tr><th scope="row">שכר דירה שנתי ממחיר הדירה</th><td>${pct(Number(params.rent) * 12 / Number(params.price))}</td></tr>
         </tbody></table></div>
       </section>
+      <div class="trinity-chart rent-history">
+        <div class="trinity-chart-head"><h4>ומה היה קורה בעבר? יתרון הקנייה לפי חודש ההתחלה</h4></div>
+        <div class="trinity-plot rent-history-plot"><p class="down-ladder-note">מחשב...</p></div>
+      </div>
       <details class="down-ladder table-toggle" data-table-key="rent-horizons"${tableToggleOpen("rent-horizons")}>
         <summary><h4>נקודת האיזון לפי מספר השנים</h4></summary>
         <div class="down-ladder-body" aria-live="polite">
@@ -6856,27 +6886,61 @@ import {
         };
       }
     });
-    let table;
-    try {
-      table = await fetchPayload(`api/buy_vs_rent_horizons?${paramsFor("buy_vs_rent_horizons", stateFromForm())}`);
-    } catch (error) {
-      return;
+    const state = stateFromForm();
+    const [past, table] = await Promise.all([
+      fetchPayload(`api/buy_vs_rent_history?${paramsFor("buy_vs_rent_history", state)}`).catch(() => null),
+      fetchPayload(`api/buy_vs_rent_horizons?${paramsFor("buy_vs_rent_horizons", state)}`).catch(() => null)
+    ]);
+    if (lastPayload !== payload) return;
+    const pastSlot = chartTarget().querySelector(".rent-history-plot");
+    const pastRows = (past && past.data) || [];
+    if (pastSlot && pastRows.length) {
+      pastSlot.innerHTML = "";
+      const stocks = Number(state.stock_share ?? 100);
+      const invested = stocks >= 100 ? "S&P 500 בשקלים" : stocks <= 0 ? "קרן כספית" : `${stocks}% ב-S&P 500 בשקלים והשאר בקרן כספית`;
+      drawChart(pastSlot, {
+        kind: "line",
+        key: "buy-vs-rent-history",
+        summary: `קנייה מול שכירות לפי חודש ההתחלה, עם מחירי הדירות והתשואות שהיו בפועל`,
+        aspect: 0.5,
+        zoomable: true,
+        caption: `כל נקודה היא תקופה של ${yearsText(params.years)} שהתחילה באותו חודש. מחירי הדירות ותשואת ההשקעה של השוכרים (${invested}) לקוחים מאותם חודשים. ריבית המשכנתא, שכר הדירה והעלויות הם אלה שבחרתם למעלה. מעל הקו האופקי הקנייה השאירה יותר כסף, בשקלים של היום, אחרי מס.`,
+        refLines: [{ y: 0, label: "שוות" }],
+        x: { integer: false, format: (value) => `התחלה ב-${Math.floor(value)}`, tick: (value) => String(Math.round(value)), label: "חודש ההתחלה" },
+        y: { format: signedShekel, tick: shekelTick, label: "יתרון הקנייה" },
+        series: [{ id: "advantage", label: "יתרון הקנייה על השכירות", color: "#145f59", width: 2.4, area: true, points: pastRows.map((row) => ({ x: yearFraction(row.start), y: numericValue(row.buy_advantage), data: row })) }],
+        tooltip: (x, hits) => {
+          const row = hits[0].point.data;
+          return {
+            header: `${downMonthLabel(row.start)} עד ${downMonthLabel(row.end)}`,
+            rows: [
+              { color: "#145f59", label: "קנייה: כמה כסף בסוף", value: formatShekel(numericValue(row.buy_today)) },
+              { color: "#385f9f", label: "שכירות: כמה כסף בסוף", value: formatShekel(numericValue(row.rent_today)) },
+              { color: "#68736f", label: "מחירי הדירות, מעל האינפלציה", value: `${formatPercent(numericValue(row.home_real), 1)} בשנה` },
+              { color: "#68736f", label: "ההשקעה, מעל האינפלציה", value: `${formatPercent(numericValue(row.invest_real), 1)} בשנה` }
+            ]
+          };
+        }
+      });
+    } else if (pastSlot) {
+      pastSlot.innerHTML = `<p class="down-ladder-note">אין מספיק שנים של נתונים לתקופה הזו.</p>`;
     }
     const slot = chartTarget().querySelector(".down-ladder-body");
-    if (lastPayload !== payload || !slot) return;
+    if (!table || !slot) return;
     const body = (table.data || []).map((row) => `<tr${Number(row.years) === Number(params.years) ? ` class="is-selected"` : ""}>
       <th scope="row">${yearsText(row.years)}</th>
       <td><b>${pct(numericValue(row.breakeven_real))}</b></td>
       <td>${pct(numericValue(row.history_median))}</td>
       <td>${pct(numericValue(row.history_p10))} עד ${pct(numericValue(row.history_p90))}</td>
       <td>${Math.round(numericValue(row.history_share) * 100)}%</td>
+      <td><b>${Math.round(numericValue(row.history_buy_wins) * 100)}%</b></td>
     </tr>`).join("");
     slot.innerHTML = `
       <div class="story-table"><table>
-        <thead><tr><th>גרים בדירה</th><th>נקודת האיזון</th><th>חציון העבר</th><th>80% מהתקופות בעבר</th><th>תקופות מעל האיזון</th></tr></thead>
+        <thead><tr><th>גרים בדירה</th><th>נקודת האיזון</th><th>חציון העבר</th><th>80% מהתקופות בעבר</th><th>תקופות מעל האיזון</th><th>הקנייה ניצחה, עם התשואות בפועל</th></tr></thead>
         <tbody>${body}</tbody>
       </table></div>
-      <p class="down-ladder-note">עליית מחירי הדירות בשנה, מעל האינפלציה. נקודת האיזון לפי ההנחות שבחרתם. העבר: כל התקופות באורך הזה מאז 1986, לפי מדד מחירי הדירות של הלמ"ס. ככל שהתקופה ארוכה יותר, יש פחות תקופות שונות באמת.</p>`;
+      <p class="down-ladder-note">עליית מחירי הדירות בשנה, מעל האינפלציה. נקודת האיזון לפי ההנחות שבחרתם. העבר: כל התקופות באורך הזה מאז 1986, לפי מדד מחירי הדירות של הלמ"ס. "תקופות מעל האיזון" משווה את מחירי הדירות בעבר לתשואה הקבועה שבחרתם. בעמודה האחרונה גם תשואת ההשקעה לקוחה מהעבר, מאותם חודשים, ולכן היא ההשוואה ההוגנת יותר. ככל שהתקופה ארוכה יותר, יש פחות תקופות שונות באמת.</p>`;
   }
 
   function metricPrepay(payload) {
@@ -7910,6 +7974,7 @@ import {
       pension_fees_steps: "כמה עולה כל שינוי",
       buy_vs_rent: "המחשבון",
       buy_vs_rent_horizons: "לפי מספר השנים",
+      buy_vs_rent_history: "מול העבר",
       prepay_history: "התקופות",
       prepay_vs_invest: "בתשואה קבועה",
       family_help: "המחשבון",

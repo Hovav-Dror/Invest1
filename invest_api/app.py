@@ -54,6 +54,7 @@ ENDPOINT_NAMES = (
     "pension_fees_steps",
     "buy_vs_rent",
     "buy_vs_rent_horizons",
+    "buy_vs_rent_history",
     "prepay_vs_invest",
     "prepay_history",
     "family_help",
@@ -83,6 +84,7 @@ EXPENSIVE_ENDPOINTS = {
     "homes_vs_stocks_episodes",
     "buy_vs_rent",
     "buy_vs_rent_horizons",
+    "buy_vs_rent_history",
     "prepay_history",
 }
 
@@ -504,7 +506,10 @@ def _parse_pension_args(args) -> Params:
     return _freeze(params)
 
 
-RENT_ARGS = ("price", "rent", "years", "rate", "inflation", "rent_growth", "invest_return", "upkeep", "buy_costs", "sell_costs", "buyer")
+RENT_ARGS = (
+    "price", "rent", "years", "rate", "inflation", "rent_growth", "invest_return", "upkeep", "buy_costs", "sell_costs",
+    "buyer", "stock_share",
+)
 
 
 def _parse_rent_args(args) -> Params:
@@ -525,6 +530,7 @@ def _parse_rent_args(args) -> Params:
         "sell_costs": _get_float(args, "sell_costs", calc.DEFAULT_RENT_SELL_COSTS, minimum=0, maximum=0.1),
         "buyer": buyer,
         "ltv": calc.AFFORD_LTV[buyer],
+        "stock_share": _get_float(args, "stock_share", calc.DEFAULT_RENT_STOCKS, minimum=0, maximum=1),
     }
     return _freeze(params)
 
@@ -723,6 +729,8 @@ def _dispatch(name: str, params: Params) -> pd.DataFrame:
         return calc.buy_vs_rent(data=data, housing=_housing(), **kwargs)
     if name == "buy_vs_rent_horizons":
         return calc.buy_vs_rent_horizons(data=data, housing=_housing(), **kwargs)
+    if name == "buy_vs_rent_history":
+        return calc.buy_vs_rent_history(data=data, housing=_housing(), **kwargs)
     if name == "prepay_vs_invest":
         kwargs.pop("stock_share", None)
         return calc.prepay_vs_invest(**kwargs)
@@ -795,6 +803,7 @@ PARSERS: dict[str, Callable[[Any], Params]] = {
     "pension_fees_steps": _parse_pension_args,
     "buy_vs_rent": _parse_rent_args,
     "buy_vs_rent_horizons": _parse_rent_args,
+    "buy_vs_rent_history": _parse_rent_args,
     "prepay_vs_invest": _parse_prepay_args,
     "prepay_history": _parse_prepay_args,
     "family_help": _parse_family_args,

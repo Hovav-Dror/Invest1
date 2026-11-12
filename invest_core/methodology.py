@@ -19,7 +19,7 @@ MONEY_ENDPOINTS = {
     "tax_events", "commission_effect", "commission_tax", "kupat_gemel", "kupat_gemel_pension",
     "independent_commissions", "tax_us_vs_il", "trinity", "affordability",
     "cash_vehicles", "cash_vehicles_inflation", "pension_fees", "pension_fees_steps",
-    "buy_vs_rent", "buy_vs_rent_horizons", "prepay_vs_invest", "prepay_history", "family_help",
+    "buy_vs_rent", "buy_vs_rent_horizons", "buy_vs_rent_history", "prepay_vs_invest", "prepay_history", "family_help",
     "kids_savings", "hishtalmut",
 }
 # Pure calculators: no historical data, so no data period or history warnings.
@@ -30,7 +30,7 @@ CALCULATOR_ENDPOINTS = {
 TAX_ENDPOINTS = {
     "tax_events", "commission_effect", "commission_tax", "kupat_gemel", "kupat_gemel_pension",
     "tax_us_vs_il", "sp500_scv_after_tax",
-    "buy_vs_rent", "buy_vs_rent_horizons", "prepay_vs_invest", "prepay_history", "kids_savings",
+    "buy_vs_rent", "buy_vs_rent_horizons", "buy_vs_rent_history", "prepay_vs_invest", "prepay_history", "kids_savings",
 }
 FEE_ENDPOINTS = {
     "commission_effect", "commission_tax", "kupat_gemel", "kupat_gemel_pension",
@@ -128,13 +128,14 @@ def _assumptions(name: str, params: dict) -> list[str]:
             "מק\"מ שנקנה ישירות ממוסה כמו כל אג\"ח שקלית לא צמודה: 15% על הריבית הנומינלית.",
             "בלי מס רווח הון על קופת הגמל אם הכסף נשאר בה עד גיל 60 ונמשך כקצבה. כאן מניחים שהוא נמשך לדירה.",
         ]
-    if name in {"buy_vs_rent", "buy_vs_rent_horizons"}:
+    if name in {"buy_vs_rent", "buy_vs_rent_horizons", "buy_vs_rent_history"}:
         return [
             "מחשבון לימודי עם ריביות, תשואה, אינפלציה ועליית שכר דירה קבועות לכל התקופה. רק מחירי הדירות משתנים בין השורות.",
             f"משכנתא של {params.get('ltv', 0.75):.0%} ממחיר הדירה לפי סוג הרוכש, בריבית אחת לכל ההלוואה, לוח שפיצר ל-30 שנה, בלי הצמדה.",
             "שתי הדרכים מתחילות עם אותו סכום: ההון העצמי, מס רכישה ועלויות הקנייה. בכל חודש, מי שמשלם פחות משקיע את ההפרש.",
             "בסוף התקופה הדירה נמכרת (עלויות מכירה, בלי מס שבח, כמו בדירה יחידה) והמשכנתא מוחזרת. על ההשקעות משולם מס של 25% על הרווח הריאלי.",
-            "התקופות ההיסטוריות: עליית מחירי הדירות מעל מדד המחירים לצרכן, בכל חלון באורך הזה מאז 1986. רק מחירי הדירות נלקחים מהעבר.",
+            "התקופות ההיסטוריות: עליית מחירי הדירות מעל מדד המחירים לצרכן, בכל חלון באורך הזה מאז 1986.",
+            "\"הקנייה ניצחה\": בכל חודש התחלה מאז 1986, גם מחירי הדירות וגם תשואת ההשקעה של השוכרים לקוחים מהעבר, מאותם חודשים. ההשקעה: S&P 500 בשקלים עם דיבידנדים ודמי ניהול של 0.1%, והשאר בקרן כספית (הריבית פחות 0.3%), באיזון חודשי, חלקי מדד המחירים לצרכן. ריבית המשכנתא, שכר הדירה והעלויות נשארים כמו שבחרתם.",
         ]
     if name in {"prepay_vs_invest", "prepay_history"}:
         return [
@@ -209,7 +210,7 @@ def _warnings(name: str, frame: pd.DataFrame, period: dict, params: dict) -> lis
         items.append("הנתונים מתחילים ב-1986. תקופות חופפות, ולכן יש בהן רק מעט תקופות שונות באמת. הנתונים של 1986–1993 (מחירי דירות וריבית) משוחזרים ממקורות עקיפים, והם פחות מדויקים.")
         items.append("מדד מחירי הדירות מתאר דירה ממוצעת. דירה מסוימת, באזור מסוים, יכולה להתנהג אחרת.")
         return items
-    if name in {"buy_vs_rent", "buy_vs_rent_horizons", "prepay_history"}:
+    if name in {"buy_vs_rent", "buy_vs_rent_horizons", "buy_vs_rent_history", "prepay_history"}:
         items.append("הנתונים מתחילים ב-1986. התקופות חופפות, ולכן יש בהן רק מעט תקופות שונות באמת. הנתונים של 1986–1993 משוחזרים ממקורות עקיפים.")
         if name != "prepay_history":
             items.append("מדד מחירי הדירות מתאר דירה ממוצעת. דירה מסוימת, באזור מסוים, יכולה להתנהג אחרת.")

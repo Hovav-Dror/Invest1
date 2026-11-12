@@ -624,6 +624,34 @@ def test_buy_vs_rent_breakeven_and_horizons():
         calc.buy_vs_rent(years=0)
 
 
+def test_buy_vs_rent_paths_match_fixed_rates():
+    settings = dict(
+        price=2_000_000, rent=5_000, years=5, rate=0.05, term=30, inflation=0.02, rent_growth=0.025,
+        invest_return=0.06, upkeep=0.005, buy_costs=0.02, sell_costs=0.02, ltv=0.75, buyer="first",
+    )
+    fixed = calc._buy_rent_wealth(0.04, **settings)
+    paths = calc._buy_rent_wealth(
+        0.0, home_path=np.full(60, 1.04 ** (1 / 12)), invest_path=np.full(60, 1.06 ** (1 / 12)), **settings
+    )
+    assert paths["buy"] == pytest.approx(fixed["buy"])
+    assert paths["rent"] == pytest.approx(fixed["rent"])
+
+
+def test_buy_vs_rent_history_uses_both_histories():
+    history = calc.buy_vs_rent_history(years=10)
+    assert len(history) > 300
+    assert {"home_real", "invest_real", "buy_advantage"} <= set(history.columns)
+    wins = float((history["buy_advantage"] > 0).mean())
+    assert calc.buy_vs_rent()["history_buy_wins"].iloc[0] == pytest.approx(wins)
+    # Safer investing for the renter makes buying win more often.
+    cash = calc.buy_vs_rent_history(years=10, stock_share=0.0)
+    assert float((cash["buy_advantage"] > 0).mean()) > wins
+    horizons = calc.buy_vs_rent_horizons()
+    assert horizons["history_buy_wins"].between(0, 1).all()
+    with pytest.raises(calc.CalculationInputError):
+        calc.buy_vs_rent_history(stock_share=2)
+
+
 def test_prepay_without_interest_or_returns_is_a_wash():
     frame = calc.prepay_vs_invest(rate=0.0, inflation=0.0, horizon=5)
     flat = frame[frame["return_real"].abs() < 1e-12].iloc[0]

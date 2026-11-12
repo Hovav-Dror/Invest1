@@ -1710,6 +1710,7 @@ DEFAULT_RENT_BUY_COSTS = DEFAULT_AFFORD_COSTS
 DEFAULT_RENT_SELL_COSTS = 0.02
 DEFAULT_RENT_LTV = DEFAULT_AFFORD_LTV
 DEFAULT_RENT_BUYER = DEFAULT_AFFORD_BUYER
+DEFAULT_RENT_STOCKS = 1.0  # the renter's money in stocks, in the historical test
 RENT_GROWTH_GRID = tuple(round(-0.03 + step * 0.005, 3) for step in range(19))  # real, -3% to +6%
 RENT_HORIZONS = (2, 3, 4, 5, 7, 10, 15, 20, 25)
 
@@ -1746,6 +1747,8 @@ def _buy_rent_wealth(
     sell_costs: float,
     ltv: float,
     buyer: str,
+    home_path: np.ndarray | None = None,
+    invest_path: np.ndarray | None = None,
 ) -> dict:
     """Nominal wealth after ``years`` of buying vs renting, if homes grow ``home_growth`` a year (nominal).
 
@@ -1754,6 +1757,9 @@ def _buy_rent_wealth(
     upkeep vs rent) invests the difference, at ``invest_return``. At the end
     the buyer sells the home (``sell_costs``) and repays the mortgage; both
     sell their investments and pay 25% tax on the real gain.
+
+    ``home_path`` and ``invest_path``, when given, are monthly nominal growth
+    factors (``years * 12`` of them) that replace the fixed yearly rates.
     """
 
     months = years * 12
@@ -1761,10 +1767,12 @@ def _buy_rent_wealth(
     upfront = price * (1 - ltv + buy_costs) + purchase_tax(price, buyer)
     payment = loan / _annuity_factor(rate, term)
     monthly_rate = rate / 12
-    monthly_home = (1 + home_growth) ** (1 / 12)
     monthly_inflation = (1 + inflation) ** (1 / 12)
-    monthly_invest = (1 + invest_return) ** (1 / 12)
-    owner, renter = _Portfolio(monthly_invest, monthly_inflation), _Portfolio(monthly_invest, monthly_inflation)
+    if home_path is None:
+        home_path = np.full(months, (1 + home_growth) ** (1 / 12))
+    if invest_path is None:
+        invest_path = np.full(months, (1 + invest_return) ** (1 / 12))
+    owner, renter = _Portfolio(1.0, monthly_inflation), _Portfolio(1.0, monthly_inflation)
     renter.value = renter.basis = upfront
     balance = loan
     home = price
@@ -1779,9 +1787,10 @@ def _buy_rent_wealth(
         rent_cost = rent * (1 + rent_growth) ** (month // 12)
         paid_owner += owner_cost
         paid_renter += rent_cost
+        owner.growth = renter.growth = invest_path[month]
         owner.step(max(rent_cost - owner_cost, 0.0))
         renter.step(max(owner_cost - rent_cost, 0.0))
-        home *= monthly_home
+        home *= home_path[month]
     buy = home * (1 - sell_costs) - max(balance, 0.0) + owner.after_tax()
     rent_total = renter.after_tax()
     return {
@@ -1839,6 +1848,7 @@ def buy_vs_rent(
     sell_costs: float = DEFAULT_RENT_SELL_COSTS,
     ltv: float = DEFAULT_RENT_LTV,
     buyer: str = DEFAULT_RENT_BUYER,
+    stock_share: float = DEFAULT_RENT_STOCKS,
 ) -> pd.DataFrame:
     """Buy now or rent and invest: wealth after ``years`` by yearly home price growth.
 
@@ -1849,6 +1859,9 @@ def buy_vs_rent(
     buy_advantage (buy - rent, in today's shekels), buy_today, rent_today, history_share (the share of
     ``years``-long windows since 1986 in which real dwelling prices grew at
     least this fast), point, and the fixed upfront, payment and mortgage_left.
+    ``history_buy_wins`` (the same on every row) is the share of start months
+    since 1986 in which buying won when the renter's returns also come from
+    history (see ``buy_vs_rent_history``, with ``stock_share`` in stocks).
     """
 
     if price <= 0 or rent <= 0:
@@ -1874,6 +1887,9 @@ def buy_vs_rent(
     def wealth(nominal: float) -> dict:
         return _buy_rent_wealth(nominal, **settings)
 
+    joint = _buy_rent_history(data, housing, settings, stock_share)
+    buy_wins = float((joint["buy_advantage"] > 0).mean()) if len(joint) else np.nan
+
     breakeven = _breakeven_growth(lambda nominal: (lambda w: w["buy"] - w["rent"])(wealth(nominal)))
     marks = {round((1 + breakeven) / (1 + inflation) - 1, 6): "breakeven"}
     if len(history):
@@ -1891,6 +1907,7 @@ def buy_vs_rent(
             "buy_today": result["buy"] / deflator,
             "rent_today": result["rent"] / deflator,
             "history_share": float(np.mean(history >= real - 1e-12)) if len(history) else np.nan,
+            "history_buy_wins": buy_wins,
             "upfront": result["upfront"],
             "payment": result["payment"],
             "mortgage_left": result["mortgage_left"],
@@ -1913,7 +1930,9 @@ def buy_vs_rent_horizons(
 
     Takes the same arguments as ``buy_vs_rent`` (``years`` is ignored).
     Columns: years, breakeven_real, history_median, history_p10, history_p90,
-    history_share (windows at or above the break-even), windows.
+    history_share (windows at or above the break-even), windows, and
+    history_buy_wins (start months in which buying won with the renter's
+    returns from history too, see ``buy_vs_rent_history``).
     """
 
     data = data or load_data()
@@ -1922,15 +1941,13 @@ def buy_vs_rent_horizons(
 
         housing = load_housing_monthly()
     kwargs.pop("years", None)
-    settings = {
-        "price": DEFAULT_RENT_PRICE, "rent": DEFAULT_RENT_RENT, "rate": DEFAULT_RENT_RATE, "term": DEFAULT_RENT_TERM,
-        "inflation": DEFAULT_RENT_INFLATION, "rent_growth": DEFAULT_RENT_GROWTH, "invest_return": DEFAULT_RENT_INVEST,
-        "upkeep": DEFAULT_RENT_UPKEEP, "buy_costs": DEFAULT_RENT_BUY_COSTS, "sell_costs": DEFAULT_RENT_SELL_COSTS,
-        "ltv": DEFAULT_RENT_LTV, "buyer": DEFAULT_RENT_BUYER, **kwargs,
-    }
+    stock_share = kwargs.pop("stock_share", DEFAULT_RENT_STOCKS)
+    settings = _rent_settings(kwargs)
+    settings.pop("years")
     rows = []
     for years in RENT_HORIZONS:
         nominal = _breakeven_growth(lambda g: (lambda w: w["buy"] - w["rent"])(_buy_rent_wealth(g, years=years, **settings)))
+        joint = _buy_rent_history(data, housing, {**settings, "years": years}, stock_share)
         real = (1 + nominal) / (1 + settings["inflation"]) - 1
         history = _home_real_growth_history(data, housing, years)
         rows.append(
@@ -1942,9 +1959,89 @@ def buy_vs_rent_horizons(
                 "history_p90": float(np.quantile(history, 0.9)) if len(history) else np.nan,
                 "history_share": float(np.mean(history >= real)) if len(history) else np.nan,
                 "windows": len(history),
+                "history_buy_wins": float((joint["buy_advantage"] > 0).mean()) if len(joint) else np.nan,
             }
         )
     return pd.DataFrame(rows)
+
+
+def _rent_settings(kwargs: dict) -> dict:
+    return {
+        "price": DEFAULT_RENT_PRICE, "rent": DEFAULT_RENT_RENT, "years": DEFAULT_RENT_YEARS, "rate": DEFAULT_RENT_RATE,
+        "term": DEFAULT_RENT_TERM, "inflation": DEFAULT_RENT_INFLATION, "rent_growth": DEFAULT_RENT_GROWTH,
+        "invest_return": DEFAULT_RENT_INVEST, "upkeep": DEFAULT_RENT_UPKEEP, "buy_costs": DEFAULT_RENT_BUY_COSTS,
+        "sell_costs": DEFAULT_RENT_SELL_COSTS, "ltv": DEFAULT_RENT_LTV, "buyer": DEFAULT_RENT_BUYER, **kwargs,
+    }
+
+
+def _buy_rent_history(data: InvestData, housing: pd.DataFrame, settings: dict, stock_share: float) -> pd.DataFrame:
+    """Buy minus rent for every start month, with home prices and the renter's returns from history."""
+
+    if not 0 <= stock_share <= 1:
+        raise CalculationInputError("חלק המניות צריך להיות בין 0 ל-100%.")
+    years, inflation = settings["years"], settings["inflation"]
+    homes = homes_vs_stocks(data=data, housing=housing, real=True)
+    market = _down_payment_market(data, housing)
+    if not homes["date"].reset_index(drop=True).equals(market["date"].reset_index(drop=True)):
+        raise CalculationInputError("סדרות מחירי הדירות והמניות לא מתאימות.")
+    home = homes["homes"].to_numpy()
+    value = market["value_ils"].to_numpy()
+    cpi = market["cpi_il"].to_numpy()
+    stock = value[1:] / value[:-1] * (1 - DOWN_STOCK_FEE) ** (1 / 12)
+    cash = 1 + (market["cash_rate"].to_numpy()[:-1] / 100 - DOWN_CASH_SPREAD) / 12
+    monthly_inflation = (1 + inflation) ** (1 / 12)
+    invest_real = (stock_share * stock + (1 - stock_share) * cash) / (cpi[1:] / cpi[:-1])
+    home_real = home[1:] / home[:-1]
+    months = years * 12
+    if len(home_real) < months:
+        raise CalculationInputError("אין מספיק שנים של נתונים לתקופה הזו.")
+    deflator = (1 + inflation) ** years
+    rows = []
+    for start in range(len(home_real) - months + 1):
+        homes_window = home_real[start:start + months]
+        invest_window = invest_real[start:start + months]
+        result = _buy_rent_wealth(
+            0.0, home_path=homes_window * monthly_inflation, invest_path=invest_window * monthly_inflation, **settings
+        )
+        rows.append(
+            {
+                "start": market["date"].iloc[start],
+                "end": market["date"].iloc[start + months],
+                "buy_advantage": (result["buy"] - result["rent"]) / deflator,
+                "buy_today": result["buy"] / deflator,
+                "rent_today": result["rent"] / deflator,
+                "home_real": float(np.prod(homes_window)) ** (1 / years) - 1,
+                "invest_real": float(np.prod(invest_window)) ** (1 / years) - 1,
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def buy_vs_rent_history(
+    data: InvestData | None = None,
+    housing: pd.DataFrame | None = None,
+    stock_share: float = DEFAULT_RENT_STOCKS,
+    **kwargs,
+) -> pd.DataFrame:
+    """Buy or rent for every start month since 1986, with both home prices and returns from history.
+
+    The fixed calculator takes home prices from history but the renter's
+    return as an input; here both come from the same months. Homes follow the
+    real CBS dwelling index, and the renter's money is ``stock_share`` in the
+    S&P 500 in shekels (dividends, 0.1% a year fee) and the rest in a
+    money-market fund, rebalanced monthly, deflated by Israeli CPI. Both real
+    paths are turned nominal at the ``inflation`` input, so the mortgage rate,
+    rent and costs stay today's inputs. Takes the same arguments as
+    ``buy_vs_rent``. Columns: start, end, buy_advantage (today's shekels),
+    buy_today, rent_today, home_real and invest_real (yearly, in that window).
+    """
+
+    data = data or load_data()
+    if housing is None:
+        from invest_core.data import load_housing_monthly
+
+        housing = load_housing_monthly()
+    return _buy_rent_history(data, housing, _rent_settings(kwargs), stock_share)
 
 
 # --- Young couples: repay the mortgage early, or invest ----------------------
