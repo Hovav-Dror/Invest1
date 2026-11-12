@@ -6681,7 +6681,7 @@ import {
         domain: [Math.min(0.4, Math.min(...values) - 0.05), Math.max(1.2, Math.max(...values) + 0.05)],
         label: "ערך הכסף מול מחירי הדירות"
       },
-      zones: { at: 1, above: "כאן הכסף הספיק ליותר דירה", below: "כאן הכסף הספיק לפחות דירה" },
+      zones: { at: 1, above: "כאן הכסף הספיק אפילו לדירה טובה יותר", below: "כאן הכסף כבר לא הספיק לאותה דירה" },
       series: [
         share && Number(state.wait_years) ? { id: "on_time", label: "בלי לחכות", color: "#9cc9bf", width: 1.4, dash: "2 3", points: line("apartment_on_time") } : null,
         { id: "mix", label: `${downMixLabel(state)}${Number(state.wait_years) ? ", עם המתנה" : ""}`, color: "#145f59", width: 2.4, points: line("apartment") },
