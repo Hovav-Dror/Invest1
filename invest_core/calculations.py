@@ -1140,7 +1140,7 @@ def affordability(
 # --- Young couples: how much apartment the down payment buys after N years ----
 
 DEFAULT_DOWN_YEARS = 4
-DEFAULT_DOWN_STOCKS = 0.3
+DEFAULT_DOWN_STOCKS = 0.6
 DEFAULT_DOWN_WAIT = 0
 DOWN_STOCK_FEE = 0.001  # annual, a cheap S&P 500 fund
 DOWN_CASH_SPREAD = 0.003  # annual, money-market fund return below the Bank of Israel rate
@@ -1711,8 +1711,8 @@ DEFAULT_RENT_SELL_COSTS = 0.02
 DEFAULT_RENT_LTV = DEFAULT_AFFORD_LTV
 DEFAULT_RENT_BUYER = DEFAULT_AFFORD_BUYER
 DEFAULT_RENT_STOCKS = 1.0  # the renter's money in stocks, in the historical test
-DEFAULT_RENT_LIFE_INSURANCE = 0.0024  # mortgage life insurance, of the balance a year (~200 ILS a month per million, a couple in their 20s)
-DEFAULT_RENT_HOME_INSURANCE = 0.0004  # building insurance the bank requires, of the home value a year
+DEFAULT_RENT_LIFE_INSURANCE = 0.0012  # mortgage life insurance, of the balance a year (~120 ILS a month per million, a couple aged 25-35; TheMarker, 10/2026)
+DEFAULT_RENT_HOME_INSURANCE = 0.0004  # building insurance the bank requires, of the home value a year (~900 ILS on 2.2 million; set by rebuild cost)
 RENT_GROWTH_GRID = tuple(round(-0.03 + step * 0.005, 3) for step in range(19))  # real, -3% to +6%
 RENT_HORIZONS = (2, 3, 4, 5, 7, 10, 15, 20, 25)
 
@@ -2078,43 +2078,64 @@ PREPAY_RETURN_GRID = tuple(round(-0.02 + step * 0.005, 3) for step in range(21))
 
 def _prepay_gap(
     amount: float,
-    real_rate: float,
+    rate: float,
     years_left: int,
     fee: float,
     growth: np.ndarray,
-) -> tuple[float, float, float]:
-    """Wealth of investing minus wealth of prepaying, in real terms, over ``len(growth)`` months.
+    inflation: np.ndarray,
+    linked: bool = True,
+    shorten: bool = False,
+) -> tuple[float, float, float, float]:
+    """Wealth of investing minus wealth of prepaying, in today's shekels, over ``len(growth)`` months.
 
-    Prepaying ``amount`` (less ``fee``) cuts the monthly payment and keeps the
-    term; the saving is invested every month. Investing puts ``amount`` in the
-    market at once and keeps paying the higher payment. Everything is in
-    today's shekels (as for a CPI-linked loan) and 25% tax is paid on the real
-    gain at the end. Returns (gap, invest_wealth, prepay_wealth), where wealth
-    is the portfolio after tax less the part of the loan still owed.
+    ``growth`` is the investment's real monthly growth and ``inflation`` the
+    monthly CPI factors. A CPI-linked track (``linked``) charges ``rate`` as a
+    real rate and its payments rise with CPI; a non-linked track charges
+    ``rate`` as a nominal rate on a fixed nominal payment, so inflation erodes
+    it. Prepaying ``amount`` (less ``fee``) either cuts the monthly payment and
+    keeps the term (the saving is invested every month), or, with ``shorten``,
+    keeps the payment and shortens the term: then the investor simply owes the
+    repaid part, growing at the loan rate (valid while the shortened loan is
+    still running). Investing puts ``amount`` in the market at once. 25% tax is
+    paid on the real gain at the end. Returns (gap, invest_wealth,
+    prepay_wealth, saving), where wealth is the portfolio after tax less the
+    part of the loan still owed, and saving is the first monthly payment cut.
     """
 
     repaid = amount * (1 - fee)
-    saving = repaid / _annuity_factor(real_rate, years_left)
-    monthly = real_rate / 12
+    saving = repaid / _annuity_factor(rate, years_left)
+    monthly = rate / 12
     invest_value = amount
     prepay_value = prepay_basis = 0.0
-    owed = repaid  # the part of the loan the investor still owes
+    owed = repaid  # the part of the loan the investor still owes, in the loan's own units
+    level = 1.0  # CPI since the start
     months_left = years_left * 12
     for month, step in enumerate(growth):
+        level *= inflation[month]
         invest_value *= step
         prepay_value = prepay_value * step
-        if month < months_left:
-            prepay_value += saving
-            prepay_basis += saving
+        if shorten:
+            owed *= 1 + monthly
+        elif month < months_left:
+            paid = saving if linked else saving / level
+            prepay_value += paid
+            prepay_basis += paid
             owed = owed * (1 + monthly) - saving
     owed = max(owed, 0.0)
+    owed_today = owed if linked else owed / level
 
     def after_tax(value: float, basis: float) -> float:
         return value - TAX_RATE * max(value - basis, 0.0)
 
-    invest = after_tax(invest_value, amount) - owed
+    invest = after_tax(invest_value, amount) - owed_today
     prepay = after_tax(prepay_value, prepay_basis)
-    return invest - prepay, invest, prepay
+    return invest - prepay, invest, prepay, saving
+
+
+def _loan_rate(rate: float, inflation: float, linked: bool) -> float:
+    """The rate the track charges in its own units: real for a CPI-linked track, nominal otherwise."""
+
+    return (1 + rate) / (1 + inflation) - 1 if linked else rate
 
 
 def prepay_vs_invest(
@@ -2124,22 +2145,28 @@ def prepay_vs_invest(
     horizon: int = DEFAULT_PREPAY_HORIZON,
     inflation: float = DEFAULT_PREPAY_INFLATION,
     fee: float = DEFAULT_PREPAY_FEE,
+    linked: bool = True,
+    shorten: bool = False,
 ) -> pd.DataFrame:
     """Investing minus prepaying after ``horizon`` years, by a fixed real return on the investment.
 
     Rows cover real yearly returns from -2% to +8%, plus the break-even return
     (``point == "breakeven"``). Columns: return_real, invest_advantage, invest_wealth, prepay_wealth
-    (today's shekels), point, saving (the monthly payment cut by prepaying),
-    rate_real.
+    (today's shekels), point, saving (the monthly payment cut by prepaying, at
+    the start), rate_real (the track's rate above inflation). ``linked`` picks a
+    CPI-linked track (``rate`` is the nominal rate implied with ``inflation``)
+    or a non-linked fixed-rate one; ``shorten`` keeps the payment and shortens
+    the term instead of cutting the payment.
     """
 
-    _check_prepay(amount, years_left, horizon, fee)
-    real_rate = (1 + rate) / (1 + inflation) - 1
+    _check_prepay(amount, years_left, horizon, fee, shorten)
+    loan_rate = _loan_rate(rate, inflation, linked)
     months = horizon * 12
+    prices = np.full(months, (1 + inflation) ** (1 / 12))
 
-    def gap(real_return: float) -> tuple[float, float, float]:
+    def gap(real_return: float) -> tuple[float, float, float, float]:
         growth = np.full(months, (1 + real_return) ** (1 / 12))
-        return _prepay_gap(amount, real_rate, years_left, fee, growth)
+        return _prepay_gap(amount, loan_rate, years_left, fee, growth, prices, linked, shorten)
 
     low, high = -0.5, 1.0
     for _ in range(60):
@@ -2149,15 +2176,16 @@ def prepay_vs_invest(
         else:
             high = middle
     breakeven = round((low + high) / 2, 6)
-    saving = amount * (1 - fee) / _annuity_factor(real_rate, years_left)
+    saving = gap(0.0)[3]
+    rate_real = (1 + rate) / (1 + inflation) - 1
     rows = []
     for value, point in [(value, "") for value in PREPAY_RETURN_GRID if abs(value - breakeven) > 1e-9] + [(breakeven, "breakeven")]:
-        difference, invest, prepay = gap(value)
-        rows.append({"return_real": value, "invest_advantage": difference, "invest_wealth": invest, "prepay_wealth": prepay, "point": point, "saving": saving, "rate_real": real_rate})
+        difference, invest, prepay, _ = gap(value)
+        rows.append({"return_real": value, "invest_advantage": difference, "invest_wealth": invest, "prepay_wealth": prepay, "point": point, "saving": saving, "rate_real": rate_real})
     return pd.DataFrame(rows).sort_values("return_real", kind="stable").reset_index(drop=True)
 
 
-def _check_prepay(amount: float, years_left: int, horizon: int, fee: float) -> None:
+def _check_prepay(amount: float, years_left: int, horizon: int, fee: float, shorten: bool = False) -> None:
     if amount <= 0:
         raise CalculationInputError("הסכום צריך להיות חיובי.")
     if not 1 <= years_left <= 30:
@@ -2166,6 +2194,8 @@ def _check_prepay(amount: float, years_left: int, horizon: int, fee: float) -> N
         raise CalculationInputError("מספר השנים צריך להיות בין 1 ל-30.")
     if not 0 <= fee < 0.5:
         raise CalculationInputError("עמלת הפירעון צריכה להיות בין 0 ל-50%.")
+    if shorten and horizon >= years_left:
+        raise CalculationInputError("כשמקצרים את התקופה, בודקים תקופה קצרה מהזמן שנשאר במשכנתא.")
 
 
 def prepay_history(
@@ -2178,18 +2208,21 @@ def prepay_history(
     inflation: float = DEFAULT_PREPAY_INFLATION,
     fee: float = DEFAULT_PREPAY_FEE,
     stock_share: float = DEFAULT_PREPAY_STOCKS,
+    linked: bool = True,
+    shorten: bool = False,
 ) -> pd.DataFrame:
     """Investing minus prepaying for every start month since 1986, with historical returns.
 
     The investment is ``stock_share`` in the S&P 500 in shekels (dividends,
     0.1% a year fee) and the rest in a money-market fund, rebalanced monthly,
-    all deflated by Israeli CPI. The mortgage keeps the fixed real rate
-    implied by ``rate`` and ``inflation``. Columns: start, end, invest_advantage,
+    all deflated by Israeli CPI. A CPI-linked track keeps the fixed real rate
+    implied by ``rate`` and ``inflation``; a non-linked track keeps the nominal
+    ``rate``, and the actual CPI of each window erodes its payments. Columns: start, end, invest_advantage,
     invest_wealth, prepay_wealth (today's shekels), return_real (the investment's yearly real
     return in that window).
     """
 
-    _check_prepay(amount, years_left, horizon, fee)
+    _check_prepay(amount, years_left, horizon, fee, shorten)
     if not 0 <= stock_share <= 1:
         raise CalculationInputError("חלק המניות צריך להיות בין 0 ל-100%.")
     data = data or load_data()
@@ -2202,18 +2235,19 @@ def prepay_history(
     cpi = market["cpi_il"].to_numpy()
     stock = value[1:] / value[:-1] * (1 - DOWN_STOCK_FEE) ** (1 / 12)
     cash = 1 + (market["cash_rate"].to_numpy()[:-1] / 100 - DOWN_CASH_SPREAD) / 12
-    real_growth = (stock_share * stock + (1 - stock_share) * cash) / (cpi[1:] / cpi[:-1])
-    real_rate = (1 + rate) / (1 + inflation) - 1
+    prices = cpi[1:] / cpi[:-1]
+    real_growth = (stock_share * stock + (1 - stock_share) * cash) / prices
+    loan_rate = _loan_rate(rate, inflation, linked)
     months = horizon * 12
     if len(real_growth) < months:
         raise CalculationInputError("אין מספיק שנים של נתונים לתקופה הזו.")
-    fixed = prepay_vs_invest(amount=amount, rate=rate, years_left=years_left, horizon=horizon, inflation=inflation, fee=fee)
+    fixed = prepay_vs_invest(amount=amount, rate=rate, years_left=years_left, horizon=horizon, inflation=inflation, fee=fee, linked=linked, shorten=shorten)
     breakeven = float(fixed.loc[fixed["point"] == "breakeven", "return_real"].iloc[0])
     saving = float(fixed["saving"].iloc[0])
     rows = []
     for start in range(len(real_growth) - months + 1):
         growth = real_growth[start:start + months]
-        difference, invest, prepay = _prepay_gap(amount, real_rate, years_left, fee, growth)
+        difference, invest, prepay, _ = _prepay_gap(amount, loan_rate, years_left, fee, growth, prices[start:start + months], linked, shorten)
         rows.append(
             {
                 "start": market["date"][start],
@@ -2323,9 +2357,11 @@ def family_help(
 ) -> pd.DataFrame:
     """Highest apartment price without help, with a gift and with an interest-free loan from parents.
 
-    A gift adds to the equity. A loan adds the same equity, but the bank
-    counts its monthly repayment (``help_amount / loan_years / 12``) against
-    the income limit, so the mortgage can be smaller. Columns: help,
+    A gift adds to the equity. A loan adds the same equity, but under Bank of
+    Israel directive 329 (appendix A, 1.2) a liability with more than 18
+    months left is a fixed expense: its monthly repayment
+    (``help_amount / loan_years / 12``) comes off the disposable income
+    before the payment-to-income limit, so the mortgage can be smaller. Columns: help,
     equity, max_price, mortgage, payment, family_payment, binding.
     """
 
@@ -2337,8 +2373,8 @@ def family_help(
     cases = (
         ("none", equity, income, 0.0),
         ("gift", equity + help_amount, income, 0.0),
-        # The bank lowers the mortgage payment it allows by the repayment to the parents.
-        ("loan", equity + help_amount, max(income - family_payment / pti, 0.0), family_payment),
+        # Directive 329: repayments with more than 18 months left come off the disposable income.
+        ("loan", equity + help_amount, max(income - (family_payment if loan_years * 12 > 18 else 0.0), 0.0), family_payment),
     )
     rows = []
     for scenario, value, usable_income, repayment in cases:

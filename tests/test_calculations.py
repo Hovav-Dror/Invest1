@@ -690,6 +690,22 @@ def test_prepay_without_interest_or_returns_is_a_wash():
     assert history["breakeven_real"].iloc[0] > (1.05 / 1.02 - 1)
 
 
+def test_prepay_tracks_and_shorter_term():
+    base = calc.prepay_vs_invest()
+    # A non-linked track with no inflation is the same as a linked one.
+    flat_linked = calc.prepay_vs_invest(inflation=0.0)
+    flat_nominal = calc.prepay_vs_invest(inflation=0.0, linked=False)
+    assert flat_nominal["invest_advantage"].to_numpy() == pytest.approx(flat_linked["invest_advantage"].to_numpy())
+    # Shortening the term saves the same interest, so the break-even barely moves.
+    shorter = calc.prepay_vs_invest(shorten=True)
+    breakeven = lambda frame: float(frame.loc[frame["point"] == "breakeven", "return_real"].iloc[0])
+    assert breakeven(shorter) == pytest.approx(breakeven(base), abs=0.002)
+    history = calc.prepay_history(linked=False, shorten=True)
+    assert len(history) > 300
+    with pytest.raises(calc.CalculationInputError):
+        calc.prepay_vs_invest(shorten=True, horizon=25, years_left=25)
+
+
 def test_family_gift_beats_loan():
     frame = calc.family_help(equity=400_000, income=20_000, help_amount=200_000).set_index("help")
     assert frame.loc["gift", "max_price"] > frame.loc["none", "max_price"]

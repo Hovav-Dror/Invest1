@@ -423,6 +423,7 @@ def test_cash_vehicles_endpoints(client):
         ("short_goal_history", "years=0"),
         ("prepay_vs_invest", "horizon=0"),
         ("prepay_history", "bogus=1"),
+        ("prepay_history", "linked=maybe"),
         ("family_help", "loan_years=0"),
         ("kids_savings", "withdraw_age=19"),
         ("hishtalmut", "years=0"),
