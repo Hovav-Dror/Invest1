@@ -652,6 +652,17 @@ def test_buy_vs_rent_history_uses_both_histories():
         calc.buy_vs_rent_history(stock_share=2)
 
 
+def test_buy_vs_rent_extra_equity_shrinks_the_mortgage():
+    base = calc.buy_vs_rent()
+    more = calc.buy_vs_rent(extra_equity=500_000)
+    assert more["upfront"].iloc[0] == pytest.approx(base["upfront"].iloc[0] + 500_000)
+    assert more["payment"].iloc[0] < base["payment"].iloc[0]
+    # In history stocks beat the mortgage rate, so extra equity helps the renter.
+    assert more["history_buy_wins"].iloc[0] < base["history_buy_wins"].iloc[0]
+    with pytest.raises(calc.CalculationInputError):
+        calc.buy_vs_rent(extra_equity=-1)
+
+
 def test_prepay_without_interest_or_returns_is_a_wash():
     frame = calc.prepay_vs_invest(rate=0.0, inflation=0.0, horizon=5)
     flat = frame[frame["return_real"].abs() < 1e-12].iloc[0]

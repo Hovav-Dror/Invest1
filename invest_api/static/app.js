@@ -127,7 +127,7 @@ import {
     growth_nominal: "עליית מחירי הדירות בשנה, בשקלים",
     buy_wealth: "קנייה: כמה כסף בסוף (₪)",
     rent_wealth: "שכירות: כמה כסף בסוף (₪)",
-    buy_advantage: "יתרון הקנייה (₪ של היום)",
+    buy_advantage: "קנייה פחות שכירות (₪ של היום)",
     buy_today: "קנייה: בשקלים של היום",
     rent_today: "שכירות: בשקלים של היום",
     history_share: "תקופות מאז 1986 עם עלייה כזו או יותר",
@@ -1427,7 +1427,7 @@ import {
       ],
       afterChart: [
         {
-          title: "מה היה קורה בעבר",
+          title: "מה קרה מאז 1986",
           paragraphs: [
             "בגרף הראשון, בברירת המחדל, כל נקודה היא תקופה של 10 שנים שהתחילה באותו חודש, עם מחירי הדירות ותשואות ה-S&P 500 שהיו בה בפועל. ריבית המשכנתא, שכר הדירה והעלויות הם של היום. התוצאות לא מתפזרות באקראי: יש גושים ארוכים של שנים שבהם ניצחה דרך אחת.",
             { list: [
@@ -1464,6 +1464,7 @@ import {
               { html: "<strong>ריבית המשכנתא מול התשואה על ההשקעה.</strong> מי ששוכר מרוויח את התשואה על ההשקעה, אחרי מס. מי שקונה חוסך את ריבית המשכנתא, בלי מס. ככל שהריבית גבוהה יותר, השכירות משתלמת יותר." }
             ] },
             "בברירת המחדל שוכרים את אותה דירה שקונים, כדי להשוות רק את הכסף. אפשר לבדוק גם שכירות של דירה אחרת, זולה או יקרה יותר: מזיזים את סרגל שכר הדירה, ומשאירים את מחיר הדירה של הקנייה. למשל, לשכור עכשיו דירה קטנה יותר, ולקנות את הדירה הגדולה רק אחר כך. אז ההפרש בסוף כולל גם את ההבדל בין הדירות: מי שגר בדירה זולה יותר חוסך כסף, אבל גם גר בפחות. בטבלה \"העסקה\" שמתחת לגרפים כתוב אם שכר הדירה שבחרתם מתאים לאותה דירה, או לדירה זולה או יקרה יותר.",
+            "המחשבון מניח בברירת המחדל שיש לכם בדיוק את ההון העצמי המינימלי: 25% ממחיר הדירה, ועוד מס רכישה, עורך דין ותיווך. אם יש לכם יותר, בוחרים ב\"הון עצמי מעבר למינימום\". מי שקונה שם את הכסף הנוסף בדירה, ולוקח משכנתא קטנה יותר. מי ששוכר משקיע גם אותו. בתשואה הקבועה זה כמעט לא משנה את נקודת האיזון, כי תשואה של 6% אחרי מס קרובה לריבית המשכנתא, 5%. מול העבר זה כן משנה: עם עוד 500 אלף ש\"ח, הקנייה השאירה יותר כסף ב-41% מהתקופות של 10 שנים, ולא ב-49%, כי באותן שנים המניות הרוויחו יותר מריבית המשכנתא.",
             "המחשבון מניח ששכר הדירה עולה ב-2.5% בשנה, כלומר בכחצי אחוז מעל האינפלציה, בלי קשר למחירי הדירות. בעשור האחרון, 2015–2025, שכר הדירה עלה בכ-27%, ומחירי הדירות בכ-60%. אם שכר הדירה יעלה מהר יותר, הקנייה תשתלם יותר. את קצב העלייה של שכר הדירה אפשר לשנות ב\"שינוי הנחות\"."
           ]
         },
@@ -2810,6 +2811,7 @@ import {
       controls: [
         { kind: "slider", name: "price", label: "מחיר הדירה", value: "2200000", min: "800000", max: "6000000", step: "50000", format: (value) => `${(value / 1e6).toLocaleString("en-US", { maximumFractionDigits: 2 })} מיליון ₪` },
         { kind: "slider", name: "rent", label: "שכר דירה חודשי: לאותה דירה, או לדירה אחרת", value: "5000", min: "2500", max: "20000", step: "250", format: (value) => `${Math.round(value).toLocaleString("en-US")} ₪` },
+        select("extra_equity", "הון עצמי מעבר למינימום", [["0", "רק המינימום: 25% ועלויות הקנייה"], ["100000", "עוד 100 אלף ₪"], ["200000", "עוד 200 אלף ₪"], ["500000", "עוד 500 אלף ₪"], ["1000000", "עוד מיליון ₪"]], "0"),
         select("years", "כמה שנים תגורו בדירה", [3, 5, 7, 10, 15, 20, 25].map((n) => [String(n), `${n} שנים`]), "10"),
         HOME_RATE_CONTROL,
         select("stock_share", "במה השוכרים משקיעים, בבדיקה מול העבר", [["100", "הכל במניות (S&P 500)"], ["60", "60% מניות, 40% קרן כספית"], ["30", "30% מניות, 70% קרן כספית"], ["0", "הכל בקרן כספית"]], "100"),
@@ -4657,7 +4659,7 @@ import {
         params.set(key, String(Number(value) / 100));
         return;
       }
-      if (RENT_ENDPOINTS.has(endpoint) && !["price", "rent", "years", "buyer"].includes(key)) return;
+      if (RENT_ENDPOINTS.has(endpoint) && !["price", "rent", "years", "buyer", "extra_equity"].includes(key)) return;
       if (endpoint === "affordability" && ["rate", "pti", "drop", "costs"].includes(key)) {
         params.set(key, String(Number(value) / 100));
         return;
@@ -6830,7 +6832,7 @@ import {
     const flat = rows.find((row) => Math.abs(numericValue(row.growth_real)) < 1e-9);
     const wins = numericValue(breakeven.history_buy_wins);
     return [
-      { label: "בעבר הקנייה ניצחה", valueText: Number.isFinite(wins) ? `${Math.round(wins * 100)}% מהתקופות` : "—", color: "#385f9f", note: `מכל התקופות של ${yearsText(params.years)} מאז 1986, כשגם מחירי הדירות וגם תשואת ההשקעה לקוחים מהעבר. בשאר ניצחה השכירות` },
+      { label: "מה השאיר יותר כסף בעבר", valueText: Number.isFinite(wins) ? `קנייה ${Math.round(wins * 100)}%, שכירות ${100 - Math.round(wins * 100)}%` : "—", color: "#385f9f", note: `מהתקופות של ${yearsText(params.years)} מאז 1986, כשגם מחירי הדירות וגם תשואת ההשקעה לקוחים מהעבר` },
       { label: "נקודת האיזון", valueText: `${formatPercent(numericValue(breakeven.growth_real), 1)} בשנה`, color: "#145f59", note: `עלייה של מחירי הדירות מעל האינפלציה, שבה קנייה ושכירות יוצאות שוות אחרי ${yearsText(params.years)}, בתשואה קבועה` },
       flat ? { label: "אם המחירים רק שומרים על ערכם", value: Math.round(Math.abs(numericValue(flat.buy_advantage))), format: "shekel", color: "#c0582b", note: numericValue(flat.buy_advantage) < 0 ? "יותר כסף בסוף לשוכרים, בשקלים של היום" : "יותר כסף בסוף לקונים, בשקלים של היום" } : null
     ].filter(Boolean);
@@ -6851,17 +6853,17 @@ import {
     const first = rows[0];
     target.innerHTML = `
       <div class="trinity-chart rent-history">
-        <div class="trinity-chart-head"><h4>מה היה קורה בעבר? כמה כסף יותר נשאר לקונים מאשר לשוכרים, לפי חודש ההתחלה</h4></div>
+        <div class="trinity-chart-head"><h4>בכל תקופה מאז 1986: באיזו דרך נשאר יותר כסף?</h4></div>
         <div class="trinity-plot rent-history-plot"><p class="down-ladder-note">מחשב...</p></div>
       </div>
       <div class="trinity-chart">
-        <div class="trinity-chart-head"><h4>בתשואה קבועה: בכמה מחירי הדירות צריכים לעלות כדי שהקנייה תשתלם?</h4></div>
+        <div class="trinity-chart-head"><h4>בתשואה קבועה: באיזו דרך נשאר יותר כסף, לפי קצב עליית מחירי הדירות</h4></div>
         <div class="trinity-plot rent-fixed-plot"></div>
       </div>
       <section class="down-ladder afford-deal">
         <h4>העסקה</h4>
         <div class="story-table"><table><tbody>
-          <tr><th scope="row">הון עצמי שיוצא בקנייה<small>כולל מס רכישה, עורך דין ותיווך. השוכרים משקיעים אותו</small></th><td>${formatShekel(numericValue(first.upfront))}</td></tr>
+          <tr><th scope="row">הון עצמי<small>כולל מס רכישה, עורך דין ותיווך. מי שקונה שם אותו בדירה, ומי ששוכר משקיע אותו</small></th><td>${formatShekel(numericValue(first.upfront))}</td></tr>
           <tr><th scope="row">החזר משכנתא חודשי</th><td>${formatShekel(numericValue(first.payment))}</td></tr>
           <tr><th scope="row">שכר דירה חודשי בהתחלה</th><td>${formatShekel(Number(params.rent))}</td></tr>
           <tr><th scope="row">שכר דירה שנתי ממחיר הדירה<small>${rentHomeNote(Number(params.rent) * 12 / Number(params.price))}</small></th><td>${pct(Number(params.rent) * 12 / Number(params.price))}</td></tr>
@@ -6885,8 +6887,8 @@ import {
       refLines: [{ y: 0, label: "שוות" }],
       vLines,
       x: { integer: false, format: (value) => `מחירי הדירות: ${pct(value / 100)} בשנה מעל האינפלציה`, tick: (value) => `${Math.round(value * 10) / 10}%`, label: "עליית מחירי הדירות בשנה, מעל האינפלציה" },
-      y: { format: signedShekel, tick: shekelTick, label: "יתרון הקנייה" },
-      series: [{ id: "advantage", label: "יתרון הקנייה על השכירות", color: "#145f59", width: 3, points: line }],
+      y: { format: signedShekel, tick: shekelTick, label: "ההפרש: קנייה פחות שכירות" },
+      series: [{ id: "advantage", label: "קנייה פחות שכירות", color: "#145f59", width: 3, points: line }],
       tooltip: (x, hits) => {
         const row = hits[0].point.data;
         return {
@@ -6917,11 +6919,11 @@ import {
         summary: `קנייה מול שכירות לפי חודש ההתחלה, עם מחירי הדירות והתשואות שהיו בפועל`,
         aspect: 0.5,
         zoomable: true,
-        caption: `כל נקודה היא תקופה של ${yearsText(params.years)} שהתחילה באותו חודש. מחירי הדירות ותשואת ההשקעה של השוכרים (${invested}) לקוחים מאותם חודשים. ריבית המשכנתא, שכר הדירה והעלויות הם אלה שבחרתם למעלה. מעל הקו האופקי הקנייה השאירה יותר כסף, בשקלים של היום, אחרי מס.`,
+        caption: `כל נקודה היא תקופה של ${yearsText(params.years)} שהתחילה באותו חודש. מחירי הדירות ותשואת ההשקעה של השוכרים (${invested}) לקוחים מאותם חודשים. ריבית המשכנתא, שכר הדירה והעלויות הם אלה שבחרתם למעלה. מעל הקו האופקי הקנייה השאירה יותר כסף, ומתחתיו השכירות. בשקלים של היום, אחרי מס.`,
         refLines: [{ y: 0, label: "שוות" }],
         x: { integer: false, format: (value) => `התחלה ב-${Math.floor(value)}`, tick: (value) => String(Math.round(value)), label: "חודש ההתחלה" },
-        y: { format: signedShekel, tick: shekelTick, label: "יתרון הקנייה" },
-        series: [{ id: "advantage", label: "יתרון הקנייה על השכירות", color: "#145f59", width: 2.4, area: true, points: pastRows.map((row) => ({ x: yearFraction(row.start), y: numericValue(row.buy_advantage), data: row })) }],
+        y: { format: signedShekel, tick: shekelTick, label: "ההפרש: קנייה פחות שכירות" },
+        series: [{ id: "advantage", label: "קנייה פחות שכירות", color: "#145f59", width: 2.4, area: true, points: pastRows.map((row) => ({ x: yearFraction(row.start), y: numericValue(row.buy_advantage), data: row })) }],
         tooltip: (x, hits) => {
           const row = hits[0].point.data;
           return {

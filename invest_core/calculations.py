@@ -1749,6 +1749,7 @@ def _buy_rent_wealth(
     buyer: str,
     home_path: np.ndarray | None = None,
     invest_path: np.ndarray | None = None,
+    extra_equity: float = 0.0,
 ) -> dict:
     """Nominal wealth after ``years`` of buying vs renting, if homes grow ``home_growth`` a year (nominal).
 
@@ -1760,11 +1761,15 @@ def _buy_rent_wealth(
 
     ``home_path`` and ``invest_path``, when given, are monthly nominal growth
     factors (``years * 12`` of them) that replace the fixed yearly rates.
+
+    ``extra_equity`` is cash beyond the minimum down payment. Both start with
+    it: the buyer puts it into the home, so the mortgage is smaller (and
+    invests whatever is left once there is no mortgage); the renter invests it.
     """
 
     months = years * 12
-    loan = price * ltv
-    upfront = price * (1 - ltv + buy_costs) + purchase_tax(price, buyer)
+    loan = max(price * ltv - extra_equity, 0.0)
+    upfront = price * (1 - ltv + buy_costs) + purchase_tax(price, buyer) + extra_equity
     payment = loan / _annuity_factor(rate, term)
     monthly_rate = rate / 12
     monthly_inflation = (1 + inflation) ** (1 / 12)
@@ -1774,6 +1779,7 @@ def _buy_rent_wealth(
         invest_path = np.full(months, (1 + invest_return) ** (1 / 12))
     owner, renter = _Portfolio(1.0, monthly_inflation), _Portfolio(1.0, monthly_inflation)
     renter.value = renter.basis = upfront
+    owner.value = owner.basis = max(extra_equity - price * ltv, 0.0)
     balance = loan
     home = price
     paid_owner = paid_renter = 0.0
@@ -1849,6 +1855,7 @@ def buy_vs_rent(
     ltv: float = DEFAULT_RENT_LTV,
     buyer: str = DEFAULT_RENT_BUYER,
     stock_share: float = DEFAULT_RENT_STOCKS,
+    extra_equity: float = 0.0,
 ) -> pd.DataFrame:
     """Buy now or rent and invest: wealth after ``years`` by yearly home price growth.
 
@@ -1872,6 +1879,8 @@ def buy_vs_rent(
         raise CalculationInputError("שיעור המימון צריך להיות בין 0 ל-100%.")
     if buyer not in AFFORD_LTV:
         raise CalculationInputError("סוג הרוכש לא מוכר.")
+    if extra_equity < 0:
+        raise CalculationInputError("ההון העצמי הנוסף לא יכול להיות שלילי.")
     data = data or load_data()
     if housing is None:
         from invest_core.data import load_housing_monthly
@@ -1882,6 +1891,7 @@ def buy_vs_rent(
     settings = dict(
         price=price, rent=rent, years=years, rate=rate, term=term, inflation=inflation, rent_growth=rent_growth,
         invest_return=invest_return, upkeep=upkeep, buy_costs=buy_costs, sell_costs=sell_costs, ltv=ltv, buyer=buyer,
+        extra_equity=extra_equity,
     )
 
     def wealth(nominal: float) -> dict:

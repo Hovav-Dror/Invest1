@@ -508,7 +508,7 @@ def _parse_pension_args(args) -> Params:
 
 RENT_ARGS = (
     "price", "rent", "years", "rate", "inflation", "rent_growth", "invest_return", "upkeep", "buy_costs", "sell_costs",
-    "buyer", "stock_share",
+    "buyer", "stock_share", "extra_equity",
 )
 
 
@@ -531,6 +531,7 @@ def _parse_rent_args(args) -> Params:
         "buyer": buyer,
         "ltv": calc.AFFORD_LTV[buyer],
         "stock_share": _get_float(args, "stock_share", calc.DEFAULT_RENT_STOCKS, minimum=0, maximum=1),
+        "extra_equity": _get_float(args, "extra_equity", 0.0, minimum=0, maximum=5e7),
     }
     return _freeze(params)
 
