@@ -6834,6 +6834,7 @@ import {
     return [
       { label: "מה השאיר יותר כסף בעבר", valueText: Number.isFinite(wins) ? `קנייה ${Math.round(wins * 100)}%, שכירות ${100 - Math.round(wins * 100)}%` : "—", color: "#385f9f", note: `מהתקופות של ${yearsText(params.years)} מאז 1986, כשגם מחירי הדירות וגם תשואת ההשקעה לקוחים מהעבר` },
       { label: "נקודת האיזון", valueText: `${formatPercent(numericValue(breakeven.growth_real), 1)} בשנה`, color: "#145f59", note: `עלייה של מחירי הדירות מעל האינפלציה, שבה קנייה ושכירות יוצאות שוות אחרי ${yearsText(params.years)}, בתשואה קבועה` },
+      { label: "החזר המשכנתא החודשי", value: Math.round(numericValue(breakeven.payment)), format: "shekel", color: "#68736f", note: `משכנתא של ${formatShekel(Math.max(Number(params.price) * Number(params.ltv) - Number(params.extra_equity || 0), 0))}. שכר הדירה בהתחלה: ${formatShekel(Number(params.rent))}` },
       flat ? { label: "אם המחירים רק שומרים על ערכם", value: Math.round(Math.abs(numericValue(flat.buy_advantage))), format: "shekel", color: "#c0582b", note: numericValue(flat.buy_advantage) < 0 ? "יותר כסף בסוף לשוכרים, בשקלים של היום" : "יותר כסף בסוף לקונים, בשקלים של היום" } : null
     ].filter(Boolean);
   }
