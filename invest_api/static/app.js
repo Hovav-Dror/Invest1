@@ -3740,7 +3740,8 @@ import {
     }
     if (block.table) {
       const head = block.table.head.map((cell) => `<th scope="col">${escapeHtml(cell)}</th>`).join("");
-      const body = block.table.rows.map((row) => `<tr>${row.map((cell, index) => index === 0 ? `<th scope="row">${escapeHtml(cell)}</th>` : `<td>${escapeHtml(cell)}</td>`).join("")}</tr>`).join("");
+      const signed = (cell) => escapeHtml(String(cell).replace(/(^|\s)([+−-]₪?\d[\d.,]*%?)/g, (match, space, number) => `${space}\u200E${number}\u200E`));
+      const body = block.table.rows.map((row) => `<tr>${row.map((cell, index) => index === 0 ? `<th scope="row">${signed(cell)}</th>` : `<td>${signed(cell)}</td>`).join("")}</tr>`).join("");
       return `<div class="story-table"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
     }
     if (block.costFlow) {
@@ -6888,7 +6889,8 @@ import {
 
   const RENT_ENDPOINTS = new Set(["buy_vs_rent", "buy_vs_rent_horizons", "buy_vs_rent_history"]);
   const rentPoint = (rows, point) => rows.find((row) => row.point === point);
-  const signedShekel = (value) => value >= 0 ? `+${formatShekel(value)}` : `−${formatShekel(-value)}`;
+  // Marks around a signed number keep the sign on its left in right-to-left text.
+  const signedShekel = (value) => `\u200E${value >= 0 ? "+" : "−"}${formatShekel(Math.abs(value))}\u200E`;
   const rentHomeNote = (ratio) => ratio < 0.022
     ? "פחות מהמקובל לאותה דירה, 2.5%–3%: כנראה דירה זולה יותר מזו שקונים"
     : ratio > 0.033
@@ -7039,7 +7041,7 @@ import {
     const ahead = gaps.filter((value) => value > 0).length / gaps.length;
     const median = gaps[Math.floor(gaps.length / 2)];
     const p10 = gaps[Math.floor(gaps.length * 0.1)];
-    const share = (value) => `${value >= 0 ? "+" : "−"}${Math.round(Math.abs(value) / amount * 100)}% מהסכום`;
+    const share = (value) => `\u200E${value >= 0 ? "+" : "−"}${Math.round(Math.abs(value) / amount * 100)}%\u200E מהסכום`;
     return [
       { label: "המניות השאירו יותר", valueText: `ב-${Math.round(ahead * 100)}% מהתקופות`, color: "#145f59", note: `מתוך ${rows.length} חודשי התחלה מאז 1986. בשאר, הקרן הכספית השאירה יותר` },
       { label: "בתקופה טיפוסית", valueText: signedShekel(Math.round(median)), color: "#385f9f", note: `${share(median)}, מול קרן כספית, אחרי מס` },
