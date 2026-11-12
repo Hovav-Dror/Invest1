@@ -420,6 +420,7 @@ def test_cash_vehicles_endpoints(client):
         ("buy_vs_rent", "years=0"),
         ("buy_vs_rent_horizons", "buyer=alien"),
         ("buy_vs_rent_history", "stock_share=2"),
+        ("short_goal_history", "years=0"),
         ("prepay_vs_invest", "horizon=0"),
         ("prepay_history", "bogus=1"),
         ("family_help", "loan_years=0"),

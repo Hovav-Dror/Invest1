@@ -60,6 +60,7 @@ ENDPOINT_NAMES = (
     "family_help",
     "kids_savings",
     "hishtalmut",
+    "short_goal_history",
 )
 
 EXPENSIVE_ENDPOINTS = {
@@ -86,6 +87,7 @@ EXPENSIVE_ENDPOINTS = {
     "buy_vs_rent_horizons",
     "buy_vs_rent_history",
     "prepay_history",
+    "short_goal_history",
 }
 
 
@@ -508,7 +510,7 @@ def _parse_pension_args(args) -> Params:
 
 RENT_ARGS = (
     "price", "rent", "years", "rate", "inflation", "rent_growth", "invest_return", "upkeep", "buy_costs", "sell_costs",
-    "buyer", "stock_share", "extra_equity",
+    "buyer", "stock_share", "extra_equity", "life_insurance", "home_insurance",
 )
 
 
@@ -532,6 +534,8 @@ def _parse_rent_args(args) -> Params:
         "ltv": calc.AFFORD_LTV[buyer],
         "stock_share": _get_float(args, "stock_share", calc.DEFAULT_RENT_STOCKS, minimum=0, maximum=1),
         "extra_equity": _get_float(args, "extra_equity", 0.0, minimum=0, maximum=5e7),
+        "life_insurance": _get_float(args, "life_insurance", calc.DEFAULT_RENT_LIFE_INSURANCE, minimum=0, maximum=0.02),
+        "home_insurance": _get_float(args, "home_insurance", calc.DEFAULT_RENT_HOME_INSURANCE, minimum=0, maximum=0.02),
     }
     return _freeze(params)
 
@@ -585,6 +589,16 @@ def _parse_kids_args(args) -> Params:
     }
     if params["withdraw_age"] not in (18, 21):
         raise ApiValidationError("גיל המשיכה צריך להיות 18 או 21.")
+    return _freeze(params)
+
+
+def _parse_goal_args(args) -> Params:
+    _reject_unknown(args, {"amount", "years", "stock_share"})
+    params: JsonDict = {
+        "amount": _get_float(args, "amount", calc.DEFAULT_GOAL_AMOUNT, minimum=100, maximum=1e8),
+        "years": _get_int(args, "years", calc.DEFAULT_GOAL_YEARS, minimum=1, maximum=10),
+        "stock_share": _get_float(args, "stock_share", calc.DEFAULT_GOAL_STOCKS, minimum=0, maximum=1),
+    }
     return _freeze(params)
 
 
@@ -743,6 +757,8 @@ def _dispatch(name: str, params: Params) -> pd.DataFrame:
         return calc.kids_savings(**kwargs)
     if name == "hishtalmut":
         return calc.hishtalmut(**kwargs)
+    if name == "short_goal_history":
+        return calc.short_goal_history(data=data, housing=_housing(), **kwargs)
     raise KeyError(name)
 
 
@@ -810,6 +826,7 @@ PARSERS: dict[str, Callable[[Any], Params]] = {
     "family_help": _parse_family_args,
     "kids_savings": _parse_kids_args,
     "hishtalmut": _parse_hishtalmut_args,
+    "short_goal_history": _parse_goal_args,
 }
 
 

@@ -1711,6 +1711,8 @@ DEFAULT_RENT_SELL_COSTS = 0.02
 DEFAULT_RENT_LTV = DEFAULT_AFFORD_LTV
 DEFAULT_RENT_BUYER = DEFAULT_AFFORD_BUYER
 DEFAULT_RENT_STOCKS = 1.0  # the renter's money in stocks, in the historical test
+DEFAULT_RENT_LIFE_INSURANCE = 0.0024  # mortgage life insurance, of the balance a year (~200 ILS a month per million, a couple in their 20s)
+DEFAULT_RENT_HOME_INSURANCE = 0.0004  # building insurance the bank requires, of the home value a year
 RENT_GROWTH_GRID = tuple(round(-0.03 + step * 0.005, 3) for step in range(19))  # real, -3% to +6%
 RENT_HORIZONS = (2, 3, 4, 5, 7, 10, 15, 20, 25)
 
@@ -1750,6 +1752,8 @@ def _buy_rent_wealth(
     home_path: np.ndarray | None = None,
     invest_path: np.ndarray | None = None,
     extra_equity: float = 0.0,
+    life_insurance: float = DEFAULT_RENT_LIFE_INSURANCE,
+    home_insurance: float = DEFAULT_RENT_HOME_INSURANCE,
 ) -> dict:
     """Nominal wealth after ``years`` of buying vs renting, if homes grow ``home_growth`` a year (nominal).
 
@@ -1765,6 +1769,10 @@ def _buy_rent_wealth(
     ``extra_equity`` is cash beyond the minimum down payment. Both start with
     it: the buyer puts it into the home, so the mortgage is smaller (and
     invests whatever is left once there is no mortgage); the renter invests it.
+
+    The buyer also pays mortgage life insurance (``life_insurance`` of the
+    balance a year) and building insurance (``home_insurance`` of the home
+    value a year).
     """
 
     months = years * 12
@@ -1789,7 +1797,7 @@ def _buy_rent_wealth(
             interest = balance * monthly_rate
             mortgage = min(payment, balance + interest)
             balance = balance + interest - mortgage
-        owner_cost = mortgage + home * upkeep / 12
+        owner_cost = mortgage + home * (upkeep + home_insurance) / 12 + max(balance, 0.0) * life_insurance / 12
         rent_cost = rent * (1 + rent_growth) ** (month // 12)
         paid_owner += owner_cost
         paid_renter += rent_cost
@@ -1856,6 +1864,8 @@ def buy_vs_rent(
     buyer: str = DEFAULT_RENT_BUYER,
     stock_share: float = DEFAULT_RENT_STOCKS,
     extra_equity: float = 0.0,
+    life_insurance: float = DEFAULT_RENT_LIFE_INSURANCE,
+    home_insurance: float = DEFAULT_RENT_HOME_INSURANCE,
 ) -> pd.DataFrame:
     """Buy now or rent and invest: wealth after ``years`` by yearly home price growth.
 
@@ -1891,7 +1901,7 @@ def buy_vs_rent(
     settings = dict(
         price=price, rent=rent, years=years, rate=rate, term=term, inflation=inflation, rent_growth=rent_growth,
         invest_return=invest_return, upkeep=upkeep, buy_costs=buy_costs, sell_costs=sell_costs, ltv=ltv, buyer=buyer,
-        extra_equity=extra_equity,
+        extra_equity=extra_equity, life_insurance=life_insurance, home_insurance=home_insurance,
     )
 
     def wealth(nominal: float) -> dict:
@@ -2214,6 +2224,76 @@ def prepay_history(
                 "return_real": float(np.prod(growth)) ** (1 / horizon) - 1,
                 "breakeven_real": breakeven,
                 "saving": saving,
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+# --- Young couples: money for a planned expense --------------------------------
+
+DEFAULT_GOAL_AMOUNT = 30_000.0
+DEFAULT_GOAL_YEARS = 2
+DEFAULT_GOAL_STOCKS = 1.0
+
+
+def short_goal_history(
+    data: InvestData | None = None,
+    housing: pd.DataFrame | None = None,
+    amount: float = DEFAULT_GOAL_AMOUNT,
+    years: int = DEFAULT_GOAL_YEARS,
+    stock_share: float = DEFAULT_GOAL_STOCKS,
+) -> pd.DataFrame:
+    """Money put aside for an expense ``years`` ahead: invested vs a money-market fund, every start month since 1986.
+
+    The invested money is ``stock_share`` in the S&P 500 in shekels
+    (dividends, 0.1% a year fee) and the rest in a money-market fund
+    (Bank of Israel rate minus a spread), rebalanced monthly. Both are sold at
+    the end with 25% tax on the real gain, and shown in shekels of the start
+    month (deflated by Israeli CPI). Columns: start, end, invest_today,
+    cash_today, gap (invest minus cash) and stock_real (the S&P 500's real
+    yearly return in that window).
+    """
+
+    if amount <= 0:
+        raise CalculationInputError("הסכום צריך להיות חיובי.")
+    if not 1 <= years <= 10:
+        raise CalculationInputError("מספר השנים צריך להיות בין 1 ל-10.")
+    if not 0 <= stock_share <= 1:
+        raise CalculationInputError("חלק המניות צריך להיות בין 0 ל-100%.")
+    data = data or load_data()
+    if housing is None:
+        from invest_core.data import load_housing_monthly
+
+        housing = load_housing_monthly()
+    market = _down_payment_market(data, housing)
+    value = market["value_ils"].to_numpy()
+    cpi = market["cpi_il"].to_numpy()
+    stock = value[1:] / value[:-1] * (1 - DOWN_STOCK_FEE) ** (1 / 12)
+    cash = 1 + (market["cash_rate"].to_numpy()[:-1] / 100 - DOWN_CASH_SPREAD) / 12
+    inflation = cpi[1:] / cpi[:-1]
+    mix_real = (stock_share * stock + (1 - stock_share) * cash) / inflation
+    cash_real = cash / inflation
+    stock_real = stock / inflation
+    months = years * 12
+    if len(mix_real) < months:
+        raise CalculationInputError("אין מספיק שנים של נתונים לתקופה הזו.")
+
+    def after_tax(growth: float) -> float:
+        end = amount * growth
+        return end - 0.25 * max(end - amount, 0.0)
+
+    rows = []
+    for start in range(len(mix_real) - months + 1):
+        invest = after_tax(float(np.prod(mix_real[start:start + months])))
+        saved = after_tax(float(np.prod(cash_real[start:start + months])))
+        rows.append(
+            {
+                "start": market["date"].iloc[start],
+                "end": market["date"].iloc[start + months],
+                "invest_today": invest,
+                "cash_today": saved,
+                "gap": invest - saved,
+                "stock_real": float(np.prod(stock_real[start:start + months])) ** (1 / years) - 1,
             }
         )
     return pd.DataFrame(rows)

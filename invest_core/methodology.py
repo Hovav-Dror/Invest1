@@ -20,7 +20,7 @@ MONEY_ENDPOINTS = {
     "independent_commissions", "tax_us_vs_il", "trinity", "affordability",
     "cash_vehicles", "cash_vehicles_inflation", "pension_fees", "pension_fees_steps",
     "buy_vs_rent", "buy_vs_rent_horizons", "buy_vs_rent_history", "prepay_vs_invest", "prepay_history", "family_help",
-    "kids_savings", "hishtalmut",
+    "kids_savings", "hishtalmut", "short_goal_history",
 }
 # Pure calculators: no historical data, so no data period or history warnings.
 CALCULATOR_ENDPOINTS = {
@@ -31,6 +31,7 @@ TAX_ENDPOINTS = {
     "tax_events", "commission_effect", "commission_tax", "kupat_gemel", "kupat_gemel_pension",
     "tax_us_vs_il", "sp500_scv_after_tax",
     "buy_vs_rent", "buy_vs_rent_horizons", "buy_vs_rent_history", "prepay_vs_invest", "prepay_history", "kids_savings",
+    "short_goal_history",
 }
 FEE_ENDPOINTS = {
     "commission_effect", "commission_tax", "kupat_gemel", "kupat_gemel_pension",
@@ -133,9 +134,16 @@ def _assumptions(name: str, params: dict) -> list[str]:
             "מחשבון לימודי עם ריביות, תשואה, אינפלציה ועליית שכר דירה קבועות לכל התקופה. רק מחירי הדירות משתנים בין השורות.",
             f"משכנתא של {params.get('ltv', 0.75):.0%} ממחיר הדירה לפי סוג הרוכש, בריבית אחת לכל ההלוואה, לוח שפיצר ל-30 שנה, בלי הצמדה.",
             "שתי הדרכים מתחילות עם אותו סכום: ההון העצמי, מס רכישה ועלויות הקנייה. בכל חודש, מי שמשלם פחות משקיע את ההפרש.",
+            "הקונים משלמים גם ביטוח חיים למשכנתא (אחוז מהיתרה בשנה) וביטוח מבנה (אחוז ממחיר הדירה בשנה), לפי מה שבחרתם.",
             "בסוף התקופה הדירה נמכרת (עלויות מכירה, בלי מס שבח, כמו בדירה יחידה) והמשכנתא מוחזרת. על ההשקעות משולם מס של 25% על הרווח הריאלי.",
             "התקופות ההיסטוריות: עליית מחירי הדירות מעל מדד המחירים לצרכן, בכל חלון באורך הזה מאז 1986.",
-            "\"הקנייה ניצחה\": בכל חודש התחלה מאז 1986, גם מחירי הדירות וגם תשואת ההשקעה של השוכרים לקוחים מהעבר, מאותם חודשים. ההשקעה: S&P 500 בשקלים עם דיבידנדים ודמי ניהול של 0.1%, והשאר בקרן כספית (הריבית פחות 0.3%), באיזון חודשי, חלקי מדד המחירים לצרכן. ריבית המשכנתא, שכר הדירה והעלויות נשארים כמו שבחרתם.",
+            "\"הקנייה השאירה יותר\": בכל חודש התחלה מאז 1986, גם מחירי הדירות וגם תשואת ההשקעה של השוכרים לקוחים מהעבר, מאותם חודשים. ההשקעה: S&P 500 בשקלים עם דיבידנדים ודמי ניהול של 0.1%, והשאר בקרן כספית (הריבית פחות 0.3%), באיזון חודשי, חלקי מדד המחירים לצרכן. ריבית המשכנתא, שכר הדירה והעלויות נשארים כמו שבחרתם.",
+        ]
+    if name == "short_goal_history":
+        return [
+            "סכום אחד שנשמר בכל חודש מאז 1986 ונדרש אחרי מספר השנים שבחרתם. בלי הפקדות נוספות.",
+            "ההשקעה: S&P 500 בשקלים עם דיבידנדים ודמי ניהול של 0.1% בשנה, והשאר בקרן כספית (ריבית בנק ישראל פחות 0.3%), באיזון חודשי. ההשוואה: הכל בקרן כספית.",
+            "בסוף משולם מס של 25% על הרווח הריאלי. הסכומים בשקלים של חודש ההתחלה, לפי מדד המחירים לצרכן.",
         ]
     if name in {"prepay_vs_invest", "prepay_history"}:
         return [

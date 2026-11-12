@@ -606,6 +606,7 @@ def test_buy_vs_rent_flat_world_differs_by_the_rent():
     result = calc._buy_rent_wealth(
         0.0, price=1_000_000, rent=1_000, years=1, rate=0.0, term=30, inflation=0.0, rent_growth=0.0,
         invest_return=0.0, upkeep=0.0, buy_costs=0.0, sell_costs=0.0, ltv=0.5, buyer="first",
+        life_insurance=0.0, home_insurance=0.0,
     )
     assert result["upfront"] == pytest.approx(500_000)
     assert result["buy"] - result["rent"] == pytest.approx(12 * 1_000)
@@ -661,6 +662,19 @@ def test_buy_vs_rent_extra_equity_shrinks_the_mortgage():
     assert more["history_buy_wins"].iloc[0] < base["history_buy_wins"].iloc[0]
     with pytest.raises(calc.CalculationInputError):
         calc.buy_vs_rent(extra_equity=-1)
+
+
+def test_short_goal_history_compares_stocks_with_cash():
+    frame = calc.short_goal_history(years=2)
+    assert len(frame) > 400
+    assert {"invest_today", "cash_today", "gap", "stock_real"} <= set(frame.columns)
+    # All in cash: the invested money is the cash.
+    cash = calc.short_goal_history(years=2, stock_share=0.0)
+    assert cash["gap"].abs().max() == pytest.approx(0, abs=1e-6)
+    # Stocks lose to cash in some windows, but not in most.
+    assert 0.05 < float((frame["gap"] < 0).mean()) < 0.5
+    with pytest.raises(calc.CalculationInputError):
+        calc.short_goal_history(years=0)
 
 
 def test_prepay_without_interest_or_returns_is_a_wash():
