@@ -4536,3 +4536,17 @@ button.vchart-legend-item[aria-pressed="false"] {
   outline: 2px solid #145f59;
   outline-offset: 2px;
 }
+
+.site-note {
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  margin: 2rem 0 0;
+  opacity: 0.85;
+  padding-top: 0.75rem;
+}
+
+.site-note a {
+  color: inherit;
+}
