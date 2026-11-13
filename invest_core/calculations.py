@@ -22,6 +22,8 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 
+import math
+
 import numpy as np
 import pandas as pd
 
@@ -2544,4 +2546,195 @@ def hishtalmut(
         row["available"] = available
         row["total"] = total
         rows.append(row)
+    return pd.DataFrame(rows)
+
+
+# --- Where to hold the portfolio: costs at different providers ---------------
+#
+# Prices come from the providers' own price lists, October-November 2026 (One
+# Zero's ZERO track from news reports of its price list). They are examples of
+# each kind of provider, never time-limited offers. Minimums in foreign currency
+# are converted at fixed rates, so the comparison does not move with the
+# exchange rate.
+
+ACCOUNT_FX = {"ILS": 1.0, "USD": 3.7, "EUR": 4.0, "GBP": 4.7}
+
+# Fund ids: (venue, trading currency, yearly fund fee). "tase" is Tel Aviv.
+ACCOUNT_FUNDS = {
+    "cspx_tase": ("tase", "ILS", 0.0007),  # iShares Core S&P 500 UCITS, listed in Tel Aviv
+    "cspx_usd": ("foreign", "USD", 0.0007),  # the same fund in London, in dollars (CSPX)
+    "cspx_eur": ("foreign", "EUR", 0.0007),  # the same fund on Xetra, in euros (SXR8)
+    "ussc_usd": ("foreign", "USD", 0.0030),  # SPDR MSCI USA Small Cap Value Weighted UCITS, London
+    "ussc_eur": ("foreign", "EUR", 0.0030),  # the same fund on Xetra, in euros (ZPRV)
+    "il_sp500": ("tase", "ILS", 0.0027),  # Israeli S&P 500 fund: 0.25% management + 0.02-0.03% trustee
+}
+
+# A trade costs max(rate * amount, minimum) plus ``fixed``, or ``per_order``
+# for every order up to ``order_cap`` (larger amounts are split into orders).
+# A conversion costs max(rate * amount, minimum), or ``flat``. Amounts are
+# (value, currency). ``custody`` is a yearly rate of the holdings.
+ACCOUNT_PROVIDERS = {
+    "bank_list": {  # Leumi's direct-channel price list; London adds broker and custodian costs
+        "foreign": {"rate": 0.003 + 0.002, "minimum": (24, "USD"), "fixed": (30, "USD"), "custody": 0.008},
+        "tase": {"rate": 0.004, "minimum": (26, "ILS"), "fixed": (0, "ILS"), "custody": 0.006},
+        "fx": {"rate": 0.0016, "minimum": (5.76, "USD"), "flat": None},
+    },
+    "bank_typical": {  # average actually charged, H1 2026, portfolios of 100-400k; same minimums
+        "foreign": {"rate": 0.002 + 0.002, "minimum": (24, "USD"), "fixed": (30, "USD"), "custody": 0.003},
+        "tase": {"rate": 0.002, "minimum": (26, "ILS"), "fixed": (0, "ILS"), "custody": 0.003},
+        "fx": {"rate": 0.0016, "minimum": (5.76, "USD"), "flat": None},
+    },
+    "pepper": {  # Pepper appendix of Leumi's price list: 4 ILS an order up to 30,000 ILS
+        "foreign": None,  # whether London is offered is not published
+        "tase": {"per_order": (4, "ILS"), "order_cap": (30_000, "ILS"), "custody": 0.006},
+        "fx": None,
+    },
+    "onezero": {  # ZERO track: 0.1%, min 2 ILS, no custody. TA-125 stocks, Israeli mutual funds, US only
+        "only_funds": ("il_sp500",),
+        "foreign": None,
+        "tase": {"rate": 0.001, "minimum": (2, "ILS"), "fixed": (0, "ILS"), "custody": 0.0},
+        "fx": None,
+    },
+    "il_broker": {  # a cheap investment house's price list (Psagot Trade, 2026)
+        "foreign": {"rate": 0.0015, "minimum": (15, "EUR"), "fixed": (0, "ILS"), "custody": 0.0012},
+        "tase": {"rate": 0.0007, "minimum": (2, "ILS"), "fixed": (0, "ILS"), "custody": 0.0012},
+        "fx": {"rate": 0.004, "minimum": (0, "ILS"), "flat": None},  # 1.5 agorot a dollar
+    },
+    "inter_il": {  # Interactive Israel price list, 23.9.2026; withholds tax through a partner
+        "foreign": {"rate": 0.0015, "minimum": (2.5, "GBP"), "fixed": (0, "ILS"), "custody": 0.0},
+        "tase": {"rate": 0.0006, "minimum": (10, "ILS"), "fixed": (0, "ILS"), "custody": 0.0008},
+        "fx": {"rate": 0.00002, "minimum": (10, "ILS"), "flat": None},  # "0.002" in a (%) column
+    },
+    "ibkr": {  # Interactive Brokers Pro, tiered pricing, plus about $0.5 of exchange and clearing fees
+        "foreign": {"rate": 0.0005, "minimum": (1.7, "USD"), "maximum": (39, "USD"), "fixed": (0.5, "USD"), "custody": 0.0},
+        "tase": None,  # not offered to Israeli residents
+        "fx": {"rate": 0.00002, "minimum": (2, "USD"), "flat": None},
+    },
+}
+ACCOUNT_EUR_MINIMUMS = {"ibkr": (1.25, "EUR"), "inter_il": (2.5, "EUR")}
+ACCOUNT_EUR_MAXIMUMS = {"ibkr": (29, "EUR")}
+ACCOUNT_COST_KEYS = ("fx", "trade", "custody", "fund")
+DEFAULT_ACCOUNT_RETURN = 0.05  # real, before costs
+
+
+def _shekels(amount: tuple[float, str]) -> float:
+    value, currency = amount
+    return value * ACCOUNT_FX[currency]
+
+
+def account_costs(
+    mode: str = "lump",
+    amount: float = 400_000.0,
+    years: int = 20,
+    fund: str = "cspx_usd",
+    every: int = 1,
+    real_return: float = DEFAULT_ACCOUNT_RETURN,
+    sell: bool = True,
+) -> pd.DataFrame:
+    """What holding one fund costs at each kind of provider, year by year.
+
+    ``mode`` is "monthly" (``amount`` every month, bought every ``every``
+    months) or "lump" (``amount`` once). Everything is in today's shekels; the
+    fund earns ``real_return`` a year before costs. Costs: currency conversion,
+    trading, custody and the fund's own fee. Help with a tax report at a
+    provider that does not withhold Israeli tax is left out: it depends too much
+    on the investor. With ``sell`` the last year includes selling and
+    converting back.
+
+    Columns: provider, year, value (after costs), ideal (no costs), gap
+    (ideal - value), fund_only (only the fund's own fee), provider_cost
+    (fund_only - value: what the provider costs, with lost growth),
+    yearly_rate (the provider's cost as a yearly rate of the portfolio), and
+    the cumulative shekels paid for each of ``ACCOUNT_COST_KEYS``, before
+    growth. Providers that cannot hold the fund are left out.
+    """
+
+    if mode not in ("monthly", "lump"):
+        raise CalculationInputError("צריך לבחור הפקדה חודשית או סכום חד פעמי.")
+    if fund not in ACCOUNT_FUNDS:
+        raise CalculationInputError("נייר הערך לא מוכר.")
+    if amount <= 0 or years < 1:
+        raise CalculationInputError("הסכום ומספר השנים צריכים להיות חיוביים.")
+    if every not in (1, 3, 6, 12):
+        raise CalculationInputError("תדירות הקנייה לא מוכרת.")
+    venue, currency, fund_fee = ACCOUNT_FUNDS[fund]
+    growth = (1 + real_return) ** (1 / 12)
+    months = years * 12
+    rows = []
+    for provider, terms in ACCOUNT_PROVIDERS.items():
+        market = terms[venue]
+        if market is None or fund not in terms.get("only_funds", (fund,)):
+            continue
+        minimum = market.get("minimum")
+        maximum = market.get("maximum")
+        if currency == "EUR" and venue == "foreign" and provider in ACCOUNT_EUR_MINIMUMS:
+            minimum = ACCOUNT_EUR_MINIMUMS[provider]
+            maximum = ACCOUNT_EUR_MAXIMUMS.get(provider)
+        fx = terms["fx"] if currency != "ILS" else None
+
+        def convert(value: float) -> float:
+            if fx is None or value <= 0:
+                return 0.0
+            if fx["flat"] is not None:
+                return _shekels(fx["flat"])
+            return max(fx["rate"] * value, _shekels(fx["minimum"]))
+
+        def trade(value: float) -> float:
+            if value <= 0:
+                return 0.0
+            if "per_order" in market:
+                return math.ceil(value / _shekels(market["order_cap"])) * _shekels(market["per_order"])
+            commission = max(market["rate"] * value, _shekels(minimum))
+            if maximum is not None:
+                commission = min(commission, _shekels(maximum))
+            return commission + _shekels(market["fixed"])
+
+        paid = dict.fromkeys(ACCOUNT_COST_KEYS, 0.0)
+        holding = ideal = in_fund = cash = ideal_cash = 0.0
+        fund_keep = (1 - fund_fee) ** (1 / 12)
+        custody_keep = (1 - market["custody"]) ** (1 / 12)
+        rows.append({"provider": provider, "year": 0, "value": 0.0, "ideal": 0.0, "gap": 0.0, "fund_only": 0.0, "provider_cost": 0.0, "yearly_rate": 0.0, **paid})
+        for month in range(months):
+            deposit = amount if mode == "monthly" or month == 0 else 0.0
+            cash += deposit
+            ideal_cash += deposit
+            if cash > 0 and (mode == "lump" or month % every == 0 or month == months - 1):
+                conversion = convert(cash)
+                commission = trade(cash - conversion)
+                paid["fx"] += conversion
+                paid["trade"] += commission
+                holding += max(cash - conversion - commission, 0.0)
+                ideal += ideal_cash
+                in_fund += ideal_cash
+                cash = ideal_cash = 0.0
+            before = holding * growth
+            paid["fund"] += before * (1 - fund_keep)
+            paid["custody"] += before * fund_keep * (1 - custody_keep)
+            holding = before * fund_keep * custody_keep
+            ideal *= growth
+            in_fund *= growth * fund_keep
+            if (month + 1) % 12 == 0:
+                last = month == months - 1
+                value = holding + cash
+                if sell and last:
+                    commission = trade(holding)
+                    conversion = convert(holding - commission)
+                    paid["trade"] += commission
+                    paid["fx"] += conversion
+                    value = holding - commission - conversion + cash
+                year = (month + 1) // 12
+                fund_only = in_fund + ideal_cash
+                rows.append(
+                    {
+                        "provider": provider,
+                        "year": year,
+                        "value": value,
+                        "ideal": ideal + ideal_cash,
+                        "gap": ideal + ideal_cash - value,
+                        "fund_only": fund_only,
+                        "provider_cost": fund_only - value,
+                        "yearly_rate": 1 - (value / fund_only) ** (1 / year) if fund_only > 0 and value > 0 else 0.0,
+                        **paid,
+                    }
+                )
     return pd.DataFrame(rows)

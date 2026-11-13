@@ -737,3 +737,51 @@ def test_hishtalmut_ceiling_and_liquidity():
     assert not frame["liquid_a"].iloc[0] and frame["liquid_a"].iloc[1]
     assert not frame["liquid_b"].any()
     assert frame["available"].iloc[1] == pytest.approx(frame["balance_a"].iloc[1])
+
+
+def test_account_costs_lump_sum_by_hand():
+    # 100,000 at Interactive Brokers (tiered), London fund, no growth, one year, sold at the end.
+    frame = calc.account_costs(mode="lump", amount=100_000, years=1, fund="cspx_usd", real_return=0, sell=True)
+    ibkr = frame[frame["provider"] == "ibkr"].iloc[-1]
+    fx_in = 2 * 3.7  # the $2 minimum
+    buy = min(max(0.0005 * (100_000 - fx_in), 1.7 * 3.7), 39 * 3.7) + 0.5 * 3.7
+    held = (100_000 - fx_in - buy) * (1 - 0.0007)
+    sell = min(max(0.0005 * held, 1.7 * 3.7), 39 * 3.7) + 0.5 * 3.7
+    fx_out = max(0.00002 * (held - sell), 2 * 3.7)
+    assert ibkr["value"] == pytest.approx(held - sell - fx_out, rel=1e-9)
+    assert ibkr["gap"] == pytest.approx(100_000 - ibkr["value"], rel=1e-9)
+    assert ibkr["fund"] == pytest.approx((100_000 - fx_in - buy) * 0.0007, rel=1e-9)
+    assert ibkr["fund_only"] == pytest.approx(100_000 * (1 - 0.0007), rel=1e-9)
+    assert ibkr["provider_cost"] == pytest.approx(fx_in + buy + (sell + fx_out) + (buy + fx_in) * -0.0007, rel=1e-6)
+    assert ibkr["yearly_rate"] == pytest.approx(1 - ibkr["value"] / ibkr["fund_only"], rel=1e-9)
+
+
+def test_account_costs_bank_custody_and_missing_providers():
+    frame = calc.account_costs(mode="lump", amount=100_000, years=1, fund="il_sp500", real_return=0, sell=False)
+    assert "ibkr" not in set(frame["provider"])  # no Tel Aviv trading for Israeli residents
+    bank = frame[frame["provider"] == "bank_list"].iloc[-1]
+    invested = 100_000 - 0.004 * 100_000
+    assert bank["fx"] == 0
+    fund_keep = (1 - 0.0027) ** (1 / 12)
+    custody_keep = (1 - 0.006) ** (1 / 12)
+    expected = sum(invested * (fund_keep * custody_keep) ** month * fund_keep * (1 - custody_keep) for month in range(12))
+    assert bank["custody"] == pytest.approx(expected, rel=1e-9)
+
+
+def test_account_costs_monthly_minimums_hurt_small_deposits():
+    small = calc.account_costs(mode="monthly", amount=500, years=5, fund="cspx_usd", every=1)
+    batched = calc.account_costs(mode="monthly", amount=500, years=5, fund="cspx_usd", every=12)
+    gap = lambda frame: frame[frame["provider"] == "bank_list"].iloc[-1]["gap"]
+    assert gap(batched) < gap(small)
+    with pytest.raises(calc.CalculationInputError):
+        calc.account_costs(fund="nope")
+
+
+def test_account_costs_pepper_splits_orders_and_one_zero_funds():
+    # 70,000 ILS at Pepper: three orders of up to 30,000 ILS, 4 ILS each.
+    frame = calc.account_costs(mode="lump", amount=70_000, years=1, fund="cspx_tase", real_return=0, sell=False)
+    pepper = frame[frame["provider"] == "pepper"].iloc[-1]
+    assert pepper["trade"] == pytest.approx(12.0)
+    assert {"pepper", "onezero"}.isdisjoint(set(calc.account_costs(fund="cspx_usd", years=1)["provider"]))
+    assert "onezero" not in set(frame["provider"])  # no Irish funds at One Zero
+    assert "onezero" in set(calc.account_costs(fund="il_sp500", years=1)["provider"])

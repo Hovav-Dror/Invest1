@@ -61,6 +61,7 @@ ENDPOINT_NAMES = (
     "kids_savings",
     "hishtalmut",
     "short_goal_history",
+    "account_costs",
 )
 
 EXPENSIVE_ENDPOINTS = {
@@ -624,6 +625,29 @@ def _parse_hishtalmut_args(args) -> Params:
     return _freeze(params)
 
 
+ACCOUNT_ARGS = ("mode", "amount", "years", "fund", "every", "real_return", "sell")
+
+
+def _parse_account_args(args) -> Params:
+    _reject_unknown(args, set(ACCOUNT_ARGS))
+    params: JsonDict = {
+        "mode": args.get("mode", "lump"),
+        "amount": _get_float(args, "amount", 400_000.0, minimum=100, maximum=1e8),
+        "years": _get_int(args, "years", 20, minimum=1, maximum=50),
+        "fund": args.get("fund", "cspx_usd"),
+        "every": _get_int(args, "every", 1, minimum=1, maximum=12),
+        "real_return": _get_float(args, "real_return", calc.DEFAULT_ACCOUNT_RETURN, minimum=-0.05, maximum=0.15),
+        "sell": _get_bool(args, "sell", True),
+    }
+    if params["mode"] not in ("monthly", "lump"):
+        raise ApiValidationError("צריך לבחור הפקדה חודשית או סכום חד פעמי.")
+    if params["fund"] not in calc.ACCOUNT_FUNDS:
+        raise ApiValidationError("נייר הערך לא מוכר.")
+    if params["every"] not in (1, 3, 6, 12):
+        raise ApiValidationError("תדירות הקנייה לא מוכרת.")
+    return _freeze(params)
+
+
 def _parse_homes_vs_stocks_args(args) -> Params:
     _reject_unknown(args, {"real"})
     return _freeze({"real": _get_bool(args, "real", True)})
@@ -760,6 +784,8 @@ def _dispatch(name: str, params: Params) -> pd.DataFrame:
         return calc.kids_savings(**kwargs)
     if name == "hishtalmut":
         return calc.hishtalmut(**kwargs)
+    if name == "account_costs":
+        return calc.account_costs(**kwargs)
     if name == "short_goal_history":
         return calc.short_goal_history(data=data, housing=_housing(), **kwargs)
     raise KeyError(name)
@@ -820,6 +846,7 @@ PARSERS: dict[str, Callable[[Any], Params]] = {
     "cash_vehicles": _parse_cash_args,
     "cash_vehicles_inflation": _parse_cash_args,
     "pension_fees": _parse_pension_args,
+    "account_costs": _parse_account_args,
     "pension_fees_steps": _parse_pension_args,
     "buy_vs_rent": _parse_rent_args,
     "buy_vs_rent_horizons": _parse_rent_args,
