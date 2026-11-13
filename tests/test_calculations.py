@@ -702,8 +702,13 @@ def test_prepay_tracks_and_shorter_term():
     assert breakeven(shorter) == pytest.approx(breakeven(base), abs=0.002)
     history = calc.prepay_history(linked=False, shorten=True)
     assert len(history) > 300
+    # A track no larger than the amount is paid off at once: the same as cutting the payment.
+    whole = calc.prepay_vs_invest(shorten=True, balance=100_000)
+    assert whole["invest_advantage"].to_numpy() == pytest.approx(base["invest_advantage"].to_numpy())
+    # After the shortened loan ends, the freed payment is invested, so any horizon works.
+    assert len(calc.prepay_vs_invest(shorten=True, horizon=25, years_left=25)) > 0
     with pytest.raises(calc.CalculationInputError):
-        calc.prepay_vs_invest(shorten=True, horizon=25, years_left=25)
+        calc.prepay_vs_invest(shorten=True, balance=50_000)
 
 
 def test_family_gift_beats_loan():

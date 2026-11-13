@@ -540,7 +540,7 @@ def _parse_rent_args(args) -> Params:
     return _freeze(params)
 
 
-PREPAY_ARGS = ("amount", "rate", "years_left", "horizon", "inflation", "fee", "stock_share", "linked", "shorten")
+PREPAY_ARGS = ("amount", "rate", "years_left", "horizon", "inflation", "fee", "stock_share", "linked", "shorten", "balance")
 
 
 def _parse_prepay_args(args) -> Params:
@@ -555,6 +555,7 @@ def _parse_prepay_args(args) -> Params:
         "stock_share": _get_float(args, "stock_share", calc.DEFAULT_PREPAY_STOCKS, minimum=0, maximum=1),
         "linked": _get_bool(args, "linked", True),
         "shorten": _get_bool(args, "shorten", False),
+        "balance": _get_float(args, "balance", calc.DEFAULT_PREPAY_BALANCE, minimum=1000, maximum=1e8),
     }
     return _freeze(params)
 

@@ -1129,11 +1129,12 @@ def affordability(
     # A fixed range for typical down payments, so the chart axis stays put
     # while the down payment changes; wider only when needed.
     top = max(AFFORD_CHART_MAX, equity * 1.15, kink * 1.3)
-    marks = {equity: "now", equity * (1 - drop): "after_drop"}
-    if 0 < kink < top:
-        marks.setdefault(kink, "kink")
-    grid = [float(value) for value in np.linspace(0, top, 121) if not any(np.isclose(value, mark) for mark in marks)]
-    rows = [row(value) for value in grid] + [row(value, point) for value, point in marks.items()]
+    # A list, not a dict: with no drop, "now" and "after_drop" are the same equity and both rows are kept.
+    marks = [(equity, "now"), (equity * (1 - drop), "after_drop")]
+    if 0 < kink < top and not any(np.isclose(kink, value) for value, _ in marks):
+        marks.append((kink, "kink"))
+    grid = [float(value) for value in np.linspace(0, top, 121) if not any(np.isclose(value, mark) for mark, _ in marks)]
+    rows = [row(value) for value in grid] + [row(value, point) for value, point in marks]
     return pd.DataFrame(rows).sort_values("equity", kind="stable").reset_index(drop=True)
 
 
@@ -1277,7 +1278,8 @@ def down_payment(
         growth = weights * stock_growth[span] + (1 - weights) * cash_growth[span]
         balance = np.concatenate([[1.0], np.cumprod(growth)])
         inflation = cpi[start : start + months + 1] / cpi[start]
-        after_tax = balance - TAX_RATE * np.maximum(balance - inflation, 0.0)
+        # The taxed real gain is never more than the gain in shekels (falling prices).
+        after_tax = balance - TAX_RATE * np.maximum(np.minimum(balance - inflation, balance - 1.0), 0.0)
         return balance, after_tax / (homes[start : start + months + 1] / homes[start])
 
     rows = []
@@ -1478,7 +1480,8 @@ def _cash_value(years: int, rate: float, inflation: float, cost: float, tax: str
         gross = (1 + net) ** years
         return gross - NOMINAL_INTEREST_TAX * max(gross - 1, 0.0)
     gross = (1 + net) ** years
-    return gross - TAX_RATE * max(gross - (1 + inflation) ** years, 0.0)
+    # The taxed real gain is never more than the gain in shekels (falling prices).
+    return gross - TAX_RATE * max(min(gross - (1 + inflation) ** years, gross - 1.0), 0.0)
 
 
 def cash_vehicles(
@@ -1711,7 +1714,7 @@ DEFAULT_RENT_SELL_COSTS = 0.02
 DEFAULT_RENT_LTV = DEFAULT_AFFORD_LTV
 DEFAULT_RENT_BUYER = DEFAULT_AFFORD_BUYER
 DEFAULT_RENT_STOCKS = 1.0  # the renter's money in stocks, in the historical test
-DEFAULT_RENT_LIFE_INSURANCE = 0.0012  # mortgage life insurance, of the balance a year (~120 ILS a month per million, a couple aged 25-35; TheMarker, 10/2026)
+DEFAULT_RENT_LIFE_INSURANCE = 0.0012  # mortgage life insurance, of the balance a year (~120 ILS a month per million, about the price for a couple aged 35; TheMarker, 10/2026)
 DEFAULT_RENT_HOME_INSURANCE = 0.0004  # building insurance the bank requires, of the home value a year (~900 ILS on 2.2 million; set by rebuild cost)
 RENT_GROWTH_GRID = tuple(round(-0.03 + step * 0.005, 3) for step in range(19))  # real, -3% to +6%
 RENT_HORIZONS = (2, 3, 4, 5, 7, 10, 15, 20, 25)
@@ -2073,6 +2076,7 @@ DEFAULT_PREPAY_HORIZON = 10
 DEFAULT_PREPAY_INFLATION = 0.02
 DEFAULT_PREPAY_FEE = 0.0  # early-repayment fee, as a share of the amount
 DEFAULT_PREPAY_STOCKS = 1.0
+DEFAULT_PREPAY_BALANCE = 500_000.0  # the track's balance before prepaying; used only when the term is shortened
 PREPAY_RETURN_GRID = tuple(round(-0.02 + step * 0.005, 3) for step in range(21))  # real, -2% to +8%
 
 
@@ -2085,6 +2089,7 @@ def _prepay_gap(
     inflation: np.ndarray,
     linked: bool = True,
     shorten: bool = False,
+    balance: float = DEFAULT_PREPAY_BALANCE,
 ) -> tuple[float, float, float, float]:
     """Wealth of investing minus wealth of prepaying, in today's shekels, over ``len(growth)`` months.
 
@@ -2094,9 +2099,10 @@ def _prepay_gap(
     ``rate`` as a nominal rate on a fixed nominal payment, so inflation erodes
     it. Prepaying ``amount`` (less ``fee``) either cuts the monthly payment and
     keeps the term (the saving is invested every month), or, with ``shorten``,
-    keeps the payment and shortens the term: then the investor simply owes the
-    repaid part, growing at the loan rate (valid while the shortened loan is
-    still running). Investing puts ``amount`` in the market at once. 25% tax is
+    keeps the payment and shortens the term. Then both pay the same payment on
+    the track's ``balance`` until the shortened loan is paid off; from then on
+    the prepayer invests the whole payment every month, until the original
+    term ends. Investing puts ``amount`` in the market at once. 25% tax is
     paid on the real gain at the end. Returns (gap, invest_wealth,
     prepay_wealth, saving), where wealth is the portfolio after tax less the
     part of the loan still owed, and saving is the first monthly payment cut.
@@ -2110,12 +2116,26 @@ def _prepay_gap(
     owed = repaid  # the part of the loan the investor still owes, in the loan's own units
     level = 1.0  # CPI since the start
     months_left = years_left * 12
+    if shorten:
+        payment = balance / _annuity_factor(rate, years_left)
+        investor_owes = balance
+        prepayer_owes = max(balance - repaid, 0.0)
     for month, step in enumerate(growth):
         level *= inflation[month]
         invest_value *= step
         prepay_value = prepay_value * step
         if shorten:
-            owed *= 1 + monthly
+            if month >= months_left:
+                continue
+            investor_owes = max(investor_owes * (1 + monthly) - payment, 0.0)
+            due = min(payment, prepayer_owes * (1 + monthly))
+            prepayer_owes = prepayer_owes * (1 + monthly) - due
+            freed = payment - due
+            if freed > 0:
+                paid = freed if linked else freed / level
+                prepay_value += paid
+                prepay_basis += paid
+            owed = investor_owes - prepayer_owes
         elif month < months_left:
             paid = saving if linked else saving / level
             prepay_value += paid
@@ -2147,6 +2167,7 @@ def prepay_vs_invest(
     fee: float = DEFAULT_PREPAY_FEE,
     linked: bool = True,
     shorten: bool = False,
+    balance: float = DEFAULT_PREPAY_BALANCE,
 ) -> pd.DataFrame:
     """Investing minus prepaying after ``horizon`` years, by a fixed real return on the investment.
 
@@ -2156,17 +2177,18 @@ def prepay_vs_invest(
     the start), rate_real (the track's rate above inflation). ``linked`` picks a
     CPI-linked track (``rate`` is the nominal rate implied with ``inflation``)
     or a non-linked fixed-rate one; ``shorten`` keeps the payment and shortens
-    the term instead of cutting the payment.
+    the term instead of cutting the payment; then ``balance`` (the track's
+    balance before prepaying) sets when the shortened loan ends.
     """
 
-    _check_prepay(amount, years_left, horizon, fee, shorten)
+    _check_prepay(amount, years_left, horizon, fee, shorten, balance)
     loan_rate = _loan_rate(rate, inflation, linked)
     months = horizon * 12
     prices = np.full(months, (1 + inflation) ** (1 / 12))
 
     def gap(real_return: float) -> tuple[float, float, float, float]:
         growth = np.full(months, (1 + real_return) ** (1 / 12))
-        return _prepay_gap(amount, loan_rate, years_left, fee, growth, prices, linked, shorten)
+        return _prepay_gap(amount, loan_rate, years_left, fee, growth, prices, linked, shorten, balance)
 
     low, high = -0.5, 1.0
     for _ in range(60):
@@ -2185,7 +2207,7 @@ def prepay_vs_invest(
     return pd.DataFrame(rows).sort_values("return_real", kind="stable").reset_index(drop=True)
 
 
-def _check_prepay(amount: float, years_left: int, horizon: int, fee: float, shorten: bool = False) -> None:
+def _check_prepay(amount: float, years_left: int, horizon: int, fee: float, shorten: bool = False, balance: float = DEFAULT_PREPAY_BALANCE) -> None:
     if amount <= 0:
         raise CalculationInputError("הסכום צריך להיות חיובי.")
     if not 1 <= years_left <= 30:
@@ -2194,8 +2216,8 @@ def _check_prepay(amount: float, years_left: int, horizon: int, fee: float, shor
         raise CalculationInputError("מספר השנים צריך להיות בין 1 ל-30.")
     if not 0 <= fee < 0.5:
         raise CalculationInputError("עמלת הפירעון צריכה להיות בין 0 ל-50%.")
-    if shorten and horizon >= years_left:
-        raise CalculationInputError("כשמקצרים את התקופה, בודקים תקופה קצרה מהזמן שנשאר במשכנתא.")
+    if shorten and balance < amount * (1 - fee):
+        raise CalculationInputError("יתרת המסלול צריכה להיות לפחות הסכום שמחזירים.")
 
 
 def prepay_history(
@@ -2210,6 +2232,7 @@ def prepay_history(
     stock_share: float = DEFAULT_PREPAY_STOCKS,
     linked: bool = True,
     shorten: bool = False,
+    balance: float = DEFAULT_PREPAY_BALANCE,
 ) -> pd.DataFrame:
     """Investing minus prepaying for every start month since 1986, with historical returns.
 
@@ -2222,7 +2245,7 @@ def prepay_history(
     return in that window).
     """
 
-    _check_prepay(amount, years_left, horizon, fee, shorten)
+    _check_prepay(amount, years_left, horizon, fee, shorten, balance)
     if not 0 <= stock_share <= 1:
         raise CalculationInputError("חלק המניות צריך להיות בין 0 ל-100%.")
     data = data or load_data()
@@ -2241,13 +2264,13 @@ def prepay_history(
     months = horizon * 12
     if len(real_growth) < months:
         raise CalculationInputError("אין מספיק שנים של נתונים לתקופה הזו.")
-    fixed = prepay_vs_invest(amount=amount, rate=rate, years_left=years_left, horizon=horizon, inflation=inflation, fee=fee, linked=linked, shorten=shorten)
+    fixed = prepay_vs_invest(amount=amount, rate=rate, years_left=years_left, horizon=horizon, inflation=inflation, fee=fee, linked=linked, shorten=shorten, balance=balance)
     breakeven = float(fixed.loc[fixed["point"] == "breakeven", "return_real"].iloc[0])
     saving = float(fixed["saving"].iloc[0])
     rows = []
     for start in range(len(real_growth) - months + 1):
         growth = real_growth[start:start + months]
-        difference, invest, prepay, _ = _prepay_gap(amount, loan_rate, years_left, fee, growth, prices[start:start + months], linked, shorten)
+        difference, invest, prepay, _ = _prepay_gap(amount, loan_rate, years_left, fee, growth, prices[start:start + months], linked, shorten, balance)
         rows.append(
             {
                 "start": market["date"][start],
@@ -2361,7 +2384,9 @@ def family_help(
     Israel directive 329 (appendix A, 1.2) a liability with more than 18
     months left is a fixed expense: its monthly repayment
     (``help_amount / loan_years / 12``) comes off the disposable income
-    before the payment-to-income limit, so the mortgage can be smaller. Columns: help,
+    before the payment-to-income limit, so the mortgage can be smaller. The
+    ``loan_strict`` row is a stricter bank that takes the repayment straight off
+    the allowed mortgage payment. Columns: help,
     equity, max_price, mortgage, payment, family_payment, binding.
     """
 
@@ -2375,6 +2400,8 @@ def family_help(
         ("gift", equity + help_amount, income, 0.0),
         # Directive 329: repayments with more than 18 months left come off the disposable income.
         ("loan", equity + help_amount, max(income - (family_payment if loan_years * 12 > 18 else 0.0), 0.0), family_payment),
+        # A stricter bank: the repayment comes straight off the allowed mortgage payment.
+        ("loan_strict", equity + help_amount, max(income - (family_payment / pti if loan_years * 12 > 18 else 0.0), 0.0), family_payment),
     )
     rows = []
     for scenario, value, usable_income, repayment in cases:

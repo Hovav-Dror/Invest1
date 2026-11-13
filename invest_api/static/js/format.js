@@ -4,6 +4,11 @@ export const locale = "he-IL";
 
 const LRM = "‎";
 
+/** A real minus sign (−) instead of the hyphen before a number, as in the rest of the site. */
+export function trueMinus(text) {
+  return String(text).replace(/-(?=[\d₪.,])/g, "−");
+}
+
 export function numericValue(value) {
   if (value === null || value === undefined || value === "") return null;
   const number = Number(value);
@@ -24,20 +29,20 @@ export function ltrText(value) {
 export function formatPercent(value, digits = 1) {
   if (!Number.isFinite(value)) return "";
   const text = value.toLocaleString(locale, { style: "percent", maximumFractionDigits: digits });
-  return value < 0 ? `${LRM}${text}${LRM}` : text;
+  return value < 0 ? `${LRM}${trueMinus(text)}${LRM}` : text;
 }
 
 export function formatShekel(value, digits = 0) {
   if (!Number.isFinite(value)) return "";
   const amount = Math.abs(value).toLocaleString(locale, { minimumFractionDigits: digits, maximumFractionDigits: digits });
-  return value < 0 ? `${LRM}-₪${amount}${LRM}` : `₪${amount}`;
+  return value < 0 ? `${LRM}−₪${amount}${LRM}` : `₪${amount}`;
 }
 
 /** Short money for axes: ₪500K, ₪1.2M. */
 export function formatShekelShort(value) {
   if (!Number.isFinite(value)) return "";
   const abs = Math.abs(value);
-  const sign = value < 0 ? "-" : "";
+  const sign = value < 0 ? "−" : "";
   let text;
   if (abs >= 1e6) text = `${trimNumber(abs / 1e6, abs >= 1e7 ? 0 : 1)}M`;
   else if (abs >= 1e3) text = `${trimNumber(abs / 1e3, abs >= 1e4 ? 0 : 1)}K`;
@@ -50,7 +55,7 @@ export function formatNumber(value, digits) {
   const abs = Math.abs(value);
   const maximumFractionDigits = digits ?? (abs >= 1000 ? 0 : abs >= 1 ? 2 : 4);
   const text = value.toLocaleString(locale, { maximumFractionDigits });
-  return value < 0 ? `${LRM}${text}${LRM}` : text;
+  return value < 0 ? `${LRM}${trueMinus(text)}${LRM}` : text;
 }
 
 function trimNumber(value, digits) {

@@ -3026,19 +3026,16 @@ button.vchart-legend-item[aria-pressed="false"] {
 }
 
 .story-elephant {
+  display: block;
   height: auto;
-  justify-self: center;
-  margin-top: 8px;
-  max-width: 260px;
+  margin: 4px 0 18px;
+  max-width: 380px;
   width: 100%;
 }
 
 @media (max-width: 1000px) {
   #story[data-view="intro"] {
     grid-template-columns: minmax(0, 1fr);
-  }
-  .story-elephant {
-    display: none;
   }
 }
 
