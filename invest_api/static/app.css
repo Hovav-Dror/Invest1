@@ -2791,7 +2791,7 @@ button.vchart-legend-item[aria-pressed="false"] {
 .hero-cards {
   display: grid;
   gap: 20px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .hero-card {
@@ -2848,6 +2848,19 @@ button.vchart-legend-item[aria-pressed="false"] {
   stroke: var(--accent-2);
 }
 
+.hero-card-home {
+  background: var(--panel);
+  border-color: #b5c4de;
+}
+
+.hero-card-home .hero-card-icon {
+  stroke: var(--accent-3);
+}
+
+.hero-card-home .hero-link {
+  color: var(--accent-3);
+}
+
 .hero-button {
   align-items: center;
   background: var(--accent);
@@ -2896,6 +2909,9 @@ button.vchart-legend-item[aria-pressed="false"] {
   .hero-start {
     border-top: 0;
     padding-top: 0;
+  }
+  .hero-cards {
+    grid-template-columns: minmax(0, 1fr);
   }
   .hero-section-title {
     font-size: 20px;

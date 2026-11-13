@@ -3798,13 +3798,14 @@ import {
     }
     els.introHero.innerHTML = `
       <div class="hero-copy">
-        <p class="hero-kicker">מסחר עצמאי · הקדמה</p>
-        <h2 class="hero-title">השקעות פסיביות בעיניים ישראליות</h2>
+        <p class="hero-kicker">הקדמה</p>
+        <h2 class="hero-title">השקעות וחיסכון בעיניים ישראליות</h2>
         <p class="hero-lede">רוב המחשבונים מניחים תשואה קבועה ומדברים בדולרים. כאן רואים מה קרה באמת: בכל שנת התחלה, בשקלים, אחרי דמי ניהול ומסים.</p>
         <ul class="hero-points">
           <li>תקופות היסטוריות אמיתיות, כולל התקופות הגרועות</li>
           <li>שער הדולר ומדד המחירים בישראל</li>
           <li>קופת גמל, פוליסה או מסחר עצמאי, זה מול זה</li>
+          <li>חיסכון לדירה: הון עצמי, משכנתא, קנייה מול שכירות</li>
         </ul>
       </div>
       <figure class="hero-chart">
@@ -3826,6 +3827,12 @@ import {
             <h3>רוצים להבין את הדרך?</h3>
             <p>הסיפור שלי על דמי ניהול ומסחר עצמאי.</p>
             <a class="hero-link" href="#intro-story" data-hero-story>לקריאת הסיפור <span aria-hidden="true">←</span></a>
+          </article>
+          <article class="hero-card hero-card-home">
+            <svg class="hero-card-icon" viewBox="0 0 48 40" aria-hidden="true"><polyline points="4,19 24,4 44,19"/><polyline points="10,15 10,37 38,37 38,15"/><rect x="20" y="25" width="8" height="12"/></svg>
+            <h3>חוסכים לדירה?</h3>
+            <p>כמה הון עצמי צריך, לקנות או לשכור, ומה לעשות עם הכסף עד אז.</p>
+            <a class="hero-link" href="#young-intro">לפרק לזוגות צעירים <span aria-hidden="true">←</span></a>
           </article>
         </div>
       </section>
