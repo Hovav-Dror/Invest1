@@ -4550,3 +4550,62 @@ button.vchart-legend-item[aria-pressed="false"] {
 .site-note a {
   color: inherit;
 }
+
+/* AI page: reading width, a wider notebook image, and closed appendices */
+#story[data-view="ai"] .story-copy p,
+#story[data-view="ai"] .story-copy li,
+#story[data-view="ai"] .story-copy h4,
+#story[data-view="ai"] .story-callout {
+  max-width: 720px;
+}
+
+#story[data-view="ai"] .story-section h3 {
+  color: var(--accent-2);
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.story-media-wide {
+  max-width: 760px;
+}
+
+.story-fold {
+  border-top: 1px solid var(--line);
+}
+.story-fold:last-child {
+  border-bottom: 1px solid var(--line);
+}
+.story-fold > summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+}
+.story-fold > summary::-webkit-details-marker {
+  display: none;
+}
+.story-fold > summary h4 {
+  margin: 0;
+}
+.story-fold > summary::after {
+  content: "הצגה ▾";
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 400;
+  margin-inline-start: auto;
+  white-space: nowrap;
+}
+.story-fold[open] > summary::after {
+  content: "הסתרה ▴";
+}
+.story-fold > summary:focus-visible {
+  outline: 2px solid #145f59;
+  outline-offset: 2px;
+}
+.story-fold-body {
+  display: grid;
+  gap: 10px;
+  padding-bottom: 14px;
+}
