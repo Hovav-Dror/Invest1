@@ -5077,6 +5077,10 @@ import {
     els.chart.querySelectorAll("[data-lazy-panel]").forEach((panel) => {
       panel.hidden = Number(panel.dataset.lazyPanel) !== index;
     });
+    // Controls that only one tab uses (the 15-year multiple) stay out of the other tabs.
+    els.chart.querySelectorAll("[data-lazy-only-tab]").forEach((control) => {
+      control.hidden = Number(control.dataset.lazyOnlyTab) !== index;
+    });
     if (sync) syncUrl();
   }
 
@@ -5138,8 +5142,8 @@ import {
           <summary><span>תיקים להדגשה</span><b data-picker-summary></b></summary>
           ${panelPickerMenuHtml("highlight", portfolioChoices, new Set(["S&P 500"]))}
         </details>
-        <label class="panel-field lazy-number">
-          <span>שנים לחישוב תשואה</span>
+        <label class="panel-field lazy-number" data-lazy-only-tab="0">
+          <span>פי כמה גדל הכסף ב-… שנים</span>
           <input type="number" name="factor_years" min="1" max="100" step="1" value="15">
         </label>
         <fieldset class="panel-date-range lazy-years" data-panel-range-pair>
@@ -5216,7 +5220,7 @@ import {
             `).join("")}
           </div>
         </fieldset>
-        <label class="panel-field lazy-number">
+        <label class="panel-field lazy-number" data-lazy-window>
           <span>n (מספר שנים)</span>
           <input type="number" name="rolling_window" min="1" max="100" step="1" value="10">
         </label>
@@ -8683,6 +8687,12 @@ import {
     };
   }
 
+  /** " בתשואה של 1995–2025" when every row covers the same years, else "". */
+  function lazySpanText(rows) {
+    const spans = rows.map((row) => `${Number(row.FirstYear) - 1}–${Number(row.FirstYear) + Number(row.N) - 1}`);
+    return spans.length && spans.every((span) => span === spans[0]) ? ` בתשואה של ${spans[0]}` : "";
+  }
+
   function renderLazySummaryScatter(payload, state, mode, target) {
     const rows = (payload.data || [])
       .map((row) => ({ ...row, FactorN: (1 + numericValue(row.CAGR)) ** state.factor_years }))
@@ -8703,7 +8713,7 @@ import {
     drawChart(target, {
       kind: "scatter",
       key: `lazy-${mode}`,
-      title: mode === "factor" ? `פי כמה גדל הכסף ב-${state.factor_years} שנים, מול השפל הארוך ביותר` : "תשואה מול תנודתיות",
+      title: mode === "factor" ? `פי כמה היה גדל הכסף ב-${state.factor_years} שנים${lazySpanText(rows)}, מול השפל הארוך ביותר` : "תשואה מול תנודתיות",
       subtitle: mode === "factor" ? "למעלה: גדל יותר. ימינה: שנים רבות יותר מתחת לשיא הקודם." : lazyCpiSubtitle(state.value_mode),
       caption: lazyCaption(state.value_mode),
       footerHtml: lazyReadingHtml(mode === "factor" ? "factor" : "risk-return", state),
@@ -8744,6 +8754,10 @@ import {
       return;
     }
     const accumulate = state.time_type === "Accumulate";
+    const sinceStart = accumulate || state.time_type === "CAGR (acc)";
+    // n is used only by the rolling views, not by growth or CAGR since the start.
+    const windowControl = els.chart.querySelector("[data-lazy-window]");
+    if (windowControl) windowControl.hidden = sinceStart;
     const yKey = accumulate ? "v" : state.time_type === "CAGR (acc)" ? "CAGR" : "RollingCAGR";
     const rows = (payload.data || []).filter((row) => numericValue(row[yKey]) !== null);
     if (!rows.length) {
@@ -8756,6 +8770,8 @@ import {
     const tick = accumulate ? (value) => `×${formatNumber(value, 0)}` : (value) => formatPercent(value, 0);
     const series = portfolios.map((portfolio, index) => {
       const points = grouped[portfolio].map((row) => ({ x: Number(row.Year), y: numericValue(row[yKey]), data: row }));
+      // Start the growth line at ×1 in its base year, so a 1995–2025 period visibly starts at the end of 1995.
+      if (accumulate && points.length) points.unshift({ x: points[0].x - 1, y: 1, data: {} });
       const last = points[points.length - 1];
       return {
         id: portfolio,
@@ -8767,10 +8783,13 @@ import {
         legendValue: format(last.y)
       };
     });
+    const spans = series.map((item) => [item.points[0].x - (accumulate ? 0 : 1), item.points[item.points.length - 1].x]);
+    const sameSpan = spans.length && spans.every(([from, to]) => from === spans[0][0] && to === spans[0][1]);
+    const period = sameSpan ? `, מסוף ${spans[0][0]} עד סוף ${spans[0][1]}` : "";
     const title = accumulate
-      ? "פי כמה גדל הכסף לאורך הזמן"
+      ? `פי כמה גדל הכסף${period}`
       : state.time_type === "CAGR (acc)"
-        ? "תשואה שנתית ממוצעת מתחילת התקופה"
+        ? `תשואה שנתית ממוצעת מתחילת התקופה${period}`
         : `תשואה שנתית ממוצעת ב-${state.rolling_window} השנים האחרונות`;
     drawChart(target, {
       kind: "line",
